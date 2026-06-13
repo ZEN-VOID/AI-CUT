@@ -141,7 +141,7 @@ Lighting Type: {{lighting_type_en}}
 ## 5. 提示词设计
 
 - 画面基调引用：{{引用 projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md 中的 Global Style Prompt}}
-- 场景风格引用：{{引用 projects/aigc/<项目名>/3-美学/场景风格/场景风格协议.md 中的 Scene Style Prompt}}
+- 场景风格引用：{{优先引用 projects/aigc/<项目名>/3-美学/第N集/场景风格/场景风格协议.md 中的 Scene Style Prompt；缺失时回退 projects/aigc/<项目名>/3-美学/场景风格/场景风格协议.md，并记录 fallback}}
 - 主体 ID 号：{{场景主体 ID，例如 S###；若上游清单已有 ID 则原样沿用}}
 - 时间与地域引用：{{引用 research_brief / type_profile / 上游清单 / 项目资料中的时间与地域锚点；若具体信息不确定，写入有来源姿态的保守英文锚点}}
 - 固定画面约束：pure empty shot, no people, no human figures, no silhouettes, no reflections of people
@@ -187,4 +187,4 @@ notes: ""
 | Output format | Markdown 单场景设计稿；`## 4. 解构` 标题下方必须先写 `主体ID号：<主体ID>`，再写固定英文槽位；英文 prompt 放入 fenced text block。 |
 | Output path | canonical path 为 `projects/aigc/<项目名>/11-主体/场景/2-设计/S###-<场景名>.md`。 |
 | Naming convention | `S###` 来自上游清单顺序，场景名使用清单 canonical 名称并替换非法文件名字符。 |
-| Completion gate | 场景来自上游清单；已消费 `3-美学/画面基调/全局风格协议.md`、`3-美学/场景风格/场景风格协议.md`、`north_star.yaml` 与 `team.yaml.init_synthesis`；正文由 LLM 创作；研究层包含 research_brief / source_posture / uncertainty_register / visual_translation；`## 4. 解构` 下的主体 ID、`## 5. 提示词设计` 的主体 ID 和英文 prompt 开头三者一致；英文 prompt 以主体 ID 号开头，有 prompt_evidence_chain，已整合 `## 4. 解构` 的 Scene Design 与 Cinematography 全部有效信息，融合 `画面基调.Global Style Prompt + 场景风格.Scene Style Prompt`、时间与地域锚点且不超过 2000 字符；画面固定为纯空镜，无人物、人体局部、剪影或人群。 |
+| Completion gate | 场景来自上游清单；已消费 `3-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `3-美学/场景风格/场景风格协议.md`、`north_star.yaml` 与 `team.yaml.init_synthesis`；正文由 LLM 创作；研究层包含 research_brief / source_posture / uncertainty_register / visual_translation；`## 4. 解构` 下的主体 ID、`## 5. 提示词设计` 的主体 ID 和英文 prompt 开头三者一致；英文 prompt 以主体 ID 号开头，有 prompt_evidence_chain，已整合 `## 4. 解构` 的 Scene Design 与 Cinematography 全部有效信息，融合 `画面基调.Global Style Prompt + 场景风格.Scene Style Prompt`、时间与地域锚点且不超过 2000 字符；画面固定为纯空镜，无人物、人体局部、剪影或人群。 |

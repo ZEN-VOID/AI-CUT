@@ -22,7 +22,7 @@ metadata:
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与世界观、地理、年代、建筑、美术风格、摄影风格相关的上下文。
 - 必须读取上游 `projects/aigc/<项目名>/11-主体/场景/1-清单/场景清单.md`；该清单只提供主体索引和原文证据，不替代本阶段的设计判断。
 - 必须读取 `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md`，提取 `Global Style Prompt`、`Visual Gene Profile`、`Negative Traits` 等画面基调最终内容；场景设计风格词的全局部分以此为准。
-- 必须读取 `projects/aigc/<项目名>/3-美学/场景风格/场景风格协议.md`，提取 `Scene Style Prompt`、空间/建筑/材质/地域时间风格等场景风格最终内容；场景设计风格词的细目部分以此为准。
+- 必须解析目标场景的 `首次登场`、用户指定集号或清单中的 `episode_id`。若能推断 `第N集`，必须优先读取 `projects/aigc/<项目名>/3-美学/第N集/场景风格/场景风格协议.md`；缺失时回退 `projects/aigc/<项目名>/3-美学/场景风格/场景风格协议.md`。该协议用于提取 `Scene Style Prompt`、空间/建筑/材质/地域时间风格等场景风格最终内容；场景设计风格词的细目部分以此为准。
 - 必须读取 `projects/aigc/<项目名>/0-初始化/north_star.yaml`，提取项目北极星、故事母题、创作阶段不变量和禁区；不得再把 `north_star.yaml` 当作场景最终风格提示词真源。
 - 必须读取 `projects/aigc/<项目名>/team.yaml.init_synthesis`，提取与设计、美术、建筑、摄影、导演相关的初始化综合上下文；该上下文作为风格约束和审查视角，不替代场景设计正文。
 - 初始化综合存在时，必须读取 `../../../_shared/team-advisor-consultation-contract.md`，优先消费 `team.yaml.init_synthesis.stage_seed_summary."11-主体"`、`init_handoff.design_seed` 与 `north_star.yaml.创作阶段不变量.设计`；不得在本阶段调用项目监制成员、解析叶子专属 profile、派生新顾问问题或代入顾问角色意识，只能在 LLM 场景设计前形成 `init_team_synthesis_context`。
@@ -56,7 +56,7 @@ Accepted input:
 Required input:
 
 - 可读取的项目根 `MEMORY.md` 和相关 `CONTEXT/`，若缺失必须报告并使用临时护栏。
-- 可读取的 `3-美学/画面基调/全局风格协议.md`、`3-美学/场景风格/场景风格协议.md`、`0-初始化/north_star.yaml` 与 `team.yaml.init_synthesis`。
+- 可读取的 `3-美学/画面基调/全局风格协议.md`、当前集优先的 `3-美学/第N集/场景风格/场景风格协议.md`（缺失时回退 `3-美学/场景风格/场景风格协议.md`）、`0-初始化/north_star.yaml` 与 `team.yaml.init_synthesis`。
 - 可读取的 `11-主体/场景/1-清单/场景清单.md`，且至少包含 `名称`、`首次登场`、`原文描述（关键词式）` 三列。
 - 至少一个目标场景主体；未指定时默认处理清单中尚未存在设计稿的全部场景。
 

@@ -28,6 +28,7 @@ recommended_action: keep-storyboard-style-heuristics-focused
 | 输出太长像报告正文 | prompt 收束层 | 把证据和表格留在协议正文，prompt 只保留可继承分镜组织规则 | `Storyboard Style Prompt` 80-130 字 |
 | 下游视频不可执行 | AI 视频容错层 | 减少超长动作链和快速主体变化，改成清晰承接、段落钩子和有限信息递进 | `GATE-SBS-09` 通过 |
 | 输出像同一套分镜模板换锚点 | 源层主创缺失层 | 废弃候选协议，回 `N4/N5/N6/N7` 重新基于来源证据设计节奏、连接和信息密度，不做表层润色 | `GATE-SBS-11` 通过 |
+| 单集分镜风格覆盖误写到项目级基线 | 输出范围漂移层 | 将 `第N集` 来源写入 `3-美学/第N集/分镜风格/`，整季/项目级才写非逐集路径 | canonical path 含当前 `episode_scope` 或明确 `series_baseline` |
 
 ## Repair Playbook
 
@@ -53,3 +54,4 @@ recommended_action: keep-storyboard-style-heuristics-focused
 - “流畅性”必须落成承接机制，例如视线匹配、动作余势、情绪反应、信息递进或节奏缓冲。
 - “连贯性”必须考虑 AI 视频执行限制，避免把多个主体、复杂动作和场景变化压进同一短段。
 - 负面特征应制作化，例如避免硬切堆砌、镜头跳轴、信息爆炸、过密动作链、无承接转场、随机景别变化。
+- 单集分镜风格可以承接本集节奏密度、动作复杂度和尾钩结构；不要覆盖整季分镜风格基线。

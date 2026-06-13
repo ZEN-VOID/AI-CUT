@@ -190,8 +190,8 @@ Use these to self-check the skill or seed your own eval harness.
 - **Add your brand/system as a bundled reference.** Drop your brand guide, design tokens, or UI kit as Markdown/HTML in `references/` or `assets/`, and update `SKILL.md` to point Claude at them.
 - **Tighten the trigger surface.** Edit the `description` frontmatter in `SKILL.md` to narrow or broaden when it fires.
 - **Swap starter templates.** The files in `assets/` are explicit starting points — rewrite them to match your house style and Claude will use your versions.
-- **Extend the style library.** Add entries to `references/design-styles.md` with the same (pitch / flagship / keywords / signature-moves / when-to-use) structure.
-- **Add new output formats.** Add a new file under `references/` (e.g., `references/email-designs.md`) and reference it from `SKILL.md`.
+- **Extend the style library.** Add entries to `references/upstream/references/design-styles.md` with the same (pitch / flagship / keywords / signature-moves / when-to-use) structure.
+- **Add new output formats.** Add a new file under the upstream references directory, such as `email-designs.md`, and reference it from `SKILL.md`.
 
 ## Design philosophy
 
@@ -204,3 +204,7 @@ MIT. See [LICENSE](LICENSE). The original Claude Design system prompt content is
 ## Special Thanks
 
 [linux.do](https://linux.do)
+
+## Review Gate Mapping
+
+No independent gate: this upstream reference is consumed through `.agents/skills/claude-design/SKILL.md` Review Gate Binding and cannot override adapter gates.

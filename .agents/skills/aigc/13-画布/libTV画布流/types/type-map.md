@@ -8,6 +8,7 @@
 | `backfill_only` | 只要求上传图片或回刷 UUID 到分组稿 | `types/backfill-only.md` | `N1` 到 `N4` |
 | `node_rebuild_only` | YAML 已有 `图片N 主体名 UUID`，只重建视频节点 | `types/node-rebuild-only.md` | `N5` 到 `N8` |
 | `repair_order` | 已有节点出现 `{{Image N}}` 错绑或顺序漂移 | `types/node-rebuild-only.md` + `references/image-order-contract.md` | `N7` 到 `N9` |
+| `multi_storyboard_video_node` | 用户要求多分镜图参照模式、分镜段参照分镜图，或一组连续分镜图生成单个视频节点 | `types/full-canvas-control.md` + `references/image-order-contract.md` + `references/multi-storyboard-video-node-contract.md` | `N5` 到 `N9`，并强制执行多分镜 prompt / manifest gate |
 
 ## Default Package Rule
 
@@ -20,6 +21,7 @@ Default: `full_canvas_control`.
 3. 只回刷 UUID 时加载 `backfill_only`。
 4. YAML 已有 `图片N` 且只重建节点时加载 `node_rebuild_only`。
 5. 修复错序时加载 `repair_order`，并强制读取 `references/image-order-contract.md`。
+6. 多分镜图视频节点时加载 `multi_storyboard_video_node`，并强制读取 `references/multi-storyboard-video-node-contract.md`。
 
 ## Review Gate Mapping
 

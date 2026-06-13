@@ -27,6 +27,7 @@ recommended_action: keep-scene-style-heuristics-focused
 | 输出太长像设计说明 | prompt 收束层 | 把证据、矩阵和统一原则留在协议表格，prompt 只保留可继承场景风格前缀 | `Scene Style Prompt` 80-130 中文字 |
 | 场景统一性太空泛 | 统一策略缺证据层 | 用 `[叙事/基调 -> 场景风格]` 映射补跨场景一致规则 | 至少 5 条 `narrative_to_scene_chain` |
 | 输出像同一套场景模板换地点/锚点 | 源层主创缺失层 | 废弃候选协议，回 `N4/N5/N6` 重新抽象九维、统一策略和 prompt，不做表层润色 | `GATE-SS-10` 通过 |
+| 单集场景风格覆盖误写到项目级基线 | 输出范围漂移层 | 将 `第N集` 来源写入 `3-美学/第N集/场景风格/`，整季/项目级才写非逐集路径 | canonical path 含当前 `episode_scope` 或明确 `series_baseline` |
 
 ## Repair Playbook
 
@@ -51,3 +52,4 @@ recommended_action: keep-scene-style-heuristics-focused
 - 烟雾和颗粒最容易变成廉价氛围词；必须说明它们承担空间层次、时代包浆或环境压力，而不是单纯“更有氛围”。
 - 约 100 字 prompt 的稳定结构：空间光影 -> 色彩/氛围纪律 -> 自然/烟雾/科技元素组织 -> 环境层次/时代质地 -> 视觉统一性和负面边界。
 - 如果一个词只能服务某个具体地点，它不属于场景风格；如果它能跨多个场景维持统一性，它才适合进入 `scene_style_prompt`。
+- 单集场景风格可以承接本集空间压力、地点组合和情绪密度；不要覆盖整季场景风格基线。

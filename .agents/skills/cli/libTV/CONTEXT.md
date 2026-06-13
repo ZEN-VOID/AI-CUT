@@ -11,6 +11,9 @@
 | group scoped work | 已知分组名或 groupNodeKey | 用 `libtv group` 查询/创建/绑定；批量节点操作传 `-g` 或使用 `libtv group use` |
 | asset upload | 本地图片/视频/音频要进入画布 | 用 `libtv upload`，记录 stdout 的 node key 和资源信息 |
 | node execution | 已有节点需要运行 | 用 `libtv node <node> --run`；执行前按 `node.md` 校验是否允许只 run |
+| batch image generation hits 2020057 | 返回“已达到可并行生图的任务数量上限” | 降级为单任务串行；不要继续高并发提交；失败节点若已创建且参数完整，后续只补 `libtv node <node> --run` |
+| shell loop passes node names through stdin | 日志出现“管道输入第 N 行不是合法的单行 JSON” | 在 `while read` / 文件输入循环中调用 `libtv node` 时显式追加 `</dev/null`，避免 CLI 把循环输入当作上游 NDJSON |
+| rename by node id appears successful but not persisted | `libtv node <id> --name <new>` 输出新名，但随后查询画布仍是旧名 | 对展示名唯一的节点，改用旧展示名定位：`libtv node "<old-name>" --name "<new-name>"`；执行后重新拉画布摘要验证 |
 | model field uncertainty | 不确定模型字段或 `modeType` | 用 `libtv model` 或 `model-schema/schema.md` 查 schema，不凭经验臆造字段 |
 | video default model | 创建/更新 video 节点且计划未指定模型 | 默认写 `-s model=star-video2`；fast 只接受显式覆盖 |
 
@@ -22,6 +25,9 @@
 4. 分组绑定混乱：用显式 `-p` / `-g` 命令覆盖目录默认；必要时 `libtv project unuse` 或 `libtv group unuse` 清理本地绑定。
 5. 执行层与计划层冲突：以调用方的业务计划为任务意图，以本技能命令文档和 CLI help 为执行参数真源。
 6. 视频节点沿用到 `star-video2-fast`：检查是否来自用户显式 fast / 极速 / 草稿要求；没有显式覆盖时改回 `star-video2`。
+7. 批量生图触发并发上限：先查询已创建节点状态，区分“节点已创建但未 run”和“完全未创建”；已创建节点优先串行补 `libtv node <node> --run`，避免重复创建同名节点。
+8. 从文件逐行读取节点名批量 run：每条 `libtv node ... --run` 命令都加 `</dev/null`，否则 CLI 会尝试把后续节点名解析为管道 NDJSON。
+9. 批量改展示名：若用 node id 改名后远端摘要仍保留旧名，不要相信单次返回体；改用旧展示名作为位置参数重跑，并以 `libtv project <projectUuid>` 的最终摘要作为完成门禁。
 
 ## Reusable Heuristics
 
@@ -31,3 +37,5 @@
 - 真实执行前先确认 `projectUuid`（画布 UUID）、必要的 `projectSpaceId` / `folderId`、目标 group、目标 node 名称/类型和是否需要 `--run`。
 - 外部 AIGC 计划层传来的 prompt、subject binding、manifest、queue record 是业务证据；本技能只负责按 CLI 能力落到 LibTV 画布。
 - 对 `video` 节点，`star-video2` 是执行层默认模型；历史任务或示例中出现的其它模型不得被继承为默认值。
+- 对大量 `image` 节点触发生图时，优先保守串行或低并发；远端 2020057 表示账号当前并发生图额度已满，不是 prompt/schema 失败。
+- 对展示名批量清洗这类任务，最终验收必须重新查询画布摘要并用目标字符串计数；单个 `libtv node --name` 返回体可能不足以证明远端摘要已更新。

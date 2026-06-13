@@ -27,6 +27,9 @@ status: ok
 | `LTVCTRL-TM-10` | 单组 YAML 修复后相邻分组标题消失或 prompt 夹带下一组正文 | 用局部 fragment 的 offset 回写全局 markdown，替换范围跨过 fence 边界 | 只用全局 regex span 或结构化 markdown block 边界替换；回写后立即校验 `^##` 分组数、每组 fenced YAML 可解析、目标 prompt 不含相邻 `group_id` | source group count 与原始计划一致，目标 final prompt 不含相邻分组标题 |
 | `LTVCTRL-TM-11` | 视频规格时长是整数秒或非 `.5` 结尾 | 规格时长未做半秒尾帧缓冲 | 对视频规格中的非 `.5` 结尾 duration 额外 `+0.5s`；同步 queue record、submit plan 和 summary/report，远端存在同名节点时同步远端 settings.duration | 本地 queue duration 全部 `.5` 结尾，远端 final query duration 无剩余异常 |
 | `LTVCTRL-TM-12` | 用户觉得画布节点数多于分组稿 | 目标画布执行前已有旧 video 节点，且本轮未获删除授权所以保留 | 预检时区分 `current_batch_video_nodes`、`legacy_video_nodes` 和 `reference_image_nodes`；最终汇报必须说明旧节点数量和名称前缀，避免误读为本轮多建 | remote node list 中本轮节点数等于分组数，legacy 节点单独列示 |
+| `LTVCTRL-TM-13` | `mixed2video` 视频节点用 `--prompt` 写入后，远端 prompt 把 YAML 主体行的 `{{Image N}}` 自动改成 `{{Mixed N}}` | CLI 写入路径对 mixed 输入占位符做了自动规范化，但画布流 prompt hygiene 仍要求 YAML 主体行保留 `{{Image N}}` | 创建节点后用 `libtv node <node> -s prompt="$(< prompt.txt)"` 重写 prompt，再 final query；若仍被服务端规范化，记录为 runtime normalization 并以 `imageList/mixedList` 顺序为完成证据 | final query 中无 `{{Portrait N}}`，YAML 主体行占位符符合合同或报告记录服务端规范化原因 |
+| `LTVCTRL-TM-14` | 创建 video 节点时报 `params.settings.enableSound=true 不在允许范围。可选: on, off` | LibTV video schema 的 `enableSound` 是枚举字符串，不接受布尔值 | 在 `settings` 中写 `enableSound:"on"` 或 `enableSound:"off"`；不得写 `true/false` | create/update 成功，final query 的 `data.params.settings.enableSound` 为 `on` 或 `off` |
+| `LTVCTRL-TM-15` | 用户要求多分镜参照模式，但视频 prompt 只有连续段落或 YAML，没有逐个分镜明细 | prompt 虽引用了所有 `{{Image N}}`，但没有把每张分镜图落实为显式编号动作段，降低多分镜可审计性 | 在 prompt 主体中加入 `分镜段 01...` 的逐段明细，每段写明参照图名、`{{Image N}}`、构图/动作/运动承接；更新远端节点后重新 final query | 本地与远端 prompt 中分镜段数量等于分镜参照图数量，且 `imageList/mixedList` 顺序不变 |
 
 ## Repair Playbook
 
@@ -42,6 +45,9 @@ status: ok
 10. 任何单组 YAML 边界修复后，必须先本地验证 `^##` 分组数量、所有 fenced YAML 可解析、目标 prompt 不含前后相邻 `group_id`，再写远端节点；不得用未验证的 prompt 覆盖 LibTV 节点。
 11. 视频规格时长归一时，所有非 `.5` 结尾的 duration 直接加 `0.5` 秒，而不是四舍五入；例如 `13.0 -> 13.5`、`3.0 -> 3.5`。同步本地证据后必须重新扫描所有 queue record。
 12. 复用已有画布时，执行前后都要按名称前缀统计远端 video 节点：本轮 `vid__<episode>-*`、历史遗留、图片参照分别报告。没有用户明确删除授权时，旧 video 节点必须保留，但最终汇报不能只报总节点数。
+13. 对 `mixed2video` 节点，如果 create 阶段使用 `--prompt` 导致远端把 `{{Image N}}` 改为 `{{Mixed N}}`，不要误判为用户 prompt 写错；先用 `-s prompt=` 重写并重新 final query，再决定是否记录服务端规范化。
+14. 对 video 节点声音开关，`enableSound` 按 LibTV schema 写枚举字符串 `on/off`；不要用 JSON boolean。若计划层使用布尔值，应在 CLI 提交前归一为 `on/off`。
+15. 多分镜参照模式下，prompt 不能只用一段连续 prose 概括多张图；必须有逐段编号的分镜明细，并在每段内同时出现分镜图名、`{{Image N}}`、动作细节和与前后段的承接关系。
 
 ## Reusable Heuristics
 
@@ -54,3 +60,4 @@ status: ok
 - LibTV prompt 的稳定做法是“完整组稿直入 + YAML 主体行重排为 `图片N 主体名 {{Image N}} UUID`”；脚本只负责把 `{{Image N}}` 对齐，不负责把组稿改写成新正文。
 - 节点身份要两层存储：`source_group_id` 用于追溯上游分镜组，`video_node_instance_id` 用于远端节点名、证据文件名和 queue record 唯一键。
 - 当用户要求主角多图参照且同组还有多名角色、场景和道具时，先计算图片槽位预算。若超过 9 张，角色和场景优先于道具；任何被裁掉的已知道具必须保留原 YAML 文本并在 manifest/queue/report 中说明是 `libtv_video_max_9`，不得静默丢失。
+- 多分镜参照节点的最低 prompt 形态是“总体招式/场景说明 + 编号分镜段明细 + 连续运动总约束 + 声音/负面约束 + fenced YAML”。仅在 YAML 中列出分镜图不等于已经落实分镜明细。

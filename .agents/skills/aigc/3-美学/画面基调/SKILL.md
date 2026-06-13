@@ -18,6 +18,7 @@ metadata:
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与美术、世界观、题材、参考图、参考视频、禁区或长期审美偏好相关的文件。
 - 默认上游剧本真源为 `projects/aigc/<项目名>/2-编剧/第N集.md` 或 `projects/aigc/<项目名>/2-编剧/` 下的全量剧本；用户显式指定 `2-编导`、初始化资料、文本片段、参考图或参考视频时，以用户输入为本轮来源，但必须标记来源类型。
+- 单集剧本只能作为全局画面基调的样本来源或候选证据；正式 canonical output 仍是项目级 `global_singleton`，不得写入 `projects/aigc/<项目名>/3-美学/第N集/画面基调/`。
 - 多模态参考只允许提供风格事实、媒介特征、光影范式、渲染痕迹、动画流派、视觉特效和负面约束，不得把参考图/视频中的具体人物、物件、场景或构图迁入全局 prompt。
 - 核心审美判断、视觉映射、大师锚点选择和提示词蒸馏必须由 LLM 直接完成；脚本只可承担读取、OCR/转写整理、清单校验、字数统计和违禁词扫描。
 - 脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成全局风格协议、大师锚点矩阵、视觉因果链或 prompt，直接 fail。
@@ -66,7 +67,7 @@ Runtime persona:
 | field | requirement | evidence | fail_code |
 | --- | --- | --- | --- |
 | `business_goal` | 建立影片级底层视觉协议和 200-300 字全局风格提示词 | 用户请求、上游剧本、参考图/视频说明 | `FAIL-VT-BUSINESS-GOAL` |
-| `business_object` | 被处理对象是项目级视觉风格，不是具体角色/场景/镜头内容 | 输入路径、项目名、资料类型 | `FAIL-VT-BUSINESS-OBJECT` |
+| `business_object` | 被处理对象是项目级全局视觉风格 singleton，不是具体角色/场景/镜头内容，也不是逐集风格覆盖 | 输入路径、项目名、资料类型、scope 判定 | `FAIL-VT-BUSINESS-OBJECT` |
 | `constraint_profile` | 锁定无色彩污染、无材质污染、无构图污染、无摄影/运镜越权、无具象内容污染 | 用户边界、本 SKILL 禁止项 | `FAIL-VT-CONSTRAINT` |
 | `success_criteria` | 输出包含视觉基因、视觉 slogan、设计理念、因果链、大师参照、负面特征、全局风格 prompt 和审计报告 | Output Contract、Review Gate Binding | `FAIL-VT-SUCCESS` |
 | `complexity_source` | 复杂度来自跨来源证据归纳、风格抽象、禁区过滤、大师锚点校准和下游继承安全 | route 说明、source profile | `FAIL-VT-COMPLEXITY` |
@@ -121,7 +122,7 @@ Reject or clarify when:
 
 | mode | trigger | canonical_output |
 | --- | --- | --- |
-| `single_episode_seed` | 基于单集 `2-编剧/第N集.md` 建立候选画面基调 | 候选 `全局风格协议.md`，报告标记样本范围 |
+| `single_episode_seed` | 基于单集 `2-编剧/第N集.md` 建立候选画面基调 | 候选或正式全局 `全局风格协议.md`；报告标记样本范围，正式写回仍只能覆盖项目级 singleton |
 | `series_style_protocol` | 基于多集、整季或项目资料建立正式项目级协议 | `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md` |
 | `reference_only` | 只有参考图/视频/作品，无项目叙事资料 | 临时候选协议，不正式覆盖项目真源 |
 | `hybrid_calibration` | 项目资料 + 参考图/视频/作品 | 正式协议，报告区分 script-derived 与 reference-derived 证据 |
@@ -251,6 +252,12 @@ Fail conditions:
 - 可保留的底层风格类别：艺术流派/媒介、渲染技术/引擎、光影氛围的结果型描述、情绪基调、时代/背景参考的抽象层、艺术家/工作室锚点、视觉特效、负面特征。
 
 ## Output Contract
+
+Output scope:
+
+- `画面基调` 的正式输出对象是 `global_singleton`，全项目只能有一个 canonical `全局风格协议.md`。
+- 即使输入是 `第N集.md`，也只在 `Source Manifest.sample_scope` 或执行报告中记录样本范围；不得创建 `3-美学/第N集/画面基调/` 作为正式真源。
+- 若用户只要求单集候选分析且不授权覆盖全局协议，输出标记为 `candidate` 或 `reference_only`，不写回 canonical。
 
 正式写回路径：
 
@@ -396,7 +403,7 @@ Completion gate:
 
 ## Multi-Subskill Continuous Workflow
 
-当 `3-美学` 父级未来调度多个同级风格子技能时，`画面基调` 默认应先于 `角色风格`、`场景风格`、`道具风格`、`摄影风格`、`分镜风格` 运行。它只提供底层风格协议和全局 prompt，不拥有局部资产、镜头、构图或材质真源。下游子技能可继承 `Global Style Prompt`，但必须在自身合同内追加局部事实和阶段专属约束。
+当 `3-美学` 父级整体调度多个同级风格子技能时，`画面基调` 参与并发汇流，不要求实时先跑；若已有全局协议，其他子技能可继承 `Global Style Prompt`，若缺失则在自身输出中标记 `candidate/dependency_gap`。它只提供底层风格协议和全局 prompt，不拥有局部资产、镜头、构图或材质真源，也不按集复制。下游子技能必须在自身合同内追加局部事实和阶段专属约束。
 
 ## Learning / Context Writeback
 

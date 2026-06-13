@@ -217,7 +217,7 @@ Midjourney V8 Parameters: {{midjourney_params}}
 ## 5. 提示词设计
 
 - 画面基调引用：{{引用 projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md 中的 Global Style Prompt}}
-- 角色风格引用：{{引用 projects/aigc/<项目名>/3-美学/角色风格/角色风格协议.md 中的 Character Style Prompt}}
+- 角色风格引用：{{优先引用 projects/aigc/<项目名>/3-美学/第N集/角色风格/角色风格协议.md 中的 Character Style Prompt；缺失时回退 projects/aigc/<项目名>/3-美学/角色风格/角色风格协议.md，并记录 fallback}}
 - 主体 ID 号：{{角色主体 ID；若上游清单已有 ID 则原样沿用，否则使用清单行/角色安全名派生的 ASCII ID}}
 - 固定画面约束：full-body costume fitting photo, solid color background, no scene environment
 
@@ -255,4 +255,4 @@ research_layer:
 | Output format | Markdown 单角色设计稿；`## 4. 解构` 标题下方必须先写 `主体ID号：<主体ID>`，再写固定解构字段 `Identity & Story Pressure`、`Visual Drivers`、`Detailed Character Design`、`Detailed Costume Design`、`Cinematography`。 |
 | Output path | Canonical 路径为 `projects/aigc/<项目名>/11-主体/角色/2-设计/C###-<角色名>.md`；若上游已有主体 ID，则用该 ID 替代 `C###`。 |
 | Naming convention | 默认使用 `<主体ID>-<角色名>.md`；主体 ID 默认从 `C001` 起按清单顺序补零；冲突或多状态时在角色名后追加状态或首次登场 ID。 |
-| Completion gate | 角色来自上游清单；已消费 `3-美学/画面基调/全局风格协议.md`、`3-美学/角色风格/角色风格协议.md`、`north_star.yaml` 与 `team.yaml.init_synthesis`；研究层已转化为设计证据链并标明不确定性；容貌、妆发、骨相、身形和服装具备审美吸引力，女性角色美丽动人，男性角色英俊不凡，主角更强，明星脸灵感如有则已原创转译；正文由 LLM 创作；`## 4. 解构` 下的主体 ID、`## 5. 提示词设计` 的主体 ID 和英文 prompt 开头三者一致；英文 prompt 以主体 ID 号开头，融合 `画面基调.Global Style Prompt + 角色风格.Character Style Prompt`，整合 `## 4. 解构` 全部有效信息，使用自然语言负向约束且不含 `--no`，不超过 1300 characters；画面固定为纯色背景全身定妆照，不置身具体场景。 |
+| Completion gate | 角色来自上游清单；已消费 `3-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `3-美学/角色风格/角色风格协议.md`、`north_star.yaml` 与 `team.yaml.init_synthesis`；研究层已转化为设计证据链并标明不确定性；容貌、妆发、骨相、身形和服装具备审美吸引力，女性角色美丽动人，男性角色英俊不凡，主角更强，明星脸灵感如有则已原创转译；正文由 LLM 创作；`## 4. 解构` 下的主体 ID、`## 5. 提示词设计` 的主体 ID 和英文 prompt 开头三者一致；英文 prompt 以主体 ID 号开头，融合 `画面基调.Global Style Prompt + 角色风格.Character Style Prompt`，整合 `## 4. 解构` 全部有效信息，使用自然语言负向约束且不含 `--no`，不超过 1300 characters；画面固定为纯色背景全身定妆照，不置身具体场景。 |

@@ -18,6 +18,7 @@ metadata:
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与美术、道具、世界观、参考图、参考视频、禁区或长期制作偏好相关的文件。
 - 默认上游来源包括 `projects/aigc/<项目名>/2-编剧/`、`projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md`、用户指定参考图/视频、项目设定或已有候选道具风格协议。
+- 若输入来源或任务目标明确为 `第N集`，正式输出对象是该集道具风格覆盖，写入 `projects/aigc/<项目名>/3-美学/第N集/道具风格/`；只有整季、多集汇总或用户明确项目级基线时才写入非逐集 `道具风格/`。
 - 参考图/视频只允许提供道具风格事实、形制倾向、表面处理、使用痕迹、工艺逻辑、符号系统和制作边界，不得把参考中的具体物件、品牌、剧情用途或构图复制为项目真源。
 - 核心审美判断、文化研究、形制归纳、风格映射和提示词蒸馏必须由 LLM 直接完成；脚本只可承担读取、转写整理、字数统计、JSON/Markdown 校验和污染词扫描。
 - 脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成道具风格协议、文化/工艺映射、边界矩阵或 prompt，直接 fail。
@@ -87,7 +88,7 @@ Accepted input:
 - `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md` 或用户提供的全局视觉风格描述。
 - 项目初始化资料、世界观设定、题材说明、用户道具审美偏好、禁区说明。
 - 参考图、参考视频、参考作品名称、文化/时代/工艺参考资料。
-- 已有 `projects/aigc/<项目名>/3-美学/道具风格/道具风格协议.md` 或候选 prompt。
+- 已有逐集 `projects/aigc/<项目名>/3-美学/第N集/道具风格/道具风格协议.md`、项目级 `projects/aigc/<项目名>/3-美学/道具风格/道具风格协议.md` 或候选 prompt。
 
 Required input:
 
@@ -123,7 +124,7 @@ Reject or clarify when:
 
 | mode | trigger | canonical_output |
 | --- | --- | --- |
-| `single_episode_seed` | 基于单集剧本建立候选道具风格 | 候选 `道具风格协议.md`，报告标记样本范围 |
+| `single_episode_seed` | 基于单集剧本建立道具风格覆盖 | `projects/aigc/<项目名>/3-美学/第N集/道具风格/道具风格协议.md` |
 | `series_prop_style_protocol` | 基于多集、整季或项目资料建立正式项目级协议 | `projects/aigc/<项目名>/3-美学/道具风格/道具风格协议.md` |
 | `visual_tone_extension` | 主要从 `画面基调` 延展道具视觉语言 | 正式或候选协议，报告标记继承字段 |
 | `reference_only` | 只有参考图/视频/作品，无项目叙事资料 | 临时候选协议，不正式覆盖项目真源 |
@@ -256,6 +257,13 @@ Fail conditions:
 ## Output Contract
 
 正式写回路径：
+
+- `episode_scoped`: `projects/aigc/<项目名>/3-美学/第N集/道具风格/道具风格协议.md`
+- `episode_scoped`: `projects/aigc/<项目名>/3-美学/第N集/道具风格/执行报告.md`
+- `series_baseline`: `projects/aigc/<项目名>/3-美学/道具风格/道具风格协议.md`
+- `series_baseline`: `projects/aigc/<项目名>/3-美学/道具风格/执行报告.md`
+
+Legacy project-level baseline path:
 
 - `projects/aigc/<项目名>/3-美学/道具风格/道具风格协议.md`
 - `projects/aigc/<项目名>/3-美学/道具风格/执行报告.md`

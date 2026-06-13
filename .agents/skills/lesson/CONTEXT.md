@@ -30,6 +30,7 @@
 | `LESSON-TM-11` | 对 lesson 根目录直接跑 smoke 时出现子包 `agents/openai.yaml` broken reference 和 `_shared/` empty 条件 | nested skill smoke scope layer | 根 router 以 validator 为主；smoke 应对阶段、叶子、卫星逐包运行；根 smoke 条件需按递归扫描误报解释 | 根 validator PASS，子包 individually smoke ACCEPT，临时报表不残留 |
 | `LESSON-TM-12` | 后续阶段只看上游目录存在，跳过 `downstream-handoff.md` 的缺口、N/A 或阻断项 | upstream handoff bypass | 回到根 `Upstream Loading Matrix`，把 handoff 作为状态门；局部阶段补 `upstream_handoff_status` 输入 | 阶段 `Input Contract` 和 `Read-only` 均声明 handoff 必读 |
 | `LESSON-TM-13` | `content-model/` 被多个阶段随意刷新，或第 8 阶段反向补写正文 | content-model ownership drift | 回到根 `Content Model Governance Contract`，按 `modules/lessons/assessments/delivery-map` 分区归属 owning writer | root contract 与阶段 Output/Permission Boundaries 一致 |
+| `LESSON-TM-14` | 阶段包只声明加载 `CONTEXT.md`、项目 `MEMORY.md` 或上游 handoff，但未说明加载后如何分类、处理缺失、解决冲突和写回 | stage context processing layer | 给 0-8 阶段补 `Context Processing Contract`，统一 `context_snapshot`、manifest、classification、missing policy、conflict map、application 和 writeback decision | 0-8 阶段 context coverage 检查通过，且逐包 delivery validator PASS |
 
 ## Repair Playbook
 
@@ -50,6 +51,7 @@
 - `content-model/` 是后续 DOC/PPT/HTML 多端投影的共享上游，但不是第二份阶段主稿；阶段目录中的 canonical files 才是各阶段业务真源。
 - `downstream-handoff.md` 是阶段间状态门，不是礼貌性附录；后续阶段必须读取其中的可消费字段、限制、N/A、阻断项和返工入口。
 - `content-model/modules/`、`lessons/`、`assessments/`、`delivery-map.*` 必须有 owning writer；无 owning writer 的共享模型更新就是 drift 信号。
+- 阶段技能的上下文治理要分两层审查：先看是否加载同目录 `CONTEXT.md`、lesson 根、项目 `MEMORY.md`、项目 `CONTEXT/` 和必要 handoff；再看是否形成 `context_snapshot`、处理缺失/冲突，并把长期偏好、经验层和一次性产物写回到正确落点。
 - `1-课程定位` 回答为什么做、给谁用、在哪用、边界和约束；`3-目标与评价蓝图` 回答学完能做什么、如何证明学会。
 - `2-资料吸收与知识建模` 应早于学习目标细化；否则目标和课程结构容易脱离事实资料。
 - `7-视觉媒体与交互设计` 不是美化阶段，而是把课程变成可观看、可演示、可操作的学习体验。

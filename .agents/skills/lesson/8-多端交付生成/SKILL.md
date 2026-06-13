@@ -16,8 +16,21 @@ metadata:
 - 执行前必须读取 lesson 根 `SKILL.md + CONTEXT.md` 的项目 runtime 与阶段边界；本阶段只拥有多端交付计划、叶子路由和 manifest，不新增外部 `9-审查` 或 `10-封版` 阶段。
 - 若任务绑定 `projects/lesson/<项目名>/`，必须先读取项目根 `MEMORY.md`，再读取项目根 `CONTEXT/` 中与品牌、交付格式、设备、受众或长期偏好直接相关的文件。
 - 默认上游是 `projects/lesson/<项目名>/1-课程定位/course-positioning.md`、`content-model/` 以及第 `3` 到 `7` 阶段的 canonical 产物和 `downstream-handoff.md`；缺失关键上游时必须报告缺口并回到 owning stage，不得用三端输出反推课程正文。
-- 本阶段不默认加载 `templates/`、`references/`、`review/`、`types/`、`scripts/`、`guardrails/`、`assets/` 或 `steps/`；当前可执行合同全部在本 `SKILL.md` 中。
+- 当本轮选中真实 HTML、PPT 或课件 artifact 生成、重设计、polish、导出或浏览器验证时，必须按 `Module Loading Matrix` 加载 `../../claude-design/SKILL.md + ../../claude-design/CONTEXT.md`，只用于 design executor 合同、artifact writeback handoff 和 leaf 回证。
+- 除触发的 `claude-design` skill pair 外，本阶段不默认加载 `templates/`、`references/`、`review/`、`types/`、`scripts/`、`guardrails/`、`assets/` 或 `steps/`；当前多端交付主合同全部在本 `SKILL.md` 中。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > lesson 根 `SKILL.md` > 本 `SKILL.md` > 叶子 `SKILL.md` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 同目录 `CONTEXT.md`。
+
+## Context Processing Contract
+
+上下文加载完成后，必须先形成 `context_snapshot`，再进入节点执行：
+
+- `loaded_context_manifest` / `upstream_handoff_status`：列出同目录 `CONTEXT.md`、lesson 根 `SKILL.md + CONTEXT.md`、项目 `MEMORY.md`、项目 `CONTEXT/`、上游 handoff/产物及本轮额外资料的 `loaded` / `missing` / `n/a` 状态。
+- `context_classification`：将上下文拆为 `hard_constraints`、`project_preferences`、`evidence_facts`、`upstream_state`、`risks_or_unknowns`、`reusable_heuristics`；只有 `hard_constraints`、阶段 gate 和可验证上游事实可以约束 canonical 输出。
+- `missing_context_policy`：项目根、`MEMORY.md`、`CONTEXT/` 或必需上游缺失时，按本阶段 `Input Contract` 和 `Type Routing Matrix` 阻断、路由初始化/恢复/owning stage，或降级为显式标注假设的草案；不得静默补空。
+- `context_conflict_map`：若用户输入、项目记忆、项目上下文、上游产物和本 `CONTEXT.md` 冲突，按 `Context Loading Contract` 的优先级记录 winner、loser 和输出影响。
+- `context_application`：在 `Thinking-Action Node Map` 的第一个生成/写回节点前，把 `context_snapshot` 转换为输出约束、N/A 理由、待核验项、返工入口和下游 handoff 字段；不得把 `CONTEXT.md` 的经验层内容当作课程事实或项目长期偏好。
+- `context_writeback_decision`：用户明确长期要求写项目 `MEMORY.md`；可复用阶段失败/成功模式写本技能 `CONTEXT.md`；一次性资料摘要、阶段正文、题库、视觉方案和交付计划写阶段 canonical 输出或项目 `CONTEXT/`；不得交叉写位。
+- `evidence_in_final`：最终回复或执行报告必须说明关键上下文是否已加载、哪些缺失被标记为假设/阻断、以及本轮写回落点。
 
 ## Core Task Contract
 
@@ -26,9 +39,9 @@ metadata:
 - 审计第 `3` 到 `7` 阶段与 `content-model/` 是否足以支持交付。
 - 决定本轮目标端：DOC、PPT、HTML 中一个、多个或全部。
 - 由 LLM 逐条理解课程内容模型，形成统一 delivery map，避免三端各自重写课程主稿。
-- 生成三端叶子执行包：范围、素材、结构、格式约束、交付路径、consistency gate 和 manifest 字段；当 HTML 目标包含真实 `.html` / 静态站点 artifact 时，HTML leaf packet 必须声明 `.agents/skills/claude-design` 为 design executor。
+- 生成三端叶子执行包：范围、素材、结构、格式约束、交付路径、consistency gate 和 manifest 字段；当 HTML 目标包含真实 `.html` / 静态站点 artifact，或 PPT/课件目标包含真实 `.pptx`、HTML deck、视觉重设计、polish、导出或浏览器验证时，对应 leaf packet 必须声明 `.agents/skills/claude-design` 为 design executor，并要求最终回传 `artifact_paths`、`writeback_status`、验证和质量判定。
 - 写回 `8-多端交付生成/delivery-plan.md` 与 `8-多端交付生成/delivery-manifest.json`。
-- 把 DOC/PPT/HTML 具体交付交给对应叶子技能，父包只聚合与裁决，不替代叶子执行。
+- 把 DOC/PPT/HTML 具体交付交给对应叶子技能，父包只聚合与裁决，不替代叶子执行；但真实 artifact 请求的父包完成门必须消费叶子最终落盘状态，而不能停在“下一步 handoff”。
 
 非目标：
 
@@ -70,6 +83,7 @@ N1-intake
 - 英文序号路线若未来出现，默认按用户意图、父级路由或输入类型单选分流；只有用户明确要求对比、并跑或批量多路线时才多选。
 - 卫星技能不默认纳入本阶段主链；query/resume/repair/learn/benchmark 只在用户请求或阻断门需要时旁路回接。
 - `doc/`、`ppt/`、`html/` 是本阶段交付叶子：用户指定单端时只调度对应叶子，用户要求多端或未指定时由父包生成共享计划后选择性调度相关叶子。
+- 被调度叶子若包含真实 HTML、PPT 或课件 artifact 生成/重设计/验证，父包必须在 leaf packet 写入 `design_executor: .agents/skills/claude-design`，并允许对应叶子自动加载该 skill pair；父包不直接替代叶子或 `claude-design` 生成最终 artifact，但父包最终回接必须包含叶子落盘后的 `artifact_paths`、`writeback_status` 或明确 blocker。
 - 每个被调度的阶段、叶子或卫星入口仍必须加载自身 `SKILL.md + CONTEXT.md`；脚本只能做机械辅助，不替代课程交付判断。
 
 ## Input Contract
@@ -115,6 +129,7 @@ Reject or clarify when:
 | --- | --- | --- | --- |
 | `tri_channel_plan` | 用户要求最终课程包、多端交付或未指定 DOC/PPT/HTML | `N1,N2,N3,N4,N5,N6,N7,N8` | 生成三端 delivery plan、manifest 和三个叶子执行包。 |
 | `selected_leaf_plan` | 用户明确只要 DOC、PPT 或 HTML 中一个或两个端 | `N1,N2,N3,N4,N5,N6,N7,N8` | 只为选中叶子生成执行包和 manifest target。 |
+| `visual_artifact_delivery` | 用户要求真实 HTML、PPT 或课件 artifact 生成、重设计、polish、导出或浏览器验证 | `N1,N2,N3,N4,N5,N6,N7,N8` | 生成选中 leaf packet，并写入 `.agents/skills/claude-design` design executor、必选上游设计模块、artifact writeback target、visual system、verification、writeback status 和 quality verdict 回证要求。 |
 | `manifest_repair` | 既有 delivery plan、manifest 或叶子包需要修复 | `N1,N2,N3,N4,N6,N7,N8` | 保留未受影响端，修复 manifest 与 cross-channel map。 |
 | `blocked_or_redirect` | 上游缺失、路径错误、父包越界或脚本主创要求 | `N1,N2,N7,N8` | 给出阻断原因和 owning stage/leaf 路由。 |
 
@@ -124,16 +139,21 @@ Reject or clarify when:
 | --- | --- | --- | --- | --- | --- |
 | `tri_channel_plan` | 目标端为空或包含 DOC/PPT/HTML 三端 | `Tri Channel Delivery Path` | `N1,N2,N3,N4,N5,N6,N7,N8` | `CONTEXT.md` | `FAIL-LESSON-DELIVERY-TRI` |
 | `selected_leaf_plan` | 用户只指定一个或两个交付端 | `Selected Leaf Path` | `N1,N2,N3,N4,N5,N6,N7,N8` | `CONTEXT.md` | `FAIL-LESSON-DELIVERY-LEAF` |
+| `visual_artifact_delivery` | 选中 HTML 或 PPT/课件，且请求真实 artifact 生成、重设计、polish、导出或浏览器验证 | `Visual Artifact Delivery Path` | `N1,N2,N3,N4,N5,N6,N7,N8` | CONTEXT.md, ../../claude-design/SKILL.md, ../../claude-design/CONTEXT.md | `FAIL-LESSON-DELIVERY-DESIGN-EXECUTOR` |
 | `manifest_repair` | 既有计划或 manifest 与叶子产物不一致 | `Manifest Repair Path` | `N1,N2,N3,N4,N6,N7,N8` | `CONTEXT.md` | `FAIL-LESSON-DELIVERY-REPAIR` |
 | `blocked_or_redirect` | 缺上游、路径错误或脚本主创要求 | `Block Or Redirect` | `N1,N2,N7,N8` | `CONTEXT.md` | `FAIL-LESSON-DELIVERY-UNSAFE` |
+
+当 `visual_artifact_delivery` 信号与 `tri_channel_plan` 或 `selected_leaf_plan` 同时出现时，以 `visual_artifact_delivery` 为更具体路由；target set 仍按用户选择写入 leaf packets。
 
 ## Module Loading Matrix
 
 | module | load_when | authority | forbidden_use | rework_target |
 | --- | --- | --- | --- | --- |
 | `CONTEXT.md` | 每次调用本技能 | 经验层、三端交付缺口识别、manifest 漂移和叶子路由失败模式 | 重定义输出 schema、叶子拥有权、项目路径或 LLM-first 规则 | `Learning / Context Writeback` |
+| `../../claude-design/SKILL.md` | 本轮选中 HTML 或 PPT/课件真实 artifact 生成、重设计、polish、导出或浏览器验证 | 作为被调度叶子的 design executor 合同，约束能力最大化模块选择、高保真 HTML/courseware/deck 视觉执行、artifact writeback、交互 polish、visual system、quality verdict 与验证 handoff | 改写课程正文、content model、父包 delivery map、leaf packet、manifest schema 或项目记忆 | `N5-LEAF-WORK-PACKETS` / `N8-HANDOFF` |
+| `../../claude-design/CONTEXT.md` | 与 `../../claude-design/SKILL.md` 同时加载 | 设计执行经验、courseware HTML/deck 启发、generic design 返工模式和浏览器验证失败模式 | 重定义 lesson 交付边界、输出路径、课程真源或 LLM-first 规则 | `N5-LEAF-WORK-PACKETS` / `N7-CONSISTENCY-GATE` |
 
-当前阶段不启用其他本地模块。后续若新增 `templates/`、`scripts/`、`review/`、`types/`、`references/`、`guardrails/` 或 `assets/`，必须先在本表和 `Module Trigger Matrix` 声明授权、禁止用途和回流门。
+除上述 `claude-design` skill pair 外，当前阶段不启用其他本地模块。后续若新增 `templates/`、`scripts/`、`review/`、`types/`、`references/`、`guardrails/` 或 `assets/`，必须先在本表和 `Module Trigger Matrix` 声明授权、禁止用途和回流门。
 
 ## Module Trigger Matrix
 
@@ -141,6 +161,7 @@ Reject or clarify when:
 | --- | --- | --- | --- | --- |
 | `tri_channel_plan` / `FAIL-LESSON-DELIVERY-TRI` | `CONTEXT.md` | `N1` | `C7-FINAL-OUTPUT` | target set includes doc/ppt/html |
 | `selected_leaf_plan` / `FAIL-LESSON-DELIVERY-LEAF` | `CONTEXT.md` | `N3` | `C5-LEAF-PACKETS` | selected target list |
+| `visual_artifact_delivery` / `FAIL-LESSON-DELIVERY-DESIGN-EXECUTOR` | CONTEXT.md, ../../claude-design/SKILL.md, ../../claude-design/CONTEXT.md | `N5` | `C5-LEAF-PACKETS` / `C7-CONSISTENCY` | selected HTML/PPT artifact target has `design_executor`, design brief, required upstream design modules, artifact writeback target, visual-system evidence, quality gate, leaf handoff path and writeback status requirement |
 | `manifest_repair` / `FAIL-LESSON-DELIVERY-REPAIR` | `CONTEXT.md` | `N6` | `C6-MANIFEST` | manifest diff and affected targets |
 | `blocked_or_redirect` / `FAIL-LESSON-DELIVERY-UNSAFE` | `CONTEXT.md` | `N1` | `Input Contract` | path, upstream, and authorship boundary check |
 | `FAIL-LESSON-DELIVERY-UPSTREAM` / `FAIL-LESSON-DELIVERY-TARGETS` | `CONTEXT.md` | `N2` | `C1-UPSTREAM-READY` | upstream file and target coverage check |
@@ -154,12 +175,12 @@ Reject or clarify when:
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-INTAKE` | 确认第 8 阶段交付任务和项目边界 | 用户请求、lesson 根路由、项目路径 | 判定目标是否为 DOC/PPT/HTML 多端交付；锁定项目根或草案模式；识别脚本主创和越界请求 | `task_profile`、`project_scope`、`risk_flags` | `N2` / `N8` | 任务属于 lesson 多端交付，且不要求父包直接主创三端正文 |
 | `N2-UPSTREAM-AUDIT` | 审计上游 content model 和第 1、3-7 阶段产物 | `course-positioning.md`、`content-model/`、阶段输出与 handoff、项目记忆、项目上下文 | 检查定位、课程结构、目标评价、课时正文、活动测评、视觉媒体约束是否存在；列缺口与 owning stage | `upstream_inventory`、`missing_inputs` | `N3` / `N8` | 关键上游满足交付；缺口不能靠第 8 阶段补写 |
-| `N3-DELIVERY-PROFILE` | 锁定交付目标和格式约束 | 用户目标端、品牌、设备、页数/时长、语言、可访问性 | 选择 doc/ppt/html targets；记录每端输出形态、文件命名、素材要求和限制 | `delivery_profile`、`target_set` | `N4` | 至少 1 个目标端明确，三端约束不互相冲突 |
+| `N3-DELIVERY-PROFILE` | 锁定交付目标和格式约束 | 用户目标端、品牌、设备、页数/时长、语言、可访问性 | 选择 doc/ppt/html targets；记录每端输出形态、文件命名、素材要求、真实 artifact 需求和限制 | `delivery_profile`、`target_set`、`artifact_target_set` | `N4` | 至少 1 个目标端明确，三端约束不互相冲突 |
 | `N4-CONTENT-MODEL-FUSION` | 生成共享 delivery map | 上游 content model、delivery profile | LLM 逐条理解内容模型，建立课程顺序、模块、课时、活动、素材和证据到三端的映射 | `delivery_map`、`authorship_note` | `N5` / `N6` | delivery map 不新增课程主稿，不丢失关键学习目标 |
-| `N5-LEAF-WORK-PACKETS` | 形成叶子执行包 | `delivery_map`、target_set、叶子边界 | 为选中目标端生成 doc/ppt/html 执行包、输入清单、输出路径、consistency checks 和禁用动作；若 HTML 需要真实 artifact，写入 `design_executor: .agents/skills/claude-design` 和应加载的 skill pair | `leaf_packets`、`leaf_routes`、`html_design_executor` | `N6` | 每个选中端都有执行包；未选中端不补空产物；HTML artifact executor 不缺失 |
+| `N5-LEAF-WORK-PACKETS` | 形成叶子执行包 | `delivery_map`、target_set、叶子边界 | 为选中目标端生成 doc/ppt/html 执行包、输入清单、输出路径、consistency checks 和禁用动作；若 HTML 或 PPT/课件需要真实 artifact，写入 `design_executor: .agents/skills/claude-design`、artifact writeback target、design brief、source boundary、required upstream design modules、visual-system expectations、verification target、quality gate 和 manifest 回写字段 | `leaf_packets`、`leaf_routes`、`visual_design_executor`、`design_excellence_brief`、`artifact_writeback_target` | `N6` | 每个选中端都有执行包；未选中端不补空产物；HTML/PPT artifact executor、writeback target、design excellence brief 和 quality gate 不缺失 |
 | `N6-MANIFEST-WRITEBACK` | 写回或返回 delivery plan 与 manifest | `delivery_map`、`leaf_packets`、项目根 | 项目绑定时写 `delivery-plan.md` 与 `delivery-manifest.json`；草案模式只返回内容 | `output_paths`、`manifest_summary` 或 `draft_only_note` | `N7` | 正式写回只发生在 canonical lesson 第 8 阶段目录 |
 | `N7-CONSISTENCY-GATE` | 执行内置一致性 gate | 输出计划、manifest、Review Gate Binding | 检查上游保真、目标端覆盖、manifest 字段、叶子边界、跨端一致性和 LLM-first 证据 | `review_result`、`consistency_matrix` | `N8` / `N2` / `N4` / `N5` / `N6` | 所有阻断 gate 通过；否则返工到对应节点 |
-| `N8-HANDOFF` | 输出叶子路由和下一步 | `review_result`、leaf routes、manifest | 返回已写回路径、应调度的叶子、未决缺口、阻断原因或草案说明 | `handoff_packet`、`next_leaf_entries` | done | 用户可直接进入选中 leaf，且没有新增外部阶段 |
+| `N8-HANDOFF` | 输出叶子路由和下一步 | `review_result`、leaf routes、manifest | 返回已写回路径、应调度的叶子、`claude-design` design executor 状态、artifact paths、writeback status、selected modules、visual system、verification、quality verdict、未决缺口、阻断原因或草案说明 | `handoff_packet`、`next_leaf_entries`、`design_executor_status`、`artifact_writeback_status`、`design_quality_evidence` | done | 用户可直接检查已落盘 artifact；真实 artifact 不允许以泛化、未验证、无 visual system 或无 writeback status 的设计作为通过结果 |
 
 ## Visual Map
 
@@ -169,7 +190,7 @@ flowchart TD
     B -->|"否"| X["回到 owning stage 或阻断"]
     B -->|"是"| C["N3 Delivery Profile"]
     C --> D["N4 Shared Delivery Map"]
-    D --> E["N5 doc/ppt/html Leaf Work Packets"]
+    D --> E["N5 doc/ppt/html Leaf Work Packets + Visual Executor"]
     E --> F["N6 Write Plan and Manifest"]
     F --> G{"N7 Consistency Gate"}
     G -->|"pass"| H["N8 Leaf Handoff"]
@@ -185,7 +206,7 @@ flowchart TD
 | `DEL-02-upstream` | 第 `3` 到 `7` 阶段和 `content-model/` 的输入清单、状态、缺口 | parent |
 | `DEL-03-targets` | doc/ppt/html target set、文件名、输出目录、是否本轮执行 | parent |
 | `DEL-04-delivery-map` | 模块、课时、活动、测评、素材到各端的映射 | parent |
-| `DEL-05-leaf-packets` | 每个选中叶子的输入、输出、限制、gate 和 handoff；HTML artifact packet 必须声明 `.agents/skills/claude-design` design executor | parent + leaf |
+| `DEL-05-leaf-packets` | 每个选中叶子的输入、输出、限制、gate 和 handoff；HTML/PPT/课件 artifact packet 必须声明 `.agents/skills/claude-design` design executor、artifact writeback target、required upstream design modules、visual system、verification target、writeback status 和 quality verdict 回证 | parent + leaf |
 | `DEL-06-consistency` | 学习目标、术语、顺序、素材、评测和品牌跨端一致性状态 | parent |
 | `DEL-07-tooling` | 允许的格式转换、组装、校验和 manifest 回写工具；脚本主创禁止项 | parent |
 
@@ -197,7 +218,7 @@ flowchart TD
 | `C2-TARGETS-LOCKED` | 至少 1 个目标端明确，未选端不生成空包 | 目标端不明或默认补空三端 | `target_set` | `N3` |
 | `C3-LLM-FIRST` | delivery map 由 LLM 逐条理解 content model 后形成 | 脚本/模板批量投影课程正文 | `authorship_note` | `N4` |
 | `C4-DELIVERY-MAP` | 内容顺序、目标、活动、测评和素材映射完整 | 三端各自重写或遗漏核心目标 | `delivery_map` | `N4` |
-| `C5-LEAF-PACKETS` | 每个选中目标端都有 leaf packet 和输出路径；HTML artifact packet 有 `claude-design` executor | 叶子边界不清、未选端被写入，或 HTML artifact packet 缺 design executor | `leaf_packets`、`html_design_executor` | `N5` |
+| `C5-LEAF-PACKETS` | 每个选中目标端都有 leaf packet 和输出路径；HTML/PPT/课件 artifact packet 有 `claude-design` executor、artifact writeback target、design brief、required upstream design modules、visual-system expectations 和 quality gate | 叶子边界不清、未选端被写入，或 HTML/PPT artifact packet 缺 design executor / writeback target / design excellence evidence | `leaf_packets`、`visual_design_executor`、`design_excellence_brief`、`artifact_writeback_target` | `N5` |
 | `C6-MANIFEST` | plan 与 manifest 路径唯一，字段 `DEL-01` 到 `DEL-07` 齐全 | manifest 缺字段、路径分裂或覆盖未授权端 | `manifest_summary` | `N6` |
 | `C7-CONSISTENCY` | 跨端目标、术语、顺序、素材和品牌一致性 gate 通过 | DOC/PPT/HTML 内容模型漂移 | `consistency_matrix` | `N7/N4` |
 
@@ -208,11 +229,12 @@ flowchart TD
 | 上游第 `3` 到 `7` 阶段和 `content-model/` 是否足以支持交付？ | `FIELD-LESSON-DEL-01` | `FAIL-LESSON-DELIVERY-UPSTREAM` | `N2-upstream-audit` | upstream inventory |
 | 目标端和交付约束是否清晰？ | `FIELD-LESSON-DEL-02` | `FAIL-LESSON-DELIVERY-TARGETS` | `N3-delivery-profile` | target set and constraints |
 | delivery map 是否来自共享内容模型而非三端重写？ | `FIELD-LESSON-DEL-03` | `FAIL-LESSON-DELIVERY-MODEL` | `N4-content-model-fusion` | delivery map |
-| 选中叶子是否都有执行包，未选中叶子是否不被补空；HTML artifact 是否指定 `.agents/skills/claude-design` executor？ | `FIELD-LESSON-DEL-04` | `FAIL-LESSON-DELIVERY-LEAF-PACKETS` | `N5-leaf-work-packets` | leaf packet list + html design executor |
+| 选中叶子是否都有执行包，未选中叶子是否不被补空；HTML/PPT/课件 artifact 是否指定 `.agents/skills/claude-design` executor？ | `FIELD-LESSON-DEL-04` | `FAIL-LESSON-DELIVERY-LEAF-PACKETS` | `N5-leaf-work-packets` | leaf packet list + visual design executor |
 | manifest 是否包含 `DEL-01` 到 `DEL-07` 且路径唯一？ | `FIELD-LESSON-DEL-05` | `FAIL-LESSON-DELIVERY-MANIFEST` | `N6-manifest-writeback` | manifest summary |
 | DOC/PPT/HTML 的目标、术语、顺序、素材和品牌是否一致？ | `FIELD-LESSON-DEL-06` | `FAIL-LESSON-DELIVERY-CONSISTENCY` | `N7-consistency-gate` | consistency matrix |
 | 是否禁止脚本/模板生成或投影课程正文？ | `FIELD-LESSON-DEL-07` | `FAIL-LESSON-DELIVERY-LLM-FIRST` | `N4-content-model-fusion` | authorship note |
 | 正式写回是否落在 canonical lesson 第 8 阶段目录？ | `FIELD-LESSON-DEL-08` | `FAIL-LESSON-DELIVERY-PATH` | `N6-manifest-writeback` | output paths |
+| 真实 HTML/PPT/课件 artifact 生成是否自动加载并最大化使用 `.agents/skills/claude-design`，且回接落盘和设计质量证据？ | `FIELD-LESSON-DEL-09` | `FAIL-LESSON-DELIVERY-DESIGN-EXECUTOR` | `N5-leaf-work-packets` / `N8-handoff` | design executor skill pair + artifact_paths + writeback_status + selected_modules + visual_system + verification + quality_verdict |
 
 ## Field Mapping
 
@@ -221,11 +243,12 @@ flowchart TD
 | `FIELD-LESSON-DEL-01` | `N2` | `delivery-plan.md` section 1 and `delivery-manifest.json` upstream block | 上游状态和缺口可追踪。 |
 | `FIELD-LESSON-DEL-02` | `N3` | `delivery-plan.md` section 2 | 目标端、格式约束和设备限制明确。 |
 | `FIELD-LESSON-DEL-03` | `N4` | `delivery-plan.md` section 3 and manifest delivery map | 共享内容模型是唯一业务真相。 |
-| `FIELD-LESSON-DEL-04` | `N5` | `delivery-plan.md` section 4 and manifest leaf packets | 叶子输入、输出和 gate 清晰；HTML artifact executor 清晰。 |
+| `FIELD-LESSON-DEL-04` | `N5` | `delivery-plan.md` section 4 and manifest leaf packets | 叶子输入、输出和 gate 清晰；HTML/PPT artifact executor 清晰。 |
 | `FIELD-LESSON-DEL-05` | `N6` | `delivery-manifest.json` | manifest 字段完整且路径唯一。 |
 | `FIELD-LESSON-DEL-06` | `N7` | `delivery-plan.md` section 5 | 跨端一致性检查可审计。 |
 | `FIELD-LESSON-DEL-07` | `N4/N7` | `delivery-plan.md` authorship note | LLM-first 和脚本边界可见。 |
 | `FIELD-LESSON-DEL-08` | `N6` | `projects/lesson/<项目名>/8-多端交付生成/` | 正式写回路径唯一。 |
+| `FIELD-LESSON-DEL-09` | `N5/N8` | `delivery-plan.md` leaf packet section and manifest `design_executor` / artifact writeback fields | 真实 HTML/PPT/课件 artifact 由 `claude-design` 协同，且 artifact paths、writeback status、selected modules、visual system、verification 和 quality verdict 可追踪。 |
 
 ## Pass Table
 
@@ -234,17 +257,18 @@ flowchart TD
 | `FIELD-LESSON-DEL-01` | 上游关键输入 100% 有路径、状态或缺口说明 | `FAIL-LESSON-DELIVERY-UPSTREAM` | `N2` |
 | `FIELD-LESSON-DEL-02` | 至少 1 个目标端明确；三端默认时 doc/ppt/html 均有约束 | `FAIL-LESSON-DELIVERY-TARGETS` | `N3` |
 | `FIELD-LESSON-DEL-03` | delivery map 覆盖课程模块、课时、活动、测评和素材 | `FAIL-LESSON-DELIVERY-MODEL` | `N4` |
-| `FIELD-LESSON-DEL-04` | 每个选中目标端有 leaf packet，未选中端不写产物；HTML artifact packet 指定 `.agents/skills/claude-design` | `FAIL-LESSON-DELIVERY-LEAF-PACKETS` | `N5` |
+| `FIELD-LESSON-DEL-04` | 每个选中目标端有 leaf packet，未选中端不写产物；HTML/PPT artifact packet 指定 `.agents/skills/claude-design` | `FAIL-LESSON-DELIVERY-LEAF-PACKETS` | `N5` |
 | `FIELD-LESSON-DEL-05` | manifest 含 `DEL-01` 到 `DEL-07`，且路径唯一 | `FAIL-LESSON-DELIVERY-MANIFEST` | `N6` |
 | `FIELD-LESSON-DEL-06` | 跨端术语、顺序、学习目标和品牌无冲突 | `FAIL-LESSON-DELIVERY-CONSISTENCY` | `N7` |
 | `FIELD-LESSON-DEL-07` | 没有脚本/模板批量生成课程正文的证据 | `FAIL-LESSON-DELIVERY-LLM-FIRST` | `N4` |
 | `FIELD-LESSON-DEL-08` | 项目写回路径为 lesson 项目根第 8 阶段目录 | `FAIL-LESSON-DELIVERY-PATH` | `N6` |
+| `FIELD-LESSON-DEL-09` | 请求真实 HTML/PPT/课件 artifact 时，leaf packet 含 `design_executor: .agents/skills/claude-design`、目标 leaf 路径、artifact writeback target、required upstream design modules、visual system 预期、verification target、executor 状态、artifact paths、writeback status 和 quality verdict 回证要求 | `FAIL-LESSON-DELIVERY-DESIGN-EXECUTOR` | `N5/N8` |
 
 ## Quantifiable Execution Criteria Contract
 
 | criteria_slot | required_content | landing_place | fail_code |
 | --- | --- | --- | --- |
-| `action_scope` | 覆盖 `DEL-01` 到 `DEL-07`；三端默认时生成 3 个 leaf packets，单端模式只生成选中端 | `N3/N5.actions` | `FAIL-LESSON-DELIVERY-ACTION-SCOPE` |
+| `action_scope` | 覆盖 `DEL-01` 到 `DEL-07`；三端默认时生成 3 个 leaf packets，单端模式只生成选中端；真实 HTML/PPT/课件 artifact 目标必须带 `claude-design` executor、artifact writeback target、required upstream design modules、visual system、writeback status 和 quality verdict 回证要求 | `N3/N5.actions` | `FAIL-LESSON-DELIVERY-ACTION-SCOPE` |
 | `evidence_count` | 至少列出第 `3` 到 `7` 阶段 5 类上游状态；若某阶段未执行，必须写 N/A 原因 | `N2.evidence` | `FAIL-LESSON-DELIVERY-EVIDENCE-COUNT` |
 | `pass_threshold` | `C1` 到 `C7` 全部通过；`C3-LLM-FIRST` 与 `C6-MANIFEST` 零容忍 | `Convergence Contract` | `FAIL-LESSON-DELIVERY-THRESHOLD` |
 | `retry_limit` | 上游缺口返工最多 2 轮；仍缺时只输出阻断报告，不生成叶子包 | `N2.route_out` | `FAIL-LESSON-DELIVERY-RETRY` |
@@ -265,6 +289,7 @@ flowchart TD
 | 第 8 阶段补写第 `3` 到 `7` 阶段缺失主稿 | `N2-upstream-audit` / owning stage |
 | 三端分别产生不同课程真源 | `N4-content-model-fusion` |
 | manifest 路径或字段分裂 | `N6-manifest-writeback` |
+| HTML/PPT/课件 artifact 绕过 `claude-design` 或只描述未落盘 | `N5-leaf-work-packets` / `N8-handoff` |
 | 新增外部审查或封版阶段 | `N7-consistency-gate` |
 
 ## Checkpoint Contract
@@ -284,6 +309,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `tri-channel-delivery-plan` | 已有 content model，要求生成 DOC/PPT/HTML 交付包 | `tri_channel_plan` | 上游审计、三端 leaf packets、manifest 和 consistency gate |
 | `single-ppt-leaf-plan` | 用户只要求 PPT 交付 | `selected_leaf_plan` | 只生成 ppt leaf packet，不补 doc/html 空产物 |
+| `ppt-courseware-artifact-executor` | 用户要求最终 PPTX 课件、视觉 polish 和导出验证 | `visual_artifact_delivery` | PPT leaf packet 自动写入 `.agents/skills/claude-design` executor，并要求 selected modules、visual system、verification/export 和 quality verdict |
 | `manifest-repair` | 既有 manifest 与叶子产物不一致 | `manifest_repair` | 保留未受影响端，修复字段和一致性 |
 | `upstream-missing-block` | 缺课时正文或活动测评却要求成品 | `blocked_or_redirect` | 阻断并路由 owning stage |
 
@@ -300,7 +326,8 @@ Symptom -> Direct Cause -> Delivery Source Node -> Leaf or Upstream Owning Stage
 - 上游缺失：回到 `N2-UPSTREAM-AUDIT`，把缺口路由到第 `3` 到 `7` 的 owning stage。
 - 目标端不清：回到 `N3-DELIVERY-PROFILE`，不要默认写三套空产物。
 - 脚本主创：回到 `LLM-First Creative Authorship Contract` 和 `N4-CONTENT-MODEL-FUSION`。
-- 叶子边界漂移：回到 `N5-LEAF-WORK-PACKETS`，重新声明 doc/ppt/html owning scope；HTML artifact 需声明 `8/html -> .agents/skills/claude-design`。
+- 叶子边界漂移：回到 `N5-LEAF-WORK-PACKETS`，重新声明 doc/ppt/html owning scope；HTML artifact 需声明 `8/html -> .agents/skills/claude-design`，PPT/课件 artifact 需声明 `8/ppt -> .agents/skills/claude-design`。
+- 设计执行器或设计质量证据缺失：回到 `N5-LEAF-WORK-PACKETS`，为真实 HTML/PPT/课件 artifact 写入 design executor、artifact target、leaf handoff、`.agents/skills/claude-design` skill pair 加载状态、required upstream design modules、visual system、verification target 和 quality verdict 回证要求。
 - manifest 漂移：回到 `N6-MANIFEST-WRITEBACK`，保持 `delivery-plan.md` 与 `delivery-manifest.json` 同步。
 
 ## Output Contract
@@ -312,7 +339,7 @@ Symptom -> Direct Cause -> Delivery Source Node -> Leaf or Upstream Owning Stage
 - Output path: when project-bound, write under `projects/lesson/<项目名>/8-多端交付生成/`; leaf packets point to `doc/`, `ppt/`, and `html/` subdirectories only when selected.
 - Naming convention: parent canonical filenames 固定为 `delivery-plan.md` and `delivery-manifest.json`; do not create parallel `final-plan.md`, `release-plan.md`, external review stage, or seal stage.
 - Completion gate: `C1` 到 `C7` 通过，且 `Review Gate Binding` 无阻断 fail code；`C3-LLM-FIRST`、`C6-MANIFEST` 和 `FIELD-LESSON-DEL-08` 零容忍。
-- Handoff: 最终回复必须列出已写回路径、选中叶子、下一步叶子入口、未决上游缺口和禁止由脚本生成课程正文的边界；如果选中 HTML artifact，必须指出 `8/html` 将调用 `.agents/skills/claude-design`。
+- Handoff: 最终回复必须列出已写回路径、选中叶子、下一步叶子入口、未决上游缺口和禁止由脚本生成课程正文的边界；如果选中 HTML/PPT/课件 artifact，必须指出对应 leaf 将调用 `.agents/skills/claude-design`，并记录 artifact paths、writeback status、design executor 状态、selected modules、visual system、verification 和 quality verdict。
 - Content-model touchpoint: 第 8 阶段只在上游审计通过后写入派生 `content-model/delivery-map.*` 或 manifest upstream block；不得刷新 `content-model/modules/`、`lessons/`、`assessments/`，不得替代第 `3` 到 `7` 阶段主稿。
 - Exception report: 若上游不足，只输出阻断报告和 owning stage 路由，不生成 leaf packets 或 manifest 成品。
 
@@ -326,7 +353,8 @@ Symptom -> Direct Cause -> Delivery Source Node -> Leaf or Upstream Owning Stage
 ## Permission Boundaries
 
 - Read-only: 本阶段 `SKILL.md + CONTEXT.md`、lesson 根入口、`1-课程定位/course-positioning.md`、项目 `MEMORY.md`、项目 `CONTEXT/`、第 `3` 到 `7` 阶段产物及 `downstream-handoff.md`、`content-model/`。
-- Writable: 正式项目绑定时写 `8-多端交付生成/delivery-plan.md`、`8-多端交付生成/delivery-manifest.json`，以及可追溯的派生 `content-model/delivery-map.*`。
+- Conditional read-only: 当真实 HTML/PPT/课件 artifact 生成、重设计、polish、导出或浏览器验证被选中时，读取 `.agents/skills/claude-design/SKILL.md + CONTEXT.md` 作为 design executor 合同。
+- Writable: 正式项目绑定时写 `8-多端交付生成/delivery-plan.md`、`8-多端交付生成/delivery-manifest.json`、真实 artifact 的 leaf writeback status / manifest 回接字段，以及可追溯的派生 `content-model/delivery-map.*`。
 - Forbidden: 不写 `doc/`、`ppt/`、`html/` 的最终成品正文，不写第 `3` 到 `7` 阶段主稿，不写外部 `9-审查` 或 `10-封版` 目录，不写其他媒介 namespace。
 - Delivery tooling boundary: 格式转换、组装、校验、manifest 回写脚本只能消费 LLM-approved content model 和 leaf packets，不能生成或批量投影课程正文。
 - agents/ entry metadata ownership: `agents/openai.yaml` 只声明本技能的产品入口、触发提示和边界摘要，不拥有运行时合同或输出完成门。

@@ -41,7 +41,7 @@ last_checked_at: 2026-04-25
 ## Repair Playbook
 
 1. 先核对角色是否来自 `角色/1-清单`，不要用设计阶段的兴趣新增主体。
-2. 读取 `3-美学/画面基调/全局风格协议.md` 与 `3-美学/角色风格/角色风格协议.md` 后先锁定 `Global Style Prompt + Character Style Prompt`；读取 `north_star.yaml` 时只抽取项目北极星、主题、禁区和设计不变量。
+2. 读取 `3-美学/画面基调/全局风格协议.md` 与当前集优先/项目级回退的 `3-美学/角色风格/角色风格协议.md` 后先锁定 `Global Style Prompt + Character Style Prompt`，并记录 episode override / fallback；读取 `north_star.yaml` 时只抽取项目北极星、主题、禁区和设计不变量。
 3. 读取 `team.yaml` 时只使用 `init_synthesis.stage_seed_summary."11-主体"` 和 provenance，不从成员名单推导新角色身份；每条采纳必须能落到造型、服装、摄影或气质。
 4. 执行初始化综合消费时，先锁定当前 `node_id / pass_id / gate_id`，再把冻结综合转译为节点级判断、局部 patch 或风险提示；不要补造顾问问答、身份扮演或固定字段问卷。
 5. 单角色设计先写“为什么这个人必须这样长”，再写“具体长什么样”。

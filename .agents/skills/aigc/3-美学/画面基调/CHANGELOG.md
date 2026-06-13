@@ -1,5 +1,10 @@
 # Changelog: aigc 3-美学/画面基调
 
+## 2026-06-11
+
+- 明确 `画面基调` 是项目级 `global_singleton`：单集来源只能作为样本范围或候选证据，正式 canonical output 仍写 `3-美学/画面基调/全局风格协议.md`。
+- 同步 `SKILL.md`、`CONTEXT.md`、`README.md` 与 agent prompt，禁止创建 `3-美学/第N集/画面基调/` 作为正式真源。
+
 ## 2026-06-04
 
 - 新建 `画面基调` Skill 2.0 core layout。

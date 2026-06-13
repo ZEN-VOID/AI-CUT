@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-06-11
+
+- 同步 `3-美学` 输出 scope：角色设计继续读取 `画面基调` 全局 singleton；角色风格按目标角色的 `首次登场` / `episode_id` 优先读取 `3-美学/第N集/角色风格/`，缺失时回退项目级基线。
+- 更新 `SKILL.md`、`CONTEXT.md`、模板、steps、review 与 reference 合同，要求记录 episode override / fallback。
+
 ## 2026-06-04
 
 - 强化角色审美吸引力合同：角色设计不得只做手术式关键词还原，必须让容貌、妆发、骨相、身形和服装具备美感与个性魅力。

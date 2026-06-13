@@ -28,7 +28,7 @@ last_checked_at: 2026-04-25
 | prompt token 无法回指依据 | 提示词证据链层 | 补 `prompt_evidence_chain` 或删除无依据 token | prompt 生成前先完成 visual translation | 关键 token 能回指 research/design/cinematography |
 | 场景物语写成剧情复述 | 叙事功能层 | 改写为空间如何承载主题、行动和情绪 | 模板区分 `原文描述复述` 与 `物语` | 物语不新增剧情事件 |
 | Scene Design 与 Cinematography 混写 | 解构层 | 拆成空间/材质/色彩/动线与镜头/光线/运动/焦段 | 模板固定双字段 | 两组字段互不替代 |
-| 提示词没有承接画面基调与场景风格 | 风格继承层 | 回读 `3-美学/画面基调/全局风格协议.md` 与 `3-美学/场景风格/场景风格协议.md`，补 `Global Style Prompt + Scene Style Prompt` 引用 | 提示词前固定记录 visual tone source 与 scene style source | prompt 有 visual tone + scene style anchor |
+| 提示词没有承接画面基调与场景风格 | 风格继承层 | 回读 `3-美学/画面基调/全局风格协议.md` 与当前集优先/项目级回退的 `3-美学/场景风格/场景风格协议.md`，补 `Global Style Prompt + Scene Style Prompt` 引用 | 提示词前固定记录 visual tone source、scene style source 和 fallback 状态 | prompt 有 visual tone + scene style anchor |
 | 解构区缺少主体 ID | 结构投影层 | 在 `## 4. 解构` 下方补 `主体ID号：<主体ID>`，并同步 `## 5. 提示词设计` 与英文 prompt 前缀 | 模板和 review gate 固定三处 ID 一致性 | 解构 ID、提示词字段 ID、prompt 开头完全一致 |
 | 场景/建筑风格缺失或空泛 | 建筑策略层 | 从场景风格协议、场景类型、初始化综合、项目 north star 或用户要求中确定空间/建筑风格 | `types/` 对不同场景给出建筑/空间风格入口；`3-美学/场景风格` 提供最终细目风格锚点 | prompt 有 scene style / architecture style anchor |
 | 英文提示词缺少时间或地域 | 时间地域锚点层 | 从 `research_brief`、`type_profile`、上游清单或项目资料中补 period / region token；无法确认时使用有来源姿态的保守锚点 | prompt evidence chain 固定加入 `period_region_tokens` | final English prompt 同时含时间与地域 |
@@ -43,7 +43,7 @@ last_checked_at: 2026-04-25
 ## Repair Playbook
 
 1. 先确认目标设计稿对应上游清单的哪一行，避免从正文想象新增主体。
-2. 读取 `3-美学/画面基调/全局风格协议.md` 与 `3-美学/场景风格/场景风格协议.md` 时优先抓取 `Global Style Prompt + Scene Style Prompt`；读取 `north_star.yaml` 时只抓取项目北极星、母题、禁区和设计不变量，不再把它改写成单场景最终风格提示词。
+2. 读取 `3-美学/画面基调/全局风格协议.md` 与当前集优先/项目级回退的 `3-美学/场景风格/场景风格协议.md` 时优先抓取 `Global Style Prompt + Scene Style Prompt`，并记录 episode override / fallback；读取 `north_star.yaml` 时只抓取项目北极星、母题、禁区和设计不变量，不再把它改写成单场景最终风格提示词。
 3. 读取 `team.yaml` 时只使用 `init_synthesis.stage_seed_summary."11-主体"` 和 provenance；没有相关初始化综合时记录为 `未声明`，不要从成员名单虚构顾问视角。
 4. 对现实或半现实场景，先确定年代、地域、建筑类型、材质和空间使用方式，再写视觉描述。
 5. 对超现实、梦境、异化或象征空间，仍要建立可制作的空间规则：尺度、边界、材质、光源、动线。

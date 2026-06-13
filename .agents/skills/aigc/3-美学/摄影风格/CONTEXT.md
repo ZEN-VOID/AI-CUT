@@ -27,6 +27,7 @@ recommended_action: keep-cinematography-heuristics-focused
 | 输出太短像标签串 | prompt 密度不足 | 补构图秩序、景别/机位、运动方式、连续性和负面限制 | 字数回到默认区间 |
 | 画面基调被摄影阶段反向改写 | 上游越权 | 只继承画面基调中的媒介、氛围和禁区，不修改其全局视觉协议 | 报告 `visual_tone_camera_constraints` |
 | 输出像同一套摄影模板换镜头词 | 源层主创缺失层 | 废弃候选协议，回 `N4/N5/N6/N7` 重新设计摄影语法、运动连招和连续性，不做表层润色 | `GATE-CS-10-ANTI-SCRIPTED-CAMERA` 通过 |
+| 单集摄影风格覆盖误写到项目级基线 | 输出范围漂移层 | 将 `第N集` 来源写入 `3-美学/第N集/摄影风格/`，整季/项目级才写非逐集路径 | canonical path 含当前 `episode_scope` 或明确 `series_baseline` |
 
 ## Repair Playbook
 
@@ -49,6 +50,7 @@ recommended_action: keep-cinematography-heuristics-focused
 - 约 100 字 prompt 的稳定结构：构图秩序 -> 景别/机位倾向 -> 运动方式 -> 连贯性规则 -> 负面摄影禁区。
 - 如果一句话只能服务某个具体镜头，它不属于摄影风格协议；如果它能约束一整集或整部作品的观看方式，它才有资格进入 prompt。
 - AIGC 视频生成常见失败是运动太复杂导致漂移。协议中应优先强调“可连续生成”的运动组合和稳定性，而不是展示技术名词。
+- 单集摄影风格可以承接本集观看距离、运动密度和连续性压力；不要覆盖整季摄影风格基线。
 
 ## Boundary Scan Checklist
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-06-11
+
+- 同步 `3-美学` 输出 scope：分镜阶段读取 `画面基调` 全局 singleton；分镜风格按当前 `第N集` 优先读取 `3-美学/第N集/分镜风格/`，缺失时回退项目级基线。
+- 更新 `SKILL.md`、`README.md` 与 agent prompt，辅助摄影/角色/场景风格也采用逐集优先、项目级回退。
+
 ## 2026-06-10
 
 - 接入 `../_shared/upstream-context-application-contract.md`，要求分镜拆分证明上游画面点、心理/表演/氛围字段和 `3-美学` 如何投影为节拍、构图、空间层次和时值。

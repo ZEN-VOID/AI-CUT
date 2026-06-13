@@ -91,3 +91,7 @@ The user may knowingly ask you to design for something that doesn't exist public
 3. If real but pre-release, search anyway — there's often leaked specs, teaser footage, or official placeholder pages you can anchor on.
 
 The search is cheap. The assumption is expensive. Err on the side of searching.
+
+## Review Gate Mapping
+
+No independent gate: this upstream reference is consumed through `.agents/skills/claude-design/SKILL.md` Review Gate Binding and cannot override adapter gates.

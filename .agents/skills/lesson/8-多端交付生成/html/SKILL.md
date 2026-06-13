@@ -16,8 +16,8 @@ metadata:
 - 执行前必须读取父包 `../SKILL.md + ../CONTEXT.md` 的 delivery map、manifest 和 html leaf packet；没有父包 packet 时，先回到 `$lesson-delivery` 生成或修复。
 - 若任务绑定 `projects/lesson/<项目名>/`，必须先读取项目根 `MEMORY.md`，再读取项目根 `CONTEXT/` 中与品牌、设备、交互、可访问性或长期偏好直接相关的文件。
 - HTML 叶子只拥有 `8-多端交付生成/html/` 下的 web 交付产物，不改写 DOC/PPT，不替代父包三端裁决。
-- 当本叶子需要生成、重设计、改进或验证真实 `.html` / 静态站点 artifact 时，必须加载 `../../../claude-design/SKILL.md + ../../../claude-design/CONTEXT.md`（仓库包路径：`.agents/skills/claude-design/`）。`claude-design` 只拥有 HTML artifact 的视觉执行、交互 polish 和浏览器验证；不拥有课程正文、content model、delivery map、html leaf packet 或 `html-site-manifest.json` 真源。
-- 本阶段不默认加载 `templates/`、`references/`、`review/`、`types/`、`scripts/`、`guardrails/`、`assets/` 或 `steps/`；当前可执行合同全部在本 `SKILL.md` 中。
+- 当本叶子需要生成、重设计、改进或验证真实 `.html` / 静态站点 artifact 时，必须加载 `../../../claude-design/SKILL.md + ../../../claude-design/CONTEXT.md`（仓库包路径：`.agents/skills/claude-design/`）。`claude-design` 只拥有 HTML artifact 的视觉执行、artifact writeback、交互 polish 和浏览器验证；不拥有课程正文、content model、delivery map、html leaf packet 或 `html-site-manifest.json` 真源。
+- 除触发的 `claude-design` skill pair 外，本阶段不默认加载 `templates/`、`references/`、`review/`、`types/`、`scripts/`、`guardrails/`、`assets/` 或 `steps/`；当前 HTML 交付主合同全部在本 `SKILL.md` 中。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > lesson 根 `SKILL.md` > 父包 `SKILL.md` > 本 `SKILL.md` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 同目录 `CONTEXT.md`。
 
 ## Core Task Contract
@@ -28,7 +28,7 @@ metadata:
 - 设计 web information architecture：入口页、模块页、课时页、活动/测评页、资源页、进度状态和导航。
 - 由 LLM 逐条适配课程内容为网页阅读结构、交互状态、移动端信息密度和可访问性说明。
 - 写回 `html-delivery-plan.md` 与 `html-site-manifest.json`。
-- 在用户明确要求真实 HTML artifact 且工具链可用时，先完成 LLM-approved 页面计划与 manifest，再调用 `.agents/skills/claude-design` 进行 HTML/CSS/JS 视觉实现、交互 polish、静态站点生成或浏览器验证。
+- 在用户明确要求真实 HTML artifact 且工具链可用时，先完成 LLM-approved 页面计划与 manifest，再调用 `.agents/skills/claude-design` 进行 HTML/CSS/JS 视觉实现、交互 polish、静态站点生成、最终文件落盘和浏览器验证。
 
 非目标：
 
@@ -112,7 +112,7 @@ Reject or clarify when:
 | --- | --- | --- | --- |
 | `html_delivery` | 新建 HTML/web 课程交付 | `N1,N2,N3,N4,N5,N6,N7,N8` | 写 HTML delivery plan、site manifest，并可进入站点组装。 |
 | `html_update` | 既有 HTML plan、manifest 或站点文件需要更新 | `N1,N2,N3,N4,N5,N6,N7,N8` | 只更新受影响页面、组件和 manifest 字段。 |
-| `html_artifact_generation` | 用户明确要求生成、重设计、改进或验证 `index.html`、静态站点或真实 HTML artifact | `N1,N2,N3,N4,N5,N6,N7,N8` | 先写/校验 plan 和 manifest，再调用 `.agents/skills/claude-design` 完成 artifact 视觉实现与浏览器验证。 |
+| `html_artifact_generation` | 用户明确要求生成、重设计、改进或验证 `index.html`、静态站点或真实 HTML artifact | `N1,N2,N3,N4,N5,N6,N7,N8` | 先写/校验 plan 和 manifest，再调用 `.agents/skills/claude-design` 完成 artifact 视觉实现、文件落盘与浏览器验证。 |
 | `draft_only` | 无项目根但需要 web 课程草案 | `N1,N2,N3,N4,N5,N7,N8` | 返回草案，不写文件。 |
 | `blocked_or_redirect` | 缺父包 packet、上游不足、越界到 DOC/PPT 或脚本主创 | `N1,N2,N7,N8` | 阻断并路由父包、owning stage 或对应叶子。 |
 
@@ -122,7 +122,7 @@ Reject or clarify when:
 | --- | --- | --- | --- | --- | --- |
 | `html_delivery` | 用户要求 HTML、网页课件、web course、静态站点或移动端阅读 | `HTML Delivery Path` | `N1,N2,N3,N4,N5,N6,N7,N8` | `CONTEXT.md` | `FAIL-LESSON-HTML-DELIVERY` |
 | `html_update` | 已有 HTML 产物需要修订、适配设备或同步 manifest | `HTML Update Path` | `N1,N2,N3,N4,N5,N6,N7,N8` | `CONTEXT.md` | `FAIL-LESSON-HTML-UPDATE` |
-| `html_artifact_generation` | 输入要求生成/重设计/改进/验证 `index.html`、`.html`、静态站点或现有 HTML artifact | `HTML Artifact Generation Path` | `N1,N2,N3,N4,N5,N6,N7,N8` | `../../../claude-design/SKILL.md` | `FAIL-LESSON-HTML-CLAUDE-DESIGN` |
+| `html_artifact_generation` | 输入要求生成/重设计/改进/验证 `index.html`、`.html`、静态站点或现有 HTML artifact | `HTML Artifact Generation Path` | `N1,N2,N3,N4,N5,N6,N7,N8` | ../../../claude-design/SKILL.md, ../../../claude-design/CONTEXT.md | `FAIL-LESSON-HTML-CLAUDE-DESIGN` |
 | `draft_only` | 无项目根或只做 web 交付设计 | `Draft HTML Path` | `N1,N2,N3,N4,N5,N7,N8` | `CONTEXT.md` | `FAIL-LESSON-HTML-DRAFT` |
 | `blocked_or_redirect` | 缺 packet、缺上游或请求越界 | `Block Or Redirect` | `N1,N2,N7,N8` | `CONTEXT.md` | `FAIL-LESSON-HTML-UNSAFE` |
 
@@ -131,8 +131,8 @@ Reject or clarify when:
 | module | load_when | authority | forbidden_use | rework_target |
 | --- | --- | --- | --- | --- |
 | `CONTEXT.md` | 每次调用本技能 | 经验层、web 信息架构、响应式约束、交互状态、site manifest 和失败模式 | 重定义输出 schema、父包边界、项目路径或 LLM-first 规则 | `Learning / Context Writeback` |
-| `../../../claude-design/SKILL.md` | 需要生成、重设计、改进或验证真实 HTML artifact | HTML artifact 的高保真视觉执行、交互 polish、设计系统落地和浏览器验证合同；仓库包路径为 `.agents/skills/claude-design/` | 改写课程正文、content model、父包 delivery map、html leaf packet、site manifest 或项目记忆 | `N5-SITE-MANIFEST` / `N6-WRITEBACK` |
-| `../../../claude-design/CONTEXT.md` | 与 `../../../claude-design/SKILL.md` 同时加载 | HTML/courseware 设计执行经验、浏览器验证启发和已知失败模式 | 重定义 lesson 叶子边界、输出路径、课程真源或 LLM-first 规则 | `N6-WRITEBACK` / `N7-CONSISTENCY-GATE` |
+| `../../../claude-design/SKILL.md` | 需要生成、重设计、改进或验证真实 HTML artifact | HTML artifact 的能力最大化模块选择、高保真视觉执行、artifact writeback、交互 polish、设计系统落地、浏览器验证和 quality verdict 合同；仓库包路径为 `.agents/skills/claude-design/` | 改写课程正文、content model、父包 delivery map、html leaf packet、site manifest 或项目记忆 | `N5-SITE-MANIFEST` / `N6-WRITEBACK` |
+| `../../../claude-design/CONTEXT.md` | 与 `../../../claude-design/SKILL.md` 同时加载 | HTML/courseware 设计执行经验、generic design 返工模式、浏览器验证启发和已知失败模式 | 重定义 lesson 叶子边界、输出路径、课程真源或 LLM-first 规则 | `N6-WRITEBACK` / `N7-CONSISTENCY-GATE` |
 
 当前叶子不启用其他本地模块。`.agents/skills/claude-design/` 是外部 HTML 设计执行 skill pair，只在 HTML artifact 生成/改造/验证时加载。后续若新增 `templates/`、`scripts/`、`review/`、`types/`、`references/`、`guardrails/` 或 `assets/`，必须先在本表和 `Module Trigger Matrix` 声明授权、禁止用途和回流门。
 
@@ -142,7 +142,7 @@ Reject or clarify when:
 | --- | --- | --- | --- | --- |
 | `html_delivery` / `FAIL-LESSON-HTML-DELIVERY` | `CONTEXT.md` | `N1` | `C7-FINAL-OUTPUT` | html target and packet check |
 | `html_update` / `FAIL-LESSON-HTML-UPDATE` | `CONTEXT.md` | `N2` | `C6-WRITEBACK` | existing page diff |
-| `html_artifact_generation` / `FAIL-LESSON-HTML-CLAUDE-DESIGN` | `../../../claude-design/SKILL.md` | `N6` | `C7-FINAL-OUTPUT` | claude-design skill pair loaded, artifact path and browser verification status recorded |
+| `html_artifact_generation` / `FAIL-LESSON-HTML-CLAUDE-DESIGN` | ../../../claude-design/SKILL.md, ../../../claude-design/CONTEXT.md | `N6` | `C7-FINAL-OUTPUT` | claude-design skill pair loaded; selected_modules, visual_system, artifact_paths, writeback_status, browser verification and quality_verdict recorded |
 | `draft_only` / `FAIL-LESSON-HTML-DRAFT` | `CONTEXT.md` | `N1` | `C7-FINAL-OUTPUT` | draft-only note |
 | `blocked_or_redirect` / `FAIL-LESSON-HTML-UNSAFE` | `CONTEXT.md` | `N1` | `Input Contract` | scope and upstream boundary check |
 | `FAIL-LESSON-HTML-PACKET` / `FAIL-LESSON-HTML-STRUCTURE` | `CONTEXT.md` | `N2` | `C2-WEB-STRUCTURE` | packet and web architecture coverage |
@@ -157,10 +157,10 @@ Reject or clarify when:
 | `N2-PARENT-PACKET-AUDIT` | 审计父包 html packet 和上游可用性 | delivery manifest、html leaf packet、content model | 检查父包 packet、web variant、课程模块、活动、测评、视觉交互和品牌 | `packet_inventory`、`missing_inputs` | `N3` / `N8` | html packet 存在且内容可支持 web 课程交付 |
 | `N3-WEB-ARCHITECTURE` | 设计网页信息架构 | `packet_inventory`、格式约束、学习场景 | 定义入口、导航、模块页、课时页、活动页、测评页、资源页、响应式和状态 | `web_architecture` | `N4` | 页面结构覆盖课程目标且适合设备和交互 |
 | `N4-LLM-WEB-ADAPTATION` | LLM 适配网页内容 | content model、web architecture、项目记忆 | 逐条适配模块、课时、案例、活动和测评为页面内容计划、组件文案和交互说明 | `web_content_plan`、`authorship_note` | `N5` | 不新增课程事实，不用机械投影生成网页正文 |
-| `N5-SITE-MANIFEST` | 生成站点 manifest | `web_content_plan`、格式约束、素材 | 定义 pages、components、routes、assets、accessibility checks、export target、工具边界和 `claude-design` executor 字段 | `html_site_manifest`、`design_executor` | `N6` / `N7` | manifest 只组装 LLM-approved web plan；HTML artifact executor 不拥有课程真源 |
-| `N6-WRITEBACK` | 写回 HTML 计划、manifest 和可选 artifact handoff | 项目根、`web_content_plan`、manifest、`artifact_request` | 写 `html-delivery-plan.md` 与 `html-site-manifest.json`；若需要真实 HTML artifact，加载并调用 `../../../claude-design/SKILL.md + CONTEXT.md`，传入 content boundary、page plan、visual constraints、manifest 和目标路径 | `output_paths`、`draft_only_note`、`claude_design_handoff`、`artifact_paths` | `N7` | 正式写回只发生在 `8-多端交付生成/html/`；真实 HTML artifact 必须经 `claude-design` |
-| `N7-CONSISTENCY-GATE` | 审查 HTML 交付一致性 | 输出计划、manifest、Review Gate Binding、claude-design 结果 | 检查父包保真、web 结构、LLM-first、manifest、路径、可访问性、跨端一致性，以及真实 HTML artifact 是否由 `claude-design` 执行并完成验证记录 | `review_result`、`claude_design_verification` | `N8` / `N2` / `N3` / `N4` / `N5` / `N6` | 所有阻断 gate 通过；否则返工到对应节点 |
-| `N8-HANDOFF` | 输出 HTML 交付结果和下一步 | `review_result`、output paths、manifest、artifact paths | 返回写回路径、`claude-design` 执行/验证状态、未决素材/交互缺口和父包 manifest 回接需求 | `handoff_packet` | done | 用户可执行或检查 HTML artifact，也可返回父包汇总 |
+| `N5-SITE-MANIFEST` | 生成站点 manifest | `web_content_plan`、格式约束、素材 | 定义 pages、components、routes、assets、accessibility checks、export target、工具边界和 `claude-design` executor 字段；真实 artifact 需写入 artifact writeback target、required upstream design modules、visual-system expectations、verification target 和 quality gate | `html_site_manifest`、`design_executor`、`design_excellence_brief`、`artifact_writeback_target` | `N6` / `N7` | manifest 只组装 LLM-approved web plan；HTML artifact executor 不拥有课程真源；落盘目标和设计质量门禁不缺失 |
+| `N6-WRITEBACK` | 写回 HTML 计划、manifest 和真实 artifact | 项目根、`web_content_plan`、manifest、`artifact_request` | 写 `html-delivery-plan.md` 与 `html-site-manifest.json`；若需要真实 HTML artifact，加载并调用 `../../../claude-design/SKILL.md + CONTEXT.md`，传入 content boundary、page plan、visual constraints、manifest、required upstream design modules、visual-system expectations、verification target 和目标路径，并把生成/更新后的 `index.html` 或静态站点文件写入本叶子目录或 manifest 指定路径 | `output_paths`、`draft_only_note`、`claude_design_handoff`、`artifact_paths`、`writeback_status`、`selected_modules`、`visual_system` | `N7` | 正式写回只发生在 `8-多端交付生成/html/`；真实 HTML artifact 必须经 `claude-design` 且回证 artifact_paths、writeback_status、selected modules 与 visual system |
+| `N7-CONSISTENCY-GATE` | 审查 HTML 交付一致性 | 输出计划、manifest、Review Gate Binding、claude-design 结果 | 检查父包保真、web 结构、LLM-first、manifest、路径、可访问性、跨端一致性，以及真实 HTML artifact 是否由 `claude-design` 执行并完成 artifact_paths、writeback_status、selected_modules、visual_system、browser verification 和 quality_verdict 记录 | `review_result`、`claude_design_verification`、`artifact_writeback_status`、`design_quality_evidence` | `N8` / `N2` / `N3` / `N4` / `N5` / `N6` | 所有阻断 gate 通过；泛化模板感、无落盘状态、无 visual system、无浏览器验证或无 quality verdict 均返工 |
+| `N8-HANDOFF` | 输出 HTML 交付结果和下一步 | `review_result`、output paths、manifest、artifact paths | 返回写回路径、artifact paths、writeback status、`claude-design` 执行/验证状态、selected modules、visual system、quality verdict、未决素材/交互缺口和父包 manifest 回接需求 | `handoff_packet`、`artifact_writeback_status`、`design_quality_evidence` | done | 用户可直接检查已落盘 HTML artifact，也可返回父包汇总；不俗设计需有可审计证据 |
 
 ## Visual Map
 
@@ -189,7 +189,7 @@ flowchart TD
 | `HTML-05-responsive` | 断点、布局、字体、色彩、键盘访问和移动端密度 | leaf |
 | `HTML-06-site` | `index.html` 目标、routes、components、assets、工具边界 | leaf |
 | `HTML-07-consistency` | 与父包 delivery map、DOC、PPT 的一致性状态 | leaf + parent |
-| `HTML-08-design-executor` | 真实 HTML artifact 的执行器固定为 `.agents/skills/claude-design`，并记录 artifact path、验证状态和未决缺口 | leaf + `claude-design` |
+| `HTML-08-design-executor` | 真实 HTML artifact 的执行器固定为 `.agents/skills/claude-design`，并记录 artifact writeback target、required upstream design modules、selected modules、visual system、artifact paths、writeback status、浏览器验证状态、quality verdict 和未决缺口 | leaf + `claude-design` |
 
 ## Convergence Contract
 
@@ -199,9 +199,9 @@ flowchart TD
 | `C2-WEB-STRUCTURE` | web architecture 覆盖学习路径、导航、活动和测评 | 只有页面文件名，没有学习路径 | `web_architecture` | `N3` |
 | `C3-LLM-FIRST` | web content plan 由 LLM 逐条适配 | 脚本/模板批量生成页面正文 | `authorship_note` | `N4` |
 | `C4-WEB-CONTENT` | 页面计划覆盖模块、课时、案例、活动和测评 | 遗漏核心目标或新增课程事实 | `web_content_plan` | `N4` |
-| `C5-SITE-MANIFEST` | manifest 含 `HTML-01` 到 `HTML-08`、工具边界和 `claude-design` executor | manifest 缺字段、允许脚本主创或未声明真实 HTML executor | `html_site_manifest`、`design_executor` | `N5` |
+| `C5-SITE-MANIFEST` | manifest 含 `HTML-01` 到 `HTML-08`、工具边界、`claude-design` executor、artifact writeback target、required upstream design modules、visual-system expectations 和 quality gate | manifest 缺字段、允许脚本主创、未声明真实 HTML executor、缺落盘目标或缺设计质量门禁 | `html_site_manifest`、`design_executor`、`design_excellence_brief`、`artifact_writeback_target` | `N5` |
 | `C6-WRITEBACK` | 路径唯一，草案/正式写回口径清晰 | 输出路径分裂或写到父包/其他叶子 | `output_paths` | `N6` |
-| `C7-FINAL-OUTPUT` | HTML gate 全部通过；若请求真实 HTML artifact，`claude-design` 执行和浏览器验证状态已记录 | 一致性冲突、可访问性缺口、路径错误，或绕过 `claude-design` 生成 HTML artifact | `review_result`、`claude_design_verification` | `N7/N6` |
+| `C7-FINAL-OUTPUT` | HTML gate 全部通过；若请求真实 HTML artifact，`claude-design` 执行、artifact paths、writeback status、selected modules、visual system、浏览器验证和 quality verdict 已记录 | 一致性冲突、可访问性缺口、路径错误，绕过 `claude-design` 生成 HTML artifact，artifact 只描述未落盘，或输出泛化/未验证设计 | `review_result`、`claude_design_verification`、`artifact_writeback_status`、`design_quality_evidence` | `N7/N6` |
 
 ## Review Gate Binding
 
@@ -213,7 +213,7 @@ flowchart TD
 | site manifest 是否只组装 LLM-approved web plan？ | `FIELD-LESSON-HTML-04` | `FAIL-LESSON-HTML-MANIFEST` | `N5-site-manifest` | manifest fields |
 | HTML 与父包 delivery map、DOC/PPT 共享目标是否一致？ | `FIELD-LESSON-HTML-05` | `FAIL-LESSON-HTML-CONSISTENCY` | `N7-consistency-gate` | consistency matrix |
 | 正式写回是否落在 canonical html 叶子目录？ | `FIELD-LESSON-HTML-06` | `FAIL-LESSON-HTML-PATH` | `N6-writeback` | output paths |
-| 真实 HTML artifact 是否由 `.agents/skills/claude-design` 执行，并记录浏览器验证状态？ | `FIELD-LESSON-HTML-07` | `FAIL-LESSON-HTML-CLAUDE-DESIGN` | `N6-writeback` / `N7-consistency-gate` | claude_design_handoff + verification |
+| 真实 HTML artifact 是否由 `.agents/skills/claude-design` 执行并落盘，且记录 selected modules、visual system、浏览器验证和 quality verdict？ | `FIELD-LESSON-HTML-07` | `FAIL-LESSON-HTML-CLAUDE-DESIGN` | `N6-writeback` / `N7-consistency-gate` | claude_design_handoff + artifact_paths + writeback_status + selected_modules + visual_system + verification + quality_verdict |
 
 ## Field Mapping
 
@@ -225,7 +225,7 @@ flowchart TD
 | `FIELD-LESSON-HTML-04` | `N5` | `html-site-manifest.json` | manifest 只描述组装、路由和校验。 |
 | `FIELD-LESSON-HTML-05` | `N7` | `html-delivery-plan.md` consistency section | 与父包和其他端一致。 |
 | `FIELD-LESSON-HTML-06` | `N6` | `projects/lesson/<项目名>/8-多端交付生成/html/` | 正式写回路径唯一。 |
-| `FIELD-LESSON-HTML-07` | `N6/N7` | `html-site-manifest.json` and optional artifact path | 真实 HTML artifact 由 `claude-design` 执行，且验证状态可见。 |
+| `FIELD-LESSON-HTML-07` | `N6/N7` | `html-site-manifest.json` and artifact files | 真实 HTML artifact 由 `claude-design` 执行并落盘，且 artifact paths、writeback status、selected modules、visual system、浏览器验证和 quality verdict 可见。 |
 
 ## Pass Table
 
@@ -237,13 +237,13 @@ flowchart TD
 | `FIELD-LESSON-HTML-04` | manifest 覆盖 `HTML-01` 到 `HTML-08` | `FAIL-LESSON-HTML-MANIFEST` | `N5` |
 | `FIELD-LESSON-HTML-05` | 与父包目标、术语、顺序、品牌和素材无冲突 | `FAIL-LESSON-HTML-CONSISTENCY` | `N7` |
 | `FIELD-LESSON-HTML-06` | 写回路径固定为 `8-多端交付生成/html/` | `FAIL-LESSON-HTML-PATH` | `N6` |
-| `FIELD-LESSON-HTML-07` | 请求真实 HTML artifact 时，已加载 `claude-design` 技能对，artifact path 和浏览器验证状态已记录 | `FAIL-LESSON-HTML-CLAUDE-DESIGN` | `N6/N7` |
+| `FIELD-LESSON-HTML-07` | 请求真实 HTML artifact 时，已加载 `claude-design` 技能对，artifact paths、writeback status、selected modules、visual system、浏览器验证状态和 quality verdict 已记录；泛化模板感或只描述未落盘不得 pass | `FAIL-LESSON-HTML-CLAUDE-DESIGN` | `N6/N7` |
 
 ## Quantifiable Execution Criteria Contract
 
 | criteria_slot | required_content | landing_place | fail_code |
 | --- | --- | --- | --- |
-| `action_scope` | 覆盖 `HTML-01` 到 `HTML-08`；每个模块至少有 page group、活动/测评有页面或 N/A；artifact 请求含 `claude-design` executor | `N3/N4/N5.actions` | `FAIL-LESSON-HTML-ACTION-SCOPE` |
+| `action_scope` | 覆盖 `HTML-01` 到 `HTML-08`；每个模块至少有 page group、活动/测评有页面或 N/A；artifact 请求含 `claude-design` executor、artifact writeback target、required upstream design modules、visual system、writeback status 和 quality verdict 回证 | `N3/N4/N5.actions` | `FAIL-LESSON-HTML-ACTION-SCOPE` |
 | `evidence_count` | 至少列出 1 个父包 packet、1 个 delivery map 来源和每个 page group 的 content model 来源 | `N2/N4.evidence` | `FAIL-LESSON-HTML-EVIDENCE-COUNT` |
 | `pass_threshold` | `C1` 到 `C7` 全部通过；`C3-LLM-FIRST` 与 `C6-WRITEBACK` 零容忍 | `Convergence Contract` | `FAIL-LESSON-HTML-THRESHOLD` |
 | `retry_limit` | 父包 packet 缺失返工 1 轮；仍缺时只输出阻断报告 | `N2.route_out` | `FAIL-LESSON-HTML-RETRY` |
@@ -264,7 +264,7 @@ flowchart TD
 | HTML 叶子开始写 DOC/PPT 成品 | route to corresponding leaf |
 | 页面正文由脚本或模板批量生成 | `N4-LLM-WEB-ADAPTATION` |
 | manifest 写到父包或其他叶子 | `N6-WRITEBACK` |
-| 真实 HTML artifact 绕过 `claude-design` | `N6-WRITEBACK` / load `.agents/skills/claude-design` |
+| 真实 HTML artifact 绕过 `claude-design` 或缺少 design quality evidence | `N6-WRITEBACK` / load `.agents/skills/claude-design` |
 
 ## Checkpoint Contract
 
@@ -282,6 +282,7 @@ flowchart TD
 | prompt_id | scenario | expected_route | evaluation_focus |
 | --- | --- | --- | --- |
 | `responsive-web-course` | 根据父包 packet 生成响应式 HTML 课程 | `html_delivery` | web architecture、page plan、site manifest、accessibility |
+| `html-artifact-design-excellence` | 根据父包 packet 生成或重设计真实 HTML artifact | `html_artifact_generation` | `claude-design` artifact writeback、selected modules、visual system、browser verification、quality verdict |
 | `update-mobile-layout` | 只更新既有 HTML 的移动端页面 | `html_update` | 受影响 pages/components 和 manifest diff |
 | `draft-html-no-project` | 未绑定项目时做 web course 草案 | `draft_only` | 不写文件，保持 schema |
 | `missing-parent-packet` | 没有父包 packet 直接生成 HTML | `blocked_or_redirect` | 回到父包，不编造 delivery map |
@@ -301,18 +302,18 @@ Symptom -> Direct Cause -> HTML Leaf Source Node -> Delivery Parent Contract -> 
 - 网页课程正文脚本化：回到 `LLM-First Creative Authorship Contract` 和 `N4-LLM-WEB-ADAPTATION`。
 - manifest 缺字段或工具越权：回到 `N5-SITE-MANIFEST`。
 - 输出路径错误：回到 `N6-WRITEBACK` 和父包 leaf boundary。
-- HTML artifact 绕过 `claude-design`：回到 `N6-WRITEBACK`，加载 `../../../claude-design/SKILL.md + ../../../claude-design/CONTEXT.md` 后再执行生成、改造或验证。
+- HTML artifact 绕过 `claude-design` 或只描述未落盘：回到 `N6-WRITEBACK`，加载 `../../../claude-design/SKILL.md + ../../../claude-design/CONTEXT.md` 后再执行生成、改造、文件写入或验证。
 
 ## Output Contract
 
 `lesson-delivery-html` 的 canonical business output 是 HTML/web 叶子的 web delivery plan 和站点 manifest。
 
-- Required output: 一份 `html-delivery-plan.md`、一份 `html-site-manifest.json`，以及在用户授权且 `claude-design` 执行后生成或更新的 `index.html` / 静态站点 artifact 目标说明。
-- Output format: Markdown plan plus JSON site manifest; optional HTML/site artifact 必须由 `.agents/skills/claude-design` 基于 LLM-approved page plan、视觉约束和 manifest 执行。
+- Required output: 一份 `html-delivery-plan.md`、一份 `html-site-manifest.json`，以及在用户授权且 `claude-design` 执行后生成或更新并落盘的 `index.html` / 静态站点 artifact 文件。
+- Output format: Markdown plan plus JSON site manifest; real HTML/site artifact 必须由 `.agents/skills/claude-design` 基于 LLM-approved page plan、视觉约束和 manifest 执行并写入文件。
 - Output path: when project-bound, write under `projects/lesson/<项目名>/8-多端交付生成/html/`; draft-only mode returns the same schema without file writeback.
 - Naming convention: canonical filenames 固定为 `html-delivery-plan.md` and `html-site-manifest.json`; site artifacts should use explicit entry names such as `index.html` and route assets through the manifest.
-- Completion gate: `C1` 到 `C7` 通过，且 `Review Gate Binding` 无阻断 fail code；`C3-LLM-FIRST`、`C5-SITE-MANIFEST`、`FIELD-LESSON-HTML-06` 和真实 artifact 的 `FIELD-LESSON-HTML-07` 零容忍。
-- Handoff: 最终回复必须列出 HTML 输出路径、`claude-design` 执行和浏览器验证状态、父包 manifest 回接需求和未决交互/素材/可访问性缺口。
+- Completion gate: `C1` 到 `C7` 通过，且 `Review Gate Binding` 无阻断 fail code；`C3-LLM-FIRST`、`C5-SITE-MANIFEST`、`FIELD-LESSON-HTML-06` 和真实 artifact 的 `FIELD-LESSON-HTML-07` 零容忍；真实 artifact 请求没有 `artifact_paths + writeback_status` 不得完成。
+- Handoff: 最终回复必须列出 HTML 输出路径、artifact paths、writeback status、`claude-design` 执行和浏览器验证状态、selected modules、visual system、quality verdict、父包 manifest 回接需求和未决交互/素材/可访问性缺口。
 - Exception report: 若父包 packet 或上游 content model 不足，只输出阻断报告并路由父包或 owning stage。
 
 ## Runtime Guardrails
@@ -325,9 +326,9 @@ Symptom -> Direct Cause -> HTML Leaf Source Node -> Delivery Parent Contract -> 
 ## Permission Boundaries
 
 - Read-only: 本叶子 `SKILL.md + CONTEXT.md`、父包 `SKILL.md + CONTEXT.md`、父包 manifest、项目 `MEMORY.md`、项目 `CONTEXT/`、content model。
-- Writable: 正式项目绑定时写 `8-多端交付生成/html/html-delivery-plan.md`、`html-site-manifest.json`；用户授权的 HTML/site artifact 只能在调用 `.agents/skills/claude-design` 后写入本叶子目录或 manifest 指定子路径。
+- Writable: 正式项目绑定时写 `8-多端交付生成/html/html-delivery-plan.md`、`html-site-manifest.json`；用户授权的 HTML/site artifact 只能在调用 `.agents/skills/claude-design` 且回接 artifact paths、writeback status、selected modules、visual system、verification 与 quality verdict 后写入本叶子目录或 manifest 指定子路径。
 - Forbidden: 不写父包 `delivery-manifest.json` 的其他端，不写 DOC/PPT，不写第 `3` 到 `7` 阶段主稿，不写其他媒介 namespace。
-- Delivery tooling boundary: HTML/CSS/JS 组装、路由生成、资源复制和校验脚本只能消费 LLM-approved page plan、manifest 和 `claude-design` 产出的 artifact plan/result，不能生成网页课程正文或替代 `claude-design` 的视觉决策。
+- Delivery tooling boundary: HTML/CSS/JS 组装、路由生成、资源复制和校验脚本只能消费 LLM-approved page plan、manifest 和 `claude-design` 产出的 artifact plan/result，不能生成网页课程正文、替代 `claude-design` 的视觉决策，或把无 visual system / quality verdict 的普通页面当作成品。
 - agents/ entry metadata ownership: `agents/openai.yaml` 只声明本技能的产品入口、触发提示和边界摘要，不拥有运行时合同或输出完成门。
 
 ## Learning / Context Writeback

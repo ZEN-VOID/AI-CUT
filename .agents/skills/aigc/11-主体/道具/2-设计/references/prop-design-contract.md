@@ -8,7 +8,7 @@
 
 - `projects/aigc/<项目名>/11-主体/道具/1-清单/道具清单.md`
 - `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md`
-- `projects/aigc/<项目名>/3-美学/道具风格/道具风格协议.md`
+- 当前集优先的 `projects/aigc/<项目名>/3-美学/第N集/道具风格/道具风格协议.md`；缺失时回退 `projects/aigc/<项目名>/3-美学/道具风格/道具风格协议.md`
 - `projects/aigc/<项目名>/0-初始化/north_star.yaml`
 - `projects/aigc/<项目名>/team.yaml.init_synthesis`
 
@@ -133,7 +133,7 @@ source cue -> confidence -> visual translation -> design lock -> prompt evidence
 
 ## North Star And Team Consumption
 
-`3-美学/画面基调/全局风格协议.md` 与 `3-美学/道具风格/道具风格协议.md` 应转译为：
+`3-美学/画面基调/全局风格协议.md` 与当前集优先/项目级回退的 `3-美学/道具风格/道具风格协议.md` 应转译为：
 
 - `Global Style Prompt + Prop Style Prompt`。
 - 视觉母题、材质倾向、工艺策略、道具层负向边界和图像执行偏好。
@@ -188,7 +188,7 @@ source cue -> confidence -> visual translation -> design lock -> prompt evidence
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 设计稿是否消费 `道具清单.md`、`3-美学/画面基调/全局风格协议.md`、`3-美学/道具风格/道具风格协议.md`、`north_star.yaml`、`team.yaml.init_synthesis`，并把项目 `MEMORY.md / CONTEXT/` 与首次登场分组稿只作为补充证据而非新增清单外道具？ | `GATE-PROP-DESIGN-01` / `GATE-PROP-DESIGN-04` | `FAIL-PROP-DESIGN-01` / `FAIL-PROP-DESIGN-04` | `N2-UPSTREAM` / `N3-SCOPE` | `upstream_manifest`、项目上下文清单、补充证据使用边界 |
+| 设计稿是否消费 `道具清单.md`、`3-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `3-美学/道具风格/道具风格协议.md`、`north_star.yaml`、`team.yaml.init_synthesis`，并把项目 `MEMORY.md / CONTEXT/` 与首次登场分组稿只作为补充证据而非新增清单外道具？ | `GATE-PROP-DESIGN-01` / `GATE-PROP-DESIGN-04` | `FAIL-PROP-DESIGN-01` / `FAIL-PROP-DESIGN-04` | `N2-UPSTREAM` / `N3-SCOPE` | `upstream_manifest`、项目上下文清单、补充证据使用边界、episode override / fallback |
 | 每个 Markdown 是否只对应一个道具主体，没有并列多个道具、生成清单外主体或把上游冲突静默裁决为新 canonical 真源？ | `GATE-PROP-DESIGN-02` | `FAIL-PROP-DESIGN-02` | `N3-SCOPE` | `prop_worklist`、单主体边界说明、上游修复建议 |
 | 研究考据、物语、解构、道具风格和英文 prompt 是否由 LLM 直接创作与裁决，脚本只做读取、枚举、检查、统计、空目录或缺字段报告？ | `GATE-PROP-DESIGN-05` | `FAIL-SCRIPT-AUTHORSHIP` | `N6-DESIGN` | 脚本职责清单、LLM 主创声明、正文生成来源说明 |
 | 设计稿是否包含 `名称 / 首次登场 / 原文描述复述`、`研究考据`、`物语`、`解构`、`提示词设计` 五个必填章节，且复述未改写为新事实？ | `GATE-PROP-DESIGN-03` | `FAIL-PROP-DESIGN-03` | `N6-DESIGN` | 模板块覆盖检查、上游复述对照、缺块 finding |

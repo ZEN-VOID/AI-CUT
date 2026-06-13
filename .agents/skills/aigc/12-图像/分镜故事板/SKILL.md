@@ -132,6 +132,16 @@ Reject or clarify when:
 | `N10-CLOSE` | 汇流写最终报告 | all evidence | 写 prompt、manifest、plan、results 和 `执行报告.md`；列出 generated/skipped/failed、review gates、缺参照、分页、返工入口和下游 handoff | `执行报告.md`、final file list | done | 只有一个 final output；报告可审计 |
 | `R1-REWORK` | 按失败码回到源层节点修复 | fail code、failed artifact | 沿 `Symptom -> Runtime Artifact -> Direct Cause -> Rule Source -> Meta Rule Source` 追因；修复 owning node 和直接引用；同类失败写入 `CONTEXT.md` | repair log、updated artifact | `N3` / `N4` / `N5` / `N6` / `N7` / `N8` / `N9` / `N10` | 同一失败最多返工 2 次；不可恢复时 failed 报告 |
 
+## Thought Pass Map
+
+| thought_pass_id | applies_to_nodes | objective | required_output |
+| --- | --- | --- | --- |
+| `TP-SHEET-01-SCOPE` | `N1,N2` | 锁定生成目标、项目上下文、类型路线和非目标边界 | mode note、input manifest、context manifest、type profile |
+| `TP-SHEET-02-SOURCE` | `N3,N4` | 从 `10-分组` 建立可回指的组级理解，并裁决 frame units 与 sheet 几何 | group index、source comprehension、frame units、layout aspect decision、panel geometry blueprint |
+| `TP-SHEET-03-PAYLOAD` | `N5,N6` | 组装 prompt、主体参照、style lock、visual atoms 和生成前审查证据 | prompt draft、reference manifest、missing reference list、final prompt、imagegen plan、preflight review note |
+| `TP-SHEET-04-GENERATE` | `N7,N8` | 调用 imagegen 并把生成图持久化到项目内可追踪路径 | imagegen results、generated image paths、copy/existence check |
+| `TP-SHEET-05-REVIEW` | `N9,N10,R1` | 审查源追溯、payload、成图、报告和返工记录，形成可审计完成态 | review verdict、checked gates、repair log、执行报告、final file list |
+
 ## Quantifiable Execution Criteria Contract
 
 | criteria_slot | required_content | landing_place | fail_code |

@@ -156,3 +156,7 @@ This is cleaner than separate files and gives the user direct A/B/C comparison i
 Ask. Variations are the thing users most often want different amounts of. Some want 1 polished direction; some want 8 rough directions; some want 3 medium-fidelity. Ask which they want, and on which axis.
 
 If the user hasn't answered and you need to commit: default to **3 variations**, spanning conservative → novel, with a visible note that you can add more in any direction.
+
+## Review Gate Mapping
+
+No independent gate: this upstream reference is consumed through `.agents/skills/claude-design/SKILL.md` Review Gate Binding and cannot override adapter gates.

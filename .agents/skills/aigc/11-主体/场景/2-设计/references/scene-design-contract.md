@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | `11-主体/场景/1-清单/场景清单.md` | 作为场景主体、首次登场和原文关键词的唯一上游清单真源 | 新增未在清单出现的主体 |
 | `3-美学/画面基调/全局风格协议.md` | 提取 `Global Style Prompt`、`Visual Gene Profile`、`Negative Traits` 等画面基调最终内容 | 被单场景擅自改写，或被 `north_star.yaml` 替代 |
-| `3-美学/场景风格/场景风格协议.md` | 提取 `Scene Style Prompt`、空间/建筑/材质/地域时间风格等场景风格最终内容 | 被单场景擅自改写，或被 `north_star.yaml` 替代 |
+| 当前集优先/项目级回退的 `3-美学/场景风格/场景风格协议.md` | 提取 `Scene Style Prompt`、空间/建筑/材质/地域时间风格等场景风格最终内容；能推断 `第N集` 时先读 `3-美学/第N集/场景风格/场景风格协议.md` | 被单场景擅自改写，被 `north_star.yaml` 替代，或未记录 fallback |
 | `0-初始化/north_star.yaml` | 提取主题母题、项目北极星、创作阶段不变量、禁区、审美方向 | 取代单场景的设计判断，或冒充最终风格提示词真源 |
 | `team.yaml.init_synthesis` | 只读提取初始化阶段已统合的设计种子、约束、启发和风险 | 虚构不存在的大师监制、补造顾问问答或触发 team 身份调用 |
 | `MEMORY.md` / `CONTEXT/` | 读取项目长期偏好和共享事实 | 写入跨项目经验或技能规则 |
@@ -121,7 +121,7 @@
 ### 提示词设计
 
 - 必须记录 `画面基调引用`，来自 `3-美学/画面基调/全局风格协议.md` 的 `Global Style Prompt` 或用户明确覆盖说明。
-- 必须记录 `场景风格引用`，来自 `3-美学/场景风格/场景风格协议.md` 的 `Scene Style Prompt`、`type_profile`、场景设计判断、`team.yaml.init_synthesis`、north star 或用户明确补充。
+- 必须记录 `场景风格引用`，来自当前集优先/项目级回退的 `3-美学/场景风格/场景风格协议.md` 的 `Scene Style Prompt`、`type_profile`、场景设计判断、`team.yaml.init_synthesis`、north star 或用户明确补充。
 - 必须记录 `时间与地域引用`，来自 `research_brief`、`type_profile`、上游清单、项目资料或用户明确补充；若具体年代或地域无法确认，必须写成有来源姿态的保守英文锚点，例如 `non-specific 16th-century East Asian maritime setting`，不得省略。
 - 必须记录 `prompt_evidence_chain`，将英文 prompt 的关键 token 组回指到 `research_brief`、`visual_translation`、`Scene Design` 或 `Cinematography`。
 - `## 4. 解构` 标题下方必须先写 `主体ID号：<主体ID>`；该值必须与 `提示词设计` 的主体 ID 字段和英文 prompt 前缀一致。
@@ -162,7 +162,7 @@
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 是否把 `11-主体/场景/1-清单/场景清单.md`、`3-美学/画面基调/全局风格协议.md`、`3-美学/场景风格/场景风格协议.md`、`0-初始化/north_star.yaml`、`team.yaml.init_synthesis`、项目 `MEMORY.md` / `CONTEXT/` 和用户补充资料分别按 Source Contract 的用途锁定，而不是让任一来源替代单场景设计判断？ | `GATE-SCENE-DESIGN-01` | `FAIL-SCENE-DESIGN-01` | `N2-SOURCES` | 报告记录 `input_manifest`、各来源路径、使用方式和任何缺失/降级说明。 |
+| 是否把 `11-主体/场景/1-清单/场景清单.md`、`3-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `3-美学/场景风格/场景风格协议.md`、`0-初始化/north_star.yaml`、`team.yaml.init_synthesis`、项目 `MEMORY.md` / `CONTEXT/` 和用户补充资料分别按 Source Contract 的用途锁定，而不是让任一来源替代单场景设计判断？ | `GATE-SCENE-DESIGN-01` | `FAIL-SCENE-DESIGN-01` | `N2-SOURCES` | 报告记录 `input_manifest`、各来源路径、使用方式和任何缺失/降级/fallback 说明。 |
 | 场景主体、首次登场和原文关键词是否只来自上游场景清单，且没有从剧情想象、研究资料或用户临时描述中新增清单外主体？ | `GATE-SCENE-DESIGN-02` | `FAIL-SCENE-DESIGN-02` | `N3-SELECT` | 留下目标主体、清单行号、`S###` 编号和未新增主体的判定证据。 |
 | 研究考据、物语、Scene Design、Cinematography、英文 prompt、`source_posture`、`visual_translation` 与 `prompt_evidence_chain` 是否由 LLM 直接完成，脚本只做字段、路径、字符数等机械检查？ | `GATE-SCENE-DESIGN-07` | `FAIL-SCENE-DESIGN-07` | `N6-DESIGN` | 报告说明核心正文生成路径、脚本实际职责和是否存在模板拼接/规则扩写痕迹。 |
 | 场景设计稿和英文 prompt 是否明确为纯空镜，并排除人物、人体局部、剪影、倒影、人群、背影或任何可识别人类存在？ | `GATE-SCENE-DESIGN-09` | `FAIL-SCENE-DESIGN-09` | `N6-DESIGN` | 留下摄影字段与 English prompt 中 `empty shot / no people / no human figures` 等约束位置，以及禁用项检查结果。 |

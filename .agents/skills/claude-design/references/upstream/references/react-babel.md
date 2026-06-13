@@ -183,3 +183,7 @@ if (typeof window.claude?.complete === 'function') {
 - [ ] Shared components exported via `Object.assign(window, {...})`
 - [ ] No `type="module"` on Babel script tags
 - [ ] No `scrollIntoView` in component code
+
+## Review Gate Mapping
+
+No independent gate: this upstream reference is consumed through `.agents/skills/claude-design/SKILL.md` Review Gate Binding and cannot override adapter gates.

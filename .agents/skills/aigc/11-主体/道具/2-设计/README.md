@@ -1,6 +1,6 @@
 # 道具 2-设计
 
-`$aigc-prop-design` 将上游 `11-主体/道具/1-清单/道具清单.md` 扩展为每个道具主体一个细目设计 Markdown，并结合 `3-美学/画面基调/全局风格协议.md`、`3-美学/道具风格/道具风格协议.md`、`0-初始化/north_star.yaml` 与 `team.yaml.init_synthesis` 中的设计约束、启发和风险。
+`$aigc-prop-design` 将上游 `11-主体/道具/1-清单/道具清单.md` 扩展为每个道具主体一个细目设计 Markdown，并结合 `3-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `3-美学/道具风格/道具风格协议.md`、`0-初始化/north_star.yaml` 与 `team.yaml.init_synthesis` 中的设计约束、启发和风险。
 
 ## Directory Tree
 
@@ -35,7 +35,7 @@
 ## Quick Entry
 
 1. 读取 `SKILL.md + CONTEXT.md`。
-2. 读取项目 `MEMORY.md`、相关 `CONTEXT/`、`1-清单/道具清单.md`、`3-美学/画面基调/全局风格协议.md`、`3-美学/道具风格/道具风格协议.md`、`north_star.yaml`、`team.yaml.init_synthesis`。
+2. 读取项目 `MEMORY.md`、相关 `CONTEXT/`、`1-清单/道具清单.md`、`3-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `3-美学/道具风格/道具风格协议.md`、`north_star.yaml`、`team.yaml.init_synthesis`。
 3. 按单道具主体执行 `steps/prop-design-workflow.md`。
 4. 将研究转成 `source cue -> confidence -> visual translation -> design lock -> prompt evidence token`。
 5. 触发道具审美、文化元素、工艺装饰、功能结构、使用痕迹或 prompt 短语时加载 `knowledge-base/prop-design-corpus.md`，并原创转译为符合项目时代语境的设计细节。

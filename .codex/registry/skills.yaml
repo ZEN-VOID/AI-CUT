@@ -45,7 +45,7 @@ active_skills:
         owner_office: zhongshu
         contract_status: active
         route_role: stage
-        purpose: 消费 `2-编剧` 剧本或用户指定来源，生成画面基调、角色风格、场景风格、道具风格、分镜风格和摄影风格等美学协议。
+        purpose: 消费 `2-编剧` 剧本或用户指定来源，生成画面基调、角色风格、场景风格、道具风格、分镜风格和摄影风格等美学协议；`画面基调` 固定为项目级 singleton，其余五类风格在逐集任务中写入 `3-美学/第N集/<风格>/`，整季/项目基线才写项目级风格目录。
       - id: aigc-4-director-annotation
         path: .agents/skills/aigc/4-导演
         owner_office: zhongshu
@@ -57,31 +57,31 @@ active_skills:
         owner_office: zhongshu
         contract_status: active
         route_role: stage
-        purpose: 消费 `4-导演` 导演批注稿和 `3-美学` 的画面基调、角色风格、场景风格，删除批注并融合改写为逐集表演稿。
+        purpose: 消费 `4-导演` 导演批注稿和 `3-美学` 的画面基调、当前集优先的角色风格/场景风格，删除批注并融合改写为逐集表演稿。
       - id: aigc-6-atmosphere-fx
         path: .agents/skills/aigc/6-氛围
         owner_office: zhongshu
         contract_status: active
         route_role: stage
-        purpose: 消费 `5-表演` 表演稿和 `3-美学` 的画面基调、角色风格、场景风格，按渲染、烘托、增强触发点选择性新增 `氛围画面` 字段。
+        purpose: 消费 `5-表演` 表演稿和 `3-美学` 的画面基调、当前集优先的角色风格/场景风格，按渲染、烘托、增强触发点选择性新增 `氛围画面` 字段。
       - id: aigc-7-storyboard-split
         path: .agents/skills/aigc/7-分镜
         owner_office: zhongshu
         contract_status: active
         route_role: stage
-        purpose: 默认消费 `6-氛围` 逐集稿或用户指定文稿，并结合 `3-美学/画面基调` 与 `3-美学/分镜风格`，在原剧本画面点下方内联注入 `分镜N（N-N秒）：景别，景深，构图形式，主体陪体背景描述`。
+        purpose: 默认消费 `6-氛围` 逐集稿或用户指定文稿，并结合 `3-美学/画面基调` 与当前集优先的 `3-美学/分镜风格`，在原剧本画面点下方内联注入 `分镜N（N-N秒）：景别，景深，构图形式，主体陪体背景描述`。
       - id: aigc-8-camera-movement-injection
         path: .agents/skills/aigc/8-摄影
         owner_office: zhongshu
         contract_status: active
         route_role: stage
-        purpose: 默认消费 `7-分镜` 逐集稿或用户指定分镜稿，并结合 `3-美学/画面基调` 与 `3-美学/摄影风格`，在每条 `分镜N（N-N秒）：原有内容` 后内联注入综合运镜手法；一镜到底时以画面点为单位输出连续组合运镜。
+        purpose: 默认消费 `7-分镜` 逐集稿或用户指定分镜稿，并结合 `3-美学/画面基调` 与当前集优先的 `3-美学/摄影风格`，在每条 `分镜N（N-N秒）：原有内容` 后内联注入综合运镜手法；一镜到底时以画面点为单位输出连续组合运镜。
       - id: aigc-9-lighting-aesthetic-injection
         path: .agents/skills/aigc/9-光影
         owner_office: zhongshu
         contract_status: active
         route_role: stage
-        purpose: 默认消费 `8-摄影` 逐集稿或用户指定文稿，并结合 `3-美学/画面基调`、`3-美学/场景风格` 与 `3-美学/摄影风格`，在每条 `分镜N（N-N秒）：原有内容（包含摄影）` 后内联注入电影光影美学描述。
+        purpose: 默认消费 `8-摄影` 逐集稿或用户指定文稿，并结合 `3-美学/画面基调`、当前集优先的 `3-美学/场景风格` 与 `3-美学/摄影风格`，在每条 `分镜N（N-N秒）：原有内容（包含摄影）` 后内联注入电影光影美学描述。
       - id: aigc-3-motion-enrichment
         path: .agents/skills/aigc/3-运动
         owner_office: shangshu

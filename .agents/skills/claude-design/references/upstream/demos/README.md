@@ -30,3 +30,7 @@ open style-gallery/index.html
 ```
 
 No build step, no server. Each file is self-contained (CDN dependencies only).
+
+## Review Gate Mapping
+
+No independent gate: this upstream reference is consumed through `.agents/skills/claude-design/SKILL.md` Review Gate Binding and cannot override adapter gates.

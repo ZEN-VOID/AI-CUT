@@ -5,6 +5,11 @@
     "expected": "Route to ppt_delivery, audit the parent ppt packet, create ppt-delivery-plan.md and ppt-assembly-manifest.json, and preserve LLM-first slide authorship."
   },
   {
+    "id": "pptx-courseware-artifact",
+    "prompt": "基于父包 ppt packet，为 projects/lesson/销售训练营 生成最终 PPTX 课件，完成视觉重设计、polish 和导出验证。",
+    "expected": "Route to courseware_artifact_generation, audit the parent ppt packet, create or update ppt-delivery-plan.md and ppt-assembly-manifest.json with PPT-08-design-executor, load .agents/skills/claude-design/SKILL.md plus CONTEXT.md, write or update the approved PPTX/HTML deck/courseware artifact source, and require artifact_paths, writeback_status, selected_modules, visual_system, verification/export status, and quality_verdict before pass."
+  },
+  {
     "id": "update-visual-style",
     "prompt": "更新 projects/lesson/管理课 的 PPT，只调整视觉风格和第 3 模块 slides。",
     "expected": "Route to ppt_update, preserve unaffected slides, update the affected slide plan sections and assembly manifest entries only."

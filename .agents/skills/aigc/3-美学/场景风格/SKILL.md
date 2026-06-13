@@ -18,6 +18,7 @@ metadata:
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与美术、场景、世界观、时代背景、参考图/视频、禁区或长期审美偏好相关的文件。
 - 默认上游来源包括 `projects/aigc/<项目名>/2-编剧/`、`projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md`、用户指定参考图/视频和项目设定。用户显式指定其他来源时，以用户输入为本轮来源并标记来源类型。
+- 若输入来源或任务目标明确为 `第N集`，正式输出对象是该集场景风格覆盖，写入 `projects/aigc/<项目名>/3-美学/第N集/场景风格/`；只有整季、多集汇总或用户明确项目级基线时才写入非逐集 `场景风格/`。
 - 多模态参考只允许提供场景层风格事实，例如空间层次、环境光结果、气氛介质、自然/科技元素组织、时代质地和统一性策略；不得把参考中的具体地点、建筑、道具、镜头构图或生成参数迁入协议。
 - 核心风格判断、空间美学映射和提示词蒸馏必须由 LLM 直接完成；脚本只可承担读取、转写整理、清单校验、字数统计和污染扫描。
 - 脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成场景风格协议、统一策略或 prompt，直接 fail。
@@ -88,7 +89,7 @@ Accepted input:
 - `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md` 或用户粘贴的全局视觉协议。
 - 项目初始化资料、世界观设定、时代背景、用户美术偏好、禁区说明。
 - 参考图、参考视频、参考作品名称、环境概念图说明、导演/美术指导/作品锚点。
-- 已有 `projects/aigc/<项目名>/3-美学/场景风格/场景风格协议.md` 或候选 `scene_style_prompt`。
+- 已有逐集 `projects/aigc/<项目名>/3-美学/第N集/场景风格/场景风格协议.md`、项目级 `projects/aigc/<项目名>/3-美学/场景风格/场景风格协议.md` 或候选 `scene_style_prompt`。
 
 Required input:
 
@@ -124,7 +125,7 @@ Reject or clarify when:
 
 | mode | trigger | canonical_output |
 | --- | --- | --- |
-| `single_episode_scene_seed` | 基于单集剧本建立候选场景风格 | 候选 `场景风格协议.md`，报告标记样本范围 |
+| `single_episode_scene_seed` | 基于单集剧本建立场景风格覆盖 | `projects/aigc/<项目名>/3-美学/第N集/场景风格/场景风格协议.md` |
 | `project_scene_protocol` | 基于多集、项目资料和画面基调建立正式项目级协议 | `projects/aigc/<项目名>/3-美学/场景风格/场景风格协议.md` |
 | `reference_only` | 只有参考图/视频/作品，无项目叙事或画面基调资料 | 临时候选协议，不正式覆盖项目真源 |
 | `hybrid_calibration` | 项目资料 + 画面基调 + 参考图/视频/作品 | 正式协议，报告区分 script-derived、tone-derived 与 reference-derived 证据 |
@@ -254,6 +255,13 @@ Fail conditions:
 ## Output Contract
 
 正式写回路径：
+
+- `episode_scoped`: `projects/aigc/<项目名>/3-美学/第N集/场景风格/场景风格协议.md`
+- `episode_scoped`: `projects/aigc/<项目名>/3-美学/第N集/场景风格/执行报告.md`
+- `series_baseline`: `projects/aigc/<项目名>/3-美学/场景风格/场景风格协议.md`
+- `series_baseline`: `projects/aigc/<项目名>/3-美学/场景风格/执行报告.md`
+
+Legacy project-level baseline path:
 
 - `projects/aigc/<项目名>/3-美学/场景风格/场景风格协议.md`
 - `projects/aigc/<项目名>/3-美学/场景风格/执行报告.md`

@@ -17,7 +17,7 @@
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-LOAD` | 加载技能与项目上下文 | `SKILL.md`、`CONTEXT.md`、项目 `MEMORY.md`、项目 `CONTEXT/` | 锁定强制规则、项目偏好、禁区 | loaded context list | `N2-SOURCES` | 必需上下文缺失已报告 |
-| `N2-SOURCES` | 建立输入证据 | `3-美学/画面基调/全局风格协议.md`、`3-美学/场景风格/场景风格协议.md`、`north_star.yaml`、`team.yaml.init_synthesis`、`场景清单.md` | 提取 `画面基调.Global Style Prompt + 场景风格.Scene Style Prompt`、初始化综合设计种子、项目北极星/禁区和清单行 | `input_manifest` | `N3-SELECT` | 核心来源可回指 |
+| `N2-SOURCES` | 建立输入证据 | `3-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `3-美学/场景风格/场景风格协议.md`、`north_star.yaml`、`team.yaml.init_synthesis`、`场景清单.md` | 提取 `画面基调.Global Style Prompt + 场景风格.Scene Style Prompt`，并记录 episode override / fallback；初始化综合设计种子、项目北极星/禁区和清单行 | `input_manifest` | `N3-SELECT` | 核心来源可回指 |
 | `N3-SELECT` | 选择目标场景 | 用户指定或清单缺口 | 确定单个/批量场景与 `S###` 编号 | target scene list | `N4-TYPE` | 不新增清单外主体 |
 | `N4-TYPE` | 形成类型画像 | 目标场景、清单关键词、项目资料 | 按 `types/` 判定空间类型、研究重点、来源姿态和风格入口 | `type_profile` | `N5-RESEARCH` | 类型画像足以指导研究 |
 | `N5-RESEARCH` | LLM 直出研究闭环 | 上游证据、north star、`team.yaml.init_synthesis`、type profile、`init_team_synthesis_context` | 写 `research_brief`、`source_posture`、`uncertainty_register`、`visual_translation`；初始化综合采纳必须绑定当前节点，不得退化为固定字段问卷或补造顾问回答 | research brief、init synthesis node notes | `N6-DESIGN` | 研究能落到可见空间，不把猜测写成事实 |

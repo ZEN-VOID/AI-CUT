@@ -11,7 +11,7 @@
 
 ## Project Context Consumption
 
-`3-美学/画面基调/全局风格协议.md` + `3-美学/角色风格/角色风格协议.md`:
+`3-美学/画面基调/全局风格协议.md` + 当前集优先/项目级回退的 `3-美学/角色风格/角色风格协议.md`:
 
 - 抽取 `Global Style Prompt`、`Character Style Prompt`、角色造型原则、服装/妆发/身体语言和负向审美边界；角色设计风格词必须由 `画面基调.Global Style Prompt + 角色风格.Character Style Prompt` 组成。
 - 若字段命名不统一，由 LLM 根据语义识别，但必须在执行报告中说明使用了哪些字段。
@@ -153,7 +153,7 @@
 | --- | --- | --- | --- | --- |
 | 待设计角色是否能回指 `角色清单.md` 的 `名称 / 首次登场 / 原文描述（关键词式）`，且未凭设计阶段兴趣新增主体？ | `GATE-CHAR-DESIGN-01` | `FAIL-NO-LIST` | `N3-CHARACTER-LIST` | `character_intake_table`、清单行号、缺失字段说明 |
 | 同名冲突、疑似漏项或归并错误是否只形成上游修复建议，而没有在本 leaf 直接改清单或静默裁决 canonical 主体？ | `GATE-CHAR-DESIGN-02` | `FAIL-CHAR-DESIGN-UPSTREAM-SCOPE` | `N1-INTAKE` / `N3-CHARACTER-LIST` | `execution_scope`、上游修复建议、未改动上游声明 |
-| `3-美学/画面基调/全局风格协议.md` 的 `Global Style Prompt`、`3-美学/角色风格/角色风格协议.md` 的 `Character Style Prompt`、`north_star.yaml` 的主题/时代/地域/禁区和视觉约束是否被读取；字段漂移或缺失是否明确报告，而非虚构风格？ | `GATE-CHAR-DESIGN-03` | `FAIL-NO-STYLE` | `N2-PROJECT-CONTEXT` | `project_design_context`、已消费字段清单、缺失字段说明 |
+| `3-美学/画面基调/全局风格协议.md` 的 `Global Style Prompt`、当前集优先/项目级回退的 `3-美学/角色风格/角色风格协议.md` 的 `Character Style Prompt`、`north_star.yaml` 的主题/时代/地域/禁区和视觉约束是否被读取；字段漂移、fallback 或缺失是否明确报告，而非虚构风格？ | `GATE-CHAR-DESIGN-03` | `FAIL-NO-STYLE` | `N2-PROJECT-CONTEXT` | `project_design_context`、已消费字段清单、缺失字段说明 |
 | `team.yaml.init_synthesis` 是否只消费设计相关初始化综合，并把冲突建议按用户请求、north star 与角色功能裁决，而不是堆人名、模仿文风或补造顾问问答？ | `GATE-CHAR-DESIGN-04` | `FAIL-CHAR-DESIGN-ADVISOR-CONTEXT` | `N2-PROJECT-CONTEXT` / `N6-INIT-SYNTHESIS-REVIEW` | init synthesis source、冲突裁决依据、剔除无关内容说明 |
 | 研究考据、物语、解构、服装设计、摄影描述和 prompt 是否由 LLM 主创，脚本只做读取、列检查、路径、统计、空字段和 manifest 汇总？ | `GATE-CHAR-DESIGN-05` | `FAIL-SCRIPT-AUTHORSHIP` | `N7-MERGE-DRAFT` | 脚本职责清单、LLM 汇流声明、正文生成来源说明 |
 | `identity / occupation / class / region_era / costume_craft / body_posture / aesthetic_appeal / taboo_constraints / uncertainty / prompt_evidence_chain` 是否都产生设计转化，而非资料堆叠？ | `GATE-CHAR-DESIGN-06` | `FAIL-RESEARCH-FLAT` | `N5-RESEARCH-PROFILE` | `research_profile`、研究镜头与审美证据覆盖表、每个 lens 的 `design implication` |

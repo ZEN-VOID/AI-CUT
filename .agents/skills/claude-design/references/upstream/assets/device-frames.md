@@ -225,3 +225,7 @@ When a design mocks a mobile or desktop app, wrap it in a device frame so it rea
 - For interactive prototypes where the user clicks "home" / "back", treat the device frame as decoration — the real interaction lives in the content.
 
 If you need a frame for a tablet, TV, smartwatch, or foldable — ask the user for one reference screenshot so you don't invent proportions that look slightly wrong.
+
+## Review Gate Mapping
+
+No independent gate: this upstream reference is consumed through `.agents/skills/claude-design/SKILL.md` Review Gate Binding and cannot override adapter gates.

@@ -26,6 +26,8 @@ last_checked_at: 2026-06-04
 | `TM-AES-07` | 总览中的 prompt 摘要被下游当作唯一风格真源 | handoff 边界不清 | 总览标注“索引，不替代局部协议”并链接 canonical output | Field Mapping 将 prompt index 限定为快速索引 | 下游 handoff 同时列出 canonical path |
 | `TM-AES-08` | 6 个 subagents 使用不同项目资料，汇流不可比 | 输入包不统一 | 先构造共享 `Aesthetic Task Packet`，再 fan-out | N2 作为并发前置节点 | 6 个结果回指同一 `source_manifest` 或解释差异 |
 | `TM-AES-09` | 6 路协议像同一模板换对象名、换参考锚点或同义改写 | 源层主创缺失 | 不在父级总览润色补救；定位对应 subagent，废弃候选协议并回子技能主创节点重做 | 父级 `GATE-AES-09` 和各子技能 anti-scripted gate 独立阻断 | `anti_scripted_suite_audit` 标记无模板句架复用和锚点替换 |
+| `TM-AES-10` | 单集 3-美学执行把场景/角色/道具/分镜/摄影风格全部写到项目级路径，导致不同集互相覆盖 | output scope 漂移 | 若来源或目标是 `第N集`，5 个非画面基调子技能写入 `3-美学/第N集/<子技能>/`，父级总览写入 `3-美学/第N集/` | `SKILL.md` 固定 Output Object Scope Contract | `subagent_result_matrix.canonical_output` 对应当前 `episode_scope`，且 `画面基调` 仍在全局路径 |
+| `TM-AES-11` | 为每集复制一份 `画面基调/全局风格协议.md` | global singleton 误读 | 删除逐集画面基调写回要求；报告只记录单集样本范围或候选状态 | `画面基调` 子技能声明 global singleton，不支持 `3-美学/第N集/画面基调/` | 路径扫描无逐集 `画面基调` canonical 要求 |
 
 ## Repair Playbook
 
@@ -38,6 +40,7 @@ last_checked_at: 2026-06-04
 7. 用户指出“脚本化/偷懒/未思考/未差异化”时，父级不要做表层整合润色；先跑 `anti_scripted_suite_audit`，再把失败项返给对应 subagent 源层重做。
 8. 单子技能或部分子技能请求不自动补齐 6 个，除非用户明确说“整体”“全套”“完整阶段”。
 9. 下游 handoff 必须同时给出“继承什么”和“不继承什么”，避免设计、图像或视频阶段拿父级摘要替代局部协议。
+10. 单集执行时先锁 `episode_scope`：`画面基调` 不分集，其他 5 个子技能优先写 `3-美学/第N集/<子技能>/`；整季或项目级基线才写回非逐集目录。
 
 ## Reusable Heuristics
 
@@ -48,6 +51,7 @@ last_checked_at: 2026-06-04
 - 发现“父级总览比子协议更详细”通常就是越权信号。
 - 整体阶段的 pass 不等于每个子技能完美一致；它要求冲突和缺口被明确记录，并有可执行返工入口。
 - 父级最容易误把“六路格式统一”看成治理一致；格式可以统一，句式、锚点和审美判断不能由同一模板替换生成。
+- `画面基调` 是全片底层渲染协议，保持项目级 singleton；单集差异由场景、角色、道具、分镜和摄影 5 类风格覆盖承接。
 
 ## Parent-Child Boundary Notes
 

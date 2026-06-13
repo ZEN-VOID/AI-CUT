@@ -206,3 +206,7 @@ Real brands and real briefs exceed any pre-canned style library. If the user pic
 - An adjacent brand whose aesthetic they admire
 
 Then reverse-engineer a mini-system from those anchors, using the same "type + color + layout + signature moves" structure.
+
+## Review Gate Mapping
+
+No independent gate: this upstream reference is consumed through `.agents/skills/claude-design/SKILL.md` Review Gate Binding and cannot override adapter gates.

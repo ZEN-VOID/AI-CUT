@@ -46,8 +46,8 @@
 - 默认 source：`projects/aigc/<项目名>/5-表演/第N集.md`
 - 默认美学上下文：
   - `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md`
-  - `projects/aigc/<项目名>/3-美学/角色风格/角色风格协议.md`
-  - `projects/aigc/<项目名>/3-美学/场景风格/场景风格协议.md`
+  - `projects/aigc/<项目名>/3-美学/第N集/角色风格/角色风格协议.md`，缺失时回退 `projects/aigc/<项目名>/3-美学/角色风格/角色风格协议.md`
+  - `projects/aigc/<项目名>/3-美学/第N集/场景风格/场景风格协议.md`，缺失时回退 `projects/aigc/<项目名>/3-美学/场景风格/场景风格协议.md`
 
 ## 输出
 

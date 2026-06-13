@@ -39,7 +39,7 @@
 | --- | --- | --- | --- | --- | --- |
 | `GATE-CHAR-DESIGN-01` | upstream_anchor | `FAIL-NO-LIST` | 找不到 `角色清单.md`，或待设计主体无法回指 `名称 / 首次登场 / 原文描述（关键词式）` | `N3-CHARACTER-LIST` | `character_intake_table`、清单行号或缺失说明 |
 | `GATE-CHAR-DESIGN-02` | scope | `FAIL-CHAR-DESIGN-UPSTREAM-SCOPE` | 设计阶段新增清单外主体、直接修改上游清单，或把同名冲突/漏项静默裁决为 canonical 设计稿 | `N1-INTAKE` / `N3-CHARACTER-LIST` | `execution_scope`、上游修复建议、未改动上游声明 |
-| `GATE-CHAR-DESIGN-03` | project_context | `FAIL-NO-STYLE` | 未读取 `3-美学/画面基调/全局风格协议.md`、`3-美学/角色风格/角色风格协议.md` 或 `north_star.yaml`，虚构画面基调/角色风格，或未记录字段命名漂移与缺失字段 | `N2-PROJECT-CONTEXT` | `project_design_context`、已消费字段清单、缺失字段说明 |
+| `GATE-CHAR-DESIGN-03` | project_context | `FAIL-NO-STYLE` | 未读取 `3-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `3-美学/角色风格/角色风格协议.md` 或 `north_star.yaml`，虚构画面基调/角色风格，或未记录字段命名漂移、fallback 与缺失字段 | `N2-PROJECT-CONTEXT` | `project_design_context`、已消费字段清单、缺失字段说明 |
 | `GATE-CHAR-DESIGN-04` | project_context | `FAIL-CHAR-DESIGN-ADVISOR-CONTEXT` | `team.yaml.init_synthesis` 相关设计种子未选择性消费，或把初始化综合写成人名堆砌/文风模仿 | `N2-PROJECT-CONTEXT` / `N6-INIT-SYNTHESIS-REVIEW` | 设计相关 init synthesis source、冲突裁决依据、被剔除无关内容说明 |
 | `GATE-CHAR-DESIGN-05` | llm_first | `FAIL-SCRIPT-AUTHORSHIP` | 脚本生成研究、物语、解构、服装、摄影或英文 prompt 正文 | `N7-MERGE-DRAFT` | 脚本职责清单、LLM 汇流声明、正文生成来源说明 |
 | `GATE-CHAR-DESIGN-06` | research_layer | `FAIL-RESEARCH-FLAT` | 研究层缺少任一必需 lens，或资料未转化为外观、服装、姿态、摄影和 prompt 决策 | `N5-RESEARCH-PROFILE` | `research_profile`、`design implication`、研究镜头与审美证据覆盖表 |

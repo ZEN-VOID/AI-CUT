@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-06-11
+
+- 补齐 `## Thought Pass Map`，将分镜故事板的 scope/source/payload/generate/review 思考通道显式映射到既有 N1-N10/R1 节点，满足 `aigc_skill_audit --strict` 的 runtime-spine section gate；不改变业务输出路径或 imagegen 完成门禁。
+
 ## 2026-06-10
 
 - 执行 Skill 2.0 最新版 runtime-spine 升级：删除 `steps/` 第二节点真源，将 N1-N10 主流程、Mermaid 拓扑、量化口径、注意力协议、checkpoint、模块授权、触发矩阵、汇流门和 review binding 收回 `SKILL.md`。

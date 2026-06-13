@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-06-13
+
+- Added final HTML artifact writeback gates requiring `artifact_paths` and `writeback_status`; target-path-only handoff is no longer passable.
+- Upgraded real HTML artifact delegation to require `claude-design` selected modules, a visible visual system, browser verification, and quality verdict before pass.
+- Clarified the context loading contract so the conditional `.agents/skills/claude-design` skill pair is not contradicted by the default no-optional-modules rule.
+
 ## 2026-06-07
 
 - Added mandatory `.agents/skills/claude-design` delegation for real HTML artifact generation, redesign, polish, and browser verification.

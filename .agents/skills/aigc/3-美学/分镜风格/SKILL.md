@@ -18,6 +18,7 @@ metadata:
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与剧本结构、画面基调、摄影风格、参考视频、分镜偏好、禁区或下游模型限制相关的文件。
 - 默认上游来源包括 `2-编剧/`、`3-美学/画面基调/全局风格协议.md`、`3-美学/摄影风格/`、用户粘贴文本、参考图/视频说明和已有候选分镜风格协议；用户显式指定来源时，以用户输入为本轮来源并标注来源类型。
+- 若输入来源或任务目标明确为 `第N集`，正式输出对象是该集分镜风格覆盖，写入 `projects/aigc/<项目名>/3-美学/第N集/分镜风格/`；只有整季、多集汇总或用户明确项目级基线时才写入非逐集 `分镜风格/`。
 - 多模态参考只允许提供节奏事实、转场语法、段落推进、镜头组合倾向、信息密度和连接方式，不得复制参考中的具体剧情、人物、动作、物件、场景或镜头编号。
 - 核心风格判断、节奏归纳、分镜组织策略和提示词蒸馏必须由 LLM 直接完成；脚本只可承担读取、转写整理、字数统计、JSON/Markdown 校验和越权词扫描。
 - 脚本、映射表、规则模板、关键词锚点替换、句式轮换、同义改写批量生成、批量插入、正则套句或映射投影生成分镜风格协议、连接语法、信息密度规则或 prompt，直接 fail。
@@ -122,7 +123,7 @@ Reject or clarify when:
 
 | mode | trigger | canonical_output |
 | --- | --- | --- |
-| `single_episode_seed` | 基于单集剧本或单段资料建立候选分镜风格 | 候选 `分镜风格协议.md`，报告标记样本范围 |
+| `single_episode_seed` | 基于单集剧本或单段资料建立分镜风格覆盖 | `projects/aigc/<项目名>/3-美学/第N集/分镜风格/分镜风格协议.md` |
 | `series_storyboard_protocol` | 基于多集、整季或项目资料建立正式项目级协议 | `projects/aigc/<项目名>/3-美学/分镜风格/分镜风格协议.md` |
 | `aesthetic_inheritance` | 基于画面基调和摄影风格抽取分镜组织边界 | 正式或候选协议，明确继承项与不继承项 |
 | `reference_only` | 只有参考图/视频/作品，无项目叙事资料 | 临时候选协议，不正式覆盖项目真源 |
@@ -256,6 +257,13 @@ Fail conditions:
 ## Output Contract
 
 正式写回路径：
+
+- `episode_scoped`: `projects/aigc/<项目名>/3-美学/第N集/分镜风格/分镜风格协议.md`
+- `episode_scoped`: `projects/aigc/<项目名>/3-美学/第N集/分镜风格/执行报告.md`
+- `series_baseline`: `projects/aigc/<项目名>/3-美学/分镜风格/分镜风格协议.md`
+- `series_baseline`: `projects/aigc/<项目名>/3-美学/分镜风格/执行报告.md`
+
+Legacy project-level baseline path:
 
 - `projects/aigc/<项目名>/3-美学/分镜风格/分镜风格协议.md`
 - `projects/aigc/<项目名>/3-美学/分镜风格/执行报告.md`

@@ -19,6 +19,18 @@ metadata:
 - 本阶段不默认加载 `templates/`、`references/`、`review/`、`types/`、`scripts/` 或 `steps/`；当前可执行合同全部在本 `SKILL.md` 中。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > lesson 根 `SKILL.md` > 本 `SKILL.md` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 同目录 `CONTEXT.md`。
 
+## Context Processing Contract
+
+上下文加载完成后，必须先形成 `context_snapshot`，再进入节点执行：
+
+- `loaded_context_manifest` / `upstream_handoff_status`：列出同目录 `CONTEXT.md`、lesson 根 `SKILL.md + CONTEXT.md`、项目 `MEMORY.md`、项目 `CONTEXT/`、上游 handoff/产物及本轮额外资料的 `loaded` / `missing` / `n/a` 状态。
+- `context_classification`：将上下文拆为 `hard_constraints`、`project_preferences`、`evidence_facts`、`upstream_state`、`risks_or_unknowns`、`reusable_heuristics`；只有 `hard_constraints`、阶段 gate 和可验证上游事实可以约束 canonical 输出。
+- `missing_context_policy`：项目根、`MEMORY.md`、`CONTEXT/` 或必需上游缺失时，按本阶段 `Input Contract` 和 `Type Routing Matrix` 阻断、路由初始化/恢复/owning stage，或降级为显式标注假设的草案；不得静默补空。
+- `context_conflict_map`：若用户输入、项目记忆、项目上下文、上游产物和本 `CONTEXT.md` 冲突，按 `Context Loading Contract` 的优先级记录 winner、loser 和输出影响。
+- `context_application`：在 `Thinking-Action Node Map` 的第一个生成/写回节点前，把 `context_snapshot` 转换为输出约束、N/A 理由、待核验项、返工入口和下游 handoff 字段；不得把 `CONTEXT.md` 的经验层内容当作课程事实或项目长期偏好。
+- `context_writeback_decision`：用户明确长期要求写项目 `MEMORY.md`；可复用阶段失败/成功模式写本技能 `CONTEXT.md`；一次性资料摘要、阶段正文、题库、视觉方案和交付计划写阶段 canonical 输出或项目 `CONTEXT/`；不得交叉写位。
+- `evidence_in_final`：最终回复或执行报告必须说明关键上下文是否已加载、哪些缺失被标记为假设/阻断、以及本轮写回落点。
+
 ## Core Task Contract
 
 本技能的核心任务是把目标、架构和课时内容转化为可评价、可教学执行、可交付投影的活动与测评包。

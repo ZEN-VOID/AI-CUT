@@ -19,7 +19,7 @@
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-CONTEXT` | 锁定技能与项目上下文 | `SKILL.md`、`CONTEXT.md`、项目 `MEMORY.md`、项目 `CONTEXT/` | 读取强制合同和项目长期偏好 | context manifest | `N2-UPSTREAM` | 必要上下文缺失已标注 |
-| `N2-UPSTREAM` | 锁定上游清单与初始化综合来源 | `1-清单/道具清单.md`、`3-美学/画面基调/全局风格协议.md`、`3-美学/道具风格/道具风格协议.md`、`north_star.yaml`、`team.yaml.init_synthesis` | 读取清单项、`画面基调.Global Style Prompt + 道具风格.Prop Style Prompt`、项目北极星/禁区、设计相关初始化约束、启发和风险 | upstream manifest | `N3-SCOPE` | 清单存在且目标道具可定位 |
+| `N2-UPSTREAM` | 锁定上游清单与初始化综合来源 | `1-清单/道具清单.md`、`3-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `3-美学/道具风格/道具风格协议.md`、`north_star.yaml`、`team.yaml.init_synthesis` | 读取清单项、`画面基调.Global Style Prompt + 道具风格.Prop Style Prompt`，并记录 episode override / fallback；项目北极星/禁区、设计相关初始化约束、启发和风险 | upstream manifest | `N3-SCOPE` | 清单存在且目标道具可定位 |
 | `N3-SCOPE` | 选择本轮处理主体 | 用户指定项或清单全量 | 只调度命中道具，生成主体 ID 前缀和安全文件名 | prop worklist | `N4-TYPE` | 未调度项不补占位 |
 | `N4-TYPE` | 形成 `type_profile` | 单道具清单项、上下文 | 按 `types/prop-design-type-map.md` 判型 | type profile | `N5-RESEARCH-CHAIN` | 类型不确定时采用最保守通用路线 |
 | `N5-RESEARCH-CHAIN` | 把研究推进为可见设计证据链 | 清单项、north_star、team 初始化综合、type profile、可选来源、`init_team_synthesis_context`、`knowledge-base/prop-design-corpus.md` | 由 LLM 判断来源、置信度、不确定性，并转译为形制、材料、工艺、设计细节、文化元素、年代、使用痕迹、功能逻辑、prompt token；触发时记录语料种子、原创转译和时代/文化 guardrail；初始化综合采纳内容必须绑定当前节点，不得退化为固定字段问卷 | research evidence chain、prop corpus usage trace、init synthesis node notes | `N6-DESIGN` | 每条关键研究都服务至少一个设计或 prompt 决策；道具不是普通功能物，文化元素不脱离时代语境 |

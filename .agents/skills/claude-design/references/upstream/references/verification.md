@@ -87,3 +87,7 @@ Over-verification wastes context and the user's patience. Under-verification shi
 - **`mcp__computer-use__*`** — only for native desktop tasks, and tier-"read" for browsers means you can screenshot but not click. Rarely the right tool here.
 
 For everyday design verification, `/browse` is the answer.
+
+## Review Gate Mapping
+
+No independent gate: this upstream reference is consumed through `.agents/skills/claude-design/SKILL.md` Review Gate Binding and cannot override adapter gates.

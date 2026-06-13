@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-06-11
+
+- 同步 `3-美学` 输出 scope：表演阶段读取 `画面基调` 全局 singleton；角色风格和场景风格按当前 `第N集` 优先读取 `3-美学/第N集/<风格>/`，缺失时回退项目级基线。
+- 更新 `SKILL.md`、`README.md` 与 agent prompt，执行报告需记录风格来源与 fallback。
+
 ## 2026-06-10
 
 - 新增 `references/action-choreography-contract.md`，将武侠、动作、玄幻、格斗、追逐、兵器、术法对抗等打戏题材路由到动作戏编排细则。

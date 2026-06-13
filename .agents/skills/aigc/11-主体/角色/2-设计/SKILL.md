@@ -21,7 +21,7 @@ metadata:
 - 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与角色、风格、服装、禁区和既有设定相关的上下文文件。
 - 项目运行时必须读取 `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md`，用于抽取 `Global Style Prompt`、`Visual Gene Profile`、`Negative Traits` 等画面基调最终内容；角色设计风格词的全局部分以此为准。
-- 项目运行时必须读取 `projects/aigc/<项目名>/3-美学/角色风格/角色风格协议.md`，用于抽取 `Character Style Prompt`、角色造型原则、服装/妆发/身体语言等角色风格最终内容；角色设计风格词的细目部分以此为准。
+- 项目运行时必须解析当前角色的 `首次登场`、用户指定集号或上游清单中的 `episode_id`。若能推断 `第N集`，必须优先读取 `projects/aigc/<项目名>/3-美学/第N集/角色风格/角色风格协议.md`；缺失时回退 `projects/aigc/<项目名>/3-美学/角色风格/角色风格协议.md`。该协议用于抽取 `Character Style Prompt`、角色造型原则、服装/妆发/身体语言等角色风格最终内容；角色设计风格词的细目部分以此为准。
 - 项目运行时必须读取 `projects/aigc/<项目名>/0-初始化/north_star.yaml`，用于抽取项目北极星、主题方向、创作阶段不变量和项目禁区；不得再把 `north_star.yaml` 当作角色最终风格提示词真源。
 - 项目运行时必须读取 `projects/aigc/<项目名>/team.yaml.init_synthesis`，只消费初始化阶段已统合的设计种子、问答 provenance、约束、启发和风险；不得把 team 成员身份、旧 stage profile 或无关成员意见硬塞进角色设计稿。
 - 初始化综合存在时，必须读取 `../../../_shared/team-advisor-consultation-contract.md`，优先消费 `team.yaml.init_synthesis.stage_seed_summary."11-主体"`、`init_handoff.design_seed` 与 `north_star.yaml.创作阶段不变量.设计`；不得在本阶段调用项目监制成员、解析叶子专属 profile、派生新顾问问题或代入顾问角色意识，只能在 LLM 角色设计前形成 `init_team_synthesis_context`。
@@ -65,7 +65,7 @@ Required input:
 
 - 可定位、可读取的项目根 `projects/aigc/<项目名>/`。
 - 可读取的上游 `角色清单.md`，且每个待设计角色至少有 `名称`、`首次登场`、`原文描述（关键词式）`。
-- 可读取的 `3-美学/画面基调/全局风格协议.md`、`3-美学/角色风格/角色风格协议.md`、`north_star.yaml` 和 `team.yaml.init_synthesis`；若缺失，必须在输出中标记上下文缺口，不得伪造画面基调、角色风格或初始化综合。
+- 可读取的 `3-美学/画面基调/全局风格协议.md`、当前集优先的 `3-美学/第N集/角色风格/角色风格协议.md`（缺失时回退 `3-美学/角色风格/角色风格协议.md`）、`north_star.yaml` 和 `team.yaml.init_synthesis`；若缺失，必须在输出中标记上下文缺口，不得伪造画面基调、角色风格或初始化综合。
 
 Optional input:
 
@@ -194,7 +194,7 @@ stateDiagram-v2
 | --- | --- | --- | --- |
 | `FIELD-CHAR-DESIGN-01` | 上游清单锚点 | 名称、首次登场、原文描述复述可回指 `角色/1-清单` | `FAIL-CHAR-DESIGN-01` |
 | `FIELD-CHAR-DESIGN-01A` | 增量补缺 | 只处理缺设计稿或用户指定 repair 的主体，未静默覆盖既有设计稿 | `FAIL-CHAR-DESIGN-01A` |
-| `FIELD-CHAR-DESIGN-02` | 项目风格锚点 | `3-美学/画面基调/全局风格协议.md` 的 `Global Style Prompt` 与 `3-美学/角色风格/角色风格协议.md` 的 `Character Style Prompt` 已消费并显式折入提示词；`north_star.yaml` 仅作为项目北极星、主题、禁区和设计不变量来源 | `FAIL-CHAR-DESIGN-02` |
+| `FIELD-CHAR-DESIGN-02` | 项目风格锚点 | `3-美学/画面基调/全局风格协议.md` 的 `Global Style Prompt` 与当前集优先的 `3-美学/第N集/角色风格/角色风格协议.md`（缺失时回退项目级角色风格）的 `Character Style Prompt` 已消费并显式折入提示词；`north_star.yaml` 仅作为项目北极星、主题、禁区和设计不变量来源 | `FAIL-CHAR-DESIGN-02` |
 | `FIELD-CHAR-DESIGN-03` | 初始化综合上下文 | `team.yaml.init_synthesis` 中设计相关约束、启发和风险已选择性消费，不无关堆砌 | `FAIL-CHAR-DESIGN-03` |
 | `FIELD-CHAR-DESIGN-04` | 解构字段 | `## 4. 解构` 标题下方先写 `主体ID号：<主体ID>`，且 `Identity & Story Pressure`、`Visual Drivers`、`Detailed Character Design`、`Detailed Costume Design`、`Cinematography` 全部存在 | `FAIL-CHAR-DESIGN-04` |
 | `FIELD-CHAR-DESIGN-05` | 提示词 | 英文、以主体 ID 号开头、含 `画面基调.Global Style Prompt + 角色风格.Character Style Prompt`，不超过 1300 characters；整合对象是 `## 4. 解构` 全部有效字段，并使用自然语言负向约束，不使用 `--no`；prompt 前缀必须与 `## 4. 解构` 和 `## 5. 提示词设计` 中的主体 ID 完全一致 | `FAIL-CHAR-DESIGN-05` |
@@ -273,7 +273,7 @@ stateDiagram-v2
 
 ### Completion gate
 
-- 已读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md`、相关项目 `CONTEXT/`、`3-美学/画面基调/全局风格协议.md`、`3-美学/角色风格/角色风格协议.md`、`north_star.yaml` 和 `team.yaml.init_synthesis`。
+- 已读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md`、相关项目 `CONTEXT/`、`3-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `3-美学/角色风格/角色风格协议.md`、`north_star.yaml` 和 `team.yaml.init_synthesis`。
 - 待设计角色均来自 `角色/1-清单/角色清单.md`。
 - 已识别并跳过既有设计稿；仅补齐缺设计稿或用户明确指定 repair 的主体。
 - 输出文件名包含主体 ID 前缀，且该 ID 与 `## 4. 解构`、`## 5. 提示词设计` 和英文 prompt 开头一致。

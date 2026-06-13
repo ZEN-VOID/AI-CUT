@@ -210,3 +210,7 @@ Un-frozen knowledge evaporates. Write what you found to disk so the next turn of
 - [ ] **Step 5:** Wrote `brand-spec.md` with logo paths, product shot paths, UI screenshot paths, colors, fonts, and completeness notes
 
 Skipping any step silently produces a generic design. If you don't have time or resources for a step, say so out loud to the user and offer the honest alternative (placeholder, AI-generated, or "let's pause and get this").
+
+## Review Gate Mapping
+
+No independent gate: this upstream reference is consumed through `.agents/skills/claude-design/SKILL.md` Review Gate Binding and cannot override adapter gates.

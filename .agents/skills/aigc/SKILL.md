@@ -151,7 +151,7 @@ flowchart TD
 | `0-初始化` | `.agents/skills/aigc/0-初始化/` | `projects/aigc/<项目名>/0-初始化/` | active                                                                       |
 | `1-分集`   | `.agents/skills/aigc/1-分集/`   | `projects/aigc/<项目名>/1-分集/`   | active                                                                       |
 | `2-编剧`   | `.agents/skills/aigc/2-编剧/`   | `projects/aigc/<项目名>/2-编剧/`   | active；小说到短剧剧本改编、题材/叙事解析、节奏/高潮/尾钩和 AIGC 字段整理 |
-| `3-美学`   | `.agents/skills/aigc/3-美学/`   | `projects/aigc/<项目名>/3-美学/`   | active；默认消费 `2-编剧` 剧本输出或用户指定剧本，整体调用时并发生成画面基调、场景风格、角色风格、道具风格、分镜风格和摄影风格 |
+| `3-美学`   | `.agents/skills/aigc/3-美学/`   | `projects/aigc/<项目名>/3-美学/`   | active；默认消费 `2-编剧` 剧本输出或用户指定剧本，整体调用时并发生成画面基调、场景风格、角色风格、道具风格、分镜风格和摄影风格；`画面基调` 为项目级 singleton，其余 5 类风格在单集执行时优先落到 `3-美学/第N集/<风格>/` |
 | `4-导演`   | `.agents/skills/aigc/4-导演/`   | `projects/aigc/<项目名>/4-导演/`   | active；消费 `2-编剧` 与 `3-美学/画面基调`，逐画面点注入导演批注 |
 | `5-表演`   | `.agents/skills/aigc/5-表演/`   | `projects/aigc/<项目名>/5-表演/`   | active；消费 `4-导演` 导演批注稿与 `3-美学` 画面基调/角色风格/场景风格，删除批注并融合改写为表演稿 |
 | `6-氛围`   | `.agents/skills/aigc/6-氛围/`   | `projects/aigc/<项目名>/6-氛围/`   | active；消费 `5-表演` 表演稿与 `3-美学` 画面基调/角色风格/场景风格，按渲染/烘托/增强触发点选择性新增 `氛围画面` 字段 |
@@ -177,13 +177,13 @@ Supporting project roots may be created by later owning workflows as needed. `0-
 | natural-language routing and registry truth | `.codex/registry/skills.yaml`, `.codex/registry/routes.yaml`                                                            |
 | initialization                              | `0-初始化/SKILL.md + CONTEXT.md`                                                                                          |
 | screenplay adaptation                       | `2-编剧/SKILL.md + CONTEXT.md`；处理小说到逐集剧本、题材/叙事解析、短剧节奏、高潮尾钩、声画同步和 AIGC 下游字段 |
-| visual aesthetics                           | `3-美学/SKILL.md + CONTEXT.md`；默认消费 `2-编剧` 输出或用户指定剧本，处理画面基调、场景/角色/道具风格、分镜/摄影风格和交互图片/视频参照解析；其中 `画面基调/全局风格协议.md` 的 `Global Style Prompt` 是下游全局风格真源 |
+| visual aesthetics                           | `3-美学/SKILL.md + CONTEXT.md`；默认消费 `2-编剧` 输出或用户指定剧本，处理画面基调、场景/角色/道具风格、分镜/摄影风格和交互图片/视频参照解析；其中 `画面基调/全局风格协议.md` 的 `Global Style Prompt` 是下游全局风格真源；逐集任务优先消费 `3-美学/第N集/<风格>/...`，缺失时回退 `3-美学/<风格>/...` 项目级基线 |
 | director annotation                         | `4-导演/SKILL.md + CONTEXT.md`；默认消费 `2-编剧` 与 `3-美学/画面基调`，逐画面点生成内联导演批注 |
-| performance rewrite                         | `5-表演/SKILL.md + CONTEXT.md`；默认消费 `4-导演` 导演批注稿与 `3-美学` 的画面基调、角色风格、场景风格，融合改写为无批注残留的表演稿 |
-| atmosphere fx enrichment                    | `6-氛围/SKILL.md + CONTEXT.md`；默认消费 `5-表演` 表演稿与 `3-美学` 的画面基调、角色风格、场景风格，按渲染/烘托/增强触发点选择性新增 `氛围画面` 字段 |
-| storyboard split                            | `7-分镜/SKILL.md + CONTEXT.md`；默认消费 `6-氛围/第N集.md`，用户指定时优先指定文稿，并加载 `3-美学/画面基调/全局风格协议.md` 与 `3-美学/分镜风格/分镜风格协议.md`，在原画面点下方内联注入 `分镜N（N-N秒）：景别，景深，构图形式，主体陪体背景描述` |
-| camera movement injection                   | `8-摄影/SKILL.md + CONTEXT.md`；默认消费 `7-分镜/第N集.md`，用户指定时优先指定分镜稿，并加载 `3-美学/画面基调/全局风格协议.md` 与 `3-美学/摄影风格/摄影风格协议.md`，在 `分镜N（N-N秒）：原有内容` 后追加镜头角度、镜头类型、速度和焦点行为的综合运镜手法 |
-| lighting aesthetic injection                | `9-光影/SKILL.md + CONTEXT.md`；默认消费 `8-摄影/第N集.md`，用户指定时优先指定文稿，并加载 `3-美学/画面基调/全局风格协议.md`、`3-美学/场景风格/场景风格协议.md` 与 `3-美学/摄影风格/摄影风格协议.md`，在 `分镜N（N-N秒）：原有内容（包含摄影）` 后追加电影光影美学描述 |
+| performance rewrite                         | `5-表演/SKILL.md + CONTEXT.md`；默认消费 `4-导演` 导演批注稿与 `3-美学` 的画面基调、角色风格、场景风格，融合改写为无批注残留的表演稿；角色/场景风格按当前 `第N集` 先读 `3-美学/第N集/<风格>/...`，再回退项目级基线 |
+| atmosphere fx enrichment                    | `6-氛围/SKILL.md + CONTEXT.md`；默认消费 `5-表演` 表演稿与 `3-美学` 的画面基调、角色风格、场景风格，按渲染/烘托/增强触发点选择性新增 `氛围画面` 字段；角色/场景风格按当前 `第N集` 先读逐集覆盖，再回退项目级基线 |
+| storyboard split                            | `7-分镜/SKILL.md + CONTEXT.md`；默认消费 `6-氛围/第N集.md`，用户指定时优先指定文稿，并加载 `3-美学/画面基调/全局风格协议.md` 与当前集优先的 `3-美学/第N集/分镜风格/分镜风格协议.md`，缺失时回退 `3-美学/分镜风格/分镜风格协议.md`，在原画面点下方内联注入 `分镜N（N-N秒）：景别，景深，构图形式，主体陪体背景描述` |
+| camera movement injection                   | `8-摄影/SKILL.md + CONTEXT.md`；默认消费 `7-分镜/第N集.md`，用户指定时优先指定分镜稿，并加载 `3-美学/画面基调/全局风格协议.md` 与当前集优先的 `3-美学/第N集/摄影风格/摄影风格协议.md`，缺失时回退 `3-美学/摄影风格/摄影风格协议.md`，在 `分镜N（N-N秒）：原有内容` 后追加镜头角度、镜头类型、速度和焦点行为的综合运镜手法 |
+| lighting aesthetic injection                | `9-光影/SKILL.md + CONTEXT.md`；默认消费 `8-摄影/第N集.md`，用户指定时优先指定文稿，并加载 `3-美学/画面基调/全局风格协议.md`、当前集优先的 `3-美学/第N集/场景风格/场景风格协议.md` 与 `3-美学/第N集/摄影风格/摄影风格协议.md`，缺失时回退对应项目级基线，在 `分镜N（N-N秒）：原有内容（包含摄影）` 后追加电影光影美学描述 |
 | storyboard grouping                         | `10-分组/SKILL.md + CONTEXT.md`；默认消费 `9-光影/第N集.md` 光影稿，用户指定时优先指定文稿；按真实集-场-组生成 `x-y-z` 分镜组、组级风格、首帧衔接和 YAML 统计 |
 | design domain routing                       | `11-主体/SKILL.md + CONTEXT.md`                                                                                            |
 | current image stage                         | `12-图像/SKILL.md + CONTEXT.md`；未显式指定叶子时默认继续加载 `12-图像/分镜故事板/SKILL.md + CONTEXT.md`                |

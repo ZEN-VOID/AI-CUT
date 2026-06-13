@@ -125,6 +125,7 @@ Optional input:
 
 - 具体集数、样本范围、参考图/视频路径、参考作品名称、禁用风格、下游模型限制、是否覆盖已有协议、是否只做审查。
 - 项目根 `MEMORY.md` 中长期审美偏好、禁区和特殊元素。
+- 当输入来源、用户目标或上游阶段明确指向 `第N集` 时，必须锁定 `episode_scope=第N集`；`画面基调` 仍是项目级全局 singleton，不进入逐集路径，其余 5 个风格协议和父级总览按本集写回。
 
 Reject or clarify when:
 
@@ -143,6 +144,18 @@ Reject or clarify when:
 | `review_existing_suite` | 用户只要求检查已有 3-美学阶段输出 | 父级审查已有文件和子技能报告 | 不重新创作，除非发现缺项需返工 |
 | `repair_suite_route` | 用户指出整体路由失败、漏掉子技能、并发未执行或聚合越权 | 定位失败源，修父级入口或返工子技能 | 只重跑失败/缺失 subagents，除非用户要求整体重跑 |
 
+## Output Object Scope Contract
+
+`3-美学` 的输出对象按“全局底层协议 + 逐集风格覆盖”分层治理：
+
+| scope_type | applies_to | trigger | canonical_scope | path_rule |
+| --- | --- | --- | --- | --- |
+| `global_singleton` | `画面基调` | 任意项目级、整季或单集来源 | 项目唯一全局视觉底层协议 | 固定写入 `projects/aigc/<项目名>/3-美学/画面基调/`；不得创建 `3-美学/第N集/画面基调/` |
+| `episode_scoped` | `场景风格`、`道具风格`、`分镜风格`、`角色风格`、`摄影风格` 和父级总览 | 输入或目标明确为 `第N集`、单集剧本、单集阶段推进或 workflow 指定 episode | 当前集的风格覆盖与父级汇流结果 | 写入 `projects/aigc/<项目名>/3-美学/第N集/<子技能>/`；父级写入 `projects/aigc/<项目名>/3-美学/第N集/` |
+| `series_baseline` | `场景风格`、`道具风格`、`分镜风格`、`角色风格`、`摄影风格` 和父级总览 | 输入为整季、多集汇总、项目设定或用户明确要求项目级基线 | 项目/整季默认风格基线 | 沿用 `projects/aigc/<项目名>/3-美学/<子技能>/` 和 `projects/aigc/<项目名>/3-美学/` |
+
+Downstream consumption rule: 后续逐集阶段若能推断 `第N集`，必须优先读取 `episode_scoped` 风格协议；缺失时回退到 `series_baseline`；`画面基调/全局风格协议.md` 始终只从 `global_singleton` 读取。
+
 ## Type Routing Matrix
 
 | input_type | signal | route_to | required_nodes | module_load | fail_code |
@@ -157,12 +170,12 @@ Reject or clarify when:
 
 | subagent_id | route_name | skill_dir | canonical_output | report_output | parent_truth_boundary |
 | --- | --- | --- | --- | --- | --- |
-| `SA-SCENE` | `场景风格` | `.agents/skills/aigc/3-美学/场景风格/` | 模板 `projects/aigc/<项目名>/3-美学/场景风格/场景风格协议.md` | 模板 `projects/aigc/<项目名>/3-美学/场景风格/执行报告.md` | 父级只记录路径、状态、冲突和 handoff，不改写场景正文 |
-| `SA-PROP` | `道具风格` | `.agents/skills/aigc/3-美学/道具风格/` | 模板 `projects/aigc/<项目名>/3-美学/道具风格/道具风格协议.md` | 模板 `projects/aigc/<项目名>/3-美学/道具风格/执行报告.md` | 父级只记录路径、状态、冲突和 handoff，不写具体道具 |
-| `SA-STORYBOARD` | `分镜风格` | `.agents/skills/aigc/3-美学/分镜风格/` | 模板 `projects/aigc/<项目名>/3-美学/分镜风格/分镜风格协议.md` | 模板 `projects/aigc/<项目名>/3-美学/分镜风格/执行报告.md` | 父级只记录路径、状态、冲突和 handoff，不写分镜正文 |
-| `SA-TONE` | `画面基调` | `.agents/skills/aigc/3-美学/画面基调/` | 模板 `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md` | 模板 `projects/aigc/<项目名>/3-美学/画面基调/执行报告.md` | 父级只记录路径、状态、冲突和 handoff，不扩写全局风格 prompt |
-| `SA-CHARACTER` | `角色风格` | `.agents/skills/aigc/3-美学/角色风格/` | 模板 `projects/aigc/<项目名>/3-美学/角色风格/角色风格协议.md` | 模板 `projects/aigc/<项目名>/3-美学/角色风格/执行报告.md` | 父级只记录路径、状态、冲突和 handoff，不写角色卡 |
-| `SA-CINEMATOGRAPHY` | `摄影风格` | `.agents/skills/aigc/3-美学/摄影风格/` | 模板 `projects/aigc/<项目名>/3-美学/摄影风格/摄影风格协议.md` | 模板 `projects/aigc/<项目名>/3-美学/摄影风格/执行报告.md` | 父级只记录路径、状态、冲突和 handoff，不写具体镜头参数或摄影正文 |
+| `SA-SCENE` | `场景风格` | `.agents/skills/aigc/3-美学/场景风格/` | `episode_scoped`: `projects/aigc/<项目名>/3-美学/第N集/场景风格/场景风格协议.md`；`series_baseline`: `projects/aigc/<项目名>/3-美学/场景风格/场景风格协议.md` | 同目录 `执行报告.md` | 父级只记录路径、状态、冲突和 handoff，不改写场景正文 |
+| `SA-PROP` | `道具风格` | `.agents/skills/aigc/3-美学/道具风格/` | `episode_scoped`: `projects/aigc/<项目名>/3-美学/第N集/道具风格/道具风格协议.md`；`series_baseline`: `projects/aigc/<项目名>/3-美学/道具风格/道具风格协议.md` | 同目录 `执行报告.md` | 父级只记录路径、状态、冲突和 handoff，不写具体道具 |
+| `SA-STORYBOARD` | `分镜风格` | `.agents/skills/aigc/3-美学/分镜风格/` | `episode_scoped`: `projects/aigc/<项目名>/3-美学/第N集/分镜风格/分镜风格协议.md`；`series_baseline`: `projects/aigc/<项目名>/3-美学/分镜风格/分镜风格协议.md` | 同目录 `执行报告.md` | 父级只记录路径、状态、冲突和 handoff，不写分镜正文 |
+| `SA-TONE` | `画面基调` | `.agents/skills/aigc/3-美学/画面基调/` | `global_singleton`: `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md` | `projects/aigc/<项目名>/3-美学/画面基调/执行报告.md` | 父级只记录路径、状态、冲突和 handoff，不扩写全局风格 prompt，不按集复制 |
+| `SA-CHARACTER` | `角色风格` | `.agents/skills/aigc/3-美学/角色风格/` | `episode_scoped`: `projects/aigc/<项目名>/3-美学/第N集/角色风格/角色风格协议.md`；`series_baseline`: `projects/aigc/<项目名>/3-美学/角色风格/角色风格协议.md` | 同目录 `执行报告.md` | 父级只记录路径、状态、冲突和 handoff，不写角色卡 |
+| `SA-CINEMATOGRAPHY` | `摄影风格` | `.agents/skills/aigc/3-美学/摄影风格/` | `episode_scoped`: `projects/aigc/<项目名>/3-美学/第N集/摄影风格/摄影风格协议.md`；`series_baseline`: `projects/aigc/<项目名>/3-美学/摄影风格/摄影风格协议.md` | 同目录 `执行报告.md` | 父级只记录路径、状态、冲突和 handoff，不写具体镜头参数或摄影正文 |
 
 整体调用的 fan-out 顺序在报告中按用户指定序列展示：`场景风格 -> 道具风格 -> 分镜风格 -> 画面基调 -> 角色风格 -> 摄影风格`。执行语义是并发，不是按展示顺序串行。
 
@@ -171,15 +184,15 @@ Reject or clarify when:
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-INTAKE` | 锁定整体/局部模式、项目根和输入来源 | 用户请求、项目路径、已有资料 | 判定 mode；形成 `business_profile`；加载父级 `SKILL.md + CONTEXT.md`；若绑定项目，加载项目 `MEMORY.md` 和相关 `CONTEXT/` | `task_profile`、`business_profile`、`source_manifest` | `N2` / `C1` / `V1` / `R1` | 整体模式不得少于 6 个 subagents；正式写回必须有项目根 |
-| `N2-PACKET` | 构造共享输入包 | N1 输出、项目资料、用户要求 | 生成 `Aesthetic Task Packet`，包含来源、边界、禁区、写回权限、参考资料和候选依赖状态 | `aesthetic_task_packet` | `N3` | packet 必须可供 6 个 subagents 消费；不得包含父级代写正文 |
+| `N2-PACKET` | 构造共享输入包 | N1 输出、项目资料、用户要求 | 生成 `Aesthetic Task Packet`，包含来源、`episode_scope`、边界、禁区、写回权限、参考资料和候选依赖状态 | `aesthetic_task_packet` | `N3` | packet 必须可供 6 个 subagents 消费；不得包含父级代写正文；`画面基调` 不继承逐集写回路径 |
 | `N3-PARALLEL-FANOUT` | 并发启用 6 个 subagents | `aesthetic_task_packet`、Subagent Routing Matrix | 同时启动 `SA-SCENE`、`SA-PROP`、`SA-STORYBOARD`、`SA-TONE`、`SA-CHARACTER`、`SA-CINEMATOGRAPHY`；每个 subagent 独立加载自身 `SKILL.md + CONTEXT.md` | `subagent_dispatch_matrix`，必须 6 行 | `N4` | dispatch 缺任一 subagent 即失败；不得改为串行补跑 |
 | `N4-SUBAGENT-RESULTS` | 收集局部结果 | 6 个 subagent 输出 | 收集每个 subagent 的 `status`、canonical path、report path、prompt status、dependency gaps、fail codes | `subagent_result_matrix`，必须 6 行 | `N5` | 每个 subagent 必须返回 `pass/candidate/blocked` 之一和证据路径 |
 | `N5-CROSS-CHECK` | 父级一致性与边界审查 | `subagent_result_matrix`、6 个局部协议摘要 | 检查画面基调继承、角色/场景/道具边界、摄影/分镜边界、参考污染、候选状态、下游 handoff | `cross_style_consistency_report`、`dependency_gap_matrix` | `N6` / `R1` | 冲突必须定位到具体 subagent 和字段；父级不得直接改子协议正文 |
-| `N6-CONVERGE` | 生成父级总览和执行报告 | N4-N5 输出 | 写 `美学总览.md`、`执行报告.md`；列出 6 路状态、路径、提示词摘要、依赖缺口和下游继承建议 | `suite_overview`、`suite_execution_report` | `N7` | 总览只做索引和摘要，不成为 6 个局部协议的第二真源 |
+| `N6-CONVERGE` | 生成父级总览和执行报告 | N4-N5 输出 | 按 `episode_scope` 写 `第N集/美学总览.md`、`第N集/执行报告.md` 或项目级 `美学总览.md`、`执行报告.md`；列出 6 路状态、路径、提示词摘要、依赖缺口和下游继承建议 | `suite_overview`、`suite_execution_report` | `N7` | 总览只做索引和摘要，不成为 6 个局部协议的第二真源；不得把画面基调复制到逐集目录 |
 | `N7-HANDOFF` | 建立下游交接 | 父级总览、6 个局部协议 | 明确交给 `4-导演`、`5-表演`、`6-氛围`、`7-分镜`、`8-摄影`、`9-光影`、`11-主体`、`12-图像`、`13-画布` 的继承字段和禁区 | `downstream_handoff_map` | `N8` | 每个下游至少说明继承什么、不继承什么 |
 | `N8-CLOSE` | 完成交付 | 汇流证据 | 输出最终状态、验证结果、残余风险和需要返工的 subagents | `final_report` | done | 只有一个父级 final output；阻断项不得标记为 pass |
 | `C1-CHILD-ROUTE` | 单子技能或部分子技能路由 | 用户点名子技能 | 只调度被点名子技能；若用户未说整体，不自动补齐 6 个 | `child_route_manifest` | `N5` / `N8` | 路由必须与用户点名一致 |
-| `V1-REVIEW` | 审查已有 3-美学输出 | 已有输出路径、报告 | 检查 6 个 canonical output、6 个报告、父级总览、依赖缺口和下游 handoff | `review_findings` | `N6` / `R1` | findings 必须有文件路径或明确缺失项 |
+| `V1-REVIEW` | 审查已有 3-美学输出 | 已有输出路径、报告 | 按目标 scope 检查 6 个 canonical output、6 个报告、父级总览、依赖缺口和下游 handoff；`画面基调` 只查全局 singleton | `review_findings` | `N6` / `R1` | findings 必须有文件路径或明确缺失项；不得要求逐集 `画面基调` |
 | `R1-ROOT-CAUSE` | 定位路由/汇流失败源 | 失败报告、缺失文件、用户反馈 | 判断失败来自父级路由、subagent 缺失、子技能阻断、并发执行未发生、输出路径漂移或父级越权 | `root_cause_trace` | `R2` | 不得只修表面总览 |
 | `R2-REPAIR` | 修复路由或返工缺失单元 | `root_cause_trace` | 修父级合同、重跑失败 subagent、补报告证据或更新 handoff；只改源层和受影响输出 | `repair_log` | `N5` | 修复后必须回到父级 cross-check |
 
@@ -295,11 +308,11 @@ Fail conditions:
 
 ## Output Contract
 
-Required output: 父级必须输出 `美学总览.md` 与 `执行报告.md`；整体调用还要求 6 个子技能各自产出 canonical 协议和执行报告，或返回明确 `blocked/candidate` 状态。
+Required output: 父级必须输出当前 scope 的 `美学总览.md` 与 `执行报告.md`；整体调用还要求 6 个子技能各自产出 canonical 协议和执行报告，或返回明确 `blocked/candidate` 状态。`画面基调` 的 canonical output 始终是项目级全局 singleton，其余 5 个子技能在 `episode_scope=第N集` 时按集写回。
 
 Output format: Markdown。父级 `美学总览.md` 只包含来源、6 路结果矩阵、prompt 索引、依赖缺口、跨风格一致性备注和下游 handoff；父级 `执行报告.md` 包含结构化审计证据。
 
-Output path: 项目绑定且允许写回时，父级写入 `projects/aigc/<项目名>/3-美学/美学总览.md` 和 `projects/aigc/<项目名>/3-美学/执行报告.md`；无项目根时在当前回复中交付候选包并标记 `writeback_status: not_applicable`。
+Output path: 项目绑定且允许写回时，父级按 scope 写回：`episode_scoped` 写入 `projects/aigc/<项目名>/3-美学/第N集/美学总览.md` 和 `projects/aigc/<项目名>/3-美学/第N集/执行报告.md`；`series_baseline` 写入 `projects/aigc/<项目名>/3-美学/美学总览.md` 和 `projects/aigc/<项目名>/3-美学/执行报告.md`。无项目根时在当前回复中交付候选包并标记 `writeback_status: not_applicable`。
 
 Naming convention: 父级文件固定使用 `美学总览.md` 与 `执行报告.md`；子技能文件名沿用各自 `SKILL.md` 的 Output Contract，不由父级改名。
 
@@ -307,10 +320,27 @@ Completion gate: `overall_parallel` 模式必须有 6 行 dispatch、6 行 resul
 
 If project-bound and writeback is authorized, parent outputs:
 
-- `projects/aigc/<项目名>/3-美学/美学总览.md`
-- `projects/aigc/<项目名>/3-美学/执行报告.md`
+- `episode_scoped`: `projects/aigc/<项目名>/3-美学/第N集/美学总览.md`
+- `episode_scoped`: `projects/aigc/<项目名>/3-美学/第N集/执行报告.md`
+- `series_baseline`: `projects/aigc/<项目名>/3-美学/美学总览.md`
+- `series_baseline`: `projects/aigc/<项目名>/3-美学/执行报告.md`
 
-Required child outputs in `overall_parallel` mode:
+Required child outputs in `overall_parallel` mode when `episode_scope=第N集`:
+
+- `projects/aigc/<项目名>/3-美学/第N集/场景风格/场景风格协议.md`
+- `projects/aigc/<项目名>/3-美学/第N集/场景风格/执行报告.md`
+- `projects/aigc/<项目名>/3-美学/第N集/道具风格/道具风格协议.md`
+- `projects/aigc/<项目名>/3-美学/第N集/道具风格/执行报告.md`
+- `projects/aigc/<项目名>/3-美学/第N集/分镜风格/分镜风格协议.md`
+- `projects/aigc/<项目名>/3-美学/第N集/分镜风格/执行报告.md`
+- `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md`
+- `projects/aigc/<项目名>/3-美学/画面基调/执行报告.md`
+- `projects/aigc/<项目名>/3-美学/第N集/角色风格/角色风格协议.md`
+- `projects/aigc/<项目名>/3-美学/第N集/角色风格/执行报告.md`
+- `projects/aigc/<项目名>/3-美学/第N集/摄影风格/摄影风格协议.md`
+- `projects/aigc/<项目名>/3-美学/第N集/摄影风格/执行报告.md`
+
+Required child outputs in `overall_parallel` mode when producing a `series_baseline`:
 
 - `projects/aigc/<项目名>/3-美学/场景风格/场景风格协议.md`
 - `projects/aigc/<项目名>/3-美学/场景风格/执行报告.md`

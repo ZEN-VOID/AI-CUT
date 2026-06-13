@@ -1,0 +1,36 @@
+光影-动态光源合同
+来源技能：光影
+来源文件：.agents/skills/aigc/9-光影/references/dynamic-light-source-contract.md
+原始标题：Dynamic Light Source Contract
+
+---
+
+本文件定义 `9-光影` 的动态光源和多光源叠加规则。
+
+## Dynamic Light Types
+
+- 浮光掠影：水面、玻璃、树影、帘幕、雨幕、车窗、移动遮挡造成的短时明暗变化。
+- 流光溢彩：霓虹、屏幕、警灯、仪式光、舞台光、电子设备或城市反射造成的色光流动。
+- 摇曳光：火光、烛光、灯笼、故障灯、远处闪烁光源造成的不稳定亮度。
+- 扫光：车辆、手电、门缝、窗帘拉开、人物穿过光束造成的方向性移动光。
+- 光色接力：相邻分镜中光源主导权从环境光转到人物光、从暖光转冷光、从明处退入暗处。
+
+## Source Discipline
+
+动态光源必须来自 source 已有事实、场景风格可合理支持的环境、用户指定光源或上游美学协议。没有依据时，优先使用静态明暗、材质反射或空气介质，不新增实体光源。
+
+## Multi-Light Stack
+
+多光源叠加必须写出主次：
+
+- `primary_light`：定义主体可读性或压迫关系。
+- `ambient_light`：定义空间和时代气氛。
+- `rim_or_reflection`：定义轮廓、材质或危险提示。
+- `dynamic_accent`：定义时间变化，不能抢走主体可读性。
+
+## Review Gate Mapping
+
+| review_question | gate | fail_code | rework_target | report_evidence |
+| --- | --- | --- | --- | --- |
+| 动态光源是否有 source 或场景依据？ | `GATE-LIGHT-09-DYNAMIC` | `FAIL-LIGHT-SOURCE-OVERREACH` | `N4-LIGHT-CONTINUITY` / `N6-LIGHT-DESIGN` | `dynamic_light_map` |
+| 多光源是否有主次关系而非堆词？ | `GATE-LIGHT-09-DYNAMIC` | `FAIL-LIGHT-DYNAMIC-EMPTY` | `N6-LIGHT-DESIGN` | `light_source_stack_map` |

@@ -96,3 +96,7 @@ Before calling it done, skim the artifact as if you've never seen it and ask:
 - Is there one thing here a user would remember?
 
 If the answer to any of these is "generic," rebalance toward specificity: pick the bolder color, commit to the heavier type weight, make the hero bigger, remove the decorative second section. A distinctive imperfect artifact beats a "safe" forgettable one.
+
+## Review Gate Mapping
+
+No independent gate: this upstream reference is consumed through `.agents/skills/claude-design/SKILL.md` Review Gate Binding and cannot override adapter gates.

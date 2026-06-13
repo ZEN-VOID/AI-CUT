@@ -184,3 +184,7 @@ Read [references/workflow.md](references/workflow.md) for a checklist of the que
 | Set up React + Babel correctly | [references/react-babel.md](references/react-babel.md) |
 | Verify the artifact is solid | [references/verification.md](references/verification.md) |
 | Grab a starter template | [assets/](assets/) |
+
+## Review Gate Mapping
+
+No independent gate: this upstream reference is consumed through `.agents/skills/claude-design/SKILL.md` Review Gate Binding and cannot override adapter gates.

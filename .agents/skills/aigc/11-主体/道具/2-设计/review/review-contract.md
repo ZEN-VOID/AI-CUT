@@ -40,7 +40,7 @@
 | `GATE-PROP-DESIGN-02` | source / scope | `FAIL-PROP-DESIGN-02` | 设计稿混入多个道具主体、新增清单外主体，或把上游冲突静默裁决为新 canonical 真源 | `N3-SCOPE` | `prop_worklist`、单主体边界说明、上游修复建议 |
 | `GATE-PROP-DESIGN-02A` | scope | `FAIL-PROP-DESIGN-02A` | 增量补缺时覆盖既有设计稿、为未调度主体补占位，或未记录 alias merge / design gap 状态 | `N3-SCOPE` / `N8-WRITE` | `design_manifest_delta`、跳过/覆盖许可、alias merge 记录 |
 | `GATE-PROP-DESIGN-03` | structure | `FAIL-PROP-DESIGN-03` | 必填章节缺失，`## 4. 解构` 下方未先写 `主体ID号：<主体ID>`，或 `Photography` / `Prop Design` 未拆分 | `N6-DESIGN` | 模板块覆盖检查、解构标题证据、缺块 finding |
-| `GATE-PROP-DESIGN-04` | context | `FAIL-PROP-DESIGN-04` | 未读取或未实际消费 `3-美学/画面基调/全局风格协议.md`、`3-美学/道具风格/道具风格协议.md`、`north_star.yaml`、`team.yaml.init_synthesis`、主题禁区或设计相关初始化上下文 | `N2-UPSTREAM` / `N5-RESEARCH-CHAIN` | `project_design_context`、init synthesis source、已消费字段与缺口说明 |
+| `GATE-PROP-DESIGN-04` | context | `FAIL-PROP-DESIGN-04` | 未读取或未实际消费 `3-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `3-美学/道具风格/道具风格协议.md`、`north_star.yaml`、`team.yaml.init_synthesis`、主题禁区或设计相关初始化上下文 | `N2-UPSTREAM` / `N5-RESEARCH-CHAIN` | `project_design_context`、init synthesis source、已消费字段、episode override / fallback 与缺口说明 |
 | `GATE-PROP-DESIGN-05` | authorship | `FAIL-SCRIPT-AUTHORSHIP` | 研究考据、物语、解构、道具风格或英文 prompt 由脚本、模板拼接或启发式补句生成 | `N6-DESIGN` | 脚本职责清单、LLM 主创声明、正文生成来源说明 |
 | `GATE-PROP-DESIGN-06` | prompt / output_naming | `FAIL-PROP-DESIGN-05` | 英文 prompt 未以同一主体 ID 开头、未引用 `画面基调.Global Style Prompt + 道具风格.Prop Style Prompt`、超过 1300 characters、使用 `--no`，或未整合 `## 4. 解构` 全部有效信息 | `N6-DESIGN` | prompt 字符数、三处主体 ID 对照、解构槽位覆盖、自然语言负向约束检查 |
 | `GATE-PROP-DESIGN-07` | scope / output_naming | `FAIL-PROP-DESIGN-06` | 输出路径不在 `11-主体/道具/2-设计/`，文件名缺主体 ID 前缀，或触碰父级、`1-清单`、`3-生成`、registry 或其他技能目录 | `N8-WRITE` | 输出路径、文件名前缀、改动文件清单、越界项排除说明 |

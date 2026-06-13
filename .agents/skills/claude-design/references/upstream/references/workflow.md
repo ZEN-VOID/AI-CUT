@@ -103,3 +103,7 @@ Good first-artifact pattern:
 ```
 
 Show this to the user, confirm direction, then fill in. Working this way surfaces misalignments before you've invested in the wrong direction.
+
+## Review Gate Mapping
+
+No independent gate: this upstream reference is consumed through `.agents/skills/claude-design/SKILL.md` Review Gate Binding and cannot override adapter gates.

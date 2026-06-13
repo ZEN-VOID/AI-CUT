@@ -22,7 +22,8 @@
 | 未指定目标端时补出空叶子产物 | leaf selection 过度补全 | 父包只生成目标端 leaf packet；未选中端记录 not selected | Default leaf routing 只影响路由，不补空产物 | manifest targets 标记 selected/omitted |
 | manifest 与 plan 不一致 | 写回同步缺口 | 回到 `N6-MANIFEST-WRITEBACK` 同步字段和路径 | plan 和 JSON manifest 必须同轮更新 | `DEL-01` 到 `DEL-07` 均可互相追踪 |
 | 脚本生成讲义、幻灯片或网页正文 | LLM-first 违规 | 废弃机械产物，回到 LLM delivery map 或 leaf 适配节点 | 脚本只做格式转换、组装、校验、manifest 回写 | authorship note 明确 LLM-approved source |
-| HTML artifact leaf packet 缺少 design executor | html leaf handoff 缺口 | 回到 `N5-LEAF-WORK-PACKETS`，给 HTML packet 写入 `.agents/skills/claude-design` | 父包不生成 HTML artifact，只声明 html leaf 和 executor | manifest leaf packet 含 `design_executor` |
+| HTML artifact leaf packet 缺少 design executor、落盘状态或设计质量证据 | html leaf handoff 缺口 | 回到 `N5-LEAF-WORK-PACKETS`，给 HTML packet 写入 `.agents/skills/claude-design`、artifact writeback target、required upstream design modules、visual system、verification target、`artifact_paths`、`writeback_status` 和 quality verdict 回证要求 | 父包不生成 HTML artifact，只声明 html leaf、executor、落盘门禁和设计质量门禁 | manifest leaf packet 含 `design_executor`、artifact writeback target、artifact paths、writeback status、selected modules、visual system、verification 和 quality verdict 回接要求 |
+| PPT/课件 artifact leaf packet 缺少 design executor、落盘状态或设计质量证据 | ppt leaf handoff 缺口 | 回到 `N5-LEAF-WORK-PACKETS`，给 PPT packet 写入 `.agents/skills/claude-design`、artifact writeback target、required upstream design modules、visual system、verification/export target、`artifact_paths`、`writeback_status` 和 quality verdict 回证要求 | 父包不生成课件 artifact，只声明 ppt leaf、executor、落盘门禁和设计质量门禁，由 PPT 叶子调用设计执行器并回接质量证据 | manifest leaf packet 含 `design_executor`、artifact target、artifact paths、writeback status、selected modules、visual system、verification/export 和 quality verdict |
 
 ## Repair Playbook
 
@@ -31,13 +32,14 @@
 3. 若只要求一个端，只生成对应 leaf packet；未选端写 omitted，不创建空成品。
 4. 若跨端内容冲突，保留共享 delivery map 为真源，叶子产物回到对应叶子修复。
 5. 若工具链输出看似可用正文，先判定为机械产物，不进入 canonical delivery truth。
-6. 若 HTML 目标包含真实网页 artifact，父包只在 leaf packet 中声明 `8/html -> .agents/skills/claude-design`；不要由父包直接生成或美化 HTML。
+6. 若 HTML 目标包含真实网页 artifact，父包只在 leaf packet 中声明 `8/html -> .agents/skills/claude-design`，并要求 artifact writeback target、`artifact_paths`、`writeback_status`、selected modules、visual system、browser verification 和 quality verdict 回证；不要由父包直接生成或美化 HTML。
+7. 若 PPT/课件目标包含真实 `.pptx`、HTML deck、视觉重设计、polish、导出或浏览器验证，父包只在 leaf packet 中声明 `8/ppt -> .agents/skills/claude-design`，并要求 artifact writeback target、`artifact_paths`、`writeback_status`、selected modules、visual system、verification/export 和 quality verdict 回证；不要由父包直接生成或美化课件 artifact。
 
 ## Reusable Heuristics
 
 - 父包的价值是把三端交付从同一课程模型投影出来，而不是让每个端重新写一套课程。
 - DOC 重视完整讲义和引用脉络，PPT 重视授课节奏和视觉密度，HTML 重视可浏览结构和交互状态；这些差异应在 leaf packet 中表达。
-- HTML 的真实 artifact 设计执行交给 `.agents/skills/claude-design`，但课程事实、delivery map 和目标端选择仍由 lesson 父包与 HTML 叶子控制。
+- HTML 与 PPT/课件的真实 artifact 设计执行交给 `.agents/skills/claude-design`，但课程事实、delivery map、slide/page plan 和目标端选择仍由 lesson 父包与对应叶子控制；父包必须要求回接 `artifact_paths`、`writeback_status`、selected modules、visual system、verification 和 quality verdict，不能只记录“已调用”或只描述目标路径。
 - `delivery-manifest.json` 是交付目录和叶子执行状态索引，不替代课程正文或三端成品。
 - Consistency gate 内置在第 8 阶段即可；新增外部审查或封版阶段会制造第二治理真源。
 - 如果用户只说“生成课件”，父包先裁决目标端，再调度叶子；不要直接跳到 PPT。

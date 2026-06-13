@@ -239,3 +239,7 @@ Don't hand-roll this for decks or animations — use the starters in [assets/](.
 ## Linking between pages
 
 If you produce multiple HTML files (one per screen, one per section), link them with standard `<a>` tags and relative URLs: `<a href="screens/02-onboarding.html">Next →</a>`. Keep them in the same directory tree so the links resolve when the folder is moved.
+
+## Review Gate Mapping
+
+No independent gate: this upstream reference is consumed through `.agents/skills/claude-design/SKILL.md` Review Gate Binding and cannot override adapter gates.

@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-06-11
+
+- 同步 `3-美学` 输出 scope：场景设计继续读取 `画面基调` 全局 singleton；场景风格按目标场景的 `首次登场` / `episode_id` 优先读取 `3-美学/第N集/场景风格/`，缺失时回退项目级基线。
+- 更新 `SKILL.md`、`CONTEXT.md`、模板、steps 与 reference 合同，要求记录 episode override / fallback。
+
 ## 2026-06-01
 
 - 接入 `11-主体` 冻结初始化综合消费：只读 `team.yaml.init_synthesis.stage_seed_summary."11-主体"`、`init_handoff.design_seed` 与 `north_star.yaml.创作阶段不变量.设计`。

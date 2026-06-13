@@ -23,9 +23,11 @@ The active contract is in `SKILL.md`. Load `CONTEXT.md` with it. PPT writeback i
 
 - `ppt-delivery-plan.md`
 - `ppt-assembly-manifest.json`
-- optional `.pptx` artifacts assembled from LLM-approved slide plans
+- optional `.pptx`, HTML deck, or courseware artifacts generated, polished, exported, or verified through `.agents/skills/claude-design` from LLM-approved slide plans
 
-Scripts may only do PPT formatting, assembly, validation, export, and manifest writeback. They must not generate PPT 文案.
+When the request involves actual PPTX/courseware artifact generation, redesign, polish, export, or browser verification, this leaf must load `.agents/skills/claude-design/SKILL.md + .agents/skills/claude-design/CONTEXT.md`. Lesson owns the course truth, slide plan, speaker notes, and manifest; `claude-design` owns high-fidelity courseware/HTML deck visual execution, final artifact writeback, upstream design module selection, visual-system articulation, verification/export handoff, and quality verdict. Final artifact pass requires `artifact_paths` and `writeback_status`; if native PPTX export is unavailable, write the highest-fidelity source artifact and report the export blocker.
+
+Scripts may only do PPT formatting, assembly, validation, export, and manifest writeback. They must not generate PPT 文案, replace the `claude-design` visual execution pass, or treat a generic deck without artifact writeback, visual-system, and quality-verdict evidence as complete.
 
 ## Validation
 

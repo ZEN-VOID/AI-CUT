@@ -1,0 +1,179 @@
+导演-剧集视觉主轴合同
+来源技能：导演
+来源文件：.agents/skills/aigc/4-导演/references/episode-visual-spine-contract.md
+原始标题：Episode Visual Spine Contract
+
+---
+
+## 4-导演 Adaptation Notice
+
+本文件从 `.agents/skills/aigc/2-编导/references/episode-visual-spine-contract.md` 引入，作为 `4-导演` 的授权 reference 细则，并在本技能中承担“整集导演意图规划”的核心依据。凡原文出现 `2-编导`、`director layer`、`N7-DIR-AESTHETIC`、`N9-DIR-DRAFT` 或其他旧节点名时，在本技能中映射为 `N2-DIR-UNDERSTAND` 先建立 `episode_director_intent_plan` / `episode_visual_spine`，再由 `N4-DIR-POINT-MAP` 和 `N5-DIR-INJECT` 分配到逐画面批注。
+
+在 `4-导演` 中，本文件不授权新增道具、天气、规则、线索、镜头或 prompt；它只要求每集先回答“这一集的导演意图和视觉记忆链条是什么”，防止逐条批注散乱、漂亮但没有整集方向。
+
+## Purpose
+
+本细则定义 `2-编导` director layer 的整集视觉主轴。它位于单场 `visual_aesthetic_pass` 之前，负责回答"这一集被观众记住的视觉链条是什么"，避免每场各自好看但整集没有统一审美记忆。
+
+它不是摄影方案，不写机位、景别、镜头运动、分镜编号或图像提示词；它也不是统一滤镜或统一色调，不要求每场都塞入同一个母题。
+
+## Ownership
+
+- 本文件拥有整集视觉主轴的建造规则、母题变化原则、证据结构和跨集延续规则。
+- `visual-aesthetic-contract.md` 负责单场 `visual_aesthetic_pass`；本文件为其提供整集主轴上下文。
+- `atmosphere-and-mood-contract.md` 负责五感氛围和意境技法；本文件为其提供材质/色彩弧和节奏曲线。
+- `episode-final-image-contract.md` 负责尾钩；本文件 `callback_targets` 中的未闭合母题可作为尾钩候选。
+
+## Dependency Graph
+
+```
+episode-visual-spine-contract.md
+├── consumed_by: N7-DIR-AESTHETIC (为每个关键场景提供整集主轴上下文)
+├── consumed_by: N8-DIR-FINAL-IMAGE (callback_targets 作为尾钩候选)
+├── consumed_by: N9-DIR-DRAFT (确保终稿呼应视觉主轴)
+├── consumed_by: N10-DIR-REVIEW (验证整集视觉记忆)
+├── produces:
+│   └── episode_visual_spine (必须产出，包含 visual_question/motif_chain/material_and_color_arc/rhythm_curve/callback_targets/episode_restraint_rule)
+└── cross_reference:
+    └── N1-DIR-INTAKE (跨集延续，读取前集 episode_visual_spine)
+```
+
+## Episode Visual Spine Pass
+
+每集进入单场美学前，必须建立 `episode_visual_spine`：
+
+| axis | question | output evidence |
+| --- | --- | --- |
+| `visual_question` | 本集画面在追问什么，例如秘密如何流转、权力如何压迫、离别如何逼近？ | `visual_question` |
+| `motif_chain` | 哪 3-5 个视觉母题贯穿本集，并如何变化？ | `motif_chain` |
+| `material_and_color_arc` | 纸、布、血、雾、火、金属、木、石等材质/色彩如何递进？ | `material_and_color_arc` |
+| `rhythm_curve` | 本集画面节奏从密到疏、从静到动、从压迫到释放，还是反向？ | `rhythm_curve` |
+| `callback_targets` | 哪些画面需要前后呼应，而不是只出现一次？ | `callback_targets` |
+| `episode_restraint_rule` | 哪些场景只需冷静呈现，不应堆砌美学细节？ | `episode_restraint_rule` |
+
+## Construction Rules
+
+- 视觉主轴必须从上游已有信息、项目记忆、类型气质和安全的 B 路线景境承托中提取。
+- 母题链优先选择可见物件、材质、自然景物、空间状态、群体姿态或动作节奏。
+- 母题要变化，不要机械重复；同一物件或自然景物在不同场景里应承担不同压力、距离、归属或情绪温度。
+- `material_and_color_arc` 只组织画面记忆，不要求所有场景同色同调。
+- `rhythm_curve` 服务叙事体验：可以让画面从密集到留白、从静默到爆发、从松弛到逼近。
+- `episode_restraint_rule` 必须写清哪里不该用力，防止每个字段都堆美学细节。
+
+## Boundary
+
+**允许**：
+
+- 让核心物件、空间、自然景物、群体反应和动作节奏形成可感知的变化链。
+- 让单场 `visual_aesthetic_pass` 消费整集主轴，在本场选择是否呼应、变奏或克制。
+- 在不改变剧情条件的前提下，把安全的环境氛围项纳入视觉链。
+
+**禁止**：
+
+- 为了统一视觉主轴而新增线索、道具、伤势、天气灾害、行动障碍、规则条件或事件结果。
+- 强迫每场都出现同一个母题。
+- 把整集主轴写成抽象审美词，例如"高级感""宿命感""电影感"。
+- 用主轴替代上游保真、对白冻结或单场戏剧功能。
+
+## Example
+
+若一集围绕"秘密在海雾中流转"，可以形成：
+
+```yaml
+episode_visual_spine:
+  visual_question: "秘密如何从权力中心、衣料残卷和海雾中一路流向港口？"
+  motif_chain:
+    - "纸面密报"
+    - "衣料秘文"
+    - "残页缺口"
+    - "油绢入袖"
+    - "海雾港城"
+  material_and_color_arc: "木案暗色和纸面开场，转入火光、残页朱线、油绢殷红，最后被海雾和残金日光压低。"
+  rhythm_curve: "前半密集交代权力与秘术，中段追夺加速，末段短暂松弛后由港城轮廓收紧。"
+  callback_targets:
+    - "纸面信息反复变形为密报、残页、线报和油绢"
+    - "海雾从孤船延伸到港口"
+  episode_restraint_rule: "不把灾祸奇观化，优先用纸、布、雾、光和停顿承托逼近感。"
+```
+
+## Failure Cases
+
+### Failure 1: 视觉主轴变成抽象审美词集合
+
+**症状**：`visual_question` 写成"如何让画面更有电影感"，`motif_chain` 写成"好看的道具、漂亮的场景"等无法落地的描述。
+
+**诊断**：N7-DIR-AESTHETIC 在建立 `episode_visual_spine` 时跳过了具体化步骤，直接写了审美方向。
+
+**修复**：回到 `visual_question`，用具体叙事问题替换审美方向。例如"如何让画面更有质感"→"秘密如何在纸面、火光和海雾中流转"；`motif_chain` 必须列出具体物件/材质/自然景物名称。
+
+**验证**：执行报告中 `visual_question` 必须是一个叙事问题而非审美方向，`motif_chain` 中的每一项必须能在终稿中找到具体落点。
+
+### Failure 2: 母题机械重复无变化
+
+**症状**：同一物件（如"一盏灯"）在每个场景都出现，但每次只是"出现"，没有承担不同的压力、距离或情绪温度。
+
+**诊断**：`episode_visual_spine` 建立了母题链但没有为每项分配变化策略；`visual_aesthetic_pass` 也没有为每个场景选择呼应/变奏/克制。
+
+**修复**：回到 `motif_chain`，为每个母题注明变化策略：例如"灯在第1场是温暖光源（压迫前夕），在第3场是刺眼光源（审讯中），在第7场是熄灭状态（代价余韵）"。
+
+**验证**：执行报告中 `visual_aesthetic_evidence.scene_items` 至少有一处明确的母题变化，不是机械重复。
+
+### Failure 3: 视觉主轴与单场美学脱节
+
+**症状**：`episode_visual_spine` 写得完整，但每个场景的 `visual_aesthetic_pass` 没有呼应、变奏或克制主轴，整集视觉记忆仍然散乱。
+
+**诊断**：N7-DIR-AESTHETIC 先做了 `episode_visual_spine` 再做单场 pass，两个步骤之间没有建立消费关系。
+
+**修复**：在 `visual_aesthetic_pass` 的 `motif_and_variation` 轴中，明确说明本场对整集母题的呼应策略（呼应/变奏/克制），不是只写本场有什么画面。
+
+**验证**：执行报告中每个关键场景的 `visual_aesthetic_pass` 都有明确的母题策略说明，能回指 `episode_visual_spine` 中的对应项。
+
+### Failure 4: 节奏曲线只有描述没有落点
+
+**症状**：`rhythm_curve` 写了"前半密集后段留白"，但没有说明具体哪些场景承担密集、哪些承担留白，也没有为尾钩留出位置。
+
+**诊断**：N7-DIR-AESTHETIC 把节奏曲线当成叙事结构描述，没有分配具体的场景节奏职责。
+
+**修复**：回到 `rhythm_curve`，为每个节奏段落分配场景范围。例如"第1-4场：压迫加速（画面从密到更密）；第5场：高点和余韵（密后骤停）；第6-7场：松弛承托（留白但收紧）"。
+
+**验证**：执行报告中 `rhythm_curve` 必须有具体的节奏落点，不是只有方向性描述。
+
+## Cross-Episode Spine Continuity
+
+当处理第 N 集且第 N-1 集编导稿已完成时，可读取前集 `执行报告.md` 中的 `visual_aesthetic_evidence.episode_visual_spine` 作为延续参考。
+
+参考内容：
+
+- 前集 `motif_chain`：若其中有可在本集延续的视觉母题，纳入本集 `motif_chain` 候选，但必须变化——同一物件/材质/自然景物在不同集应承担不同压力、距离、归属或情绪温度。
+- 前集 `material_and_color_arc`：若前集的材质/色彩弧有延续空间，本集可选择呼应或反转。
+- 前集 `rhythm_curve`：本集开场节奏可参考前集结尾的节奏密度，避免突兀跳变。
+- 前集 `callback_targets`：若前集的呼应目标中有尚未闭合的母题链，本集可承接。
+
+规则：
+
+- 跨集延续只做参考，不做强制约束。若前集母题与本集剧情无关，不得强行延续。
+- 不得为延续跨集母题新增本集没有的剧情事实、对白、事件、规则或线索。
+- 前集信息不是本集的上游真源；本集的上游真源始终是 `1-分集/第N集.md`。
+- 跨集延续的证据记入 `cross_episode_continuity_profile`，由 `N1-DIR-INTAKE` 加载、`N7-DIR-AESTHETIC` 消费。
+- 若前集编导稿不存在，标注 `episode-local continuity`，不做跨集延续。
+
+## Review Checklist
+
+- 整集是否有清晰的 `visual_question`，而不是只列好看的物件？
+- `motif_chain` 是否来自上游或安全承托，并且有变化？
+- 材质、色彩和节奏是否形成弧线，而不是一组散点？
+- 呼应目标是否能在终稿字段中找到落点？
+- 克制规则是否防止了细节堆砌？
+- 主轴是否没有新增剧情事实、线索、规则、障碍或结果？
+- 每个关键场景的 `visual_aesthetic_pass` 是否呼应/变奏/克制了整集主轴？
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 每集是否建立 `episode_visual_spine`，且 `visual_question` 是具体叙事问题而非“电影感/高级感”？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N7-DIR-AESTHETIC` | `visual_aesthetic_evidence.episode_visual_spine.visual_question` |
+| `motif_chain` 是否来自上游或安全 B 路线承托，并在不同场景承担不同压力/距离/归属/情绪温度？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N7-DIR-AESTHETIC` | `motif_chain`、`visual_aesthetic_evidence.scene_items.image_motif` |
+| `material_and_color_arc`、`rhythm_curve` 与 `callback_targets` 是否形成弧线和呼应，不是一组散点？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N7-DIR-AESTHETIC` | `material_and_color_arc`、`rhythm_curve`、`callback_targets` |
+| 每个关键场景的 `visual_aesthetic_pass` 是否消费主轴，明确呼应/变奏/克制策略？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N7-DIR-AESTHETIC` | `scene_items.motif_and_variation`、`restraint_notes` |
+| 视觉主轴是否没有为统一风格新增线索、道具、天气、障碍、规则或事件结果？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N7-DIR-AESTHETIC` / `N9-DIR-DRAFT` | `risk_check.fact_drift: false`、`controlled_enrichment_ledger` 相关项 |
+| 前集可读时，跨集母题是否只作参考且发生变化；不适用时是否标注 `episode-local continuity`？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N1-DIR-INTAKE` / `N7-DIR-AESTHETIC` | `cross_episode_continuity_profile`、本集 `motif_chain` 变化说明 |

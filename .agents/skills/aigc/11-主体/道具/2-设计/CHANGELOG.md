@@ -1,5 +1,10 @@
 # Changelog: aigc 道具 2-设计
 
+## 2026-06-11
+
+- 同步 `3-美学` 输出 scope：道具设计继续读取 `画面基调` 全局 singleton；道具风格按目标道具的 `首次登场` / `episode_id` 优先读取 `3-美学/第N集/道具风格/`，缺失时回退项目级基线。
+- 更新 `SKILL.md`、`CONTEXT.md`、README、模板、steps、review 与 reference 合同，要求记录 episode override / fallback。
+
 ## 2026-06-04
 
 - 新增 `knowledge-base/prop-design-corpus.md`，作为道具审美、设计细节、文化元素、工艺装饰、使用痕迹、功能结构和 prompt 短语的高质量语料库。

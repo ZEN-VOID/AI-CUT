@@ -22,7 +22,7 @@ metadata:
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与道具、世界观、视觉规则、风格提示词或制作约束相关的上下文文件。
 - 必须读取上游 `projects/aigc/<项目名>/11-主体/道具/1-清单/道具清单.md`；缺失时不得凭空生成完整道具设计，应回到 `1-清单` 或请求用户提供替代清单。
 - 必须读取 `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md`，抽取 `Global Style Prompt`、`Visual Gene Profile`、`Negative Traits` 等画面基调最终内容；道具设计风格词的全局部分以此为准。
-- 必须读取 `projects/aigc/<项目名>/3-美学/道具风格/道具风格协议.md`，抽取 `Prop Style Prompt`、材质/工艺/使用痕迹/图像执行偏好等道具风格最终内容；道具设计风格词的细目部分以此为准。
+- 必须解析目标道具的 `首次登场`、用户指定集号或清单中的 `episode_id`。若能推断 `第N集`，必须优先读取 `projects/aigc/<项目名>/3-美学/第N集/道具风格/道具风格协议.md`；缺失时回退 `projects/aigc/<项目名>/3-美学/道具风格/道具风格协议.md`。该协议用于抽取 `Prop Style Prompt`、材质/工艺/使用痕迹/图像执行偏好等道具风格最终内容；道具设计风格词的细目部分以此为准。
 - 必须读取 `projects/aigc/<项目名>/0-初始化/north_star.yaml` 与 `projects/aigc/<项目名>/team.yaml.init_synthesis`，抽取项目北极星、主题、媒介、禁区、创作阶段不变量和设计相关初始化约束、启发、风险；不得再把 `north_star.yaml` 当作道具最终风格提示词真源。
 - 初始化综合存在时，必须读取 `../../../_shared/team-advisor-consultation-contract.md`，优先消费 `team.yaml.init_synthesis.stage_seed_summary."11-主体"`、`init_handoff.design_seed` 与 `north_star.yaml.创作阶段不变量.设计`；不得在本阶段调用项目监制成员、解析叶子专属 profile、派生新顾问问题或代入顾问角色意识，只能在 LLM 道具设计前形成 `init_team_synthesis_context`。
 - 研究层必须落成可审查的设计证据链：来源判断 -> 置信度/不确定性 -> 形制、材料、工艺、年代、使用痕迹、功能逻辑 -> prompt evidence token；不得停留在百科摘抄或抽象审美标签。
@@ -63,7 +63,7 @@ Required input:
 
 - 可定位的 `projects/aigc/<项目名>/11-主体/道具/1-清单/道具清单.md`。
 - 清单中每项至少包含 `名称`、`首次登场`、`原文描述（关键词式）`。
-- 可读取的 `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md`、`projects/aigc/<项目名>/3-美学/道具风格/道具风格协议.md`、`projects/aigc/<项目名>/0-初始化/north_star.yaml` 与 `projects/aigc/<项目名>/team.yaml.init_synthesis`；若缺失，必须在输出中标注缺口，不得伪造画面基调、道具风格或初始化综合上下文。
+- 可读取的 `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md`、当前集优先的 `projects/aigc/<项目名>/3-美学/第N集/道具风格/道具风格协议.md`（缺失时回退 `projects/aigc/<项目名>/3-美学/道具风格/道具风格协议.md`）、`projects/aigc/<项目名>/0-初始化/north_star.yaml` 与 `projects/aigc/<项目名>/team.yaml.init_synthesis`；若缺失，必须在输出中标注缺口，不得伪造画面基调、道具风格或初始化综合上下文。
 
 Optional input:
 
@@ -170,7 +170,7 @@ stateDiagram-v2
 1. 读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md` 与相关 `CONTEXT/`。
 2. 锁定上游 `1-清单/道具清单.md` 的道具主体，并读取可选 `projects/aigc/<项目名>/11-主体/道具/design-manifest.yaml`；只对被指定、被调度或 manifest 标记为 `design_gaps` 的主体生成细目，不为空置主体补占位文件。
 3. 已有设计稿默认跳过，除非用户明确要求 repair / regenerate；清单主体被归并到已有主体时，只记录 alias merge，不新建设计稿。
-4. 读取 `3-美学/画面基调/全局风格协议.md`、`3-美学/道具风格/道具风格协议.md`、`north_star.yaml` 与 `team.yaml.init_synthesis`，提取 `画面基调.Global Style Prompt + 道具风格.Prop Style Prompt` 作为道具设计风格词；`north_star.yaml` 仅提供项目北极星、视觉禁区和创作阶段不变量，`team.yaml.init_synthesis` 仅提供设计相关初始化约束、启发和风险。
+4. 读取 `3-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `3-美学/道具风格/道具风格协议.md`、`north_star.yaml` 与 `team.yaml.init_synthesis`，提取 `画面基调.Global Style Prompt + 道具风格.Prop Style Prompt` 作为道具设计风格词；`north_star.yaml` 仅提供项目北极星、视觉禁区和创作阶段不变量，`team.yaml.init_synthesis` 仅提供设计相关初始化约束、启发和风险。
 5. 按共享初始化综合消费合同优先消费 `team.yaml.init_synthesis.stage_seed_summary."11-主体"`、`init_handoff.design_seed` 或 `north_star.yaml.创作阶段不变量.设计`，形成 `init_team_synthesis_context`；采纳内容必须来自当前节点、目标道具上下文和 review gate，不能退化为固定字段清单或只点名大师；不得请教项目监制顾问或派生新 team 问答。
 6. 按 `types/prop-design-type-map.md` 判型，形成 `type_profile`，再进入 `steps/prop-design-workflow.md` 的单道具设计节点。
 7. 由 LLM 从上到下逐个道具理解清单锚点、功能逻辑、项目风格和初始化综合后，完成研究考据、物语、Photography + Prop Design 解构与英文提示词设计；创作时必须吸收 `init_team_synthesis_context` 中已裁决的可执行指导，并同时执行 `references/design-output-contract.md` 的结构硬规则、prompt 整合硬规则和 `../../../_shared/anti-abstract-language-contract.md`。研究必须先转译为形制、材料、工艺、年代、使用痕迹、功能逻辑、设计细节、文化元素、风险/不确定性和 prompt evidence chain；“神秘、古老、高级、危险、破损、仪式感”等抽象判断必须落到具体轮廓、材质、刻痕、氧化、磨损、结构、文化符号、装饰纹样和尺度。命中 `Module Trigger Matrix` 时必须加载 `knowledge-base/prop-design-corpus.md` 并留下原创转译证据；冷门信息仅在确有必要时允许网络搜索，并在输出中标注来源或不确定性。
@@ -207,7 +207,7 @@ stateDiagram-v2
 - 脚本、模板、正则拼接、批量插入或映射投影替代 LLM 生成研究、物语、解构或提示词正文。
 - 道具细目没有从 `1-清单` 取证，或擅自新增上游不存在的道具主体。
 - 上游清单增量更新后，没有识别缺设计稿主体，或覆盖了已有道具设计稿。
-- 未读取 `3-美学/画面基调/全局风格协议.md`、`3-美学/道具风格/道具风格协议.md`、`north_star.yaml` / `team.yaml.init_synthesis` 却声称已经使用画面基调、道具风格和初始化设计约束。
+- 未读取 `3-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `3-美学/道具风格/道具风格协议.md`、`north_star.yaml` / `team.yaml.init_synthesis` 却声称已经使用画面基调、道具风格和初始化设计约束。
 - 提示词没有英文输出、没有以主体 ID 号开头、没有引用 `画面基调.Global Style Prompt + 道具风格.Prop Style Prompt`、超过 1300 characters、包含 `--no` 参数，或只是拼接前缀后缀而未整合 `## 4. 解构` 全部有效信息。
 - `## 4. 解构` 下方缺少 `主体ID号：<主体ID>`，或该值与 `## 5. 提示词设计` 的主体 ID / 英文 prompt 前缀不一致。
 - 道具 prompt 或摄影字段把道具放入剧情场景、桌面环境、室内陈设、街景、人物手持情境或背景元素中，或写成局部特写、裁切特写、半截道具画面，而不是完整展示道具全貌的纯色背景 45 度单道具全貌展示。
@@ -269,7 +269,7 @@ stateDiagram-v2
 - 每个输出文件都能回指 `1-清单/道具清单.md` 的具体道具项。
 - 已识别并跳过既有设计稿；仅补齐缺设计稿或用户明确指定 repair 的主体。
 - 输出文件名包含主体 ID 前缀，且该 ID 与 `## 4. 解构`、`## 5. 提示词设计` 和英文 prompt 开头一致。
-- `3-美学/画面基调/全局风格协议.md`、`3-美学/道具风格/道具风格协议.md`、`north_star.yaml` 与 `team.yaml.init_synthesis` 已被实际消费；画面基调、道具风格、项目主题、项目禁区和设计相关初始化上下文缺失项已显式标注。
+- `3-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `3-美学/道具风格/道具风格协议.md`、`north_star.yaml` 与 `team.yaml.init_synthesis` 已被实际消费；画面基调、道具风格、项目主题、项目禁区和设计相关初始化上下文缺失项已显式标注。
 - 已按 `team.yaml.init_synthesis.stage_seed_summary."11-主体"`、`init_handoff.design_seed` 或 `north_star.yaml.创作阶段不变量.设计` 形成 `init_team_synthesis_context`，且采纳内容已绑定当前 `node_id / pass_id / gate_id` 并转成节点级判断、执行取舍、局部 patch 或风险提示；若不可用，已记录 `not_applicable` 或 `blocked`。
 - 必填章节齐全，`Photography` 与 `Prop Design` 解构字段存在。
 - 研究证据链已把来源判断转成可见设计，不确定性没有被伪装成确定史实。

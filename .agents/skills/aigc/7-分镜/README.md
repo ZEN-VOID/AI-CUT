@@ -27,7 +27,7 @@
 
 - `projects/aigc/<项目名>/6-氛围/第N集.md`
 - `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md`
-- `projects/aigc/<项目名>/3-美学/分镜风格/分镜风格协议.md`
+- `projects/aigc/<项目名>/3-美学/第N集/分镜风格/分镜风格协议.md`，缺失时回退 `projects/aigc/<项目名>/3-美学/分镜风格/分镜风格协议.md`
 
 用户指定文稿时优先指定文稿，并在执行报告记录 `source_override=true`。
 

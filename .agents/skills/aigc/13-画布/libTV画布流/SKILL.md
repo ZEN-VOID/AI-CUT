@@ -114,6 +114,7 @@ Reject or clarify when:
 | --- | --- |
 | 项目空间 / 画布命名、上传、YAML 回刷、视频节点总规范 | `references/canvas-control-contract.md` |
 | `图片N`、逐张连线和 `imageList/mixedList` 顺序锁定 | `references/image-order-contract.md` |
+| 多分镜图视频节点、分镜段参照图和主体参照图双层匹配 | `references/multi-storyboard-video-node-contract.md` |
 | 端到端步骤拓扑 | `steps/canvas-control-workflow.md` |
 | 类型选择 | `types/type-map.md` |
 | 审查门禁 | `review/review-contract.md` |
@@ -132,6 +133,7 @@ Reject or clarify when:
 6. 回刷指定分组稿 fenced YAML：匹配到参考图的主体行改为 `图片N 主体名 图片UUID`；同一组内重复 UUID 复用同一个 `图片N`；缺失匹配的主体跳过，不猜图。
 7. 删除或新建视频节点前先确认用户是否授权破坏性操作；新建节点名必须是唯一 `video_node_instance_id`，格式为 `vid__<source_group_id>__b<batch_no>__r<revision_no>__v<variant_no>`，例如 `vid__1-1-1__b002__r00__v001`。`source_group_id` 只作来源锚点，不得单独作为节点唯一名；同一分镜组已存在节点时默认递增 `batch_no` 新建，二次修改已有节点时递增 `revision_no` 并记录父实例，除非用户明确授权删除或覆盖。
 8. 对每个非连接件分镜组，直接使用原分镜组正文作为 prompt 主体；提交到 LibTV prompt 的底部 YAML 主体行必须由已回刷的 `图片N 主体名 图片UUID` 重排为 `图片N 主体名 {{Image N}} 图片UUID`；不得由脚本把分镜组压缩成模板句、锚点替换句或同义改写批量 prompt。
+8A. 当用户要求“多分镜图参照模式 / 多分镜参照模式 / 指明具体分镜段参照分镜图”时，必须加载 `references/multi-storyboard-video-node-contract.md`；prompt 必须包含逐段 `分镜段 XX（时间，参照 {{Image N}} / 图名）` 明细，并同时在 YAML 或参照说明中保留主体参照图的 `主体名 -> {{Image N}} -> node/UUID` 匹配。分镜参照图和主体参照图必须写入同一个 `imageList/mixedList` 顺序证据。
 9. 按 `图片N` 顺序逐张连接参考图：第一张和后续均可用 `--left-add` 逐条执行；不得一次性全选批量传入后假设顺序正确。
 10. 创建/更新视频节点时同时写入 `imageList`、`mixedList`、`imageListOrder`、`mixedListOrder`，其顺序必须等于本地 YAML 的 `图片N` 顺序。
 11. 写完左侧连线、prompt 和参数后，查询远端节点；只有 `data.params.imageList[]`、`data.params.mixedList[]`、远端 prompt 和本地 YAML `图片N` 一致，且视频规格等于默认 `star-video2 / mixed2video / 16:9 / 720p` 或用户显式覆盖值，才可进入完成状态。
@@ -169,9 +171,10 @@ Reject or clarify when:
 | `FIELD-LTVCTRL-04` | YAML backfill | grouped storyboard source file | `图片N 主体名 UUID`，重复 UUID 复用编号 | `FAIL-LTVCTRL-YAML-BACKFILL` |
 | `FIELD-LTVCTRL-05` | video node identity and spec | queried node params / active registry | 唯一 `video_node_instance_id`、`source_group_id`、`batch_no`、`revision_no`、`variant_no`、必要时 `parent_video_node_instance_id`，以及默认 `star-video2`、`mixed2video`、`16:9`、`720p` 或用户显式覆盖值 | `FAIL-LTVCTRL-NODE-SPEC` / `FAIL-LTVCTRL-NODE-IDENTITY` |
 | `FIELD-LTVCTRL-06` | image order | queried `data.params.imageList[]` | 顺序等于 YAML `图片N` | `FAIL-LTVCTRL-IMAGELIST-MISMATCH` |
-| `FIELD-LTVCTRL-07` | prompt hygiene | queried `data.params.prompt` | 分镜组正文 + fenced YAML，无 `{{Portrait N}}`、诊断、路径、绑定表、脚本化生成、批量插入、正则套句或映射投影伪差异 | `FAIL-LTVCTRL-PROMPT-POLLUTION` / `FAIL-LTVCTRL-SCRIPTED-PROMPT` |
+| `FIELD-LTVCTRL-07` | prompt hygiene | queried `data.params.prompt` | 分镜组正文 + fenced YAML；多分镜图模式下还必须有逐段 `分镜段 XX（时间，参照 {{Image N}} / 图名）` 明细；无 `{{Portrait N}}`、诊断、路径、绑定表、脚本化生成、批量插入、正则套句或映射投影伪差异 | `FAIL-LTVCTRL-PROMPT-POLLUTION` / `FAIL-LTVCTRL-SCRIPTED-PROMPT` / `FAIL-LTVCTRL-MISSING-STORYBOARD-SEGMENT-REF` |
 | `FIELD-LTVCTRL-08` | runtime boundary | queue record | 未授权时 `run_executed=false` | `FAIL-LTVCTRL-RUNTIME-BOUNDARY` |
 | `FIELD-LTVCTRL-09` | evidence | output directory | 以 `video_node_instance_id` 为前缀的 manifest、submit plan、queue、report，以及 `source_group_id -> instances[]` registry | `FAIL-LTVCTRL-EVIDENCE` |
+| `FIELD-LTVCTRL-10` | multi-storyboard reference map | manifest / submit plan / queried prompt | 分镜参照图按段绑定 `分镜段 XX -> 时间 -> 图名 -> {{Image N}} -> nodeId`；主体参照图绑定 `主体名 -> {{Image N}} -> nodeId/UUID`；两者共享同一 `imageList/mixedList` 顺序 | `FAIL-LTVCTRL-MULTI-STORYBOARD-REFS` / `FAIL-LTVCTRL-MISSING-SUBJECT-REF-MAP` |
 
 ## Thought Pass Map
 
@@ -183,6 +186,7 @@ Reject or clarify when:
 | `PASS-LTVCTRL-04` | node/order | 视频节点是否按 `图片N` 顺序消费图片？ | 建节点、逐张连线、写 imageList/mixedList | `GATE-LTVCTRL-ORDER` |
 | `PASS-LTVCTRL-05` | final check | 远端 prompt 和 imageList 是否可运行前通过？ | final query | `GATE-LTVCTRL-FINAL` |
 | `PASS-LTVCTRL-06` | evidence | 是否能复跑和审计？ | 写证据文件 | `GATE-LTVCTRL-EVIDENCE` |
+| `PASS-LTVCTRL-07` | multi-storyboard | 多分镜图模式下，是否逐段写明时间、参照图名、`{{Image N}}`、动作承接，并同时保留主体参照匹配？ | 加载多分镜细则，写 prompt segment map + manifest | `GATE-LTVCTRL-MULTI-STORYBOARD` |
 
 ## Field Mapping
 
@@ -199,3 +203,4 @@ Reject or clarify when:
 | `PASS-LTVCTRL-05` | final query 在最后一次写入后通过 | `FAIL-LTVCTRL-FINAL-QUERY` | `N8-FINAL-QUERY` |
 | `PASS-LTVCTRL-06` | 证据文件完整，状态不误报生成完成；同一分镜组多实例不会覆盖或跳过 | `FAIL-LTVCTRL-EVIDENCE` / `FAIL-LTVCTRL-NODE-IDENTITY` | `N9-EVIDENCE` / node identity gate |
 | `PASS-LTVCTRL-07` | 视频节点 prompt 主体直接消费完整分镜组正文；脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成直接失败 | `FAIL-LTVCTRL-SCRIPTED-PROMPT` | prompt hygiene gate / `N8-FINAL-QUERY` |
+| `PASS-LTVCTRL-08` | 多分镜图视频节点 prompt 中，分镜段数量、时间范围、参照图名、`{{Image N}}` 与 manifest/imageList 顺序一致；YAML 或参照说明中主体信息也绑定 `{{Image N}}` 与 node/UUID | `FAIL-LTVCTRL-MULTI-STORYBOARD-REFS` / `FAIL-LTVCTRL-MISSING-STORYBOARD-SEGMENT-REF` / `FAIL-LTVCTRL-MISSING-SUBJECT-REF-MAP` | `references/multi-storyboard-video-node-contract.md` / prompt rewrite / final query |

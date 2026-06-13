@@ -1,14 +1,4 @@
-name: html-claude-design
-description: Codex adapter for high-fidelity HTML artifact design using Claude Design reference modules.
-entrypoint: SKILL.md
-language: zh-CN
-runtime:
-  model_role: coding_agent
-  authorship: llm_first
-permissions:
-  filesystem: workspace
-  network: when_fact_verification_requires_current_sources
-outputs:
-  - html
-  - markdown_report
-  - design_handoff
+interface:
+  display_name: "Claude Design HTML 设计执行"
+  short_description: "高保真 HTML 与课件视觉设计执行、图片素材桥接、验证和质量回证"
+  default_prompt: "Use $html-claude-design when the user asks to create, redesign, polish, verify, or produce high-fidelity HTML, web courseware, deck surfaces, prototypes, posters, or lesson PPT/HTML artifacts. Load SKILL.md and CONTEXT.md, produce loaded_context_manifest, select only triggered upstream modules, declare a visible LLM-authored visual_system before implementation, preserve source-content boundaries, and detect whether PPT/HTML/courseware execution needs generated bitmap image elements. When generated images are needed and safe, derive an LLM-authored style_adaptation_profile from the artifact visual_system, load .agents/skills/cli/imagegen/SKILL.md plus CONTEXT.md, let imagegen own mode selection and CLI opt-in, persist generated assets inside the workspace, and reference them from the artifact. Write or update approved artifact files when artifact creation/modification is requested, run browser or export verification when applicable, and return selected_modules, visual_system, authorship_note, artifact_paths, writeback_status, asset_generation_status and style_adaptation_profile when triggered, verification, and quality_verdict. Do not let upstream references, scripts, templates, imported HTML, or generated images override project truth, lesson source content, output paths, artifact writeback gates, LLM-first authorship, style adaptation gates, or design excellence gates."

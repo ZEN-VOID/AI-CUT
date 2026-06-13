@@ -19,6 +19,7 @@ metadata:
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与人物审美、表演外观、世界观、人群结构、禁区和长期偏好相关的文件。
 - 若项目已有 `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md`，必须读取并作为上游风格边界；没有画面基调时，本技能只能产出 `candidate`，不得伪造全局风格真源。
 - 默认上游剧本真源为 `projects/aigc/<项目名>/2-编剧/第N集.md` 或 `projects/aigc/<项目名>/2-编剧/` 下的全量剧本；用户显式指定文本、参考图或参考视频时，以用户输入为本轮来源并记录来源类型。
+- 若输入来源或任务目标明确为 `第N集`，正式输出对象是该集角色风格覆盖，写入 `projects/aigc/<项目名>/3-美学/第N集/角色风格/`；只有整季、多集汇总或用户明确项目级基线时才写入非逐集 `角色风格/`。
 - 多模态参考只允许提供角色层风格事实，例如轮廓比例、年龄质感、表演外观边界、发型/妆容纪律、服装结构倾向、姿态气质和生成禁区；不得复制参考中的具体人物身份、姓名、剧情动作、场景、镜头或完整造型。
 - 核心审美判断、角色风格映射和提示词蒸馏必须由 LLM 直接完成；脚本只可承担读取、OCR/转写整理、字数统计、JSON 校验和污染词扫描。
 - 脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成角色风格协议、角色风格基因或 prompt，直接 fail。
@@ -88,7 +89,7 @@ Accepted input:
 - `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md` 或用户提供的全局画面基调。
 - 项目初始化资料、世界观设定、人群结构说明、用户角色审美偏好、禁区说明。
 - 参考图、参考视频、参考作品名称、角色设计参考、妆发/服装/表演外观参考。
-- 已有 `projects/aigc/<项目名>/3-美学/角色风格/角色风格协议.md` 或候选 prompt。
+- 已有逐集 `projects/aigc/<项目名>/3-美学/第N集/角色风格/角色风格协议.md`、项目级 `projects/aigc/<项目名>/3-美学/角色风格/角色风格协议.md` 或候选 prompt。
 
 Required input:
 
@@ -124,7 +125,7 @@ Reject or clarify when:
 
 | mode | trigger | canonical_output |
 | --- | --- | --- |
-| `single_episode_seed` | 基于单集剧本建立候选角色风格 | 候选 `角色风格协议.md`，报告标记样本范围 |
+| `single_episode_seed` | 基于单集剧本建立角色风格覆盖 | `projects/aigc/<项目名>/3-美学/第N集/角色风格/角色风格协议.md` |
 | `project_character_protocol` | 基于多集、整季、项目资料和画面基调建立正式项目级角色风格 | `projects/aigc/<项目名>/3-美学/角色风格/角色风格协议.md` |
 | `reference_only` | 只有参考图/视频/作品，无项目资料或画面基调 | 临时候选协议，不正式覆盖项目真源 |
 | `hybrid_calibration` | 项目资料 + 画面基调 + 参考图/视频/作品 | 正式协议，报告区分 script-derived、tone-derived 与 reference-derived 证据 |
@@ -252,6 +253,13 @@ Fail conditions:
 ## Output Contract
 
 正式写回路径：
+
+- `episode_scoped`: `projects/aigc/<项目名>/3-美学/第N集/角色风格/角色风格协议.md`
+- `episode_scoped`: `projects/aigc/<项目名>/3-美学/第N集/角色风格/执行报告.md`
+- `series_baseline`: `projects/aigc/<项目名>/3-美学/角色风格/角色风格协议.md`
+- `series_baseline`: `projects/aigc/<项目名>/3-美学/角色风格/执行报告.md`
+
+Legacy project-level baseline path:
 
 - `projects/aigc/<项目名>/3-美学/角色风格/角色风格协议.md`
 - `projects/aigc/<项目名>/3-美学/角色风格/执行报告.md`

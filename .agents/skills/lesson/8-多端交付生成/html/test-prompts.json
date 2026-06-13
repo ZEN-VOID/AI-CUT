@@ -2,7 +2,12 @@
   {
     "id": "responsive-web-course",
     "prompt": "基于父包 html packet，为 projects/lesson/销售训练营 生成响应式 HTML 课程交付计划和 manifest。",
-    "expected": "Route to html_delivery, audit the parent html packet, create html-delivery-plan.md and html-site-manifest.json, preserve LLM-first page authorship, and mark .agents/skills/claude-design as the executor for any real HTML artifact."
+    "expected": "Route to html_delivery, audit the parent html packet, create html-delivery-plan.md and html-site-manifest.json, preserve LLM-first page authorship, and mark .agents/skills/claude-design as the executor with artifact_paths and writeback_status requirements for any real HTML artifact."
+  },
+  {
+    "id": "html-artifact-design-excellence",
+    "prompt": "基于父包 html packet，为 projects/lesson/销售训练营 生成最终 index.html，要求完成专业视觉重设计、响应式检查和浏览器验证。",
+    "expected": "Route to html_artifact_generation, audit the parent html packet, load .agents/skills/claude-design/SKILL.md plus CONTEXT.md, pass the page plan and source boundary to claude-design, write or update the approved index.html/static artifact, and require artifact_paths, writeback_status, selected_modules, visual_system, browser verification, and quality_verdict before pass."
   },
   {
     "id": "update-mobile-layout",

@@ -24,6 +24,7 @@
 | `AIGC-TM-07` | 阶段产物覆盖率、字段完整或动机证据齐全，但用户仍能看出脚本化、句式复用或锚点替换伪差异 | creative-authorship gate gap | 回 owning skill 补 `authorship / anti-template / differentiation` 独立阻断门；当前候选稿不得 pass | 目标阶段 `SKILL.md` 有 fail code、review gate、返工入口和报告证据；`CONTEXT.md` 有失败模式 |
 | `AIGC-TM-08` | 用户只要短视频 prompt，却被路由到正式 2-10 项目阶段落盘 | mini prompt route drift | 进入 `flash/`，只输出当前聊天窗口 `Flash Prompt Pack` | 无项目文件写回；prompt pack 明确 chat-only |
 | `AIGC-TM-09` | 下游阶段已读取上游输出，但情节桥段、人物关系、画面空间或风格锚点变得像另一套故事 | upstream context application gap | 同步 `_shared/upstream-context-application-contract.md`，要求 owning stage 报告 `Upstream Context Application Map`，并把“已读取但未应用”列为阻断门 | 阶段 `SKILL.md` 加载共享合同；执行报告能证明 `source_anchor -> local_decision -> preservation_check` |
+| `AIGC-TM-10` | 逐集阶段直接读取项目级 3-美学细目风格，忽略同集 `3-美学/第N集/<风格>/` 覆盖 | aesthetic scope resolution gap | 当前集先读逐集风格覆盖，缺失再回退项目级基线；画面基调始终读全局 singleton | 下游 stage 的 `aesthetic_manifest` 记录 episode override / fallback |
 
 ## Repair Playbook
 
@@ -52,6 +53,7 @@
 - `flash/` 是 chat-only mini prompt 入口；它压缩串联 2-10 的判断，但不写任何 stage canonical 文件，也不生成执行报告。
 - 创作型阶段的最低源层验收不是“字段都在”，而是“字段背后有不可模板化的观看/叙事/设计判断”。覆盖率、四要素、动机证据和报告章节可以被脚本伪造，必须另设反形式化硬门。
 - 上游上下文不是背景资料；它必须被转译为当前阶段的约束、裁决和证据。没有 `source_anchor -> local_decision -> preservation_check` 的链路，就只能说明读取发生过，不能说明上下文被应用。
+- `3-美学/画面基调/全局风格协议.md` 是全局 singleton；场景/角色/道具/分镜/摄影风格在逐集任务中优先使用 `3-美学/第N集/<风格>/...`，缺失时才用项目级 `<风格>/...` 作为 fallback。
 
 ## Stage Pipeline — 从原小说到最终视频的完整链路
 
@@ -66,7 +68,7 @@
 | `0-初始化` | 锁定项目、风格、制作约束 | 用户请求 | north_star.yaml、team.yaml、项目 MEMORY | 项目骨架 |
 | `1-分集` | 把长篇小说切成逐集原文 | 小说全文 | 集边界、字数、frontmatter | `1-分集/第N集.md`（原文，零改写） |
 | `2-编剧` | 把逐集原文转成可拍、可演、可听的剧本稿 | 逐集原文 | slugline、声画配对、对白冻结、小说转译、导演判断、视觉主轴、心理反应、台词交付、潜台词行为、场面调度、画面化语言 | `2-编剧/第N集.md` |
-| `3-美学` | 建立画面基调、场景/角色/道具风格、分镜风格、摄影风格和大师/作品参照 | 项目设定 + 剧本稿 | `画面基调/全局风格协议.md`、细目风格协议、分镜节奏、美学参照边界 | `3-美学/.../风格协议.md` |
+| `3-美学` | 建立画面基调、场景/角色/道具风格、分镜风格、摄影风格和大师/作品参照 | 项目设定 + 剧本稿 | `画面基调/全局风格协议.md`、逐集或项目级细目风格协议、分镜节奏、美学参照边界 | `3-美学/画面基调/全局风格协议.md` + `3-美学/第N集/<风格>/风格协议.md` 或项目级 `<风格>/风格协议.md` |
 | `4-导演` | 在剧本上注入导演判断和场面调度 | 剧本稿 + 美学协议 | 镜头意图、表演空间、声音/视线/节奏组织 | 导演注释稿 |
 | `5-表演` | 强化角色表演与行为可拍性 | 导演注释稿 | 动作、表情、潜台词、反应节奏 | 表演重写稿 |
 | `6-氛围` | 强化声画氛围、心理反应和尾钩承托 | 表演重写稿 + 美学协议 | 氛围画面、声画配对、环境压迫、情绪余韵 | `6-氛围/第N集.md` |

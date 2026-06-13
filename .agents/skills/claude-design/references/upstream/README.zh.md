@@ -190,8 +190,8 @@ Skill 的 description 写得"略激进"——即使你没说"设计"这个词，
 - **挂载你的品牌/设计系统**：把品牌手册、设计 tokens、UI kit 以 Markdown / HTML 放到 `references/` 或 `assets/`，并在 `SKILL.md` 里加一条指引把 Claude 引过去；
 - **调整触发范围**：改 `SKILL.md` 顶部 frontmatter 里的 `description`，可以让 Skill 变得更保守或更激进；
 - **替换起手模板**：`assets/` 里的文件是明确的起点，按你团队风格改写后 Claude 会使用你的版本；
-- **扩充风格库**：在 `references/design-styles.md` 里按已有结构（pitch / flagship / keywords / signature-moves / when-to-use）加新条目；
-- **新增输出格式**：在 `references/` 下加一份（如 `references/email-designs.md`），并在 `SKILL.md` 的索引里指过去。
+- **扩充风格库**：在 `references/upstream/references/design-styles.md` 里按已有结构（pitch / flagship / keywords / signature-moves / when-to-use）加新条目；
+- **新增输出格式**：在上游 references 目录下加一份（如 `email-designs.md`），并在 `SKILL.md` 的索引里指过去。
 
 ## 设计哲学
 
@@ -200,3 +200,7 @@ Skill 的 description 写得"略激进"——即使你没说"设计"这个词，
 ## 许可
 
 MIT 协议，见 [LICENSE](LICENSE)。原始 Claude Design 系统提示词版权归属 Anthropic；本仓库是按 Claude Skill 规范重构后的改编版本，用于让 skill 可被外部环境加载。
+
+## Review Gate Mapping
+
+No independent gate: this upstream reference is consumed through `.agents/skills/claude-design/SKILL.md` Review Gate Binding and cannot override adapter gates.

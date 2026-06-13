@@ -18,6 +18,7 @@ metadata:
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与摄影、美学、参考视频、参考图、禁区或长期制作偏好相关的文件。
 - 默认上游剧本真源为 `projects/aigc/<项目名>/2-编剧/第N集.md` 或 `projects/aigc/<项目名>/2-编剧/` 下的剧本；默认视觉上游为 `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md`。
+- 若输入来源或任务目标明确为 `第N集`，正式输出对象是该集摄影风格覆盖，写入 `projects/aigc/<项目名>/3-美学/第N集/摄影风格/`；只有整季、多集汇总或用户明确项目级基线时才写入非逐集 `摄影风格/`。
 - 多模态参考只允许提供摄影事实、镜头组织、运动质感、景别转换、机位关系、节奏和连续性线索，不得把参考图/视频中的具体人物、物件、地点、剧情或单个镜头正文迁入最终协议。
 - 核心摄影判断、构图/运镜语法提炼、连招设计和提示词蒸馏必须由 LLM 直接完成；脚本只可承担读取、抽帧清单整理、字数统计、JSON/Markdown 校验和重复术语扫描。
 - 脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成摄影风格协议、运动连招、连续性规则或 prompt，直接 fail。
@@ -87,7 +88,7 @@ Accepted input:
 - `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md` 或用户指定的视觉基调文本。
 - 项目初始化资料、世界观设定、用户摄影偏好、禁用运镜、平台或模型限制。
 - 参考图、参考视频、参考作品名称、导演/摄影师/影片段落说明。
-- 已有 `projects/aigc/<项目名>/3-美学/摄影风格/摄影风格协议.md` 或候选摄影 prompt。
+- 已有逐集 `projects/aigc/<项目名>/3-美学/第N集/摄影风格/摄影风格协议.md`、项目级 `projects/aigc/<项目名>/3-美学/摄影风格/摄影风格协议.md` 或候选摄影 prompt。
 
 Required input:
 
@@ -123,7 +124,7 @@ Reject or clarify when:
 
 | mode | trigger | canonical_output |
 | --- | --- | --- |
-| `single_episode_seed` | 基于单集剧本建立候选摄影风格 | 候选 `摄影风格协议.md`，报告标记样本范围 |
+| `single_episode_seed` | 基于单集剧本建立摄影风格覆盖 | `projects/aigc/<项目名>/3-美学/第N集/摄影风格/摄影风格协议.md` |
 | `series_camera_protocol` | 基于多集、整季或项目资料建立正式项目级摄影协议 | `projects/aigc/<项目名>/3-美学/摄影风格/摄影风格协议.md` |
 | `visual_tone_extension` | 基于 `画面基调` 推导摄影语法 | 正式或候选协议，报告标记继承字段 |
 | `reference_only` | 只有参考图/视频/作品，无项目叙事资料 | 临时候选协议，不正式覆盖项目真源 |
@@ -255,6 +256,13 @@ Fail conditions:
 ## Output Contract
 
 正式写回路径：
+
+- `episode_scoped`: `projects/aigc/<项目名>/3-美学/第N集/摄影风格/摄影风格协议.md`
+- `episode_scoped`: `projects/aigc/<项目名>/3-美学/第N集/摄影风格/执行报告.md`
+- `series_baseline`: `projects/aigc/<项目名>/3-美学/摄影风格/摄影风格协议.md`
+- `series_baseline`: `projects/aigc/<项目名>/3-美学/摄影风格/执行报告.md`
+
+Legacy project-level baseline path:
 
 - `projects/aigc/<项目名>/3-美学/摄影风格/摄影风格协议.md`
 - `projects/aigc/<项目名>/3-美学/摄影风格/执行报告.md`

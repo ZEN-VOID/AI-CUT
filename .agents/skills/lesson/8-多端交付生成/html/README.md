@@ -25,9 +25,9 @@ The active contract is in `SKILL.md`. Load `CONTEXT.md` with it. HTML writeback 
 - `html-site-manifest.json`
 - optional `index.html` or static site artifacts generated or improved through `.agents/skills/claude-design` from LLM-approved page plans
 
-When the request involves actual HTML generation, redesign, polish, or browser verification, this leaf must load `.agents/skills/claude-design/SKILL.md + .agents/skills/claude-design/CONTEXT.md`. Lesson owns the course truth, page plan, and manifest; `claude-design` owns high-fidelity HTML visual execution and browser verification.
+When the request involves actual HTML generation, redesign, polish, or browser verification, this leaf must load `.agents/skills/claude-design/SKILL.md + .agents/skills/claude-design/CONTEXT.md`. Lesson owns the course truth, page plan, and manifest; `claude-design` owns high-fidelity HTML visual execution, final artifact writeback, upstream design module selection, visual-system articulation, browser verification, and quality verdict. Final artifact pass requires `artifact_paths` and `writeback_status`; a design direction or target path alone is only planning evidence.
 
-Scripts may only do HTML/CSS/JS assembly, resource copying, validation, export, and manifest writeback. They must not generate web course正文 or replace the `claude-design` visual execution pass.
+Scripts may only do HTML/CSS/JS assembly, resource copying, validation, export, and manifest writeback. They must not generate web course正文, replace the `claude-design` visual execution pass, or treat a generic page without artifact writeback, visual-system, and quality-verdict evidence as complete.
 
 ## Validation
 

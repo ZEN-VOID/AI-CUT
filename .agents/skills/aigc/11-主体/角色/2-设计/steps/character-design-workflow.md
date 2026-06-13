@@ -32,7 +32,7 @@ flowchart TD
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-INTAKE` | 锁定项目、角色范围和不动范围 | 用户请求、项目路径 | 解析项目名、角色名、批量范围和只读边界 | `execution_scope` | `N2-PROJECT-CONTEXT` | 项目路径明确 |
-| `N2-PROJECT-CONTEXT` | 加载项目风格和初始化综合上下文 | `MEMORY.md`、`CONTEXT/`、`3-美学/画面基调/全局风格协议.md`、`3-美学/角色风格/角色风格协议.md`、`north_star.yaml`、`team.yaml.init_synthesis` | 抽取 `画面基调.Global Style Prompt + 角色风格.Character Style Prompt`、设计相关初始化约束、启发、风险和禁区；`north_star.yaml` 只提供项目北极星/不变量/禁区 | `project_design_context` | `N3-CHARACTER-LIST` | 缺失项已记录 |
+| `N2-PROJECT-CONTEXT` | 加载项目风格和初始化综合上下文 | `MEMORY.md`、`CONTEXT/`、`3-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `3-美学/角色风格/角色风格协议.md`、`north_star.yaml`、`team.yaml.init_synthesis` | 抽取 `画面基调.Global Style Prompt + 角色风格.Character Style Prompt`，并记录 episode override / fallback；设计相关初始化约束、启发、风险和禁区；`north_star.yaml` 只提供项目北极星/不变量/禁区 | `project_design_context` | `N3-CHARACTER-LIST` | 缺失项已记录 |
 | `N3-CHARACTER-LIST` | 锁定清单角色锚点 | `角色清单.md` | 读取待设计角色的名称、首次登场、原文描述关键词 | `character_intake_table` | `N4-TYPE-PROFILE` | 每个角色来自清单 |
 | `N4-TYPE-PROFILE` | 判定角色类型和设计深度 | 清单行、项目上下文 | 应用 `types/character-design-type-map.md`，决定研究深度、考据许可、不确定性口径、`aesthetic_priority` 和 `celebrity_inspiration_policy` | `type_profile` | `N5-RESEARCH-PROFILE` | 类型、深度、审美优先级和风险明确 |
 | `N5-RESEARCH-PROFILE` | 把研究转化为设计证据链 | `character_intake_table`、`project_design_context`、`type_profile`、必要外部来源、`knowledge-base/character-design-corpus.md` | LLM 生成身份、职业、阶层、地域年代、服饰工艺、身体姿态、审美吸引力、禁区、不确定性和 prompt evidence chain；命中审美强化、妆容化或服装时代语境时加载语料库并形成 `corpus_usage_trace`；搜索只作辅助证据 | `research_profile`、`corpus_usage_trace` | `N6-INIT-SYNTHESIS-REVIEW` | 每个研究镜头和审美吸引力都有设计转化；语料已原创转译且不脱离时代语境 |
@@ -65,7 +65,7 @@ flowchart TD
 | fail_code | symptom | rework_entry |
 | --- | --- | --- |
 | `FAIL-NO-LIST` | 找不到上游 `角色清单.md` | 回到 `N3-CHARACTER-LIST`，请求或生成上游清单 |
-| `FAIL-NO-STYLE` | 未读取 `3-美学/画面基调/全局风格协议.md`、`3-美学/角色风格/角色风格协议.md` 或无法提炼 `Global Style Prompt + Character Style Prompt` | 回到 `N2-PROJECT-CONTEXT` |
+| `FAIL-NO-STYLE` | 未读取 `3-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `3-美学/角色风格/角色风格协议.md` 或无法提炼 `Global Style Prompt + Character Style Prompt` | 回到 `N2-PROJECT-CONTEXT` |
 | `FAIL-RESEARCH-FLAT` | 研究层只有资料摘录，没有转化为设计决策 | 回到 `N5-RESEARCH-PROFILE` 补 evidence chain |
 | `FAIL-CHAR-DESIGN-AESTHETIC-APPEAL` | 角色设计只还原清单关键词，缺少美丽/英俊/个性魅力、服装审美完成度，或明星脸灵感写成现实人物复刻 | 回到 `N7-MERGE-DRAFT` 补 `Aesthetic Appeal Evidence`、脸部骨相策略、服装吸引力策略和原创转译说明 |
 | `FAIL-CHAR-DESIGN-CORPUS-MISSING` | 命中审美强化、妆容化、角色类型语料或服装时代语境时，未加载语料库、未留 `corpus_usage_trace`，或语料逐字套用/服装脱离时代 | 回到 `N5-RESEARCH-PROFILE` 加载 `knowledge-base/character-design-corpus.md`，再到 `N7-MERGE-DRAFT` 原创转译 |
