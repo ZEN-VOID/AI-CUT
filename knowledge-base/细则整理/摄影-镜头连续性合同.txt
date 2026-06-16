@@ -1,11 +1,11 @@
 摄影-镜头连续性合同
 来源技能：摄影
-来源文件：.agents/skills/aigc/8-摄影/references/shot-continuity-contract.md
+来源文件：.agents/skills/aigc/7-摄影/references/shot-continuity-contract.md
 原始标题：Shot Continuity Contract
 
 ---
 
-本文件定义 `8-摄影` 的连续性规则。运镜注入不是给每条分镜套独立镜头，而是在整集、场景、画面点和分镜行之间建立可剪辑的观看链。
+本文件定义 `7-摄影` 的连续性规则。运镜注入不是给每条分镜套独立镜头，而是在整集、场景、画面点和分镜行之间建立可剪辑的观看链。
 
 ## Continuity Scope
 

@@ -1,4 +1,4 @@
 interface:
   display_name: "漫画生成"
-  short_description: "读取单个 page-group 对应的九刀流提示词 JSON，并通过 .agents/skills/cli/imagegen 生成该组的 9 张连续竖版漫画页"
-  default_prompt: "Use $comic-generation to validate one page-group level nine_blade_comic_prompts.v1 JSON and route generation through .agents/skills/cli/imagegen with gpt-image-2, one JSONL job per page, to create exactly 9 separate vertical comic pages for that group, not a collage or nine variants, while preserving multi-character continuity, scene continuity, cross-group visual DNA, and a bottom-right numeric page number 1-9 on every page."
+  short_description: "读取单个 page-group 对应的九刀流提示词 JSON，并通过内置 image_gen 生成该组的 9 张连续竖版漫画页"
+  default_prompt: "Use $comic-generation to validate one page-group level nine_blade_comic_prompts.v1 JSON and route generation through .agents/skills/cli/imagegen built-in image_gen mode, one distinct prompt and image asset per page, to create exactly 9 separate vertical comic pages for that group, not a collage or nine variants, while preserving multi-character continuity, scene continuity, cross-group visual DNA, and a bottom-right numeric page number 1-9 on every page."

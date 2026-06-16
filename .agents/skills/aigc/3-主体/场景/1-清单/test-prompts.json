@@ -1,0 +1,17 @@
+[
+  {
+    "id": "single-episode-scene-list",
+    "prompt": "使用 $aigc-scene-list，从 projects/aigc/示例项目/3-主体/subject-registry.yaml 的第1集 source anchors 生成场景清单。",
+    "expected": "只采集 registry subjects.scenes，LLM 逐条裁决归并，输出固定三列表格。"
+  },
+  {
+    "id": "incremental-merge-scene-list",
+    "prompt": "使用 $aigc-scene-list，将新增 registry scenes 增量合并到既有 场景清单.md。",
+    "expected": "读取既有清单并建立 reconcile_delta，新主体追加，旧主体和 S### 锚点稳定。"
+  },
+  {
+    "id": "review-pseudo-diff",
+    "prompt": "审查一份看似字段完整但像模板换地点名的 场景清单.md。",
+    "expected": "触发 FAIL-SCENE-LIST-PSEUDO-DIFF，废弃脚本化候选，回到 LLM 归并节点。"
+  }
+]

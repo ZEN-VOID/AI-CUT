@@ -12,20 +12,20 @@
 
 | bridge_target | trigger | load |
 | --- | --- | --- |
-| `3-美学整体` | 用户要对齐 3-美学、全套美学、风格解析或六子技能 side context | `references/aesthetic-style-analysis-contract.md`，加载 `.agents/skills/aigc/3-美学/SKILL.md + CONTEXT.md` 及六子技能合同 |
-| `画面基调` | 用户要临摹或补强全片画面基调、媒介技术栈、美学范式、节奏锚点 | `references/aesthetic-style-analysis-contract.md`、`.agents/skills/aigc/3-美学/画面基调/SKILL.md + CONTEXT.md` |
-| `角色风格` | 用户要临摹角色层视觉风格、轮廓、妆发、服装结构或体态质感 | `references/aesthetic-style-analysis-contract.md`、`.agents/skills/aigc/3-美学/角色风格/SKILL.md + CONTEXT.md` |
-| `场景风格` | 用户要临摹空间风格、空镜秩序、材质光影或世界地理视觉信号 | `references/aesthetic-style-analysis-contract.md`、`.agents/skills/aigc/3-美学/场景风格/SKILL.md + CONTEXT.md` |
-| `道具风格` | 用户要临摹道具功能层级、材质体系、符号边界或细节密度 | `references/aesthetic-style-analysis-contract.md`、`.agents/skills/aigc/3-美学/道具风格/SKILL.md + CONTEXT.md` |
-| `摄影风格` | 用户要临摹摄影风格层面的构图秩序、景别、机位、运动、连续性 | `references/aesthetic-style-analysis-contract.md`、`.agents/skills/aigc/3-美学/摄影风格/SKILL.md + CONTEXT.md` |
-| `分镜风格` | 用户要临摹分镜组织、节奏密度、镜头组合、转场和信息流 | `references/aesthetic-style-analysis-contract.md`、`.agents/skills/aigc/3-美学/分镜风格/SKILL.md + CONTEXT.md` |
-| `编剧` | 用户要临摹戏剧问题、人物压力、对白策略、声画承托或场面任务 | `.agents/skills/aigc/2-编剧/SKILL.md + CONTEXT.md`、`references/screenwriter-style-analysis-contract.md` |
-| `导演` | 用户要临摹导演意图、场面调度、声画配对、画面化选择或批注意图 | `.agents/skills/aigc/4-导演/SKILL.md + CONTEXT.md`、`references/adaptation-output-contract.md` |
-| `表演` | 用户要临摹微表情、动作停顿、潜台词行为、台词语气或演员表演任务 | `.agents/skills/aigc/5-表演/SKILL.md + CONTEXT.md`、`references/adaptation-output-contract.md` |
-| `分镜` | 用户要临摹角色/道具移动、相对位置变化、动作路径、参考系、跨画面连续性或分镜节奏 | `.agents/skills/aigc/7-分镜/SKILL.md + CONTEXT.md`、`references/adaptation-output-contract.md` |
-| `摄影` | 用户要临摹可转入摄影阶段的镜头语言、运镜、构图、视点、焦点或节奏 | `.agents/skills/aigc/8-摄影/SKILL.md + CONTEXT.md`、`references/cinematography-style-analysis-contract.md` |
-| `光影` | 用户要临摹光源叙事、光色母题、空气介质、明暗关系或材质反射 | `.agents/skills/aigc/9-光影/SKILL.md + CONTEXT.md`、`references/cinematography-style-analysis-contract.md` |
-| `11-主体` | 用户要给角色、场景、道具正式设计阶段提供参考原则 | 按目标加载 `11-主体/角色/2-设计`、`11-主体/场景/2-设计`、`11-主体/道具/2-设计` 与 `references/design-style-analysis-contract.md` |
+| `2-美学整体` | 用户要对齐 2-美学、全套美学、风格解析或六子技能 side context | `references/aesthetic-style-analysis-contract.md`，加载 `.agents/skills/aigc/2-美学/SKILL.md + CONTEXT.md` 及六子技能合同 |
+| `画面基调` | 用户要临摹或补强全片画面基调、媒介技术栈、美学范式、节奏锚点 | `references/aesthetic-style-analysis-contract.md`、`.agents/skills/aigc/2-美学/画面基调/SKILL.md + CONTEXT.md` |
+| `角色风格` | 用户要临摹角色层视觉风格、轮廓、妆发、服装结构或体态质感 | `references/aesthetic-style-analysis-contract.md`、`.agents/skills/aigc/2-美学/角色风格/SKILL.md + CONTEXT.md` |
+| `场景风格` | 用户要临摹空间风格、空镜秩序、材质光影或世界地理视觉信号 | `references/aesthetic-style-analysis-contract.md`、`.agents/skills/aigc/2-美学/场景风格/SKILL.md + CONTEXT.md` |
+| `道具风格` | 用户要临摹道具功能层级、材质体系、符号边界或细节密度 | `references/aesthetic-style-analysis-contract.md`、`.agents/skills/aigc/2-美学/道具风格/SKILL.md + CONTEXT.md` |
+| `摄影风格` | 用户要临摹摄影风格层面的构图秩序、景别、机位、运动、连续性 | `references/aesthetic-style-analysis-contract.md`、`.agents/skills/aigc/2-美学/摄影风格/SKILL.md + CONTEXT.md` |
+| `分镜风格` | 用户要临摹分镜组织、节奏密度、镜头组合、转场和信息流 | `references/aesthetic-style-analysis-contract.md`、`.agents/skills/aigc/2-美学/分镜风格/SKILL.md + CONTEXT.md` |
+| `编剧` | 用户要临摹戏剧问题、人物压力、对白策略、声画承托或场面任务 | `.agents/skills/aigc/4-编剧/SKILL.md + CONTEXT.md`、`references/screenwriter-style-analysis-contract.md` |
+| `导演` | 用户要临摹导演意图、场面调度、声画配对、画面化选择或批注意图 | `.agents/skills/aigc/5-导演/SKILL.md + CONTEXT.md`、`references/adaptation-output-contract.md` |
+| `表演` | 用户显式要临摹 archived 表演包中的微表情、动作停顿、潜台词行为、台词语气或演员表演任务 | `.agents/skills/aigc/backup/5-表演/SKILL.md + CONTEXT.md`、`references/adaptation-output-contract.md` |
+| `分镜` | 用户要临摹角色/道具移动、相对位置变化、动作路径、参考系、跨画面连续性或分镜节奏 | `.agents/skills/aigc/6-分镜/SKILL.md + CONTEXT.md`、`references/adaptation-output-contract.md` |
+| `摄影` | 用户要临摹可转入摄影阶段的镜头语言、运镜、构图、视点、焦点或节奏 | `.agents/skills/aigc/7-摄影/SKILL.md + CONTEXT.md`、`references/cinematography-style-analysis-contract.md` |
+| `光影` | 用户显式要临摹 archived 光影包中的光源叙事、光色母题、空气介质、明暗关系或材质反射 | `.agents/skills/aigc/backup/9-光影/SKILL.md + CONTEXT.md`、`references/cinematography-style-analysis-contract.md` |
+| `3-主体` | 用户要给角色、场景、道具正式设计阶段提供参考原则 | 按目标加载 `3-主体/角色/2-设计`、`3-主体/场景/2-设计`、`3-主体/道具/2-设计` 与 `references/design-style-analysis-contract.md` |
 | `分镜脚本` | 用户要标准表格式分镜脚本或需要对齐 Numbers 示例 | `references/storyboard-script-contract.md`、`templates/output-template.md` |
-| `全量输出` | 用户要融合 3-美学风格解析、编剧、导演、表演、分镜、摄影、光影、主体和分镜脚本可套用结果 | 同时加载 3-美学六子技能、`2-编剧`、`4-导演`、`5-表演`、`7-分镜`、`8-摄影`、`9-光影`、对应 `11-主体` 子技能和分镜脚本合同 |
+| `全量输出` | 用户要融合 2-美学风格解析、编剧、导演、分镜、摄影、分组、主体和分镜脚本可套用结果；表演/光影只在显式 archived 目标中加入 | 同时加载 2-美学六子技能、`4-编剧`、`5-导演`、`6-分镜`、`7-摄影`、`8-分组`、对应 `3-主体` 子技能和分镜脚本合同；显式 legacy 时再加载 backup 表演/光影 |
 | `research_only` | 用户只要分析，不绑定项目阶段 | 不写项目 runtime，直接输出报告 |

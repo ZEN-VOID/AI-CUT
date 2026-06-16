@@ -24,22 +24,18 @@ projects/aigc/<项目名>/
 projects/aigc/<项目名>/
 ├── 0-初始化/
 ├── 1-分集/
-├── 2-编剧/
-├── 3-美学/
-├── 4-导演/
-├── 5-表演/
-├── 6-氛围/
-├── 7-分镜/
-├── 8-摄影/
-├── 9-光影/
-├── 10-分组/
-├── 11-主体/
+├── 4-编剧/
+├── 2-美学/
+├── 5-导演/
+├── 6-分镜/
+├── 7-摄影/
+├── 8-分组/
+├── 3-主体/
 │   ├── 场景/
 │   ├── 道具/
 │   └── 角色/
-├── 12-图像/
-├── 13-画布/
-├── 14-审片/
+├── 9-图像/
+├── 10-画布/
 ├── CONTEXT/
 ├── MEMORY.md
 ├── STATE.json
@@ -77,19 +73,15 @@ projects/aigc/<项目名>/
 | --- | --- |
 | `0-初始化` | `MEMORY.md`, `CONTEXT/README.md`, scaffold directory existence |
 | `1-分集` | `第N集.md`, `执行报告.md` |
-| `2-编剧` | `第N集.md`, `validation-report.md`, `执行报告.md` |
-| `3-美学` | 画面基调/角色风格/场景风格/道具风格/分镜风格/摄影风格协议 |
-| `4-导演` | `第N集.md`, `validation-report.md` |
-| `5-表演` | `第N集.md`, `validation-report.md` |
-| `6-氛围` | `第N集.md`, `validation-report.md` |
-| `7-分镜` | `第N集.md`, `validation-report.md` |
-| `8-摄影` | `第N集.md`, `validation-report.md` |
-| `9-光影` | `第N集.md`, `validation-report.md` |
-| `10-分组` | `第N集.md`, 分组统计或 validation report |
-| `11-主体` | `场景/角色/道具` 下的清单、设计稿、生成记录 |
-| `12-图像` | `A-分镜画面`, `B-分镜故事板` 或 provider handoff |
-| `13-画布` | `libTV画布流` 或生成任务记录 |
-| `14-审片` | 审片报告、缺陷清单、修复路由或验收记录 |
+| `4-编剧` | `第N集.md`, `validation-report.md`, `执行报告.md` |
+| `2-美学` | 画面基调/角色风格/场景风格/道具风格/分镜风格/摄影风格协议 |
+| `5-导演` | `第N集.md`, `validation-report.md` |
+| `6-分镜` | `第N集.md`, `validation-report.md` |
+| `7-摄影` | `第N集.md`, `validation-report.md` |
+| `8-分组` | `第N集.md`, 分组统计或 validation report |
+| `3-主体` | `场景/角色/道具` 下的清单、设计稿、生成记录 |
+| `9-图像` | `A-分镜画面`, `B-分镜故事板` 或 provider handoff |
+| `10-画布` | `libTV画布流` 或生成任务记录 |
 
 ## Legacy Compatibility Inputs
 
@@ -108,7 +100,7 @@ projects/aigc/<项目名>/
 - old Chinese `4-摄影`
 - transition `4-设计`
 
-旧 `2-编导` 可按意图映射到当前 `2-编剧 / 4-导演 / 5-表演`；旧 `3-运动` 可映射到 `7-分镜 / 8-摄影 / 9-光影`；旧 `4-摄影` 可映射到 `8-摄影`。映射必须在恢复报告中标注 legacy source 与 current owner。
+旧 `2-编导` 可按意图映射到当前 `4-编剧 / 5-导演`，或显式 archived `backup/5-表演`；旧 `3-运动` 可映射到 `6-分镜 / 7-摄影`，或显式 archived `backup/9-光影`；旧 `4-摄影` 可映射到 `7-摄影`。映射必须在恢复报告中标注 legacy source、current owner 与 archived 状态。
 
 `7-Cut` 是旧后期/剪辑搁浅阶段。恢复时只能返回 `root_reroute` 或 `blocked_safety_stop`，不得把它当成可直接续跑阶段。
 
@@ -131,6 +123,6 @@ projects/aigc/<项目名>/
 | 阶段证据是否来自真实文件，如 `第N集.md`、validation report、设计稿或生成记录，而不是空 skeleton 目录？ | `GATE-RESUME-EVIDENCE-CHAIN` | `FAIL-RESUME-EVIDENCE` | `N2-TRUTH-LOCK` | 报告列出每个阶段证据文件路径、文件存在性和空目录排除结果。 |
 | legacy 路径与当前中文路径并存时，是否优先报告 `root_reroute` 或 `governance_rebuild`，由根 `aigc` 决定迁移策略？ | `GATE-RESUME-RUNTIME-PROFILE` | `FAIL-RESUME-RUNTIME` | `N3-TYPE` | 报告列出并存路径、漂移风险、选择的 resume mode 和 reroute owner。 |
 | 旧 `7-Cut` 是否被识别为搁浅/blocked 阶段，只返回 `root_reroute` 或 `blocked_safety_stop`？ | `GATE-RESUME-LEGACY-SHELVED` | `FAIL-RESUME-LEGACY-STAGE` | `N4-PLAN` | 报告记录 `7-Cut` 证据、阻断理由和唯一回接入口。 |
-| transition `4-设计` 与当前 `11-主体` 是否被区分；若 `11-主体` 存在，是否默认以 `11-主体` 作为设计阶段恢复真源？ | `GATE-RESUME-RUNTIME-PROFILE` | `FAIL-RESUME-RUNTIME` | `N2-TRUTH-LOCK` | 报告列出 `4-设计`/`11-主体` 存在性、采用的设计真源和漂移说明。 |
+| transition `4-设计` 与当前 `3-主体` 是否被区分；若 `3-主体` 存在，是否默认以 `3-主体` 作为设计阶段恢复真源？ | `GATE-RESUME-RUNTIME-PROFILE` | `FAIL-RESUME-RUNTIME` | `N2-TRUTH-LOCK` | 报告列出 `4-设计`/`3-主体` 存在性、采用的设计真源和漂移说明。 |
 | provider 缓存、临时下载、外部二进制或最近修改文件是否只作辅助证据，未单独决定恢复模式？ | `GATE-RESUME-EVIDENCE-CHAIN` | `FAIL-RESUME-EVIDENCE` | `N2-TRUTH-LOCK` | 报告列出辅助证据类型、为何不足以单独裁决，以及主证据链。 |
 | runtime layout 细则是否只服务恢复判定，不拥有初始化、迁移执行或阶段业务真稿生成权？ | `GATE-RESUME-TRUTH-BOUNDARY` | `FAIL-RESUME-TRUTH-BOUNDARY` | `N4-PLAN` | 报告说明本 reference 被用于路径/证据判定，未直接写业务产物或改变阶段真源。 |

@@ -1,16 +1,18 @@
 # CLI reference (`scripts/image_gen.py`)
 
-This file is for the fallback CLI mode only. Read it when the user explicitly asks to use `scripts/image_gen.py` / CLI / API / model controls, or after the user explicitly confirms that a transparent-output request should use the `gpt-image-1.5` true-transparency fallback path.
+Status: deprecated/external reference. This file is not an execution route for `.agents/skills/cli/imagegen`.
 
-`generate-batch` is a CLI subcommand in this fallback path. It is not a top-level mode of the skill.
-The word `batch` in a user request is not CLI opt-in by itself.
+Read it only when auditing legacy material or when a separate, explicitly named non-imagegen workflow asks for `scripts/image_gen.py` / CLI / API / model controls. Do not invoke these commands from `.agents/skills/cli/imagegen`.
+
+`generate-batch` is a CLI subcommand in that external path. It is not a top-level mode of `.agents/skills/cli/imagegen`.
+The word `batch` in a user request is never CLI opt-in for `.agents/skills/cli/imagegen`.
 
 ## What this CLI does
 - `generate`: generate a new image from a prompt
 - `edit`: edit one or more existing images
 - `generate-batch`: run many generation jobs from a JSONL file after the user explicitly chooses CLI/API/model controls
 
-Real API calls require **network access** + `OPENAI_API_KEY`. `--dry-run` does not.
+Real API calls require **network access** + `OPENAI_API_KEY`. `.agents/skills/cli/imagegen` must not request that key because it is defined as the built-in `image_gen` route only.
 
 ## Quick start (works from any repo)
 Set a stable path to the skill CLI (default `CODEX_HOME` is `~/.codex`):
@@ -58,12 +60,12 @@ python "$IMAGE_GEN" edit \
 - Use the bundled CLI directly (`python "$IMAGE_GEN" ...`) after activating the correct environment.
 - Do **not** create one-off runners (for example `gen_images.py`) unless the user explicitly asks for a custom wrapper.
 - **Never modify** `scripts/image_gen.py`. If something is missing, ask the user before doing anything else.
-- Do not silently downgrade from CLI `gpt-image-2` or built-in `image_gen` to CLI `gpt-image-1.5`; ask first unless the user already explicitly requested `gpt-image-1.5`, `scripts/image_gen.py`, or CLI fallback.
+- In a separate CLI/API workflow, do not silently downgrade from CLI `gpt-image-2` to CLI `gpt-image-1.5`; ask first unless the user already explicitly requested `gpt-image-1.5` or `scripts/image_gen.py`.
 
 ## Defaults
 - Model: `gpt-image-2`
 - Supported model family for this CLI: GPT Image models (`gpt-image-*`)
-- Size: `2048x1152` for the default `gpt-image-2` model; non-`gpt-image-2` fallback models default to `auto` unless `--size` is provided
+- Size: `2048x1152` for the default `gpt-image-2` model; non-`gpt-image-2` external CLI/API models default to `auto` unless `--size` is provided
 - Quality: `medium`
 - Output format: `png`
 - Default one-off output path: `output/imagegen/output.png`
@@ -71,15 +73,15 @@ python "$IMAGE_GEN" edit \
 
 ## gpt-image-2 size and model guidance
 
-`gpt-image-2` is the default model for new CLI fallback work.
+`gpt-image-2` is the default model for separate CLI/API work.
 
-- Omitted `--size` resolves to `2048x1152` for `gpt-image-2`, matching the skill-level 2K default.
+- Omitted `--size` resolves to `2048x1152` for `gpt-image-2`.
 - Use `--quality low` for fast drafts, thumbnails, and quick iterations.
 - Use `--quality medium`, `--quality high`, or `--quality auto` for final assets, dense text, diagrams, identity-sensitive edits, and high-resolution outputs.
 - Square images are typically fastest. Use `--size 1024x1024` for quick square drafts.
 - If the user or upstream handoff asks for 4K-style output, use `--size 3840x2160` for landscape or `--size 2160x3840` for portrait.
 - Do not pass `--input-fidelity` with `gpt-image-2`; this model always uses high fidelity for image inputs.
-- Do not use `--background transparent` with `gpt-image-2`; the default transparent-image workflow uses built-in `image_gen` on a flat chroma-key background plus local removal. Use `gpt-image-1.5` only after the user explicitly confirms the true-transparent CLI fallback, unless they already requested `gpt-image-1.5`, `scripts/image_gen.py`, or CLI fallback.
+- Do not use `--background transparent` with `gpt-image-2`. In a separate CLI/API workflow, use `gpt-image-1.5` only when the user explicitly requested true model-native transparency through that external route.
 
 Popular `gpt-image-2` sizes:
 - `2048x1152` (default 2K landscape)
@@ -129,9 +131,9 @@ python "$IMAGE_GEN" generate \
   --out output/imagegen/architecture-4k.png
 ```
 
-True transparent fallback request:
+True transparent external CLI/API request:
 
-Ask for confirmation before using this command unless the user already explicitly requested `gpt-image-1.5`, `scripts/image_gen.py`, or CLI fallback.
+This example belongs to a separate CLI/API workflow. Do not run it from `.agents/skills/cli/imagegen`.
 
 ```bash
 python "$IMAGE_GEN" generate \
@@ -142,9 +144,9 @@ python "$IMAGE_GEN" generate \
   --out output/imagegen/product-cutout.png
 ```
 
-When using this path, explain briefly that built-in `image_gen` plus chroma-key removal is the default transparent-image path, but this request needs true model-native transparency. `gpt-image-2` does not support `background=transparent`, so `gpt-image-1.5` is required for this confirmed fallback.
+When using this separate path, explain briefly that `.agents/skills/cli/imagegen` only supports built-in `image_gen` plus chroma-key removal. `gpt-image-2` does not support `background=transparent`, so `gpt-image-1.5` is required for external true model-native transparency.
 
-## Quality, input fidelity, and masks (CLI fallback only)
+## Quality, input fidelity, and masks (external CLI/API only)
 These are explicit CLI controls. They are not built-in `image_gen` tool arguments.
 
 - `--quality` works for `generate`, `edit`, and `generate-batch`: `low|medium|high|auto`
@@ -237,7 +239,13 @@ Notes:
 - This CLI is intended for GPT Image models. Do not assume older non-GPT image-model behavior applies here.
 
 ## See also
-- API parameter quick reference for fallback CLI mode: `references/image-api.md`
-- Prompt examples shared across both top-level modes: `references/sample-prompts.md`
-- Network/sandbox notes for fallback CLI mode: `references/codex-network.md`
-- Built-in-first transparent image workflow: `SKILL.md` and `$CODEX_HOME/skills/.system/imagegen/scripts/remove_chroma_key.py`
+- API parameter quick reference for external CLI/API material: `references/image-api.md`
+- Built-in prompt examples: `references/sample-prompts.md`
+- Network/sandbox notes for external CLI/API material: `references/codex-network.md`
+- Built-in transparent image workflow: `SKILL.md` and `$CODEX_HOME/skills/.system/imagegen/scripts/remove_chroma_key.py`
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| Did this historical CLI reference stay outside normal imagegen execution? | Invoking `scripts/image_gen.py`, requesting API keys, or treating `generate-batch` as imagegen mode fails | `FAIL-IMG-ROUTE-UNSUPPORTED` | `SKILL.md#mode-selection` / `references/cli.md` | blocker note and no CLI/API call evidence |

@@ -1,0 +1,14 @@
+name: aigc-screenwriting
+version: 1
+description: AIGC 小说到短剧剧本改编阶段。
+entrypoint: .agents/skills/aigc/4-编剧/SKILL.md
+interface:
+  display_name: AIGC 4-编剧
+  short_description: 小说逐集改编短剧影视剧本，补节奏高潮尾钩、声画同步与同画面连续性
+  default_prompt: "使用 $aigc-screenwriting，读取 projects/aigc/<项目名>/1-分集/第N集.md、projects/aigc/<项目名>/2-美学/类型风格.md 和 projects/aigc/<项目名>/3-主体/主体注册表.md，改编为 projects/aigc/<项目名>/4-编剧/第N集.md；先输出 Upstream Creative Direction Matrix，说明 1-分集、2-美学/类型风格.md、3-主体/主体注册表.md、项目 MEMORY.md/CONTEXT 分别如何引导本集创作方向、落到正文哪里、禁止越过什么边界，再继承类型风格上下文与主体命名真源并解析本集叙事情节；随后用 4-编剧一致的正式字段完成保真剧本化、短剧节奏承托、高潮强化、尾钩设计、声音字段就近画面配对、同画面连续性检查和 AIGC 下游交接证据。"
+runtime:
+  required_context:
+    - .agents/skills/aigc/4-编剧/SKILL.md
+    - .agents/skills/aigc/4-编剧/CONTEXT.md
+  default_output_root: projects/aigc/<项目名>/4-编剧/
+  llm_first: true

@@ -15,16 +15,16 @@
 
 | type_id | symptom | likely root layer | immediate fix | verification |
 | --- | --- | --- | --- | --- |
-| `SWORD10-TM-01` | 主窗口开始写 2-10 主链阶段正文、风格协议或分组稿 | authorship boundary | 停止正文生成，只派发阶段 subagent | ledger 中只有 dispatch/gate，不含大段正文 |
+| `SWORD10-TM-01` | 主窗口开始写 2-8 主链阶段正文、风格协议、主体注册表或分组稿 | authorship boundary | 停止正文生成，只派发阶段 subagent | ledger 中只有 dispatch/gate，不含大段正文 |
 | `SWORD10-TM-02` | 一个 subagent 同时处理多集导致上下文过载 | concurrency boundary | 改回一集一个 subagent | dispatch packet 每集一份 |
-| `SWORD10-TM-03` | 下游阶段在上一阶段未全通过或缺少 `3-美学` 必需协议时启动 | stage merge gate | 回到阶段汇流门，先补齐失败集或补齐协议 | stage ledger 显示上一阶段全 pass |
+| `SWORD10-TM-03` | 下游阶段在上一阶段未全通过或缺少 `2-美学` 必需协议时启动 | stage merge gate | 回到阶段汇流门，先补齐失败集或补齐协议 | stage ledger 显示上一阶段全 pass |
 | `SWORD10-TM-04` | 失败后从下游继续跑，造成平行真源 | handoff source | 从失败阶段或 owning stage 续跑 | retry packet 指向 owning stage |
 | `SWORD10-TM-05` | subagent runtime 不可用却被描述成已后台运行 | runtime honesty | 输出 `degraded-subagent-unavailable` 并停止 | report 记录 blocking_layer 与 missing_runtime |
 | `SWORD10-TM-06` | 主窗口、脚本或模板开始生成阶段正文 | scripted stage body | 标记 `FAIL-SWORD10-SCRIPTED-STAGE-BODY`，停止并回 owning stage subagent | dispatch packet 指向阶段技能，主窗口只记录路径/verdict |
 
 ## Repair Playbook
 
-1. 先确认目标是 `2-编剧 -> 3-美学 -> 4-导演 -> 5-表演 -> 6-氛围 -> 7-分镜 -> 8-摄影 -> 9-光影 -> 10-分组`，不要把 `11-主体` 之后的生成链路塞进 `sword10`。
+1. 先确认目标是 `2-美学 -> 3-主体 -> 4-编剧 -> 5-导演 -> 6-分镜 -> 7-摄影 -> 8-分组`，不要把 `3-主体` 之后的生成链路塞进 `sword10`。
 2. 先锁项目根和集数，再决定 `bounded_episode_chain`、`episode_batch_chain` 或 `retry_from_stage`。
 3. 每阶段先生成 dispatch packet，再启动 subagent；不要让 subagent 自己猜项目、集数或输出路径。
 4. 阶段内允许并发，阶段间必须串行；上一阶段未全通过，不触发下一阶段。
@@ -34,7 +34,7 @@
 
 ## Reusable Heuristics
 
-- `sword10` 的价值是把 2-10 主链阶段变成可追踪的后台批处理链，而不是新增一份创作真源。
+- `sword10` 的价值是把 2-8 主链阶段变成可追踪的后台批处理链，而不是新增一份创作真源。
 - “一集一个 subagent”比“一个阶段一个 subagent 批量处理所有集”更稳定，因为每集能携带独立上下文、输出路径和失败状态。
 - 阶段汇流门要比单个 subagent 成功更强：只有目标集全集通过，默认才进入下一阶段。
 - 续跑时最重要的是 `start_stage` 和已有产物可信度；不可信的中间产物应回到 owning stage，而不是从下游补洞。

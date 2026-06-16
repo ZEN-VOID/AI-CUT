@@ -11,7 +11,7 @@ Transparent-image requests still use built-in `image_gen` first. The built-in to
 3. Remove the key color locally with the installed helper.
 4. Validate alpha before using the result.
 
-Do not automatically use CLI `gpt-image-1.5 --background transparent --output-format png`. Ask first unless the user already explicitly requested `gpt-image-1.5`, `scripts/image_gen.py`, or CLI fallback.
+Do not use CLI `gpt-image-1.5 --background transparent --output-format png` from this skill. If built-in chroma-key cannot satisfy the request, report the limitation as `blocked_non_builtin_route`.
 
 ## Chroma-Key Prompt
 
@@ -53,17 +53,23 @@ Before delivery, verify:
 - no required subject detail or exact text was removed;
 - final alpha PNG/WebP is persisted into the workspace when project-bound.
 
-## When To Ask For CLI True Transparency
+## Native Transparency Limitation
 
-Ask before switching to CLI `gpt-image-1.5` true transparency when:
+Report a blocker instead of switching tools when:
 
 - the user asks for true/native transparency;
 - chroma-key removal fails validation;
 - the subject is complex: hair, fur, feathers, smoke, glass, liquids, translucent materials, reflective objects, soft shadows, or realistic product grounding;
 - all practical key colors conflict with the subject.
 
-Use this confirmation:
+Use this blocker wording:
 
 ```text
-This likely needs true native transparency. The default built-in path uses a chroma-key background plus local removal, but true transparency requires the CLI fallback with gpt-image-1.5 because gpt-image-2 does not support background=transparent. It also requires OPENAI_API_KEY. Should I proceed with that CLI fallback?
+This likely needs true native transparency. `.agents/skills/cli/imagegen` is defined as the built-in `image_gen` route only, so I cannot switch to CLI/API transparency from this skill. I can attempt the built-in chroma-key workflow or stop here.
 ```
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| Did transparent output use built-in chroma-key and validate alpha without hidden native transparency fallback? | Missing alpha, opaque corners, key fringe, or CLI/API transparency fallback fails | `FAIL-IMG-ROUTE-TRANSPARENT` | `SKILL.md#thinking-action-node-map` / `N6-INSPECT` | alpha validation notes, final path, and limitation report if blocked |

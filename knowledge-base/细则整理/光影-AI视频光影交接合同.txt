@@ -1,6 +1,6 @@
 光影-AI视频光影交接合同
 来源技能：光影
-来源文件：.agents/skills/aigc/9-光影/references/ai-video-light-handoff-contract.md
+来源文件：.agents/skills/aigc/backup/9-光影/references/ai-video-light-handoff-contract.md
 原始标题：AI Video Light Handoff Contract
 
 ---

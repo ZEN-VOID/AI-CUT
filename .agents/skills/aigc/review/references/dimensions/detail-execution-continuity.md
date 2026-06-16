@@ -7,33 +7,31 @@
 | `role_id` | `detail-execution-validator` |
 | `dimension` | `分镜执行连续性` |
 | `report_filename` | `分镜执行连续性.md` |
-| `default_rework_targets` | `2-编剧`, `3-美学`, `4-导演`, `5-表演`, `6-氛围`, `7-分镜`, `8-摄影`, `9-光影`, `10-分组` |
-| `source_owners` | `1-分集`, `2-编剧`, `3-美学`, `4-导演`, `5-表演`, `6-氛围`, `7-分镜`, `8-摄影`, `9-光影` |
+| `default_rework_targets` | `2-美学`, `3-主体`, `4-编剧`, `5-导演`, `6-分镜`, `7-摄影`, `8-分组` |
+| `source_owners` | `1-分集`, `2-美学`, `3-主体`, `4-编剧`, `5-导演`, `6-分镜`, `7-摄影` |
 
 ## Scope
 
-本维度检查 `2-编剧 / 3-美学 / 4-导演 / 5-表演 / 6-氛围 / 7-分镜 / 8-摄影 / 9-光影 / 10-分组` 是否形成稳定可消费的剧本、风格、导演、表演、氛围、分镜、摄影、光影与分镜组事实，重点关注画面句子、动作链、镜头身份、分镜明细、分镜组 continuity 与 handoff readiness。
+本维度检查 `2-美学 / 3-主体 / 4-编剧 / 5-导演 / 6-分镜 / 7-摄影 / 8-分组` 是否形成稳定可消费的主体命名、剧本、风格、导演、分镜、摄影与分镜组事实，重点关注主体命名、画面句子、动作链、镜头身份、分镜明细、分镜组 continuity 与 handoff readiness。
 
 它不检查设计 prompt、引用绑定、图像 provider pack 或视频 provider pack。
 
 ## Evidence
 
-- `2-编剧` 编剧稿与 validator evidence
-- `3-美学` 美学协议与 validator evidence
-- `4-导演` 导演批注稿与 validator evidence
-- `5-表演` 表演稿与 validator evidence
-- `6-氛围` 氛围增强稿与 validator evidence
-- `7-分镜` 分镜稿与 validator evidence
-- `8-摄影` 摄影稿与分镜明细注入证据
-- `9-光影` 光影稿与 validator evidence
-- `10-分组` 分镜组稿与 handoff carrier
+- `4-编剧` 编剧稿与 validator evidence
+- `2-美学` 美学协议与 validator evidence
+- `3-主体/subject-registry.yaml` 与主体注册表 validator evidence
+- `5-导演` 导演批注稿与 validator evidence
+- `6-分镜` 分镜稿与 validator evidence
+- `7-摄影` 摄影稿与分镜明细注入证据
+- `8-分组` 分镜组稿与 handoff carrier
 - `review_fact_pack.required_refs`
 
 ## Review Network
 
 | node_id | objective | actions | evidence | gate |
 | --- | --- | --- | --- | --- |
-| `N1-DETAIL-READ` | 锁分镜链路真源 | 读取当前 2-10 阶段真源与 validator evidence | `detail_note` | root 明确 |
+| `N1-DETAIL-READ` | 锁分镜链路真源 | 读取当前 2-8 阶段真源与 validator evidence | `detail_note` | root 明确 |
 | `N2-CONTINUITY-CHECK` | 检查组镜连续性 | 核对组、镜、时间、主体、构图与运镜连续性 | `continuity_note` | continuity 成立 |
 | `N3-HANDOFF-CHECK` | 检查 handoff readiness | 判断是否可安全交给 design/image/video | `handoff_note` | handoff 成立 |
 | `N4-PACKET-WRITE` | 输出维度 packet | 只写 `dimension_packet + report_ref` | `packet_note` | 可聚合 |
@@ -50,20 +48,20 @@
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 是否锁定同一 scope 的 `2-编剧` 到 `10-分组` 真源和 validator evidence，而不是混用旧集、旧阶段或派生摘要？ | `GATE-DIM-DE-01` | `FAIL-DE-01` | `N1-DETAIL-READ` | `detail_note` 记录当前 2-10 阶段稿件、validator evidence 与缺失 required refs。 |
-| 编剧画面句子、美学约束、导演/表演/氛围、分镜、摄影、光影与分组正文/YAML 是否逐层可追溯，镜头/组编号、source span、主体、动作与参照系没有错位？ | `GATE-DIM-DE-02` | `FAIL-DE-01` | `N2-CONTINUITY-CHECK` | `continuity_note` 标明断裂链路、涉及镜头或分组、上游证据和 source owner。 |
+| 是否锁定同一 scope 的 `2-美学` 到 `8-分组` 真源和 validator evidence，且包含 `3-主体` 主体注册表，而不是混用旧集、旧阶段或派生摘要？ | `GATE-DIM-DE-01` | `FAIL-DE-01` | `N1-DETAIL-READ` | `detail_note` 记录当前 2-8 阶段稿件、validator evidence 与缺失 required refs。 |
+| 编剧画面句子、美学约束、主体注册表、导演/表演/氛围、分镜、摄影、光影与分组正文/YAML 是否逐层可追溯，镜头/组编号、source span、主体、动作与参照系没有错位？ | `GATE-DIM-DE-02` | `FAIL-DE-01` | `N2-CONTINUITY-CHECK` | `continuity_note` 标明断裂链路、涉及镜头或分组、上游证据和 source owner。 |
 | 分组内部的组、镜、时间、主体、构图、运镜、入出点与 handoff anchor 是否连续，没有吞 beat、重复镜头、越组外溢或 atomic unit 截断？ | `GATE-DIM-DE-03` | `FAIL-DE-01` | `N2-CONTINUITY-CHECK` | 维度报告列出 continuity break、影响范围、blocking scope 和建议返工节点。 |
 | 显式时长、对白/动作负载、镜头节奏与 AIGC 视频可执行性是否一致，没有把不可消费的节奏问题推给设计或视频阶段？ | `GATE-DIM-DE-04` | `FAIL-DE-01` | `N2-CONTINUITY-CHECK` | `continuity_note` 记录时长冲突、对白/动作证据、节奏风险和责任阶段。 |
-| `10-分组` 是否已经为设计、图像、视频提供稳定 handoff carrier，包括组正文、YAML、统计、连接件边界与风险项？ | `GATE-DIM-DE-05` | `FAIL-DE-02` | `N3-HANDOFF-CHECK` | `handoff_note` 记录缺失 carrier、不可消费字段、下游阻断路径和默认返工目标。 |
-| 分镜链路问题是否明确归因到当前 `2-编剧` 到 `10-分组` 的 owning stage，而不是误判为 design/image/video provider 缺陷？ | `GATE-DIM-DE-06` | `FAIL-DE-02` | `N3-HANDOFF-CHECK` | `dimension_packet.issues[*].source_layer_owner` 与 `default_rework_targets` 指向正确阶段。 |
+| `8-分组` 是否已经为图像、视频提供稳定 handoff carrier，包括组正文、YAML、统计、连接件边界与风险项，且 YAML 主体均引用 `3-主体/subject-registry.yaml`？ | `GATE-DIM-DE-05` | `FAIL-DE-02` | `N3-HANDOFF-CHECK` | `handoff_note` 记录缺失 carrier、不可消费字段、主体注册表命中情况、下游阻断路径和默认返工目标。 |
+| 分镜链路问题是否明确归因到当前 `2-美学` 到 `8-分组` 的 owning stage，包括 `3-主体` 命名真源，而不是误判为 image/video provider 缺陷？ | `GATE-DIM-DE-06` | `FAIL-DE-02` | `N3-HANDOFF-CHECK` | `dimension_packet.issues[*].source_layer_owner` 与 `default_rework_targets` 指向正确阶段。 |
 | 本维度是否只输出可聚合 sidecar，并保留 `dimension_runtime`、证据 refs、严重度和 blocking scope？ | `GATE-DIM-DE-07` | `FAIL-DE-03` | `N4-PACKET-WRITE` | `dimension_packet` 包含 issue evidence、severity_counts、report_ref 和 runtime spec 证据。 |
 
 ## Failure Heuristics
 
-- 分镜链路字段看似完整但下游仍无法消费时，优先追溯当前 `2-编剧` 到 `10-分组` validator 与 handoff refs。
+- 分镜链路字段看似完整但下游仍无法消费时，优先追溯当前 `2-美学`、`3-主体` 到 `8-分组` validator 与 handoff refs。
 - 本维度不只看“有没有文件”，而要看这些文件是否真能支撑下游 handoff。
 - 先看 `第N集.json` 与 validator evidence，再判是字段缺口还是 continuity 断裂。
 
 ## Root-Cause Rule
 
-若本维度失效，先修当前 `2-编剧` 到 `10-分组` 的结构完整性与 handoff readiness，不要把分镜链路问题伪装成 design/image/video 问题。
+若本维度失效，先修当前 `2-美学`、`3-主体` 到 `8-分组` 的结构完整性与 handoff readiness，不要把分镜链路问题伪装成 image/video 问题。

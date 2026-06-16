@@ -1,6 +1,6 @@
 导演-导演标注合同
 来源技能：导演
-来源文件：.agents/skills/aigc/4-导演/references/director-annotation-contract.md
+来源文件：.agents/skills/aigc/5-导演/references/director-annotation-contract.md
 原始标题：Director Annotation Contract
 
 ---
@@ -39,7 +39,7 @@
 
 1. 用户明确指定的导演、作品或资料。
 2. 本目录 `knowledge-base/` 中已有导演或作品资料。
-3. `3-美学/画面基调` 中的导演、摄影师、作品、工作室锚点。
+3. `2-美学/画面基调` 中的导演、摄影师、作品、工作室锚点。
 4. 模型已有知识。
 5. 网络搜索资料。
 

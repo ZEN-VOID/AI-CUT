@@ -152,18 +152,28 @@
       "type": "object",
       "required": ["provider", "call_mode", "image_count", "page_aspect_ratio", "hard_constraints"],
       "properties": {
-        "provider": {"const": "cli-imagegen"},
-        "call_mode": {"const": "per_page_batch"},
+        "provider": {"const": "built-in-imagegen"},
+        "call_mode": {"const": "per_page_builtin_calls"},
         "image_count": {"const": 9},
         "page_aspect_ratio": {"const": "9:16"},
         "imagegen": {
           "type": "object",
+          "required": ["tool_skill_path", "mode", "batch_execution", "max_concurrency", "resolution_target", "resolution_value", "output_format"],
           "properties": {
-            "model": {"type": "string"},
-            "size": {"type": "string"},
-            "quality": {"type": "string"},
+            "mode": {"const": "built_in_image_gen"},
+            "batch_execution": {"enum": ["subagents_parallel_default", "main_thread_serial_user_requested"]},
+            "max_concurrency": {"type": "integer", "minimum": 1, "maximum": 10},
+            "resolution_target": {"enum": ["2k_default", "explicit_user_or_upstream"]},
+            "resolution_value": {"type": "string", "minLength": 2},
             "output_format": {"type": "string"},
             "tool_skill_path": {"const": ".agents/skills/cli/imagegen"}
+          },
+          "not": {
+            "anyOf": [
+              {"required": ["model"]},
+              {"required": ["size"]},
+              {"required": ["quality"]}
+            ]
           }
         },
         "hard_constraints": {

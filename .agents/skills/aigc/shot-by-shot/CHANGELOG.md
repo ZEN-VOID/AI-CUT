@@ -5,12 +5,12 @@
 ### Skill 2.0 runtime-spine 升级
 
 - 按最新 `$skill-2.0` 规范升级 `SKILL.md`：补齐 Runtime Spine Contract、Type Routing Matrix、Thinking-Action Node Map、Module Loading Matrix、Module Trigger Matrix、Convergence Contract、Review Gate Binding、Quantifiable Execution Criteria、Attention Concentration Protocol、Checkpoint Contract、Evaluation Prompt Contract 与 Learning / Context Writeback。
-- 新增 `test-prompts.json`，覆盖 3-美学六路解析、分镜脚本 19 列保留和旧聚合风格包修复三类回归场景。
+- 新增 `test-prompts.json`，覆盖 2-美学六路解析、分镜脚本 19 列保留和旧聚合风格包修复三类回归场景。
 - 移除 `steps/shot-by-shot-workflow.md`，将节点真源收回 `SKILL.md`；同步更新 README、类型说明、模板、review gate、validator 和脚本说明。
 
-### 风格解析对齐 3-美学
+### 风格解析对齐 2-美学
 
-- 新增 `references/aesthetic-style-analysis-contract.md`，把风格解析调整为对齐 `.agents/skills/aigc/3-美学` 六个子技能：`画面基调解析.md`、`角色风格解析.md`、`场景风格解析.md`、`道具风格解析.md`、`摄影风格解析.md`、`分镜风格解析.md`。
+- 新增 `references/aesthetic-style-analysis-contract.md`，把风格解析调整为对齐 `.agents/skills/aigc/2-美学` 六个子技能：`画面基调解析.md`、`角色风格解析.md`、`场景风格解析.md`、`道具风格解析.md`、`摄影风格解析.md`、`分镜风格解析.md`。
 - 将旧 `全局风格解析.md` / `设计风格解析.md` 聚合口径降为 legacy 修复与兼容审查对象，不再作为新主输出合同。
 - `分镜脚本.md` 仍保持 `input/苍穹裂缝·战神降维.numbers` 的 19 列字段和内容编排方式不变。
 
@@ -69,7 +69,7 @@
 ## 2026-05-04
 
 - 初始化 `.agents/skills/aigc/shot-by-shot` Skill 2.0 包。
-- 明确其为 AIGC 根下临摹型卫星技能，服务 `0-初始化`、`2-编导`、`3-运动`、`4-摄影` 与 `11-主体`，不替代主链阶段 canonical 写回。
+- 明确其为 AIGC 根下临摹型卫星技能，服务 `0-初始化`、`2-编导`、`3-运动`、`4-摄影` 与 `3-主体`，不替代主链阶段 canonical 写回。
 - 建立逐镜证据、解析维度、临摹原则、禁止照搬清单、`画面风格解析.md`、`编导解析.md`、`摄影解析.md` 与 `设计解析.md` 的项目 `CONTEXT/` 输出合同。
 - 按 `$skill-知行合一` 要求建立思行网络、Mermaid 拓扑、Field Master、Thought Pass Map、Pass Table 与 `思考过程` 输出槽位。
 - 源层同步阶段解析落点：阶段可消费文档归入 `projects/aigc/<项目名>/CONTEXT/shot-by-shot/<reference_slug>/`。

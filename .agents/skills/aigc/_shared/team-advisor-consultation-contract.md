@@ -1,6 +1,6 @@
 # AIGC Legacy Init Team Synthesis Consumption Contract
 
-本合同是旧“创作阶段 team advisor consultation”口径的兼容替代。当前 `0-初始化` 是 scaffold-only：只创建当前 0-14 阶段目录和项目根 `MEMORY.md`，不主动生成 `team.yaml`、`north_star.yaml`、`init_handoff.yaml` 或 `story-source-manifest.yaml`。因此本合同只约束旧项目已有、用户显式提供或迁移脚本补建的 legacy/optional team synthesis carrier；它不是当前初始化必出项。
+本合同是旧“创作阶段 team advisor consultation”口径的兼容替代。当前 `0-初始化` 是 scaffold-only：只创建当前 0-10 阶段目录和项目根 `MEMORY.md`，不主动生成 `team.yaml`、`north_star.yaml`、`init_handoff.yaml` 或 `story-source-manifest.yaml`。因此本合同只约束旧项目已有、用户显式提供或迁移脚本补建的 legacy/optional team synthesis carrier；它不是当前初始化必出项。
 
 ## Active Policy
 
@@ -18,7 +18,7 @@
 ```yaml
 init_team_synthesis_context:
   project_team_ref: "projects/aigc/<项目名>/team.yaml"
-  stage: "2-编剧 | 3-美学 | 4-导演 | 5-表演 | 6-氛围 | 7-分镜 | 8-摄影 | 9-光影 | 10-分组 | 11-主体 | 12-图像 | 13-画布 | 14-审片"
+  stage: "2-美学 | 3-主体 | 4-编剧 | 5-导演 | 6-分镜 | 7-摄影 | 8-分组 | 9-图像 | 10-画布 | archived:5-表演|6-氛围|9-光影"
   synthesis_sources:
     - "team.yaml.init_synthesis.stage_seed_summary.<stage>"
     - "legacy init_handoff.stage_entry_seeds.<stage> if present"

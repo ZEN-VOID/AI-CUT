@@ -1,15 +1,15 @@
 编剧-剧本改编合同
 来源技能：编剧
-来源文件：.agents/skills/aigc/2-编剧/references/script-adaptation-contract.md
+来源文件：.agents/skills/aigc/4-编剧/references/script-adaptation-contract.md
 原始标题：Script Adaptation Contract
 
 ---
 
-> **契约地位**：本文件是 `2-编剧` script layer 的核心契约，定义不可违背的保真规则和基础投影规范。其他 reference 文档中的保真规则必须与本文件保持一致；如有冲突，以本文件为准。
+> **契约地位**：本文件是 `4-编剧` script layer 的核心契约，定义不可违背的保真规则和基础投影规范。其他 reference 文档中的保真规则必须与本文件保持一致；如有冲突，以本文件为准。
 
 ## Canonical Purpose
 
-`2-编剧` script layer 将 `projects/aigc/<项目名>/1-分集/第N集.md` 投影为 `projects/aigc/<项目名>/2-编剧/第N集.md`。
+`4-编剧` script layer 将 `projects/aigc/<项目名>/1-分集/第N集.md` 投影为 `projects/aigc/<项目名>/4-编剧/第N集.md`。
 
 输出是上游正文的**影视剧本化结构投影**，不是改写版小说、概要、梗概或自由发挥剧本。
 
@@ -117,7 +117,7 @@
 
 ### 越权禁止
 
-`2-编剧` screenplay layer 只负责剧本文本投影、声画字段分流和可拍性基础承接。导演创作判断和表演工艺分别交给 `4-导演` 与 `5-表演`，**不得提前写**：
+`4-编剧` screenplay layer 只负责剧本文本投影、声画字段分流和可拍性基础承接。导演创作判断和表演工艺分别交给 `5-导演` 与 `5-表演`，**不得提前写**：
 
 - 机位、景别、镜头运动
 - 分镜编号
@@ -173,9 +173,9 @@
 ---
 项目名: <项目名>
 集数: 第N集
-stage: 2-编剧
+stage: 4-编剧
 source_episode_path: projects/aigc/<项目名>/1-分集/第N集.md
-output_path: projects/aigc/<项目名>/2-编剧/第N集.md
+output_path: projects/aigc/<项目名>/4-编剧/第N集.md
 adaptation_mode: faithful_screenplay_projection
 dialogue_lock: true
 audio_visual_pairing: required
@@ -206,7 +206,7 @@ enrichment_mode: none
 
 ## Allowed Field Titles（允许的字段标题）
 
-> 以下为 `2-编剧` script layer 允许使用的全部正式字段。除以下字段外，不得新增其他解析体系或摄影方案字段。
+> 以下为 `4-编剧` script layer 允许使用的全部正式字段。除以下字段外，不得新增其他解析体系或摄影方案字段。
 
 | 类别 | 字段名称 |
 |------|----------|
@@ -262,7 +262,7 @@ enrichment_mode: none
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 输出是否写入 canonical `projects/aigc/<项目名>/2-编剧/第N集.md`，frontmatter 是否包含 `source_episode_path` 并可回指上游逐集正文？ | `GATE-SCRIPT-01` / `GATE-SCRIPT-02` | `FAIL-PATH` / `FAIL-SOURCE` | `../SKILL.md#N1-INTAKE` / `../SKILL.md#N7-SCRIPT-WRITEBACK` | `source_episode_path`、`output_path` 与 `reference_load_manifest` 记录路径、集号和加载边界 |
+| 输出是否写入 canonical `projects/aigc/<项目名>/4-编剧/第N集.md`，frontmatter 是否包含 `source_episode_path` 并可回指上游逐集正文？ | `GATE-SCRIPT-01` / `GATE-SCRIPT-02` | `FAIL-PATH` / `FAIL-SOURCE` | `../SKILL.md#N1-INTAKE` / `../SKILL.md#N7-SCRIPT-WRITEBACK` | `source_episode_path`、`output_path` 与 `reference_load_manifest` 记录路径、集号和加载边界 |
 | FR-1 事实保真是否成立：没有压缩、摘要、删减剧情事实，没有自由改写因果或重排事件顺序？ | `GATE-SCRIPT-03` | `FAIL-FAITHFULNESS` | `../SKILL.md#N5-SCRIPT-DRAFT` / `../SKILL.md#N6R-SCRIPT-REPAIR` | `faithful_projection_trace` 逐段记录上游事实、输出字段和顺序对齐 |
 | FR-2 信息量保真是否成立：新增 frontmatter、slugline、字段标签和画面化改写只服务投影，没有替代正文、删除信息或新增第二套解析体系？ | `GATE-SCRIPT-03` / `GATE-SCRIPT-10` | `FAIL-FAITHFULNESS` / `FAIL-CONCRETE-VISUAL` | `../SKILL.md#N4-FIELD` / `../SKILL.md#N5-SCRIPT-DRAFT` | `field_projection_map` 与 `faithful_projection_trace` 记录每条新增字段的上游依据 |
 | FR-3 对话冻结是否成立：上游已有对白逐字保真、真实角色名、语态/状态短语不改含义、引号内无动作，且客观叙事派生语音没有替代或改写上游对白？ | `GATE-SCRIPT-04` | `FAIL-DIALOGUE` | `../SKILL.md#N5-SCRIPT-DRAFT` | `dialogue_lock_map` 记录上游对白、输出对白、角色名、语态依据和派生语音隔离风险；`narration_to_voice_adaptation_map` 记录非对白来源 |

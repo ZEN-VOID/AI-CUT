@@ -22,19 +22,15 @@
 | --- | --- | --- |
 | `0-初始化` | `projects/aigc/<项目名>/0-初始化/` | scaffold container only |
 | `1-分集` | `projects/aigc/<项目名>/1-分集/` | episode source split |
-| `2-编剧` | `projects/aigc/<项目名>/2-编剧/` | novel-to-screenplay adaptation, genre/narrative parsing, short-drama rhythm, climax, hook, and AIGC field routing |
-| `3-美学` | `projects/aigc/<项目名>/3-美学/` | global visual tone and style protocols |
-| `4-导演` | `projects/aigc/<项目名>/4-导演/` | director annotation runtime |
-| `5-表演` | `projects/aigc/<项目名>/5-表演/` | performance rewrite runtime |
-| `6-氛围` | `projects/aigc/<项目名>/6-氛围/` | atmosphere enrichment runtime |
-| `7-分镜` | `projects/aigc/<项目名>/7-分镜/` | inline storyboard split runtime |
-| `8-摄影` | `projects/aigc/<项目名>/8-摄影/` | camera movement and cinematography injection runtime |
-| `9-光影` | `projects/aigc/<项目名>/9-光影/` | cinematic lighting injection runtime |
-| `10-分组` | `projects/aigc/<项目名>/10-分组/` | storyboard group runtime |
-| `11-主体` | `projects/aigc/<项目名>/11-主体/` | scene, role, and prop design parent runtime |
-| `12-图像` | `projects/aigc/<项目名>/12-图像/` | current Chinese image runtime |
-| `13-画布` | `projects/aigc/<项目名>/13-画布/` | current Chinese video/canvas runtime |
-| `14-审片` | `projects/aigc/<项目名>/14-审片/` | generated footage review reports and repair evidence |
+| `2-美学` | `projects/aigc/<项目名>/2-美学/` | post-split genre type profile, global visual tone, and style protocols; includes `类型风格.md` |
+| `3-主体` | `projects/aigc/<项目名>/3-主体/` | subject registry, scene/role/prop list, design, and generation runtime; owns `主体注册表.md` and `subject-registry.yaml` |
+| `4-编剧` | `projects/aigc/<项目名>/4-编剧/` | novel-to-screenplay adaptation using `1-分集`, `2-美学/类型风格.md`, and `3-主体/主体注册表.md`; short-drama rhythm, climax, hook, and AIGC field routing |
+| `5-导演` | `projects/aigc/<项目名>/5-导演/` | director annotation runtime |
+| `6-分镜` | `projects/aigc/<项目名>/6-分镜/` | inline storyboard split runtime |
+| `7-摄影` | `projects/aigc/<项目名>/7-摄影/` | camera movement and cinematography injection runtime |
+| `8-分组` | `projects/aigc/<项目名>/8-分组/` | storyboard group runtime; YAML subjects read `3-主体/subject-registry.yaml` and do not add subject info |
+| `9-图像` | `projects/aigc/<项目名>/9-图像/` | current Chinese image runtime |
+| `10-画布` | `projects/aigc/<项目名>/10-画布/` | current Chinese video/canvas runtime |
 
 ## Scaffold-Only Initialization Rule
 
@@ -57,11 +53,12 @@ Legacy roots are compatibility inputs only and must not be created by new scaffo
 
 | legacy / stale root | current handling |
 | --- | --- |
-| `2-编导/` | legacy readback only; current stage roots are `2-编剧/`, `4-导演/`, and `5-表演/` |
-| `3-运动/` | legacy readback only; current motion/camera-related flow is expressed through active stages `7-分镜/`, `8-摄影/`, and `9-光影/` |
-| old `4-摄影/` | legacy readback only; current active root is `8-摄影/` |
-| old `5-分组/` | legacy readback only; current active root is `10-分组/` |
-| `5-Image/`, `6-Video/`, `7-Cut/` | legacy/readback only; current active roots are `12-图像/`, `13-画布/`, and `14-审片/` |
+| `2-编导/` | legacy readback only; current stage roots are `4-编剧/`, `5-导演/`, and `6-分镜/` |
+| `3-运动/` | legacy readback only; current motion/camera-related flow is expressed through active stages `6-分镜/`, `7-摄影/`, and `8-分组/` |
+| `5-表演/`, `6-氛围/`, `9-光影/` | archived stage outputs only; current skill packages live under `.agents/skills/aigc/backup/` and are not scaffolded by new initialization |
+| old `4-摄影/` | legacy readback only; current active root is `7-摄影/` |
+| old `5-分组/` | legacy readback only; current active root is `8-分组/` |
+| `5-Image/`, `6-Video/`, `7-Cut/` | legacy/readback only; current active roots are `9-图像/` and `10-画布/` |
 | `Original/`, `Story/` | legacy source aliases only; current source intake creates `源/` only when source intake is explicitly needed |
 
 Empty scaffold directories never count as completed stage outputs.

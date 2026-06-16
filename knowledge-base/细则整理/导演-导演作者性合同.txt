@@ -1,15 +1,15 @@
 导演-导演作者性合同
 来源技能：导演
-来源文件：.agents/skills/aigc/4-导演/references/directorial-authorship-contract.md
+来源文件：.agents/skills/aigc/5-导演/references/directorial-authorship-contract.md
 原始标题：Directorial Authorship Contract
 
 ---
 
-## 4-导演 Adaptation Notice
+## 5-导演 Adaptation Notice
 
-本文件从 `.agents/skills/aigc/2-编导/references/directorial-authorship-contract.md` 引入，作为 `4-导演` 的授权 reference 细则。凡原文出现 `2-编导`、`director layer`、`N3-DIR-SUBSTANCE`、`N9-DIR-DRAFT` 或其他旧节点名时，在本技能中只映射为 `4-导演` 的 `N2-DIR-UNDERSTAND`、`N3-DIR-STYLE`、`N4-DIR-POINT-MAP`、`N5-DIR-INJECT` 与 `N6-DIR-REVIEW-REPAIR` 的内部证据，不继承 `2-编导` 的正文重写权。
+本文件从 `.agents/skills/aigc/2-编导/references/directorial-authorship-contract.md` 引入，作为 `5-导演` 的授权 reference 细则。凡原文出现 `2-编导`、`director layer`、`N3-DIR-SUBSTANCE`、`N9-DIR-DRAFT` 或其他旧节点名时，在本技能中只映射为 `5-导演` 的 `N2-DIR-UNDERSTAND`、`N3-DIR-STYLE`、`N4-DIR-POINT-MAP`、`N5-DIR-INJECT` 与 `N6-DIR-REVIEW-REPAIR` 的内部证据，不继承 `2-编导` 的正文重写权。
 
-在 `4-导演` 中，本文件的用途是提升导演批注的“有戏、可演、可拍、有取舍、有回指”密度：每条批注必须服务当前画面点的戏剧问题、人物压力、观众位置、表演承托或声画取舍。输出仍只能新增 `（导演批注：XXX）`，不得改写原剧本。
+在 `5-导演` 中，本文件的用途是提升导演批注的“有戏、可演、可拍、有取舍、有回指”密度：每条批注必须服务当前画面点的戏剧问题、人物压力、观众位置、表演承托或声画取舍。输出仍只能新增 `（导演批注：XXX）`，不得改写原剧本。
 
 ## Purpose
 

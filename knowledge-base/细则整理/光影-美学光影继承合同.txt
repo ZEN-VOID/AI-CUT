@@ -1,11 +1,11 @@
 光影-美学光影继承合同
 来源技能：光影
-来源文件：.agents/skills/aigc/9-光影/references/aesthetic-light-inheritance-contract.md
+来源文件：.agents/skills/aigc/backup/9-光影/references/aesthetic-light-inheritance-contract.md
 原始标题：Aesthetic Light Inheritance Contract
 
 ---
 
-本文件定义 `9-光影` 如何继承 `3-美学` 的画面基调、场景风格和摄影风格。
+本文件定义 `9-光影` 如何继承 `2-美学` 的画面基调、场景风格和摄影风格。
 
 ## Inheritance Sources
 

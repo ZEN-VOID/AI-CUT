@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 道具清单"
+  short_description: "从 3-主体 subject-registry 提取归并项目级道具清单并校验来源"
+  default_prompt: "使用 $aigc-prop-list，从 projects/aigc/<项目名>/3-主体/subject-registry.yaml 的 subjects.props、source_anchors、projects/aigc/<项目名>/1-分集/ 与 2-美学/道具风格协议生成 projects/aigc/<项目名>/3-主体/道具/1-清单/道具清单.md；先建立业务画像和 registry 候选证据，只从 subjects.props 采集候选，由 LLM 逐条归并别名、过滤背景杂物并写固定三列表格。脚本只能做机械读取、定位、格式检查和 dry-run，不得批量生成、批量插入、正则套句或映射投影 canonical 名称、归并理由、过滤判断或关键词描述。"

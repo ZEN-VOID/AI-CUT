@@ -2,15 +2,15 @@
 
 ## Output Contract Alignment
 
-本模板承接 `SKILL.md` 的 Output Contract。风格解析已对齐 `.agents/skills/aigc/3-美学` 六子技能：`画面基调解析.md`、`角色风格解析.md`、`场景风格解析.md`、`道具风格解析.md`、`摄影风格解析.md`、`分镜风格解析.md`。`分镜脚本.md` 保持 `references/storyboard-script-contract.md` 的 19 列合同不变。
+本模板承接 `SKILL.md` 的 Output Contract。风格解析已对齐 `.agents/skills/aigc/2-美学` 六子技能：`画面基调解析.md`、`角色风格解析.md`、`场景风格解析.md`、`道具风格解析.md`、`摄影风格解析.md`、`分镜风格解析.md`。`分镜脚本.md` 保持 `references/storyboard-script-contract.md` 的 19 列合同不变。
 
 | marker | binding |
 | --- | --- |
-| Required output | 主拉片报告、启用的 3-美学 side context、可选编剧/运动/摄影 stage 解析、可选标准表格式分镜脚本、执行报告和风险说明 |
+| Required output | 主拉片报告、启用的 2-美学 side context、可选编剧/运动/摄影 stage 解析、可选标准表格式分镜脚本、执行报告和风险说明 |
 | Output format | Markdown 文档包 |
 | Output path | `projects/aigc/<项目名>/shot-by-shot/<reference_slug>/` |
 | Naming convention | `shot-by-shot.md`、`画面基调解析.md`、`角色风格解析.md`、`场景风格解析.md`、`道具风格解析.md`、`摄影风格解析.md`、`分镜风格解析.md`、`分镜脚本.md`、`执行报告.md` |
-| Completion gate | 证据可回指、临摹边界清楚、3-美学字段不越权、AIGC 可执行、无具体表达复制、分镜脚本表头合规 |
+| Completion gate | 证据可回指、临摹边界清楚、2-美学字段不越权、AIGC 可执行、无具体表达复制、分镜脚本表头合规 |
 
 ## Canonical Paths
 
@@ -38,7 +38,7 @@ stage: shot-by-shot
 reference_slug: <reference_slug>
 source_ref: <video path / stills / notes / link>
 evidence_grade: confirmed | partial | inferred | insufficient
-bridge_targets: [3-美学/画面基调, 3-美学/角色风格, 3-美学/场景风格, 3-美学/道具风格, 3-美学/摄影风格, 3-美学/分镜风格]
+bridge_targets: [2-美学/画面基调, 2-美学/角色风格, 2-美学/场景风格, 2-美学/道具风格, 2-美学/摄影风格, 2-美学/分镜风格]
 output_path: projects/aigc/<项目名>/shot-by-shot/<reference_slug>/shot-by-shot.md
 review_status: pending | pass | needs_rework | blocked
 ---
@@ -75,7 +75,7 @@ review_status: pending | pass | needs_rework | blocked
 | source_ref | do_not_copy | reason | safe_translation |
 | --- | --- | --- | --- |
 
-## 3-美学 Side Context
+## 2-美学 Side Context
 
 - `shot-by-shot/<reference_slug>/画面基调解析.md`:
 - `shot-by-shot/<reference_slug>/角色风格解析.md`:
@@ -93,7 +93,7 @@ review_status: pending | pass | needs_rework | blocked
 
 ## Aesthetic Side Context Skeleton
 
-以下骨架用于六份 3-美学解析文件。每份文件必须换成对应标题，例如 `# 画面基调解析`。
+以下骨架用于六份 2-美学解析文件。每份文件必须换成对应标题，例如 `# 画面基调解析`。
 
 ```markdown
 # <画面基调解析 / 角色风格解析 / 场景风格解析 / 道具风格解析 / 摄影风格解析 / 分镜风格解析>

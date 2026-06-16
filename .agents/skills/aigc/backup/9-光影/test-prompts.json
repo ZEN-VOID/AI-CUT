@@ -1,0 +1,27 @@
+[
+  {
+    "id": "single-episode-lighting-injection",
+    "prompt": "使用 $aigc-lighting-aesthetic-injection，读取 projects/aigc/示例项目/7-摄影/第1集.md，并结合 2-美学/画面基调、场景风格和摄影风格，生成逐分镜光影美学稿。",
+    "expected": "输出 projects/aigc/示例项目/9-光影/第1集.md；每条分镜保留原有内容和摄影内容并追加专属电影光影美学描述；报告包含 Reference Execution Matrix、Rule Evidence Map、N/A 和 Repair Log。"
+  },
+  {
+    "id": "specified-camera-override",
+    "prompt": "跳过默认 7-摄影路径，用我指定的 /tmp/第2集摄影稿.md 直接做 9-光影。",
+    "expected": "记录 source_override=true；使用指定文稿为 source；仍需加载或要求提供画面基调、场景风格和摄影风格；只在可识别分镜行后追加光影。"
+  },
+  {
+    "id": "dynamic-multi-light-source",
+    "prompt": "第3集有火光、屏幕冷光和走廊漏光叠加，请逐分镜注入浮光掠影、流光溢彩和多光源接力的光影美学。",
+    "expected": "进入 default_lighting_injection 并触发 dynamic_or_multi_light_signal；每条动态光源都有 source anchor、主次关系和时间变化；不新增不存在的火源或屏幕。"
+  },
+  {
+    "id": "repair-generic-lighting",
+    "prompt": "修复一个每条分镜都写成冷暖对比、伦勃朗光、电影级体积光的 9-光影稿。",
+    "expected": "回到 shot_function_map 和 lighting_aesthetic_plan；删除泛化套词，按每条分镜功能重裁光源、明暗、色温、空气/材质和动态变化；报告包含 FAIL-LIGHT-GENERIC 的返工证据。"
+  },
+  {
+    "id": "seedance-2-tool-standard",
+    "prompt": "未指定其他下游工具时，以 SEEDANCE 2.0 为最优工具标准，检查并强化第4集逐分镜光影注入的 AIGC 可实现性。",
+    "expected": "触发 seedance_2_0_tool_standard；建立 default_video_tool_profile 和 seedance2_implementability_profile；每条光影句在 4-15 秒内可见、光源主次清晰、动态光只有一个主要时间变化，并且不输出 provider prompt、参数或灯位图。"
+  }
+]

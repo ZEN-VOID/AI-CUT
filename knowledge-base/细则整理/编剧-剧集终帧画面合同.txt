@@ -1,13 +1,13 @@
 编剧-剧集终帧画面合同
 来源技能：编剧
-来源文件：.agents/skills/aigc/2-编剧/references/episode-final-image-contract.md
+来源文件：.agents/skills/aigc/4-编剧/references/episode-final-image-contract.md
 原始标题：Episode Final Image Contract
 
 ---
 
 ## Purpose
 
-本细则定义 `2-编剧` stage 的每集终结画面：它是剧本层面的迷你彩蛋尾钩，用最后一个可见/可听/可感受的落点吸引观众继续追更下一集。
+本细则定义 `4-编剧` stage 的每集终结画面：它是剧本层面的迷你彩蛋尾钩，用最后一个可见/可听/可感受的落点吸引观众继续追更下一集。
 
 终结画面必须同时满足三件事：
 
@@ -20,8 +20,8 @@
 
 - 本文件拥有终结画面的类型判断、建造规则、证据结构和禁止边界。
 - `climax-visual-treatment-contract.md` 负责 `peak_visual_pass`，其中 `cost_or_aftershock` 字段是尾钩的候选来源；本文件负责将其余韵转化为追更欲。
-- `.agents/skills/aigc/4-导演/references/episode-visual-spine-contract.md` 负责整集视觉主轴，`callback_targets` 中的未闭合母题可作为尾钩候选；本文件负责将其转化为终结画面的空间/道具/情绪落点。
-- `.agents/skills/aigc/6-氛围/references/atmosphere-and-mood-contract.md` 负责五感氛围和意境技法；本文件使用其中留白、静物、延时承托和反衬技法制造尾钩。
+- `.agents/skills/aigc/5-导演/references/episode-visual-spine-contract.md` 负责整集视觉主轴，`callback_targets` 中的未闭合母题可作为尾钩候选；本文件负责将其转化为终结画面的空间/道具/情绪落点。
+- `.agents/skills/aigc/backup/6-氛围/references/atmosphere-and-mood-contract.md` 负责五感氛围和意境技法；本文件使用其中留白、静物、延时承托和反衬技法制造尾钩。
 
 ## Dependency Graph
 
@@ -81,7 +81,7 @@ episode-final-image-contract.md
 - 终结画面不是只能一两个镜头；可以是一段 3-6 个 beat 的尾场小段落，通过环境刷新、道具状态、人物停顿、群像位置、声音层次和空间方向共同完成收束。
 - 终结画面应准、可拍、余味强；它是最后一组画面/声音/动作落点，不是结尾说明、剧情总结或预告词。
 - 避免"像/仿佛/象征/意味着/命运/下一处账目"等小说化或评论式表达；若需要意境，改用具体光线、湿度、物件运动、身体距离、门窗开合、船灯位置、声源方向和停顿节奏。
-- 尾钩必须能被下游导演、摄影和分组消费，但 `2-编剧` stage 只写剧本正式字段和可见/可听/可感受落点，不写机位、景别、镜头运动或分镜编号。
+- 尾钩必须能被下游导演、摄影和分组消费，但 `4-编剧` stage 只写剧本正式字段和可见/可听/可感受落点，不写机位、景别、镜头运动或分镜编号。
 
 ## Pass Relationship with Peak Visual Pass
 

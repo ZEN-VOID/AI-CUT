@@ -1,6 +1,6 @@
 # Screenwriter Style Analysis Contract
 
-`编剧风格解析.md` 是 `shot-by-shot` 输出给 `2-编剧` 的编剧/戏剧风格 side context。它只提炼戏剧问题、人物压力、声画承托、潜台词行为、叙事节奏和可拍承托，不写导演批注、表演稿、机位、景别、焦段、运镜或分镜编号。
+`编剧风格解析.md` 是 `shot-by-shot` 输出给 `4-编剧` 的编剧/戏剧风格 side context。它只提炼戏剧问题、人物压力、声画承托、潜台词行为、叙事节奏和可拍承托，不写导演批注、表演稿、机位、景别、焦段、运镜或分镜编号。
 
 落点：`projects/aigc/<项目名>/shot-by-shot/<reference_slug>/编剧风格解析.md`。
 
@@ -82,7 +82,7 @@
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| `编剧风格解析.md` 是否只作为 `2-编剧` side context，不改写剧本 canonical 正文？ | `GATE-SBS-ADAPT-01` | `FAIL-SBS-ADAPT-SIDE-CONTEXT` | `N5-BRIDGE` | 使用边界、owner handoff 与未改写证明 |
+| `编剧风格解析.md` 是否只作为 `4-编剧` side context，不改写剧本 canonical 正文？ | `GATE-SBS-ADAPT-01` | `FAIL-SBS-ADAPT-SIDE-CONTEXT` | `N5-BRIDGE` | 使用边界、owner handoff 与未改写证明 |
 | 戏剧问题、观众位置、角色压力和场景状态差是否完整且有参考证据回指？ | `GATE-SBS-SCREEN-01` | `FAIL-SCREEN-DRAMATIC-Q` | `N5-BRIDGE` | dramatic_question / audience_position / character_pressure / scene_state_delta |
 | 观众知道、误解、等待、担心或被延迟满足的内容是否被明确建模？ | `GATE-SBS-SCREEN-01A` | `FAIL-SCREEN-AUDIENCE-POS` | `N5-BRIDGE` | audience_position_seed 与 source_shot_refs |
 | 角色目标、阻碍、隐藏信息、外显策略和关系压力是否清楚？ | `GATE-SBS-SCREEN-01B` | `FAIL-SCREEN-CHAR-PRESSURE` | `N5-BRIDGE` | character_pressure_seed |

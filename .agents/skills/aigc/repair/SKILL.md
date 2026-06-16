@@ -10,7 +10,7 @@ metadata:
 
 `aigc-repair` 是 `.agents/skills/aigc/` 的根级修复卫星技能。它处理多个阶段或子技能包输出物的局部、批量或整体调整：先回看目标输出物所属源层规则设计，再锁定 canonical owner、影响范围、豆包执行 lane、写回顺序和验收门禁。
 
-本技能不取代 `0-初始化` 到 `14-审片` 的阶段主创权；它拥有诊断、影响图、repair brief、豆包执行调度、中文润色增强、创意激发、汇流和验收权。豆包输出仍不是自动 canonical truth；最终写回必须接受 source rules、owning stage 合同和 review gate 约束。
+本技能不取代 `0-初始化` 到 `10-画布` 的阶段主创权；它拥有诊断、影响图、repair brief、豆包执行调度、中文润色增强、创意激发、汇流和验收权。豆包输出仍不是自动 canonical truth；最终写回必须接受 source rules、owning stage 合同和 review gate 约束。
 
 ## Context Loading Contract
 
@@ -260,10 +260,10 @@ See `guardrails/guardrails-contract.md`.
 
 1. 项目长期偏好或方向错误：先修 `MEMORY.md`、`CONTEXT/` 或 `0-初始化/north_star.yaml`。
 2. 剧情事实、对白、顺序错误：回到 `1-分集` 或 `2-编导` script layer。
-3. 镜头语言、时长、连续性错误：回到 `4-摄影`。
-4. 分镜组边界、统计或组内连续性错误：回到 `10-分组`。
-5. 场景/角色/道具资产错误：回到 `11-主体` 对应叶子。
-6. 图像/视频生成结果错误：回到 `12-图像`、`13-画布` 或 `14-审片`。
+3. 镜头语言、时长、连续性错误：回到 `7-摄影`。
+4. 分镜组边界、统计或组内连续性错误：回到 `8-分组`。
+5. 场景/角色/道具资产错误：回到 `3-主体` 对应叶子。
+6. 图像/视频生成结果错误：回到 `9-图像`、`10-画布` 或 `review/` 指向的唯一 repair route。
 7. 豆包执行失败：先修 provider 输入、参数、认证或输出证据。
 
 ## Field Mapping

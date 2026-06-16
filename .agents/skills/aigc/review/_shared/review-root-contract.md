@@ -70,7 +70,7 @@
 
 ## Source Trace Rule
 
-- 若问题归属当前 `0-初始化` 到 `10-分组` 的 source layer，聚合结果必须显式保留 `source_layer_owner` 与 `back_to_source_contract`
+- 若问题归属当前 `0-初始化` 到 `8-分组` 的 source layer，聚合结果必须显式保留 `source_layer_owner` 与 `back_to_source_contract`
 - 若问题归属当前阶段节点，聚合结果必须显式保留 `rework_targets`
 
 ## Repair Bridge Rule

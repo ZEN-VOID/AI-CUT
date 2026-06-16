@@ -4,7 +4,7 @@ This reference is inactive for current `$aigc-init` execution.
 
 Current initialization is scaffold-only and writes only:
 
-- current `0-初始化/` through `14-审片/` project directories
+- current `0-初始化/` through `10-画布/` project directories
 - project root `MEMORY.md`
 - project root `CONTEXT/README.md`
 

@@ -1,6 +1,0 @@
-interface:
-  display_name: "AIGC 审片"
-  short_description: "审查本地或 LibTV 视频，按方法库判断表现效果并设计修复操作"
-  default_prompt: "使用 $aigc-video-review 审查 projects/aigc/<项目名>/13-画布 下的 <分镜组ID>.mp4，或按我给的 LibTV 链接/画布名 + 视频名先用 libtv CLI 查询并下载真实视频；对照 10-分组真源、远端 prompt 和生成证据，先选择适配的审片方法，再判断视频本体、source/prompt 匹配、表演、摄影、节奏、声音、道具、AIGC 伪影和创作质量，并给出接受、条件接受、重跑、LibTV prompt 修复并重提、分组修复、资产/图片/声音修复或源层候选。"
-policy:
-  allow_implicit_invocation: true

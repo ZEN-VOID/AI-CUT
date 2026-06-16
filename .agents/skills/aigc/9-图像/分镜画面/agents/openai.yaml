@@ -1,0 +1,8 @@
+schema_version: "openai-agent-skill/v1"
+skill:
+  name: "aigc-image-storyboard-frame"
+  path: ".agents/skills/aigc/9-图像/分镜画面"
+interface:
+  display_name: "AIGC 分镜画面"
+  short_description: "从 8-分组完整组稿生成 imagegen 组级多图任务，多张单独分镜画面保持角色和场景一致。"
+  default_prompt: "使用 $aigc-image-storyboard-frame，从 projects/aigc/<项目名>/8-分组 读取对应分镜组完整内容，援引 YAML 中对应角色/场景/道具主体图作为参照，添加 imagegen 多图任务执行词前缀，为每个分镜组生成与组内分镜数相同的多张单独图片，禁止故事板拼图，并保持角色、场景、光影和空间一致性。"

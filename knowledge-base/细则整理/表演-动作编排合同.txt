@@ -1,6 +1,6 @@
 表演-动作编排合同
 来源技能：表演
-来源文件：.agents/skills/aigc/5-表演/references/action-choreography-contract.md
+来源文件：.agents/skills/aigc/backup/5-表演/references/action-choreography-contract.md
 原始标题：Action Choreography Contract
 
 ---
@@ -9,7 +9,7 @@
 
 本细则用于武侠、动作、玄幻、战争、格斗、追逐、兵器、术法对抗和其他打戏题材。它补足 `5-表演` 在动作戏中的编排职责：动作表现不能只停在演技、情绪或“打得激烈”，必须把动作戏本身设计成可执行、可拍、可接续的动作链。
 
-本文件不授权新增胜负结果、伤势结果、招式设定、剧情因果、人物能力设定、镜头语言、分镜编号、prompt 或视频参数。所有动作设计必须回指上游画面点、导演批注、角色目标、场景压力或 `3-美学` 约束。
+本文件不授权新增胜负结果、伤势结果、招式设定、剧情因果、人物能力设定、镜头语言、分镜编号、prompt 或视频参数。所有动作设计必须回指上游画面点、导演批注、角色目标、场景压力或 `2-美学` 约束。
 
 ## Trigger Scope
 

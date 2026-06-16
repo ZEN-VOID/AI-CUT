@@ -37,7 +37,7 @@ runner 正式落盘时，文件名固定为当前 aggregate packet 同级：
 
 ### package_release
 
-- 必须包含当前 package scope 涉及的 `0-初始化 ~ 14-审片` 关键 handoff refs
+- 必须包含当前 package scope 涉及的 `0-初始化 ~ 10-画布` 关键 handoff refs 与 review evidence
 - 必须包含相关阶段 `validation-report.md`
 - 必须包含项目根 `STATE.json` 与 `governance-state.yaml`（若存在）
 

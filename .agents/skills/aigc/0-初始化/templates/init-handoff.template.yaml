@@ -1,7 +1,7 @@
 # init_handoff.yaml
 #
 # INACTIVE for current `$aigc-init` scaffold initialization.
-# Current initialization writes only 0-14 directories plus project `MEMORY.md` and `CONTEXT/README.md`.
+# Current initialization writes only 0-10 directories plus project `MEMORY.md` and `CONTEXT/README.md`.
 #
 # 角色：
 # - `0-初始化` 的伴生 handoff

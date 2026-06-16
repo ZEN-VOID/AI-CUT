@@ -1,11 +1,11 @@
 分镜-镜头构图合同
 来源技能：分镜
-来源文件：.agents/skills/aigc/7-分镜/references/shot-composition-contract.md
+来源文件：.agents/skills/aigc/6-分镜/references/shot-composition-contract.md
 原始标题：Shot Composition Contract
 
 ---
 
-本文件融合旧 `4-摄影` 中与构图相关的 `beat-analysis-contract.md`、`depth-of-field-narrative-contract.md`、`shot-as-narrative-contract.md`、`scene-visual-constraint-contract.md` 与 `ai-video-prompt-execution-contract.md`，改写为 `7-分镜` 的 step2 构图起始状态帧细则。
+本文件融合旧 `4-摄影` 中与构图相关的 `beat-analysis-contract.md`、`depth-of-field-narrative-contract.md`、`shot-as-narrative-contract.md`、`scene-visual-constraint-contract.md` 与 `ai-video-prompt-execution-contract.md`，改写为 `6-分镜` 的 step2 构图起始状态帧细则。
 
 ## Core Rule
 
@@ -15,7 +15,7 @@
 景别，景深，构图形式，前景，中景，后景，主体站位
 ```
 
-这里的“构图”不是摄影技术表，也不是从剧情画面里临时抽取的描述词，而是可识别的摄影构图方法。构图形式必须优先来自 `knowledge-base/shot-composition-taxonomy.md` 的受控词表，负责概括摄影机开始如何组织画面。`7-分镜` 必须用最小必要短语定义静态画面结构，并按前景、中景、后景和主体站位落成字段；不得展开成重复上游画面正文的长描述。同一画面点的空间解析和多分镜连续性由 `start-frame-spatial-continuity-contract.md` 约束。
+这里的“构图”不是摄影技术表，也不是从剧情画面里临时抽取的描述词，而是可识别的摄影构图方法。构图形式必须优先来自 `knowledge-base/shot-composition-taxonomy.md` 的受控词表，负责概括摄影机开始如何组织画面。`6-分镜` 必须用最小必要短语定义静态画面结构，并按前景、中景、后景和主体站位落成字段；不得展开成重复上游画面正文的长描述。同一画面点的空间解析和多分镜连续性由 `start-frame-spatial-continuity-contract.md` 约束。
 
 ## Narrative Function
 
@@ -40,9 +40,9 @@
 | `depth_strategy` | 深景深、浅景深、前虚后实、焦点拉移、柔焦等；说明观众此刻看哪里/不看哪里 |
 | `composition_form` | 必须选择 `knowledge-base/shot-composition-taxonomy.md` 中的受控构图形式，例如三分法构图、黄金比例构图、对角线构图、框架式构图、引导线构图、中心构图、留白构图等；表外构图必须记录 `controlled_exception` |
 | `spatial_field_map` | 每个画面点内部先拆出 `foreground`、`midground`、`background`、`subject_position`，作为分镜行空间字段的来源 |
-| `start_frame_spatial_layout` | 用最小必要短语记录起始状态帧的前景、中景、后景、主体站位、画面方位、遮挡关系、空间纵深或连续性锚点；这是 `8-摄影` 运动设计的既有空间依据 |
+| `start_frame_spatial_layout` | 用最小必要短语记录起始状态帧的前景、中景、后景、主体站位、画面方位、遮挡关系、空间纵深或连续性锚点；这是 `7-摄影` 运动设计的既有空间依据 |
 | `screen_direction_axis_map` | 多人、对峙、追逐、进出门或转场承接时必须记录 screen left/right、主体朝向、入口/出口方向、视线轴线和上一镜交出点；不进入成稿标签，但必须能支撑正文里的“画面左/右、朝向、入口、出口、承接” |
-| `spatial_layer_payload` | 当前景/中景/后景、框架、遮挡或纵深影响观看时，必须拆出 `foreground_element`、`midground_subject`、`background_information`、`occlusion_role`；遮挡关系是 8-摄影的运动条件，不是装饰词 |
+| `spatial_layer_payload` | 当前景/中景/后景、框架、遮挡或纵深影响观看时，必须拆出 `foreground_element`、`midground_subject`、`background_information`、`occlusion_role`；遮挡关系是 7-摄影的运动条件，不是装饰词 |
 
 ## Depth Of Field Narrative
 
@@ -66,10 +66,10 @@
 - `composition_layout`：主体、前景、中景、后景的位置和占比。
 - `composition_method`：形状感、线条感、影调感、虚实感、节奏感、纹理质感、气势中选当前最关键 2-3 项。
 - `lighting_setup`：主光、辅光、逆光或实用光的可见结果。
-- `color_system`：只作为内部色彩关系，不替代 `3-美学/画面基调`。
+- `color_system`：只作为内部色彩关系，不替代 `2-美学/画面基调`。
 - `screen_direction_axis_map`：多人、对峙、追逐、进出门或转场承接时记录 screen left/right、主体朝向、入口/出口方向、视线轴线和上一镜交出点。
 - `spatial_field_map`：每个画面点先记录前景、中景、后景和主体站位，供同一画面点内多条分镜共享。
-- `spatial_layer_payload`：有前中后景、框架、遮挡或纵深时记录 `foreground_element`、`midground_subject`、`background_information`、`occlusion_role`，供 `8-摄影` 判断能否穿过前景、绕开遮挡或压向后景。
+- `spatial_layer_payload`：有前中后景、框架、遮挡或纵深时记录 `foreground_element`、`midground_subject`、`background_information`、`occlusion_role`，供 `7-摄影` 判断能否穿过前景、绕开遮挡或压向后景。
 
 ## Composition Taxonomy Control
 
@@ -114,6 +114,6 @@
 | 分镜是否先裁决叙事功能，再选择构图？ | `GATE-SB-07` | `FAIL-SB-NARRATIVE-FUNCTION` | `N5-COMPOSITION-DESIGN` | function distribution |
 | 是否具备方向参照、光线结果和表演微动态？ | `GATE-SB-08` | `FAIL-SB-AI-EXEC` | `N5-COMPOSITION-DESIGN` | ai execution samples |
 | 方位/轴线连续性是否可审查，尤其是多人、对峙、追逐、进出门和转场承接？ | `GATE-SB-18` | `FAIL-SB-SCREEN-DIRECTION` | `N5-COMPOSITION-DESIGN` | `screen_direction_axis_map` |
-| 前中后景、遮挡或纵深是否拆成可供 8-摄影使用的空间条件？ | `GATE-SB-19` | `FAIL-SB-SPATIAL-LAYER` | `N5-COMPOSITION-DESIGN` | `spatial_layer_payload` |
+| 前中后景、遮挡或纵深是否拆成可供 7-摄影使用的空间条件？ | `GATE-SB-19` | `FAIL-SB-SPATIAL-LAYER` | `N5-COMPOSITION-DESIGN` | `spatial_layer_payload` |
 | 分镜行是否按前景、中景、后景和主体站位提供空间字段，而非复述原画面内容？ | `GATE-SB-20` | `FAIL-SB-LOW-NUTRITION-SPATIAL-PAYLOAD` | `N5-COMPOSITION-DESIGN` | `spatial_field_map`、`spatial_payload_nutrition_audit` |
 | 同一画面点内多条分镜的空间字段是否从同一个 `spatial_field_map` 派生并保持连续？ | `GATE-SB-22` | `FAIL-SB-SPATIAL-CONTINUITY-WITHIN-POINT` | `N5/N7` | `within_point_spatial_continuity_map` |

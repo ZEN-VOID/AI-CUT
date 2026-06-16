@@ -11,7 +11,7 @@
 - 项目偏好、禁区与长期要求写入项目根 `MEMORY.md`。
 - live route truth 仅在治理 workflow 需要时写入项目根 `STATE.json`。
 - 技能经验、失败复盘和跨项目 heuristic 写入对应 skill 的 `CONTEXT.md`。
-- 本目录不替代阶段 canonical 输出；阶段真源仍写入 `1-分集/` 到 `14-审片/` 的对应目录。
+- 本目录不替代阶段 canonical 输出；阶段真源仍写入 `1-分集/` 到 `10-画布/` 的对应目录。
 
 ## 当前内容
 

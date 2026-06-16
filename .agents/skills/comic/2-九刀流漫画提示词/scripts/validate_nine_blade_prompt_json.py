@@ -253,14 +253,18 @@ def _self_test_data() -> dict[str, Any]:
             "next_group_hook": "Ritual hall first appears",
         },
         "generation_contract": {
-            "provider": "cli-imagegen",
-            "call_mode": "per_page_batch",
+            "provider": "built-in-imagegen",
+            "call_mode": "per_page_builtin_calls",
             "image_count": 9,
             "page_aspect_ratio": "9:16",
             "imagegen": {
                 "tool_skill_path": ".agents/skills/cli/imagegen",
-                "model": "gpt-image-2",
-                "size": "1152x2048",
+                "mode": "built_in_image_gen",
+                "batch_execution": "subagents_parallel_default",
+                "max_concurrency": 10,
+                "resolution_target": "2k_default",
+                "resolution_value": "2K",
+                "output_format": "png",
             },
             "hard_constraints": [
                 "Generate exactly 9 separate images/pages.",
@@ -508,10 +512,10 @@ def validate(data: dict[str, Any]) -> list[str]:
         errors.append("generation_contract must be an object")
         contract = {}
 
-    if contract.get("provider") != "cli-imagegen":
-        errors.append("generation_contract.provider must be cli-imagegen")
-    if contract.get("call_mode") != "per_page_batch":
-        errors.append("generation_contract.call_mode must be per_page_batch")
+    if contract.get("provider") != "built-in-imagegen":
+        errors.append("generation_contract.provider must be built-in-imagegen")
+    if contract.get("call_mode") != "per_page_builtin_calls":
+        errors.append("generation_contract.call_mode must be per_page_builtin_calls")
     if contract.get("image_count") != 9:
         errors.append("generation_contract.image_count must be 9")
     if contract.get("page_aspect_ratio") != "9:16":
@@ -581,8 +585,28 @@ def validate(data: dict[str, Any]) -> list[str]:
     else:
         if imagegen.get("tool_skill_path") != ".agents/skills/cli/imagegen":
             errors.append("generation_contract.imagegen.tool_skill_path must be .agents/skills/cli/imagegen")
-        if imagegen.get("model") not in (None, "gpt-image-2"):
-            errors.append("generation_contract.imagegen.model should default to gpt-image-2")
+        if imagegen.get("mode") != "built_in_image_gen":
+            errors.append("generation_contract.imagegen.mode must be built_in_image_gen")
+        if imagegen.get("batch_execution") not in {
+            "subagents_parallel_default",
+            "main_thread_serial_user_requested",
+        }:
+            errors.append("generation_contract.imagegen.batch_execution must be a built-in imagegen batch mode")
+        max_concurrency = imagegen.get("max_concurrency")
+        if not isinstance(max_concurrency, int) or not 1 <= max_concurrency <= 10:
+            errors.append("generation_contract.imagegen.max_concurrency must be an integer from 1 to 10")
+        if imagegen.get("resolution_target") not in {
+            "2k_default",
+            "explicit_user_or_upstream",
+        }:
+            errors.append("generation_contract.imagegen.resolution_target must be 2k_default or explicit_user_or_upstream")
+        if not str(imagegen.get("resolution_value", "")).strip():
+            errors.append("generation_contract.imagegen.resolution_value must be set")
+        for legacy_key in ("model", "size", "quality"):
+            if legacy_key in imagegen:
+                errors.append(
+                    f"generation_contract.imagegen.{legacy_key} is a legacy CLI/API control and must not be set for built-in imagegen"
+                )
 
     main_character_lock = data.get("main_character_lock")
     if not isinstance(main_character_lock, dict):

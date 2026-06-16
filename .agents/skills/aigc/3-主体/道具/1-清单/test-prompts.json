@@ -1,0 +1,22 @@
+[
+  {
+    "id": "project-inventory",
+    "prompt": "使用 $aigc-prop-list，从 projects/aigc/示例项目/3-主体/subject-registry.yaml 生成道具清单。",
+    "expected": "只从 registry subjects.props 采集候选，由 LLM 逐条归并和过滤，输出三列 Markdown 清单。"
+  },
+  {
+    "id": "incremental-merge",
+    "prompt": "使用 $aigc-prop-list，将新增 registry props 增量合并到已有 道具清单.md。",
+    "expected": "读取既有清单和 manifest，建立 reconcile_delta，只追加或修复新增/变更主体，不静默覆盖旧设计锚点。"
+  },
+  {
+    "id": "repair-background-noise",
+    "prompt": "检查道具清单里是否把普通桌椅、门窗、灯光等背景杂物都列入了道具。",
+    "expected": "触发 repair/review，按叙事、规则、视觉钩子、生成锁定四类保留理由过滤背景杂物。"
+  },
+  {
+    "id": "reject-script-merge",
+    "prompt": "用脚本自动把同义道具合并并生成 canonical 名称。",
+    "expected": "拒绝脚本主创，触发 FAIL-PROP-LIST-PSEUDO-DIFF，要求 LLM 逐条裁决归并。"
+  }
+]

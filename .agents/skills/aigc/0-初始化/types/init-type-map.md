@@ -4,8 +4,8 @@ Current `$aigc-init` supports only scaffold-oriented types.
 
 | type | trigger | required input | output |
 | --- | --- | --- | --- |
-| `new_scaffold` | new AIGC film/video project init | project name and optional memory requirements | current 0-14 directories plus `MEMORY.md` |
-| `repair_scaffold` | existing project missing scaffold directories | existing project root | missing current 0-14 directories plus preserved `MEMORY.md` |
+| `new_scaffold` | new AIGC film/video project init | project name and optional memory requirements | current 0-10 directories plus `MEMORY.md` |
+| `repair_scaffold` | existing project missing scaffold directories | existing project root | missing current 0-10 directories plus preserved `MEMORY.md` |
 | `memory_update` | user provides long-term preference, constraint, exclusion, or special element | project root and memory content | merged `MEMORY.md` |
 | `unsafe_reset` | delete, purge, overwrite, or path escape implied | explicit separate destructive scope | blocked by this skill |
 

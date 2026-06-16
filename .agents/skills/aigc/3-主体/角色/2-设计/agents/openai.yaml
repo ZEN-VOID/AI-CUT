@@ -1,0 +1,9 @@
+schema_version: 1
+interface:
+  display_name: "AIGC 角色细目设计"
+  short_description: "从角色清单扩展单角色设计稿，融合项目风格与初始化综合。"
+  default_prompt: "使用 $aigc-design-character-detail，从 projects/aigc/<项目名>/3-主体/角色/1-清单/角色清单.md 读取角色，并结合 0-初始化/north_star.yaml 与 team.yaml.init_synthesis 的冻结初始化综合，为每个角色输出纯色背景全身定妆照到 3-主体/角色/2-设计/C###-<角色名>.md；不得调用 team 身份、解析旧 stage profile 或补造顾问问答；角色设计要强化来源匹配的容貌、妆发、骨相、身形和服装审美，按清单证据、年龄、性别/性别表达、身份、物种/族群、项目调性和角色权重选择审美路线，主角/核心情感线/长期复用角色/大反派/主要对抗者/长线威胁/终局 Boss 必须具备 charisma_floor=high 的可见镜头魅力证据，普通正反派和功能角色都有个性魅力或可识别度；命中审美强化/妆容化/角色类型语料/服装时代语境时加载 knowledge-base/character-design-corpus.md 并留下 corpus_usage_trace；真实人物灵感默认不用或泛化处理，只有用户/项目允许且有必要时才可原创转译，不得精确复刻；服装可风格化但不得脱离时代、地域、阶层和职业母体，磨损/污渍/补丁/做旧只在有依据时出现；## 4. 解构 下方直接写 主体ID号，并与文件名前缀、## 5. 提示词设计 主体 ID 和英文 prompt 开头一致；英文 prompt 以主体 ID 号开头，整合 ## 4. 解构 全部有效信息，控制在 1300 characters 内，使用自然语言负向约束，不使用 --no，不置身场景。"
+metadata:
+  skill_id: "aigc-design-character-detail"
+  governance_tier: "full"
+  output_root: "projects/aigc/<项目名>/3-主体/角色/2-设计"

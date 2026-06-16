@@ -1,0 +1,24 @@
+# Peak Shot Language Contract
+
+本文件定义 `7-摄影` 对高潮、高点、反转、震惊、崩溃和爽点分镜的运镜处理。
+
+## Peak Classification
+
+| peak_type | movement treatment |
+| --- | --- |
+| `action_peak` | 快速跟拍、急停、撞点钉镜、短促拉远或速度突变，但必须有动作因果 |
+| `reveal_peak` | 遮挡滑出、慢推、rack focus、静止读秒，让信息显影 |
+| `emotional_peak` | 正面中近景、极慢推进、静止停留、焦点锁眼神或双眼特写；不使用复杂环绕抢表演 |
+| `power_shift_peak` | 过肩关系、低机位抬升、画面左右关系稳定，焦点从掌控者转向失势者或反向 |
+
+## Slow Burn Rule
+
+情绪类高点可以静止或慢，但必须有可见变化：眼神停住、呼吸断拍、咬肌收紧、泪光出现、手指松开、肩线塌下。不得只写“情绪达到顶点”。
+
+## Review Gate Mapping
+
+| review_question | gate | fail_code | rework_target | report_evidence |
+| --- | --- | --- | --- | --- |
+| 高点是否先分类再决定运镜，而不是一律加速或一律慢推？ | `GATE-CAM-08-PEAK-01` | `FAIL-CAM-PEAK-GENERIC` | `N5-CAM-SHOT-ANALYZE` | peak_classification_map |
+| 情绪高点是否保护表演可读性？ | `GATE-CAM-08-PEAK-02` | `FAIL-CAM-PEAK-PERFORMANCE` | `N6-CAM-MOVEMENT-DESIGN` | emotional_peak_samples |
+| 高点运镜是否未新增剧情事实、胜负结果或道具效果？ | `GATE-CAM-08-PEAK-03` | `FAIL-CAM-PEAK-FACT-OVERREACH` | `N7-CAM-INJECT` | source_fact_diff |

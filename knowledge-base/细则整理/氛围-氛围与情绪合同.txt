@@ -1,6 +1,6 @@
 氛围-氛围与情绪合同
 来源技能：氛围
-来源文件：.agents/skills/aigc/6-氛围/references/atmosphere-and-mood-contract.md
+来源文件：.agents/skills/aigc/backup/6-氛围/references/atmosphere-and-mood-contract.md
 原始标题：Atmosphere And Mood Contract
 
 ---

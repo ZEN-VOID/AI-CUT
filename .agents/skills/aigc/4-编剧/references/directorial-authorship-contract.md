@@ -1,0 +1,259 @@
+# Directorial Authorship Contract
+
+## Purpose
+
+本合同定义 `4-编剧` stage 的剧本创作承托。它要求输出不只结构严谨、字段正确或文字漂亮，而是能基于上游单集 source 做专业剧本化判断：抓住戏剧问题、人物选择压力、场景转折、观众体验和可拍执行。
+
+高质量剧本稿必须同时满足保真、有戏、可演、可拍、有取舍和有回指六大标准。
+
+## Ownership
+
+- 本文件拥有剧本创作承托的规划证据、编剧干货判定标准、证据集成规则和越权检测。
+- `hollywood-quality-spec.md` 负责顶层质量标准；本文件的 `screenplay_substance_map` 必须满足其 5 个质量维度。
+- `.agents/skills/aigc/2-美学/SKILL.md` 负责单场画面美学；本文件产出的 `performance_engine` 是其表演任务来源。
+- `climax-visual-treatment-contract.md` 负责高潮画面；本文件产出的 `character_pressure` 是其 `character_anchor` 来源。
+- `.agents/skills/aigc/backup/6-氛围/references/atmosphere-and-mood-contract.md` 负责五感氛围；本文件的 `sound_or_silence_engine` 与其声景技法协调。
+- `../../_shared/action-first-continuity-contract.md` 负责人物动作链优先和空间可达性；本文件在 `screenplay_substance_map` 中先形成 entry/action/exit，再允许空间、道具、声音和氛围承托。
+- `../../_shared/lived-in-character-behavior-contract.md` 负责角色活人感行为动机、当下小事、下意识反应、情绪落点和多人动作-反应分工；本文件在 `screenplay_substance_map` 中提供行为动机种子，不把角色写成空闲摆拍。
+- `../../_shared/scene-shot-identity-contract.md` 负责场景/镜头身份共享口径；本文件在 `screenplay_substance_map` 中提供 `scene_identity_seed`，让后续导演、摄影、图像和视频阶段不需要凭空判断年代、空间功能、环境声底色和材质光影。
+
+## Dependency Graph
+
+```
+directorial-authorship-contract.md
+├── consumed_by: N2-SCR-GENRE-NARRATIVE (戏剧问题和人物压力识别)
+├── consumed_by: N4-SCR-RHYTHM-ENGINE (节奏承托判断)
+├── consumed_by: N5-SCR-CLIMAX-HOOK (高潮和尾钩承托)
+├── consumed_by: N6-SCR-CANDIDATE-DRAFT (内嵌终稿字段)
+├── consumed_by: N7-SCR-REVIEW-REPAIR (验证剧本承托质量)
+└── produces:
+    └── screenplay_substance_map (按需产出，进入 support_evidence / climax_treatment_map / episode_final_image_map)
+```
+
+## Core Principle
+
+`4-编剧` stage 的主创责任不是重写剧情，而是把上游单集 source 中已经存在的事件、关系、心理和信息差，转化为剧本字段、声音字段、动作字段和下游可理解 handoff 可以执行的戏剧动作。
+
+所有剧本承托增强先服从人物动作链：关键场景先回答“人物从什么姿态和位置开始、向哪里行动、能触及什么、在哪里结束”，再回答“环境、道具、声音如何承托”。如果一个环境或物件细节删掉后人物动作更顺，它不是剧本干货，而是干扰项。
+
+高质量剧本稿必须同时满足：
+
+| quality dimension | definition | evidence requirement |
+| --- | --- | --- |
+| `保真` | 不删减、不压缩、不改写上游事实、顺序和对白 | 每个场景可回指上游原文锚点 |
+| `有戏` | 每场关键场景有明确的戏剧问题、冲突压力、人物主动目标、阻碍和状态变化 | 有 `dramatic_question` 和 `scene_turn` |
+| `可演` | 人物内心、潜台词和权力关系转成演员可执行的目标、策略、停顿、视线、身体距离、道具动作和反应 | 有 `performance_engine` 并内嵌到正文 |
+| `可拍` | 观众能通过画面、声音、动作、空间、道具和沉默余波感知变化，而不是读到解释性结论 | 有 `spatial_or_prop_engine` 和 `sound_or_silence_engine` |
+| `有取舍` | 知道该强化什么、压住什么、延迟什么、让观众先知道还是角色先知道 | 有 `reveal_or_withhold` 和 `audience_position` |
+| `有回指` | 每个关键创作判断都能回到上游原文锚点 | 每个 plan 字段有 `source_anchor` |
+
+## Screenplay Substance Pass
+
+在题材/叙事画像之后、节奏和高潮尾钩汇流前，必须按需执行一次 `screenplay_substance_pass`，形成内部规划证据：
+
+```yaml
+screenplay_substance_map:
+  scene_id: ""
+  source_anchor: ""  # 回指上游原文锚点
+  dramatic_question: ""  # 本场在追问什么
+  audience_position: "ahead_of_character | aligned_with_character | behind_character"  # 观众与角色的信息差
+  character_pressure:
+    active_want: ""  # 角色主动要什么
+    obstacle: ""  # 阻碍是什么
+    hidden_need_or_fear: ""  # 隐藏的需求或恐惧
+    choice_pressure: ""  # 选择窗口是什么
+  scene_turn:
+    entry_state: ""  # 进入状态
+    turning_point: ""  # 转折点
+    exit_state: ""  # 退出状态
+  screenplay_strategy:
+    reveal_or_withhold: ""  # 先暴露什么、隐藏什么
+    scene_identity_seed: ""  # 场景身份种子：年代/空间功能/社会语境/环境声底色/材质光影
+    performance_engine: ""  # 表演承托：视线/手部/停顿/距离/呼吸的具体指令
+    lived_in_behavior_seed: ""  # 活人感行为动机：当前小事、下意识反应、情绪落点或动作-反应分工
+    spatial_or_prop_engine: ""  # 空间或道具承托
+    sound_or_silence_engine: ""  # 声音或沉默承托
+    rhythm_choice: ""  # 节奏选择
+  adaptation_payload:
+    must_make_visible: []  # 必须让观众看见什么
+    must_make_audible: []  # 必须让观众听见什么
+    must_leave_unsaid: []  # 必须不说什么（靠表演承托）
+    downstream_hooks: []  # 为下游留什么钩子
+  risk_check:
+    fact_drift: false
+    new_dialogue: false
+    over_explaining: false
+    cinematography_overreach: false
+    no_upstream_anchor: false  # 是否有创作内容无法回指上游
+```
+
+该 map 是 LLM 剧本化投影前的创作判断，不是终稿可直接倾倒的总结块。终稿必须把判断拆进对应的环境、动作、对白画面、道具、群像、声音、停顿和反应字段。
+
+## What Counts As Real Directing Substance
+
+### Scene Identity Seed
+
+`scene_identity_seed` 是编剧阶段给下游的场景身份源层判断。它回答“这不是一个泛化房间/街道/厅堂，而是什么年代、什么功能、什么规则和什么材质声光组成的场景”。
+
+必须至少覆盖其中 3 项：
+
+- 年代/朝代/技术时代，例如年代明确的审问空间、当代私人房间、旧式居民空间。
+- 空间功能与行为规则，例如审讯、反锁躲藏、家庭餐桌对峙、校园晨会。
+- 社会语境或权力关系，例如公权审问、家庭控制、校园秩序、江湖规矩。
+- 环境声底色，例如荧光灯嗡鸣、门外餐厅闷响、老楼水管声、衣料摩擦。
+- 材质光影，例如掉漆木门、冷亮瓷砖、旧墙皮、门缝光、顶灯压眼窝。
+
+约束：
+
+- 不新增事实、道具或事件；只能从上游场景、时代、人物关系和既有空间事实中提炼。
+- 不写成摄影方案或分镜编号；只给下游一个可消费的身份基底。
+- 如果场景身份会影响声音，不写泛化 BGM，而写属于该空间的自然声或沉默质感。
+
+### 有效编剧干货
+
+- 把"角色害怕/心虚/不信任"转成目标、阻碍、试探动作、避视、停顿、手部动作或空间距离。
+- 把"气氛紧张"转成声音消失、群体反应迟滞、道具停在半空、座位距离、门口占位或视线压力。
+- 把"爽点/高潮"转成兑现前的等待、兑现瞬间的可见动作、声音落点和余波。
+- 把"信息差"转成观众位置：观众先知道、角色先知道、或观众与角色同步发现。
+- 把"关系变化"转成谁靠近、谁退开、谁拿到道具、谁被迫沉默、谁掌控空间。
+- 把"小说解释"转成场上可执行行为，不靠旁白解释人物状态。
+
+### 无效编剧干货
+
+- 只说"增强戏剧张力""提升电影感""节奏更紧凑"，但没有动作、声音、空间或表演承托。
+- 只把上游原文改成更漂亮的句子。
+- 只重排字段、补齐标签、调整 slugline，却没有场景目标、人物压力和状态差。
+- 为了显得高级而新增对白、桥段、因果、规则、线索或事件结果。
+- 在终稿末尾列"表演提示/场面调度总结"，而不是内嵌到具体剧本句段。
+- 用无互动环境、道具状态、反射、静物或声响替代人物行动，使人物 entry_state/action_vector/exit_state 断裂，或让下游摄影为了兼顾物件改角度。
+
+## Integration Rule
+
+`screenplay_substance_map` 必须进入后续节点：
+
+| downstream node | how it consumes screenplay_substance_map |
+| --- | --- |
+| `N2-SCR-GENRE-NARRATIVE` | 使用 `dramatic_question`、`audience_position` 和 `character_pressure` 形成题材/叙事画像 |
+| `N4-SCR-RHYTHM-ENGINE` | 使用 `scene_turn`、`reveal_or_withhold` 和 `rhythm_choice` 判断节奏承托 |
+| `N5-SCR-CLIMAX-HOOK` | 使用 `character_pressure` 和 `cost/aftershock` 候选判断高点的观众欲望、兑现方式和余波 |
+| `N6-SCR-CANDIDATE-DRAFT` | 必须把 `performance_engine`/`spatial_or_prop_engine`/`sound_or_silence_engine` 内嵌进正文，而不是把它作为解释性规划段落输出 |
+| `N7-SCR-REVIEW-REPAIR` | 使用 `support_evidence`、`climax_treatment_map` 和 `episode_final_image_map` 验证承托是否回指 source |
+
+若 `screenplay_substance_map` 无法回指上游原文，必须删除或降级为非 canonical 候选灵感。
+
+## Performance Engine Specification
+
+`performance_engine` 是 `screenplay_substance_map` 中最核心的可演承托单元。它必须能被演员和下游表演阶段直接理解，不能只写方向性描述。
+
+### Lived-In Behavior Seed
+
+`lived_in_behavior_seed` 是 `performance_engine` 的上游动机种子。它不要求编剧阶段写满演员微表情，但必须让下游 `6-分镜`、`7-摄影` 或显式 legacy `backup/5-表演` 知道角色不是“闲着等待表演”，而是被当前生活压力、目标或阻碍推着走。
+
+必须回答：
+
+- 角色此刻原本在做什么场景内成立的小事，或为什么必须保持静止。
+- 哪个上游压力、信息、关系或空间阻碍会打断这件事。
+- 压力进入后，角色可能先在哪里下意识泄露：手、呼吸、重心、声线、停顿、距离或视线落点。
+- 这个 beat 结束时，人物状态应该落在哪里，方便 `6-分镜`、`7-摄影` 或显式 legacy `backup/5-表演` 承接。
+- 多人场面中，谁是行动者，谁是反应者，其他人是否只维持必要背景状态。
+
+约束：
+
+- 不新增人物设定、剧情事实、对白或新因果。
+- 不把“当前小事”写成随机忙动作；必须来自上游、空间任务、角色目标/阻碍或场景压力。
+- 不用无互动道具、反射、静物或氛围反应替代人物行动。
+
+### 必须包含的具体维度
+
+| dimension | weak example | strong example |
+| --- | --- | --- |
+| 视线 | "避开视线" | "视线落在自己手背上，迟迟不抬" |
+| 手部 | "手在动" | "指尖在桌沿来回蹭动，每两秒停一次" |
+| 停顿 | "有停顿" | "话说到一半停了五秒，下巴微微往上抬了一点" |
+| 呼吸 | "呼吸急促" | "呼吸从胸腔移到喉咙，每一口气都像在吞咽" |
+| 身体距离 | "保持距离" | "身体往后仰了半寸，椅背发出一声轻响" |
+| 道具动作 | "拿着道具" | "拇指一直在摩挲杯沿，没有喝过一口" |
+
+### 必须关联其他引擎
+
+`performance_engine` 不能孤立存在，必须与其他引擎协同：
+
+- **与 `spatial_or_prop_engine` 协同**：表演动作发生在空间中，道具位置和空间占位影响表演节奏。
+- **与 `sound_or_silence_engine` 协同**：表演节奏受声音或沉默承托，声音消失时表演动作应如何调整。
+- **与 `scene_turn` 协同**：表演任务在进入状态/转折点/退出状态中有不同的强度变化。
+
+## Failure Cases
+
+### Failure 1: screenplay_substance_map 只写方向不写执行
+
+**症状**：`performance_engine` 写成"视线要有压力""停顿要自然""手部要有紧张感"，演员无法直接执行。
+
+**诊断**：N5-SCR-CLIMAX-HOOK 或 N6-SCR-CANDIDATE-DRAFT 把 `screenplay_substance_map` 当成文学化描述输出，而不是剧本字段中的可执行承托。
+
+**修复**：回到 `performance_engine`，用具体的视线落点、手部动作节奏、停顿时长和身体距离替换方向性描述。例如"视线要有压力"→"视线落在对手握笔的手上，在对方签完最后一个字之前没有移开"。
+
+**验证**：执行报告中每个触发的 `screenplay_substance_map.performance_engine` 包含至少 2 个可被演员直接理解的微表演指令，并已投影进正式字段。
+
+### Failure 2: screenplay_substance_map 无法回指上游
+
+**症状**：`dramatic_question`、`character_pressure` 或 `scene_turn` 中出现了上游原文没有的剧情信息、人物动机或事件结果。
+
+**诊断**：N2-SCR-GENRE-NARRATIVE / N4-SCR-RHYTHM-ENGINE / N5-SCR-CLIMAX-HOOK 在剧本承托判断中不自觉地新增了上游没有的内容。
+
+**修复**：回到 `source_anchor`，逐字对比上游原文；若发现漂移，删除漂移项并标注 `no_upstream_anchor: true`。
+
+**验证**：执行报告中每个 `screenplay_substance_map.source_anchor` 能回指上游原文的具体段落或句子。
+
+### Failure 3: 剧本创作判断没有内嵌进正文
+
+**症状**：`screenplay_substance_map` 写得完整，但 `N6-SCR-CANDIDATE-DRAFT` 把 `performance_engine` 作为解释性总结输出，没有内嵌到 `对白画面` 或 `角色动作` 字段。
+
+**诊断**：N6-SCR-CANDIDATE-DRAFT 把 `screenplay_substance_map` 当成规划段落而非分配指令，表演承托没有投影到正文。
+
+**修复**：回到 N6-SCR-CANDIDATE-DRAFT，把 `performance_engine` 的每条指令对应到最近的 `对白画面` 或 `角色动作` 字段，用具体视线、手部、距离和停顿替换规划段落的通用描述。
+
+**验证**：终稿正文中每个高情绪场的 `对白画面` 或 `角色动作` 至少包含 1 个来自 `performance_engine` 的具体表演细节。
+
+### Failure 4: scene_turn 缺少具体的状态变化
+
+**症状**：`scene_turn` 只写了"状态变化了"或"有转折"，没有具体的进入状态、转折点和退出状态描述。
+
+**诊断**：N4-SCR-RHYTHM-ENGINE 把 `scene_turn` 当成叙事结构描述，没有追踪状态从 A 到 B 的具体路径。
+
+**修复**：回到 `scene_turn`，为 `entry_state`/`turning_point`/`exit_state` 补充具体的可感描述：谁在做什么、空间位置是什么、声音环境是什么、道具状态是什么。
+
+**验证**：执行报告中每个触发的 `screenplay_substance_map.scene_turn` 包含具体的 entry_state 和 exit_state，不是只有"变了"。
+
+### Failure 5: reveal_or_withhold 与 audience_position 脱节
+
+**症状**：`reveal_or_withhold` 说要"先暴露 A"，但 `audience_position` 说观众与角色"同步发现"，两者不一致。
+
+**诊断**：N2-SCR-GENRE-NARRATIVE / N4-SCR-RHYTHM-ENGINE 没有把 `reveal_or_withhold` 和 `audience_position` 作为同一个创作判断的两面来处理。
+
+**修复**：确认 `reveal_or_withhold` 的暴露策略与 `audience_position` 的信息差设计一致：若 `audience_position: ahead_of_character`，则 `reveal_or_withhold` 中观众应先于角色知道；若 `audience_position: behind_character`，则角色应先于观众知道。
+
+**验证**：执行报告中每个触发的 `screenplay_substance_map` 的 `reveal_or_withhold` 和 `audience_position` 能互相印证，不是脱节的两段话。
+
+## Review Checklist
+
+- 每个关键场景是否有必要的 `screenplay_substance_map`，且 `source_anchor` 能回指上游原文？
+- `dramatic_question` 是否是一个真正的戏剧问题，而不是叙事描述？
+- `character_pressure` 的 4 个维度（主动要什么/阻碍/隐藏需求/选择压力）是否都来自上游且具体可感？
+- `scene_turn` 是否有具体的 entry_state 和 exit_state，而不是只有"变了"？
+- `performance_engine` 是否包含至少 2 个可被演员直接执行的微表演指令？
+- `performance_engine`/`spatial_or_prop_engine`/`sound_or_silence_engine` 是否与 `scene_turn` 协同，而不是孤立输出？
+- `reveal_or_withhold` 与 `audience_position` 是否一致，不是脱节的两段话？
+- `screenplay_substance_map` 是否在 N6-SCR-CANDIDATE-DRAFT 中内嵌进正文，而不是作为解释性规划段落输出？
+- 创作判断是否只改变表现层，没有新增剧情事实、对白、因果、规则或线索？
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 每个关键场景是否有必要的 `screenplay_substance_map`，并能回指上游原文而非漂亮改写或结构整理？ | `GATE-SCR-08` / `GATE-SCR-09` | `FAIL-SCR-RHYTHM` / `FAIL-SCR-CLIMAX` | `N4-SCR-RHYTHM-ENGINE` / `N5-SCR-CLIMAX-HOOK` | `support_evidence.source_anchor`、`dramatic_question`、`adaptation_payload` |
+| `scene_turn` 是否包含具体 entry/turn/exit 状态，能证明场景状态差？ | `GATE-SCR-08` | `FAIL-SCR-RHYTHM` | `N4-SCR-RHYTHM-ENGINE` | `screenplay_substance_map.scene_turn`、终稿对应字段 |
+| 角色是否有活人感行为动机种子和多人行动/反应分工，而不是空闲等待表演？ | `GATE-SCR-15` | `FAIL-SCR-SCREENPLAY-QUALITY` | `N6-SCR-CANDIDATE-DRAFT` | `lived_in_behavior_seed`、`action_driver`、`reaction_receiver` |
+| 场景身份种子是否覆盖年代/功能/社会语境/环境声/材质光影中的至少 3 项，并未写成摄影方案？ | `GATE-SCR-13` / `GATE-SCR-14` | `FAIL-SCR-AIGC-FIELDS` / `FAIL-SCR-DOWNSTREAM-OVERREACH` | `N6-SCR-CANDIDATE-DRAFT` | `scene_identity_seed`、`aigc_handoff_manifest` |
+| `performance_engine` 是否可被演员直接理解，并与空间/道具/声音引擎及 `scene_turn` 协同？ | `GATE-SCR-15` | `FAIL-SCR-SCREENPLAY-QUALITY` | `N6-SCR-CANDIDATE-DRAFT` | `performance_engine`、终稿 `对白画面` / `角色动作` 投影 |
+| `reveal_or_withhold` 是否与 `audience_position` 一致，形成明确观众位置？ | `GATE-SCR-03` / `GATE-SCR-08` | `FAIL-SCR-GENRE-NARRATIVE` / `FAIL-SCR-RHYTHM` | `N2-SCR-GENRE-NARRATIVE` / `N4-SCR-RHYTHM-ENGINE` | `audience_position`、`reveal_or_withhold`、`rhythm_strategy_map` |
+| 剧本创作判断是否内嵌到正文既有字段，没有以规划段落、总结块或新增字段泄露？ | `GATE-SCR-13` / `GATE-SCR-18` | `FAIL-SCR-AIGC-FIELDS` / `FAIL-MODULE-DRIFT` | `N6-SCR-CANDIDATE-DRAFT` | `field_routing_map`、终稿字段 diff、`embedded_in_fields` |

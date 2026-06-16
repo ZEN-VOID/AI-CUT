@@ -1,0 +1,51 @@
+# CONTEXT.md
+
+## Purpose & Loading Contract
+
+- 本文件是 `aigc/3-主体/道具/1-清单` 的经验层知识库，不是过程日志。
+- 调用本目录 `SKILL.md` 时必须同时加载本文件。
+- 本文件不改写 `SKILL.md` 的输入、输出和门禁；只沉淀可复用判断经验、失败模式和修复打法。
+
+## Context Health
+
+- soft_limit_chars: 22000
+- hard_limit_chars: 44000
+- status: ok
+- last_checked_at: 2026-04-25
+
+## Type Map
+
+| failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
+| --- | --- | --- | --- | --- |
+| 道具来源越过 registry | 上游真源层 | 删除无法回指 registry `subjects.props` 的项 | 在清单前先建立 registry/source manifest | 每项均能回指 `subject-registry.yaml` 条目 |
+| 同一道具重复列项 | 归并裁决层 | 合并别名、代称、长短称呼和状态称呼 | 执行前建立 alias candidates 表，由 LLM 裁决 | 重复项被合并到单一 `名称` |
+| 背景杂物淹没清单 | 过滤策略层 | 移除纯陈设、普通环境物和无叙事价值物件 | 固定叙事/规则/视觉/生成锁定四类保留理由 | 清单不被桌椅、墙面、灯光等普通背景物填满 |
+| 首次登场写成模糊描述 | 证据定位层 | 改为 `第N集 x-y-z` 或明确分镜组标题 | 从采集阶段保存首次出现的集号与组 ID | `首次登场` 可直接定位到上游组 |
+| 关键词式描述变成长设定 | 输出边界层 | 压缩为上游原文关键词，不扩写造型设定 | 将造型、材质细化留给 `2-设计` | 描述为短关键词组而非设计稿 |
+| 脚本裁决归并 | LLM-first 层 | 停用生成逻辑，脚本只输出候选证据或格式问题 | `scripts/README.md` 固定机械辅助边界 | 无脚本生成最终 canonical 清单 |
+| 锚点替换伪道具差异 | 反模板伪差异层 | 废弃该批候选清单，回到 YAML 候选和 LLM 归并/过滤节点逐道具裁决 | `SKILL.md` 固定 `FAIL-PROP-LIST-PSEUDO-DIFF`，字段完整不得放行 | 每条保留/过滤/合并都有主体级裁决证据 |
+| `SKILL.md` runtime spine 成为第二执行链 | runtime spine 漂移层 | 以 `SKILL.md` 的 Thinking-Action Node Map 为准，`SKILL.md` runtime spine 只作 legacy read-only reference | Module Loading Matrix 固定 `SKILL.md` runtime spine 禁止运行时节点真源 | 节点、gate、汇流和 fail code 可在 `SKILL.md` 定位 |
+
+## Repair Playbook
+
+1. 先锁定项目路径、处理集号范围和 `8-分组/第N集.md` 输入清单。
+2. 读取 registry `subjects.props`，建立候选项、ID、source anchors 和原字段摘录。
+3. 对同义、代称、状态称呼、材质称呼、局部长短名建立 alias candidates，但不让脚本自动合并。
+4. 对每个候选项回查 source anchor，只用于判断是否为同一叙事道具、是否背景杂物、是否首次登场。
+5. 保留项优先满足至少一项：推动情节、承载规则、作为视觉钩子、后续生成需锁定。
+6. `名称` 使用最稳定、最短且可供后续设计阶段引用的 canonical 名称；别名只体现在执行报告或关键词描述中。
+7. `首次登场` 取最早出现的分镜组，而不是最早被详细描写的分镜组。
+8. `原文描述（关键词式）` 只压缩上游可见词：形态、状态、颜色、动作关系、持有者或特写线索；不新增设计设定。
+9. 完成后检查三列固定、无空表头、无多余主体字段、无无法回指项。
+10. 若发现清单像模板换道具名、关键词锚点替换、句式轮换或同义改写批量产物，不做表层润色；废弃候选稿并回到 LLM 归并/过滤裁决。
+11. 做 Skill 2.0 维护时，先确认 Core Task、Business Requirement、Type Routing、Node Map、Module Trigger、Convergence、Review Gate、Output 与 test prompts 是否齐全，再看长细则。
+
+## Reusable Heuristics
+
+- 道具清单的价值是为后续设计锁定“必须一致”的物件，而不是把画面中所有东西做库存盘点。
+- registry `subjects.props` 是候选入口；正文回查是证据补强，不是新增候选的旁门。
+- “手机”“她的手机”“屏幕亮起的手机”通常优先归并；“旧手机”和“备用手机”若承担不同叙事功能，应保留为不同道具。
+- 状态变化不必拆项，除非状态本身形成新的规则物或关键视觉钩子。
+- 普通桌椅、墙面、门窗、灯光、地面通常属于场景或背景，只有被特写、持有、触发规则或反复作为视觉锚点时才进入道具清单。
+- 关键词式描述宜短：来源词越贴近上游，后续设计越容易追溯。
+- 清单技能的 runtime-spine 稳定性来自“registry 候选真源 + LLM 语义裁决 + 三列输出门”；新增脚本只能增强证据读取或格式校验。

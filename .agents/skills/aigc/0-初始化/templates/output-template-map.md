@@ -4,7 +4,7 @@ Active `$aigc-init` writeback is scaffold-only.
 
 | output | target path | template | status |
 | --- | --- | --- | --- |
-| project scaffold directories | `projects/aigc/<项目名>/0-初始化/` through `14-审片/` | none | active |
+| project scaffold directories | `projects/aigc/<项目名>/0-初始化/` through `10-画布/` | none | active |
 | project memory | `projects/aigc/<项目名>/MEMORY.md` | `templates/project-memory.template.md` | active |
 | project context root | `projects/aigc/<项目名>/CONTEXT/README.md` | `templates/project-context-readme.template.md` | active |
 

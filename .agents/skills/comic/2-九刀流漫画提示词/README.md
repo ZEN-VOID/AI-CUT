@@ -1,6 +1,6 @@
 # 九刀流漫画提示词
 
-`comic-nine-blade-prompts` 将上游 `第N组.md` 或 raw source 转换为组级 `nine_blade_comic_prompts.v1` JSON。每个 group 可被 3 号 `.agents/skills/cli/imagegen` 执行层投影为 9 个单页生图 job。
+`comic-nine-blade-prompts` 将上游 `第N组.md` 或 raw source 转换为组级 `nine_blade_comic_prompts.v1` JSON。每个 group 可被 3 号 `.agents/skills/cli/imagegen` built-in `image_gen` 执行层投影为 9 个单页 prompts/assets。
 
 ## Directory Tree
 

@@ -1,11 +1,11 @@
 # Codex network approvals / sandbox notes
 
-This file is for the fallback CLI mode only. Read it when the user explicitly asks to use `scripts/image_gen.py` / CLI / API / model controls, or after the user explicitly confirms that a transparent-output request should use the `gpt-image-1.5` true-transparency fallback path.
+Status: deprecated/external reference. This file is not an execution route for `.agents/skills/cli/imagegen`.
 
-This guidance is intentionally isolated from `SKILL.md` because it can vary by environment and may become stale. Prefer the defaults in your environment when in doubt.
+Read it only when auditing legacy material or when a separate, explicitly named non-imagegen workflow asks for `scripts/image_gen.py` / CLI / API / model controls. This guidance is intentionally isolated from `SKILL.md` because it can vary by environment and may become stale.
 
 ## Why am I asked to approve image generation calls?
-The fallback CLI uses the OpenAI Image API, so it needs outbound network access. In many Codex setups, network access is disabled by default and/or the approval policy requires confirmation before networked commands run.
+The external CLI uses the OpenAI Image API, so it needs outbound network access. `.agents/skills/cli/imagegen` does not use that path and must not request network/API-key setup as part of its normal execution.
 
 ## Important note about approvals vs network
 - `--ask-for-approval never` suppresses approval prompts.
@@ -31,3 +31,9 @@ If you want quieter automation after network is enabled, you can choose a strict
 
 ## Safety note
 Enabling network and reducing approvals lowers friction, but increases risk if you run untrusted code or work in an untrusted repository.
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| Did network approval guidance remain external to this built-in-only skill? | Asking for sandbox/network/API setup during normal imagegen execution fails | `FAIL-IMG-ROUTE-UNSUPPORTED` | `SKILL.md#runtime-guardrails` / `references/codex-network.md` | final route note shows built-in mode or blocked non-built-in route |

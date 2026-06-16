@@ -1,11 +1,11 @@
 分镜-镜头时长与规划合同
 来源技能：分镜
-来源文件：.agents/skills/aigc/7-分镜/references/shot-duration-and-planning-contract.md
+来源文件：.agents/skills/aigc/6-分镜/references/shot-duration-and-planning-contract.md
 原始标题：Shot Duration And Planning Contract
 
 ---
 
-本文件重构旧 `4-摄影/references/shot-duration-decision-contract.md` 与 `shot-planning-integration-contract.md`，改写为 `7-分镜` 的 step3 时长与计划汇流细则。它不授权旧 `[起始秒-结束秒]` 字段正文格式；本阶段成稿在每个画面点下先输出 `节拍量化：beat=N（beat1: BT-xx...）`，再输出 `分镜N（N-N秒）：...`。
+本文件重构旧 `4-摄影/references/shot-duration-decision-contract.md` 与 `shot-planning-integration-contract.md`，改写为 `6-分镜` 的 step3 时长与计划汇流细则。它不授权旧 `[起始秒-结束秒]` 字段正文格式；本阶段成稿在每个画面点下先输出 `节拍量化：beat=N（beat1: BT-xx...）`，再输出 `分镜N（N-N秒）：...`。
 
 ## Core Rule
 

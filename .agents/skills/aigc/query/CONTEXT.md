@@ -17,8 +17,8 @@ last_checked_at: 2026-04-26
 | symptom | root_cause_layer | immediate_fix | systemic_prevention | verification |
 | --- | --- | --- | --- | --- |
 | 把 `.agents/skills/aigc/` 当成项目结果目录 | project-root guard | 先定位 `projects/aigc/<项目名>/` | 在 `SKILL.md#Thinking-Action Node Map` 固定 root lock | 证据路径落在真实项目根 |
-| 沿用旧 `3-Detail` 或 `2-编导` 查询当前编导主文件 | stage migration layer | 按意图改查 `2-编剧/第N集.md`、`4-导演/第N集.md` 或 `5-表演/第N集.md`，必要时标注 legacy fallback | 在 `references/project-runtime-layout.md` 固定 current/legacy 映射 | 回答同时说明 canonical owner 与 legacy source |
-| 查询视觉资产时混用 `4-Design/5-Image/6-Video` | runtime naming layer | 新链路查 `11-主体/12-图像/13-画布` | 在 data-flow 表中保留 legacy only 字段 | 不把 legacy 当默认输出 |
+| 沿用旧 `3-Detail` 或 `2-编导` 查询当前编导主文件 | stage migration layer | 按意图改查 `4-编剧/第N集.md`、`5-导演/第N集.md`、`6-分镜/第N集.md` 或显式 archived `5-表演/第N集.md`，必要时标注 legacy fallback | 在 `references/project-runtime-layout.md` 固定 current/legacy 映射与 backup 只读边界 | 回答同时说明 canonical owner、legacy source 与 archived 状态 |
+| 查询视觉资产时混用 `4-Design/5-Image/6-Video` | runtime naming layer | 新链路查 `3-主体/9-图像/10-画布` | 在 data-flow 表中保留 legacy only 字段 | 不把 legacy 当默认输出 |
 | 把文件存在当作验收通过 | validation distinction | 补读 `validation-report.md` 或 `执行报告.md` | review gate 固定“存在不等于 PASS” | 答复明确区分存在/通过 |
 | 问当前断点时只看目录结构 | governance carrier layer | 读 `governance-state.yaml`、`STATE.json` 与初始化核心工件 | system data flow 固定治理 carrier 顺序 | 结论带治理载体证据 |
 | 问制度路由时只扫项目目录 | registry route layer | 读取 `.codex/registry/skills.yaml` 与 `.codex/registry/routes.yaml` | `governance_system` mode 固定 registry first | 能指出制度层漂移 |
@@ -39,7 +39,7 @@ last_checked_at: 2026-04-26
 
 - `query/` 的价值不是全仓搜索，而是先回答“哪个文件有资格回答这个问题”。
 - 对项目事实，`projects/aigc/<项目名>/` 高于 registry；对制度事实，registry/routes 高于项目目录。
-- 新链路阶段名以当前 `.agents/skills/aigc` 真实目录为准：`0-初始化`、`1-分集`、`2-编剧`、`3-美学`、`4-导演`、`5-表演`、`6-氛围`、`7-分镜`、`8-摄影`、`9-光影`、`10-分组`、`11-主体`、`12-图像`、`13-画布`、`14-审片`；旧 `2-编导`、`3-运动`、`4-摄影` 只作 legacy fallback。
+- 新链路阶段名以当前 `.agents/skills/aigc` 真实目录为准：`0-初始化`、`1-分集`、`2-美学`、`3-主体`、`4-编剧`、`5-导演`、`6-分镜`、`7-摄影`、`8-分组`、`9-图像`、`10-画布`；旧 `2-编导`、`3-运动`、`4-摄影` 只作 legacy fallback。
 - `STATE.json` 是轻量状态入口，`governance-state.yaml` 是结构化治理快照；两者不得被解释成彼此的替代品。
 - 没有 `validation-report.md` 或阶段 `执行报告.md` 时，只能说“未见验收证据”，不能说失败或通过。
 - 查询回答的四字段齐全不等于可信；如果结论只是把路径扫描结果套模板，应返工到 `Q6/Q7`。

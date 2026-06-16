@@ -1,9 +1,0 @@
-schema_version: 1
-interface:
-  display_name: "AIGC Scene Design"
-  short_description: "Expand AIGC scene lists into design markdown."
-  default_prompt: "Use $aigc-scene-design for projects/aigc/<项目名>: read the scene list, north_star.yaml, team.yaml.init_synthesis, project MEMORY.md and relevant CONTEXT/, then create LLM-first per-scene design markdown under 11-主体/场景/2-设计; consume frozen init synthesis only, without calling team identities, parsing old stage profiles, or fabricating advisor answers; include research_brief, source_posture, uncertainty_register, visual_translation and prompt_evidence_chain; put 主体ID号 directly under ## 4. 解构 and keep it identical to the ## 5. 提示词设计 subject ID and final English prompt prefix; final English prompts must start with the subject ID, integrate all effective Scene Design and Cinematography details from ## 4. 解构, include explicit time and region anchors, and remain pure empty shots with no people or human figures."
-metadata:
-  skill_id: "aigc-scene-design"
-  governance_tier: "full"
-  output_root: "projects/aigc/<项目名>/11-主体/场景/2-设计"

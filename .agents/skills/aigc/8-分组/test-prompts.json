@@ -1,0 +1,22 @@
+[
+  {
+    "id": "grouping-default-camera-single",
+    "prompt": "使用 $aigc-grouping，把 projects/aigc/<项目名>/7-摄影/第1集.md 切成 8-分组分镜组，并输出执行报告。",
+    "expected": "默认读取 7-摄影 摄影稿，输出到 projects/aigc/<项目名>/8-分组/第1集.md；每组包含场景标题、单行全局风格、连续时间码分镜正文和 id/name YAML；执行报告包含 Reference Execution Matrix、Upstream Context Application Map、Upstream Grouping Direction Matrix 与 Rule Evidence Map。"
+  },
+  {
+    "id": "grouping-source-override",
+    "prompt": "使用 $aigc-grouping，跳过 7-摄影，直接按我指定的 projects/aigc/<项目名>/4-编剧/第2集.md 做分组。",
+    "expected": "记录 source_override=true，声明跳过的摄影稿专属检查；若缺少显式时长，进入 direct_screenplay 或 override 降级路径，由 LLM 按声画 atomic unit 规划约 14.5 秒/组并说明时间码来源。"
+  },
+  {
+    "id": "grouping-repair-continuity",
+    "prompt": "检查并修复 projects/aigc/<项目名>/8-分组/第3集.md 中 3-2-4 到 3-2-5 的首帧衔接断裂和 YAML 时长错误。",
+    "expected": "只修失败分镜组和报告证据；回龙帧内化到下一组普通首个时间码行，复现上一组尾帧状态锚点五项元素；YAML 时长估算与组内最后结束秒一致且以 .5 结尾，修复后运行 validator 或报告等价检查。"
+  },
+  {
+    "id": "grouping-review-only",
+    "prompt": "只审查 projects/aigc/<项目名>/8-分组/第4集.md 是否满足 14.5 秒、全局风格、回龙帧和 subject registry YAML 要求，不改写正文。",
+    "expected": "输出审查 findings，包含 gate、fail code、证据位置和返工目标；不写 canonical 分组稿，不把 review 结论当作正文修复。"
+  }
+]

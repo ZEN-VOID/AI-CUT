@@ -8,20 +8,16 @@ This module documents the current AIGC stage review handoff surface for audit sc
 
 | stage | review checkpoint | pass target |
 | --- | --- | --- |
-| `1-分集` | `episode-split-ready` | `2-编剧` |
-| `2-编剧` | `screenwriting-ready` | `3-美学` |
-| `3-美学` | `aesthetic-ready` | `4-导演` |
-| `4-导演` | `director-ready` | `5-表演` |
-| `5-表演` | `performance-ready` | `6-氛围` |
-| `6-氛围` | `atmosphere-ready` | `7-分镜` |
-| `7-分镜` | `storyboard-ready` | `8-摄影` |
-| `8-摄影` | `cinematography-ready` | `9-光影` |
-| `9-光影` | `lighting-ready` | `10-分组` |
-| `10-分组` | `grouping-ready` | `11-主体` |
-| `11-主体` | `subject-assets-ready` | `12-图像` |
-| `12-图像` | `image-assets-ready` | `13-画布` |
-| `13-画布` | `canvas-video-ready` | `14-审片` |
-| `14-审片` | `video-review-ready` | `release` |
+| `1-分集` | `episode-split-ready` | `2-美学` |
+| `2-美学` | `aesthetic-ready` | `3-主体` |
+| `3-主体` | `subject-assets-ready` | `4-编剧` |
+| `4-编剧` | `screenwriting-ready` | `5-导演` |
+| `5-导演` | `director-ready` | `6-分镜` |
+| `6-分镜` | `storyboard-ready` | `7-摄影` |
+| `7-摄影` | `cinematography-ready` | `8-分组` |
+| `8-分组` | `grouping-ready` | `9-图像` |
+| `9-图像` | `image-assets-ready` | `10-画布` |
+| `10-画布` | `canvas-video-ready` | `release` |
 
 ## Legacy Readback
 

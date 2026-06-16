@@ -1,11 +1,11 @@
 摄影-高潮镜头语言合同
 来源技能：摄影
-来源文件：.agents/skills/aigc/8-摄影/references/peak-shot-language-contract.md
+来源文件：.agents/skills/aigc/7-摄影/references/peak-shot-language-contract.md
 原始标题：Peak Shot Language Contract
 
 ---
 
-本文件定义 `8-摄影` 对高潮、高点、反转、震惊、崩溃和爽点分镜的运镜处理。
+本文件定义 `7-摄影` 对高潮、高点、反转、震惊、崩溃和爽点分镜的运镜处理。
 
 ## Peak Classification
 

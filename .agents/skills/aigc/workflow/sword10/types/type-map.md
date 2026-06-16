@@ -14,7 +14,7 @@
 
 1. 明确单集或 1-3 集，默认 `bounded_episode_chain`。
 2. 明确连续区间或 4 集以上，默认 `episode_batch_chain`。
-3. 用户给出 `start_stage` 不是 `2-编剧`，或存在失败阶段，叠加 `retry_from_stage`。
+3. 用户给出 `start_stage` 不是 `2-美学`，或存在失败阶段，叠加 `retry_from_stage`。
 4. 类型歧义时先阻断澄清，不默认扩大批量范围。
 
 ## Default Package Rule
@@ -23,7 +23,7 @@
 
 1. 单集或 1-3 集默认加载 `bounded_episode_chain`。
 2. 4 集以上或连续区间默认加载 `episode_batch_chain`。
-3. 任意续跑、失败补跑或非 `2-编剧` 起步，叠加加载 `retry_from_stage`。
+3. 任意续跑、失败补跑或非 `2-美学` 起步，叠加加载 `retry_from_stage`。
 
 ## Loading Flow
 

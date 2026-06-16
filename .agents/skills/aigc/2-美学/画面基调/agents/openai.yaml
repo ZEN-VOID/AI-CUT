@@ -1,0 +1,14 @@
+name: aigc-visual-tone
+version: 1
+description: AIGC 影片项目全局画面基调与风格提示词制定阶段。
+entrypoint: .agents/skills/aigc/2-美学/画面基调/SKILL.md
+interface:
+  display_name: AIGC 2-美学/画面基调
+  short_description: 从剧本、项目设定或参考图/视频提取视觉基因，制定无污染继承的全局风格协议与 200-300 字中文风格 prompt
+  default_prompt: "使用 $aigc-visual-tone，基于 projects/aigc/<项目名>/1-分集/ 的剧本或我提供的参考资料，提取视觉基因、视觉 slogan、设计理念、[设定->视觉] 因果链和大师参照，输出项目级 singleton：projects/aigc/<项目名>/2-美学/画面基调/全局风格协议.md；即使来源是第N集，也只记录样本范围，不创建 2-美学/第N集/画面基调/。最终 Global Style Prompt 默认中文 200-300 字，禁止具体颜色、材质、构图、摄影/运镜和具象内容污染。"
+runtime:
+  required_context:
+    - .agents/skills/aigc/2-美学/画面基调/SKILL.md
+    - .agents/skills/aigc/2-美学/画面基调/CONTEXT.md
+  default_output_root: projects/aigc/<项目名>/2-美学/画面基调/
+  llm_first: true

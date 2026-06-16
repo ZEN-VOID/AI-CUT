@@ -1,11 +1,11 @@
 摄影-镜头规划整合合同
 来源技能：摄影
-来源文件：.agents/skills/aigc/8-摄影/references/shot-planning-integration-contract.md
+来源文件：.agents/skills/aigc/7-摄影/references/shot-planning-integration-contract.md
 原始标题：Shot Planning Integration Contract
 
 ---
 
-本文件定义 `8-摄影` 在注入正文前必须完成的内部 `camera_movement_plan`。该计划不是输出字段，但必须支撑每条最终运镜句。
+本文件定义 `7-摄影` 在注入正文前必须完成的内部 `camera_movement_plan`。该计划不是输出字段，但必须支撑每条最终运镜句。
 
 ## Plan Fields
 
@@ -17,7 +17,7 @@
 | `aesthetic_inheritance` | 来自画面基调和摄影风格的可执行约束 |
 | `camera_angle_change` | 镜头角度及变化 |
 | `shot_type` | 镜头类型或运动方式 |
-| `spatial_axis_usage` | 说明摄影机如何沿 `7-分镜` 已确定的构图轴线、前中后景、画面方位、遮挡关系或空间纵深运动；不得重新定义空间布局 |
+| `spatial_axis_usage` | 说明摄影机如何沿 `6-分镜` 已确定的构图轴线、前中后景、画面方位、遮挡关系或空间纵深运动；不得重新定义空间布局 |
 | `spatial_movement_action_map` | 仅从 `enter_from`、`track_parallel_to_axis`、`push_along_depth`、`pull_back_revealing_layer`、`cross_foreground_occlusion`、`orbit_existing_subject`、`hold_static_against_depth` 等动作中选择适用项，并回指 `start_frame_spatial_layout` / `screen_direction_axis_map` / `spatial_layer_payload` |
 | `lens_or_camera_motion_boundary` | 区分摄影机/机位运动、焦距变化和透视效果：推/拉/横移/跟拍/升降是机位运动；变焦是焦距变化；广角/长焦的空间夸张或压缩是镜头/透视效果 |
 | `movement_speed` | 速度曲线与停点 |
@@ -41,6 +41,6 @@
 | 画面基调和摄影风格是否转成具体运镜约束？ | `GATE-CAM-08-PLAN-03` | `FAIL-CAM-AESTHETIC-NOT-USED` | `N3-CAM-AESTHETIC` | aesthetic inheritance map |
 | `focus_behavior` 是否能读出清晰主体、景深层次或对焦动作，而不是关注点替身？ | `GATE-CAM-08-PLAN-04` | `FAIL-CAM-FOCUS-SEMANTIC` | `N6-CAM-MOVEMENT-DESIGN` | focus_semantic_audit |
 | `spatial_axis_usage` 是否只引用上游既有空间关系，没有新增空间布局？ | `GATE-CAM-08-SPATIAL-BOUNDARY` | `FAIL-CAM-SPATIAL-OVERREACH` | `N6-CAM-MOVEMENT-DESIGN` | spatial_axis_usage_map |
-| `spatial_movement_action_map` 是否能回指 7-分镜 的起始状态帧空间依据？ | `GATE-CAM-08-SPATIAL-ACTION` | `FAIL-CAM-SPATIAL-ACTION-UNSUPPORTED` | `N6/N6B` | spatial_movement_action_map |
+| `spatial_movement_action_map` 是否能回指 6-分镜 的起始状态帧空间依据？ | `GATE-CAM-08-SPATIAL-ACTION` | `FAIL-CAM-SPATIAL-ACTION-UNSUPPORTED` | `N6/N6B` | spatial_movement_action_map |
 | `lens_or_camera_motion_boundary` 是否区分机位运动、焦距变化和透视效果？ | `GATE-CAM-08-LENS-MOTION-BOUNDARY` | `FAIL-CAM-LENS-MOTION-CONFLATION` | `N6-CAM-MOVEMENT-DESIGN` | lens_or_camera_motion_boundary |
 | `focus_transition_map` 是否包含起止焦点、对焦模式、景深策略和必须保持可读的信息？ | `GATE-CAM-08-FOCUS-PLAN` | `FAIL-CAM-FOCUS-PLAN-INCOMPLETE` | `N6/N6B` | focus_transition_map |

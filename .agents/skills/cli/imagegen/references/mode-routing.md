@@ -1,32 +1,24 @@
 # Mode Routing
 
-This reference owns imagegen mode boundaries, intent detection, and fallback policy.
+This reference owns imagegen mode boundaries and intent detection for the built-in `image_gen` tool.
 
 ## Top-Level Modes
 
-Imagegen has exactly two top-level execution paths:
+Imagegen has exactly one top-level execution path:
 
-- Default built-in tool mode: use built-in `image_gen` for normal generation, editing, variants, and simple transparent/cutout requests. This path does not require `OPENAI_API_KEY`.
-- Explicit CLI fallback mode: use `scripts/image_gen.py` only when the user explicitly asks for CLI/API/model controls, or after the user explicitly confirms true model-native transparency through `gpt-image-1.5`.
+- Built-in tool mode: use built-in `image_gen` for generation, editing, variants, and simple transparent/cutout requests. This path does not require `OPENAI_API_KEY`.
 
-Within CLI fallback, the script exposes:
-
-- `generate`
-- `edit`
-- `generate-batch`
-
-`generate-batch` is a CLI subcommand, not a top-level skill mode. The word `batch` alone is not CLI opt-in.
+`scripts/image_gen.py`, Image API calls, and `generate-batch` are not execution modes of `.agents/skills/cli/imagegen`. If a user explicitly asks for local/API/CLI execution, treat that as a request for a different route, not as this skill's fallback.
 
 ## Default Rules
 
-- Use built-in `image_gen` by default for ordinary generation and editing.
+- Use built-in `image_gen` for generation and editing.
 - If neither the user nor an upstream skill handoff specifies resolution, target 2K output. In built-in mode, this is a prompt/delivery target rather than a hard tool parameter.
 - If the user or upstream skill handoff explicitly specifies resolution, preserve that target. For example, `resolution_target: 4K` from a parent skill must remain 4K and must not be replaced by the 2K default.
-- Do not switch to CLI fallback merely for quality, size, output path, or batch wording.
-- If the built-in tool fails or is unavailable, tell the user the CLI fallback exists and requires `OPENAI_API_KEY`; proceed only if the user explicitly asks for it.
-- If the user explicitly asks for CLI mode, use the bundled `scripts/image_gen.py` workflow. Do not create one-off SDK runners.
-- Never modify `scripts/image_gen.py`. If it lacks a capability, ask the user before doing anything else.
-- Never silently switch from built-in `image_gen` or CLI `gpt-image-2` to CLI `gpt-image-1.5`.
+- Do not switch to `scripts/image_gen.py`, Image API calls, libTV, nano-banana, Photoshop, or any other provider from this skill.
+- If the built-in tool fails or is unavailable, report that `.agents/skills/cli/imagegen` cannot execute the request under its single-tool contract.
+- If the user explicitly asks for CLI/API mode, state that this is outside `.agents/skills/cli/imagegen` as now defined and requires a separately named tool or workflow.
+- Never modify or invoke `scripts/image_gen.py` as part of this skill.
 
 ## When To Use Imagegen
 
@@ -61,11 +53,16 @@ Built-in edit semantics:
 - Built-in edit mode is for images visible in the conversation context, such as attached images, generated images, or local images first inspected with `view_image`.
 - If the user wants to edit a local file with the built-in tool, inspect it first so it is available in context.
 - Do not promise arbitrary filesystem-path editing through the built-in tool.
-- If direct file-path control, masks, or explicit CLI parameters are required, use CLI fallback only after explicit user opt-in.
+- If direct file-path control, masks, or hard CLI/API parameters are required, report that built-in `image_gen` cannot guarantee that workflow through this skill.
 
 Execution strategy:
 
-- In built-in mode, make one `image_gen` call per distinct asset or variant.
-- In built-in mode, explicit 4K is carried in the prompt/delivery wording because the built-in tool has no hard size parameter.
-- In CLI fallback mode, omitted `--size` resolves to `2048x1152` for the default `gpt-image-2` model; explicit 4K uses a valid `gpt-image-2` size such as `3840x2160` or `2160x3840`; use `generate-batch` only after explicit CLI/API/model opt-in.
+- Make one built-in `image_gen` call per distinct asset or variant.
+- Explicit 4K is carried in the prompt/delivery wording because the built-in tool has no hard size parameter.
 - Do not use `n` as a substitute for distinct prompts. `n` is for variants of one prompt.
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| Did the selected route match the request type and built-in-only boundary? | Wrong mode, hidden fallback, or unsupported direct-path promise fails | `FAIL-IMG-ROUTE-UNSUPPORTED` | `SKILL.md#type-routing-matrix` / `N3-MODE` | `type_profile`, `mode_decision`, and blocker text when applicable |

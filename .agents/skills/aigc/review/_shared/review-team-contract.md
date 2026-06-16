@@ -5,9 +5,9 @@
 ## Ownership Rule
 
 - legacy `team.yaml.roles.supervision`
-  - 只作为旧项目只读迁移证据；不得恢复为当前 `2-编剧` 到 `11-主体` 的前置 advisory runtime
+  - 只作为旧项目只读迁移证据；不得恢复为当前 `2-美学` 到 `3-主体` 的前置 advisory runtime
 - legacy `team.yaml.roles.review`
-  - 只作为旧项目只读迁移证据；当前 `12-图像 / 13-画布 / 14-审片` 的阶段 gate 由 review registry + execution provider 承担
+  - 只作为旧项目只读迁移证据；当前 `9-图像 / 10-画布` 的阶段 gate 与审片 evidence 聚合由 review registry + execution provider 承担
 - `aigc/review`
   - 负责 package-level / checkpoint-level / stage-level 结构化审计
 

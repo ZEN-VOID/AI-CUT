@@ -1,6 +1,6 @@
 光影-光影连续性合同
 来源技能：光影
-来源文件：.agents/skills/aigc/9-光影/references/light-continuity-contract.md
+来源文件：.agents/skills/aigc/backup/9-光影/references/light-continuity-contract.md
 原始标题：Light Continuity Contract
 
 ---

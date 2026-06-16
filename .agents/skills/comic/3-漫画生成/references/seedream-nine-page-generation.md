@@ -1,6 +1,6 @@
 # Legacy: Seedream 九页漫画生成执行细则
 
-> 当前 `comic-generation` 默认生图路径已经切换为 `.agents/skills/cli/imagegen`，默认模型为 `gpt-image-2`。本文仅保留为 legacy Seedream/API 追溯资料；除非用户显式要求切换 provider，否则不得作为默认执行路径。
+> 当前 `comic-generation` 默认生图路径已经切换为 `.agents/skills/cli/imagegen` 的 built-in `image_gen` 模式。本文仅保留为 legacy Seedream/API 追溯资料；除非用户显式要求切换 provider，否则不得作为默认执行路径。
 
 ## 1. 单请求原则
 
@@ -11,7 +11,7 @@ legacy Seedream 路径曾默认只发起一次 Seedream 请求：
 - `stream=true`
 - prompt 内声明 `Generate exactly 9 separate images/pages`
 
-该规则仅适用于 legacy Seedream provider。CLI imagegen 默认路径必须拆成 9 个单页 JSONL jobs，以避免九宫格和同图变体风险。
+该规则仅适用于 legacy Seedream provider。built-in imagegen 默认路径必须拆成 9 个单页 prompt / asset tasks，以避免九宫格和同图变体风险。
 
 当上游 2 号技能已经把一个 episode 切成多个 `page-group` 时：
 

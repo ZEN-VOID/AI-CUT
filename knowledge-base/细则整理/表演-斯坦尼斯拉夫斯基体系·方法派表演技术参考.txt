@@ -1,6 +1,6 @@
 表演-斯坦尼斯拉夫斯基体系·方法派表演技术参考
 来源技能：表演
-来源文件：.agents/skills/aigc/5-表演/references/stanislavski-method-reference.md
+来源文件：.agents/skills/aigc/backup/5-表演/references/stanislavski-method-reference.md
 原始标题：斯坦尼斯拉夫斯基体系·方法派表演技术参考
 
 ---

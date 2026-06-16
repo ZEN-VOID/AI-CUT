@@ -1,11 +1,11 @@
 摄影-镜头内转场合同
 来源技能：摄影
-来源文件：.agents/skills/aigc/8-摄影/references/intra-shot-transition-contract.md
+来源文件：.agents/skills/aigc/7-摄影/references/intra-shot-transition-contract.md
 原始标题：Intra Shot Transition Contract
 
 ---
 
-本文件定义 `8-摄影` 如何处理相邻分镜之间的镜内/镜间过渡锚点，尤其适用于用户要求流畅、丝滑、连贯或一镜到底时。
+本文件定义 `7-摄影` 如何处理相邻分镜之间的镜内/镜间过渡锚点，尤其适用于用户要求流畅、丝滑、连贯或一镜到底时。
 
 ## Transition Anchors
 

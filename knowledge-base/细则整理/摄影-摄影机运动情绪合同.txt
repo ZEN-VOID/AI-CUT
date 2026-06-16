@@ -1,11 +1,11 @@
 摄影-摄影机运动情绪合同
 来源技能：摄影
-来源文件：.agents/skills/aigc/8-摄影/references/camera-movement-emotion-contract.md
+来源文件：.agents/skills/aigc/7-摄影/references/camera-movement-emotion-contract.md
 原始标题：Camera Movement Emotion Contract
 
 ---
 
-本文件定义 `8-摄影` 中“运镜为什么这样动”的情绪和观看动机。技术名只能作为结果，不能替代推理。
+本文件定义 `7-摄影` 中“运镜为什么这样动”的情绪和观看动机。技术名只能作为结果，不能替代推理。
 
 ## Movement Motivation
 

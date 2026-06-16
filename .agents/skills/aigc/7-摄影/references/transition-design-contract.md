@@ -1,0 +1,24 @@
+# Transition Design Contract
+
+本文件定义 `7-摄影` 的主入口边界：本阶段可以写当前分镜内部和相邻分镜之间的运镜交出锚点，但不主创下游剪辑方案、组间连接件、视频节点或转场特效。
+
+## Owned Boundary
+
+`7-摄影` 可以处理：
+
+- 当前分镜如何从上一分镜的姿态、声音、光色或运动方向进入。
+- 当前分镜如何在句尾留下焦点、运动、声音或遮挡交出点。
+- 一镜到底时如何让画面点内部的分镜连续穿行。
+
+`7-摄影` 不处理：
+
+- 下游视频剪辑点、镜头拼接参数、完整转场特效。
+- 组间首尾帧连接件。
+- 图像生成 prompt、视频 prompt 或 LibTV 节点。
+
+## Review Gate Mapping
+
+| review_question | gate | fail_code | rework_target | report_evidence |
+| --- | --- | --- | --- | --- |
+| 运镜交出点是否只服务当前分镜和相邻分镜？ | `GATE-CAM-08-BOUNDARY-01` | `FAIL-CAM-TRANSITION-OVERREACH` | `N6-CAM-MOVEMENT-DESIGN` | boundary_samples |
+| 是否没有生成下游剪辑、视频或组间连接件方案？ | `GATE-CAM-08-BOUNDARY-02` | `FAIL-CAM-DOWNSTREAM-OVERREACH` | `N7-CAM-INJECT` | downstream_overreach_scan |

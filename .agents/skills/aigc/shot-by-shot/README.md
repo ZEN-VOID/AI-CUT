@@ -1,6 +1,6 @@
 # aigc shot-by-shot
 
-`shot-by-shot` 是 `.agents/skills/aigc` 的临摹型卫星技能，用于把参考影片或视频逐镜拆解成可回指证据、可迁移原则和 AIGC 项目 side context。风格解析输出对齐 `.agents/skills/aigc/3-美学` 六个子技能关注点；`分镜脚本.md` 保持 Numbers 示例 19 列合同不变。
+`shot-by-shot` 是 `.agents/skills/aigc` 的临摹型卫星技能，用于把参考影片或视频逐镜拆解成可回指证据、可迁移原则和 AIGC 项目 side context。风格解析输出对齐 `.agents/skills/aigc/2-美学` 六个子技能关注点；`分镜脚本.md` 保持 Numbers 示例 19 列合同不变。
 
 ## 目录树
 
@@ -27,7 +27,7 @@ shot-by-shot/
 - 运行上下文：`CONTEXT.md`
 - 典型评估 prompts：`test-prompts.json`
 - 基础解析维度：`references/analysis-method.md`
-- 3-美学风格解析细则：`references/aesthetic-style-analysis-contract.md`
+- 2-美学风格解析细则：`references/aesthetic-style-analysis-contract.md`
 - 非美学 stage 输出融合：`references/adaptation-output-contract.md`
 - 编剧风格解析细则：`references/screenwriter-style-analysis-contract.md`
 - 摄影解析兼容细则：`references/cinematography-style-analysis-contract.md`

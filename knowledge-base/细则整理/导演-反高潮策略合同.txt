@@ -1,15 +1,15 @@
 导演-反高潮策略合同
 来源技能：导演
-来源文件：.agents/skills/aigc/4-导演/references/anticlimax-strategy-contract.md
+来源文件：.agents/skills/aigc/5-导演/references/anticlimax-strategy-contract.md
 原始标题：Anticlimax Strategy Contract
 
 ---
 
-## 4-导演 Adaptation Notice
+## 5-导演 Adaptation Notice
 
-本文件从 `.agents/skills/aigc/2-编导/references/anticlimax-strategy-contract.md` 引入，作为 `4-导演` 的授权 reference 细则。凡原文出现 `2-编导`、`director layer`、`N4-DIR-PEAK`、`N8-DIR-FINAL-IMAGE`、`N9-DIR-DRAFT` 或其他旧节点名时，在本技能中只映射为 `4-导演` 的 `N2-DIR-UNDERSTAND`、`N4-DIR-POINT-MAP`、`N5-DIR-INJECT` 与 `N6-DIR-REVIEW-REPAIR` 的内部证据，不继承 `2-编导` 的剧本改写、高潮重构或尾钩写回权。
+本文件从 `.agents/skills/aigc/2-编导/references/anticlimax-strategy-contract.md` 引入，作为 `5-导演` 的授权 reference 细则。凡原文出现 `2-编导`、`director layer`、`N4-DIR-PEAK`、`N8-DIR-FINAL-IMAGE`、`N9-DIR-DRAFT` 或其他旧节点名时，在本技能中只映射为 `5-导演` 的 `N2-DIR-UNDERSTAND`、`N4-DIR-POINT-MAP`、`N5-DIR-INJECT` 与 `N6-DIR-REVIEW-REPAIR` 的内部证据，不继承 `2-编导` 的剧本改写、高潮重构或尾钩写回权。
 
-在 `4-导演` 中，本文件的唯一用途是让导演批注能判断当前画面点或高点是否应采用满足、延迟、打断、假兑现、惨胜或反向兑现等导演策略。输出仍只能是内联 `（导演批注：XXX）` 与执行报告证据，不得新增剧情事实、改对白、改结局或生成摄影分镜。
+在 `5-导演` 中，本文件的唯一用途是让导演批注能判断当前画面点或高点是否应采用满足、延迟、打断、假兑现、惨胜或反向兑现等导演策略。输出仍只能是内联 `（导演批注：XXX）` 与执行报告证据，不得新增剧情事实、改对白、改结局或生成摄影分镜。
 
 ## Purpose
 

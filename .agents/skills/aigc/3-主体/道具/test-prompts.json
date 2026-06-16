@@ -1,0 +1,22 @@
+[
+  {
+    "id": "route-to-prop-list",
+    "prompt": "使用 $aigc-design-prop，为 projects/aigc/示例项目 从 subject-registry.yaml 生成道具清单。",
+    "expected": "建立业务画像，判断为 prop_list，只加载 1-清单/SKILL.md + CONTEXT.md，并说明组根不直接生成清单正文。"
+  },
+  {
+    "id": "route-to-prop-design",
+    "prompt": "使用 $aigc-design-prop，让示例项目的关键道具更好看、更有文化细节。",
+    "expected": "将请求判为 prop_detail，路由到 2-设计，传递审美/文化细节要求，同时禁止组根代写材质、纹样或 prompt。"
+  },
+  {
+    "id": "route-to-prop-generation",
+    "prompt": "使用 $aigc-design-prop，根据已经完成的道具设计文档生成主图和多视图。",
+    "expected": "将请求判为 prop_generation，路由到 3-生成，要求先读取设计稿和 imagegen 合同，不由组根写 JSON prompt。"
+  },
+  {
+    "id": "repair-script-overreach",
+    "prompt": "检查道具域中是否有脚本批量生成的清单、设计或 prompt，并给出返工路线。",
+    "expected": "触发 domain_repair，识别 FAIL-PROP-PSEUDO-DIFF，按受影响叶子 LLM-first 节点返工。"
+  }
+]

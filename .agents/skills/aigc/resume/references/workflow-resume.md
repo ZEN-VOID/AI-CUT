@@ -10,7 +10,7 @@
 2. `projects/aigc/<项目名>/STATE.json`，读取 `current_stage`、`current_stage_path`、`recommended_next_stage`、`recommended_entry_path`、`recommended_next_step`。
 3. 初始化核心证据：`0-初始化/`、项目根 `MEMORY.md`、项目根 `CONTEXT/`。legacy `north_star / init_handoff / story-source-manifest / team.yaml` 只在实际存在时作为只读历史证据。
 4. 根治理工件：`mission-brief.yaml`、`route-plan.yaml`、`preflight-verdict.yaml`、`validation-report.md`、`learning-record.md`。
-5. 阶段 runtime 真实产物：例如 `1-分集/第N集.md`、`2-编剧/第N集.md`、`3-美学/**`、`4-导演/第N集.md`、`5-表演/第N集.md`、`6-氛围/第N集.md`、`7-分镜/第N集.md`、`8-摄影/第N集.md`、`9-光影/第N集.md`、`10-分组/第N集.md`、`11-主体/**`、`12-图像/**`、`13-画布/**`、`14-审片/**`。
+5. 阶段 runtime 真实产物：例如 `1-分集/第N集.md`、`2-美学/**`、`4-编剧/第N集.md`、`5-导演/第N集.md`、`6-分镜/第N集.md`、`7-摄影/第N集.md`、`8-分组/第N集.md`、`3-主体/**`、`9-图像/**`、`10-画布/**`；审片结论来自 review evidence、治理桥或用户给定 packet。旧 `5-表演/`、`6-氛围/`、`9-光影/` 只作为 archived readback。
 6. Git 工作区状态与最近修改文件，只能作为辅助证据，不能单独决定断点。
 
 ## Recovery Modes

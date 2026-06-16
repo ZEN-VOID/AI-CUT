@@ -1,6 +1,6 @@
 表演-受控增补合同
 来源技能：表演
-来源文件：.agents/skills/aigc/5-表演/references/controlled-enrichment-contract.md
+来源文件：.agents/skills/aigc/backup/5-表演/references/controlled-enrichment-contract.md
 原始标题：Controlled Enrichment Contract
 
 ---

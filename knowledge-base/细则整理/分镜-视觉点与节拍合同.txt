@@ -1,11 +1,11 @@
 分镜-视觉点与节拍合同
 来源技能：分镜
-来源文件：.agents/skills/aigc/7-分镜/references/visual-point-and-beat-contract.md
+来源文件：.agents/skills/aigc/6-分镜/references/visual-point-and-beat-contract.md
 原始标题：Visual Point And Beat Contract
 
 ---
 
-本文件融合旧 `4-摄影/references/visual-matching-contract.md` 与 `beat-analysis-contract.md`，改写为 `7-分镜` 的 step1/step2 细则。它只授权画面点识别与画面节拍法，不授权旧 `4-摄影` 的 `3-运动` source、原字段正文改写或 `[起始秒-结束秒]` 输出格式。
+本文件融合旧 `4-摄影/references/visual-matching-contract.md` 与 `beat-analysis-contract.md`，改写为 `6-分镜` 的 step1/step2 细则。它只授权画面点识别与画面节拍法，不授权旧 `4-摄影` 的 `3-运动` source、原字段正文改写或 `[起始秒-结束秒]` 输出格式。
 
 ## Core Rule
 

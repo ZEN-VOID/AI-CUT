@@ -1,0 +1,22 @@
+[
+  {
+    "id": "single-character-design",
+    "prompt": "使用 $aigc-design-character-detail，为 projects/aigc/示例项目 的 C001-沈砚 生成角色细目设计稿。",
+    "expected": "Loads project context and character list, creates one LLM-authored design markdown, keeps subject ID consistent, and does not generate images."
+  },
+  {
+    "id": "batch-from-list-design",
+    "prompt": "使用 $aigc-design-character-detail，为 projects/aigc/示例项目 按角色清单补齐全部缺失设计稿。",
+    "expected": "Processes each missing character independently, preserves existing design files, uses LLM-first authorship, and records review evidence."
+  },
+  {
+    "id": "repair-prompt-and-id",
+    "prompt": "使用 $aigc-design-character-detail，修复已有角色设计稿里主体 ID 不一致、prompt 超 1300 characters 和 --no 参数问题。",
+    "expected": "Routes to repair, fixes ID and prompt gates, keeps upstream list unchanged, and reports review findings."
+  },
+  {
+    "id": "review-anti-template-design",
+    "prompt": "使用 $aigc-design-character-detail，只审查一批角色设计稿是否像模板换名或脚本批量生成。",
+    "expected": "Runs review_only and flags FAIL-CHAR-DESIGN-PSEUDO-DIFF when role-specific design decisions are missing."
+  }
+]

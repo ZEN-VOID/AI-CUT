@@ -8,11 +8,11 @@
 | `GATE-SBS-02` | 镜头或 observation unit 边界是否能复查 | `FAIL-SBS-SHOT-MAP` | 回到 `N3-SHOT-MAP` |
 | `GATE-SBS-03` | 分析是否覆盖任务相关 craft 维度，且先观察后解释 | `FAIL-SBS-OBSERVATION` | 回到 `N4-CRAFT-OBSERVE` |
 | `GATE-SBS-04` | 临摹原则是否脱离参考片具体表达 | `FAIL-SBS-IMITATION` | 回到 `N4-CRAFT-OBSERVE` / `N6-RIGHTS-FEASIBILITY` |
-| `GATE-SBS-05A` | 3-美学风格解析是否按画面基调、角色、场景、道具、摄影、分镜六子技能拆分，并只作为 side context | `FAIL-SBS-AESTHETIC-BRIDGE` | 回到 `N5A-AESTHETIC-BRIDGE` |
+| `GATE-SBS-05A` | 2-美学风格解析是否按画面基调、角色、场景、道具、摄影、分镜六子技能拆分，并只作为 side context | `FAIL-SBS-AESTHETIC-BRIDGE` | 回到 `N5A-AESTHETIC-BRIDGE` |
 | `GATE-SBS-05B` | 旧 `全局风格解析.md` / `设计风格解析.md` 是否只作 legacy，不继续作为新主输出合同 | `FAIL-SBS-LEGACY-STYLE-PACK` | 回到 `R2-SYNC-REPAIR` |
-| `GATE-SBS-06` | 非美学 stage 解析是否不越权改写 `2-编剧`、`4-导演`、`5-表演`、`7-分镜`、`8-摄影`、`9-光影` 或 `11-主体` canonical 文件 | `FAIL-SBS-STAGE-BRIDGE` | 回到 `N5B-STAGE-BRIDGE` |
-| `GATE-SBS-07` | 摄影风格解析是否对齐 `3-美学/摄影风格` 的构图秩序、景别、机位、运动、连续性，而不写具体分镜正文 | `FAIL-SBS-CINE-BRIDGE` | 回到 `N5A-AESTHETIC-BRIDGE` |
-| `GATE-SBS-08` | 分镜风格解析是否对齐 `3-美学/分镜风格` 的节奏、组合和连接语法，而不替代 `分镜脚本.md` | `FAIL-SBS-STORYBOARD-STYLE` | 回到 `N5A-AESTHETIC-BRIDGE` |
+| `GATE-SBS-06` | 非美学 stage 解析是否不越权改写 `4-编剧`、`5-导演`、`6-分镜`、`7-摄影`、`8-分组` 或 `3-主体` canonical 文件，且 archived `5-表演 / 9-光影` 只在显式 legacy 目标中回读 | `FAIL-SBS-STAGE-BRIDGE` | 回到 `N5B-STAGE-BRIDGE` |
+| `GATE-SBS-07` | 摄影风格解析是否对齐 `2-美学/摄影风格` 的构图秩序、景别、机位、运动、连续性，而不写具体分镜正文 | `FAIL-SBS-CINE-BRIDGE` | 回到 `N5A-AESTHETIC-BRIDGE` |
+| `GATE-SBS-08` | 分镜风格解析是否对齐 `2-美学/分镜风格` 的节奏、组合和连接语法，而不替代 `分镜脚本.md` | `FAIL-SBS-STORYBOARD-STYLE` | 回到 `N5A-AESTHETIC-BRIDGE` |
 | `GATE-SBS-09` | `分镜脚本.md` 是否含 Numbers 示例 19 列、顺序一致、每镜一行、提示词编排合规 | `FAIL-SBS-STORYBOARD-SCRIPT` | 回到 `N5B-STAGE-BRIDGE` |
 | `GATE-SBS-10` | 是否存在版权表达复制、项目不适配或 AIGC 不可执行风险 | `FAIL-SBS-RIGHTS` | 回到 `N6-RIGHTS-FEASIBILITY` 或阻断 |
 | `GATE-SBS-11` | 输出是否含执行证据、路径统一、解析文档与分镜脚本可消费 | `FAIL-SBS-OUTPUT` | 回到 `N7-WRITE-PACKAGE` |

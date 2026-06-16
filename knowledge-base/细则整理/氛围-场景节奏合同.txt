@@ -1,6 +1,6 @@
 氛围-场景节奏合同
 来源技能：氛围
-来源文件：.agents/skills/aigc/6-氛围/references/scene-rhythm-contract.md
+来源文件：.agents/skills/aigc/backup/6-氛围/references/scene-rhythm-contract.md
 原始标题：Scene Rhythm Contract
 
 ---

@@ -1,11 +1,11 @@
 编剧-字段路由与声画合同
 来源技能：编剧
-来源文件：.agents/skills/aigc/2-编剧/references/field-routing-and-audio-visual-contract.md
+来源文件：.agents/skills/aigc/4-编剧/references/field-routing-and-audio-visual-contract.md
 原始标题：Field Routing And Audio-Visual Contract
 
 ---
 
-> **契约地位**：本文件是 `2-编剧` screenplay layer 的**执行细则**，定义字段路由、声画配对和可感知化规范。
+> **契约地位**：本文件是 `4-编剧` screenplay layer 的**执行细则**，定义字段路由、声画配对和可感知化规范。
 >
 > **交叉引用**：本文件中引用的保真规则编号对应 `script-adaptation-contract.md`：
 > - `FR-1` ~ `FR-7` 定义不可违背底线
@@ -448,7 +448,7 @@
 
 ### 10.3 Long Dialogue Beat Segmentation（长对白节拍拆分）
 
-当上游小说原文中同一说话者存在单段长对白时，`2-编剧` screenplay layer 必须在对白冻结前提下建立 `long_dialogue_beat_map`。这不是改写台词，而是把同一段原文对白拆成可演、可拍、可被下游摄影承托的连续节拍。
+当上游小说原文中同一说话者存在单段长对白时，`4-编剧` screenplay layer 必须在对白冻结前提下建立 `long_dialogue_beat_map`。这不是改写台词，而是把同一段原文对白拆成可演、可拍、可被下游摄影承托的连续节拍。
 
 **触发建议**：
 - 30 字以内且只有一个明确动作的对白可保留为单句。
@@ -468,7 +468,7 @@
 **禁止模式**：
 - 将长对白整体压成一行，后面只接一条“说话者看着对方说完”的 `对白画面`。
 - 为了断句而润色、删词、换词、补充台词或重排语序。
-- 把“长对白需要多机位”等摄影指令写入 `2-编剧` screenplay layer 正文；编剧阶段只提供节拍、气口、反应和可见承托，镜头方案交给 `8-摄影`。
+- 把“长对白需要多机位”等摄影指令写入 `4-编剧` screenplay layer 正文；编剧阶段只提供节拍、气口、反应和可见承托，镜头方案交给 `7-摄影`。
 
 ---
 

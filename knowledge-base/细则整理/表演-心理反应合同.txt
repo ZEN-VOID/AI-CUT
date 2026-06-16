@@ -1,6 +1,6 @@
 表演-心理反应合同
 来源技能：表演
-来源文件：.agents/skills/aigc/5-表演/references/psychological-reaction-contract.md
+来源文件：.agents/skills/aigc/backup/5-表演/references/psychological-reaction-contract.md
 原始标题：Psychological Reaction Contract
 
 ---

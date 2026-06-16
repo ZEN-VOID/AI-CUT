@@ -1,11 +1,11 @@
 分镜-起始帧空间连续性合同
 来源技能：分镜
-来源文件：.agents/skills/aigc/7-分镜/references/start-frame-spatial-continuity-contract.md
+来源文件：.agents/skills/aigc/6-分镜/references/start-frame-spatial-continuity-contract.md
 原始标题：Start Frame Spatial Continuity Contract
 
 ---
 
-本细则约束 `7-分镜` 如何从单个画面点解析 `前景 / 中景 / 后景 / 主体站位`，以及同一画面点内多条分镜之间如何保持这些空间层次的连续性。它展开 `N5-COMPOSITION-DESIGN` 与 `N7-CONTINUITY`，不改变 `SKILL.md` 的输出格式。
+本细则约束 `6-分镜` 如何从单个画面点解析 `前景 / 中景 / 后景 / 主体站位`，以及同一画面点内多条分镜之间如何保持这些空间层次的连续性。它展开 `N5-COMPOSITION-DESIGN` 与 `N7-CONTINUITY`，不改变 `SKILL.md` 的输出格式。
 
 ## Core Rule
 

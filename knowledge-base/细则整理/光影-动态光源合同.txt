@@ -1,6 +1,6 @@
 光影-动态光源合同
 来源技能：光影
-来源文件：.agents/skills/aigc/9-光影/references/dynamic-light-source-contract.md
+来源文件：.agents/skills/aigc/backup/9-光影/references/dynamic-light-source-contract.md
 原始标题：Dynamic Light Source Contract
 
 ---

@@ -16,7 +16,7 @@
 | type_id | symptom | likely root layer | immediate fix | verification |
 | --- | --- | --- | --- | --- |
 | `FLASH-TM-01` | 用户只要 prompt，但输出开始写项目路径或执行报告 | 输出边界漂移 | 回 `Output Contract`，只输出聊天窗口 prompt pack | final answer 没有落盘路径 |
-| `FLASH-TM-02` | 纯文本故事源被扩成长篇剧本 | 2-编剧压缩失败 | 回 `F3-SCREENPLAY-COMPRESS`，只保留短冲突、动作链和尾钩 | prompt 可在 11.5 秒内拍完 |
+| `FLASH-TM-02` | 纯文本故事源被扩成长篇剧本 | 4-编剧压缩失败 | 回 `F3-SCREENPLAY-COMPRESS`，只保留短冲突、动作链和尾钩 | prompt 可在 11.5 秒内拍完 |
 | `FLASH-TM-03` | 图生视频 prompt 改掉首帧主体、构图或主光 | 多模态锁定不足 | 回 `F2`，列 `confirmed` 保持项和允许变化项 | prompt 有保持主体/构图/光影约束 |
 | `FLASH-TM-04` | 首尾帧生视频中间运动无法从 A 到 B | 连续性设计不足 | 建 `first_last_state_map`，只设计可见状态差之间的运动路径 | 首帧、尾帧、中间过渡三者一致 |
 | `FLASH-TM-05` | 参考视频 prompt 照搬具体镜头或美术 | 参考污染 | 写 `do_not_copy`，只迁移节奏、运动原则、光影策略 | prompt 不含参考片独特表达 |
@@ -38,7 +38,7 @@
 
 ## Reusable Heuristics
 
-- `flash` 的价值是把 2-10 长链压成一个短片段 prompt，而不是把短片段恢复成完整项目流水线。
+- `flash` 的价值是把当前 2-8 活跃链压成一个短片段 prompt，并在聊天内锁定 mini subject map，而不是把短片段恢复成完整项目流水线；archived `5-表演 / 6-氛围 / 9-光影` 只作显式 legacy 辅助，不进默认链。
 - 默认 11.5 秒适合 2-3 个镜头段：开场锁定、动作推进、尾钩/状态变化。复杂动作最多 4 段。
 - 图生视频 prompt 的第一优先级是“保持参照图稳定”，第二优先级才是运动丰富。
 - 首尾帧生视频最容易失败在中间过渡太大；优先设计连续小动作、视线、手势、光影变化和镜头缓慢移动。

@@ -1,15 +1,15 @@
 摄影-AI视频提示词执行合同
 来源技能：摄影
-来源文件：.agents/skills/aigc/8-摄影/references/ai-video-prompt-execution-contract.md
+来源文件：.agents/skills/aigc/7-摄影/references/ai-video-prompt-execution-contract.md
 原始标题：AI Video Prompt Execution Contract
 
 ---
 
-本文件定义 `8-摄影` 运镜注入如何为后续视频生成保留可执行信息。它不要求本阶段输出完整视频 prompt、provider 参数或镜头 JSON；它要求每条内联运镜句能被下游稳定改写为视频提示词。
+本文件定义 `7-摄影` 运镜注入如何为后续视频生成保留可执行信息。它不要求本阶段输出完整视频 prompt、provider 参数或镜头 JSON；它要求每条内联运镜句能被下游稳定改写为视频提示词。
 
 ## Core Rule
 
-`8-摄影` 的运镜描述必须采用“镜头包裹动作”的顺序：
+`7-摄影` 的运镜描述必须采用“镜头包裹动作”的顺序：
 
 1. 先确定摄影机位置、镜头角度和观看方向。
 2. 再确定镜头类型、运动路径、速度曲线和停止点。

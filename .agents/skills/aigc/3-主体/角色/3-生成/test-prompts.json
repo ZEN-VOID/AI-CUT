@@ -1,0 +1,22 @@
+[
+  {
+    "id": "single-character-generation",
+    "prompt": "使用 $aigc-design-character-generation，为 projects/aigc/示例项目 的 C001-沈砚 设计稿生成主图和多视图。",
+    "expected": "Loads upstream 2-设计 document, uses section 4. 解构 as source, keeps imagegen as executor, and writes paired image/JSON outputs."
+  },
+  {
+    "id": "prompt-only-unavailable-imagegen",
+    "prompt": "使用 $aigc-design-character-generation，imagegen 当前不可用，请只生成 prompt JSON 并说明阻断。",
+    "expected": "Routes to prompt_only, writes main and multiview JSON, reports blocked_reason, and does not claim image files exist."
+  },
+  {
+    "id": "incremental-fill-generation-assets",
+    "prompt": "使用 $aigc-design-character-generation，已有部分主图和 JSON，只补缺失的多视图资产。",
+    "expected": "Builds generation_gaps, preserves complete existing assets, and only fills missing images or JSON files."
+  },
+  {
+    "id": "review-executor-and-pseudo-diff",
+    "prompt": "使用 $aigc-design-character-generation，只审查生成产物是否切换了未授权执行器或 prompt 像模板换名。",
+    "expected": "Runs review_only, checks default imagegen executor lock, and flags FAIL-CHAR-GEN-PSEUDO-DIFF for mechanical prompt text."
+  }
+]

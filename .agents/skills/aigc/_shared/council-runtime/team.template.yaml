@@ -92,58 +92,46 @@ init_synthesis:
       episode_scope_hints: []
       split_granularity: []
       cliffhanger_or_turning_point_policy: []
-    "2-编剧":
-      adaptation_fidelity_rules: []
-      screenplay_voice_constraints: []
-      dialogue_and_action_projection_notes: []
-    "3-美学":
+    "2-美学":
+      type_style_rules: []
+      signature_elements: []
+      genre_expression_techniques: []
       visual_tone_invariants: []
       character_style_constraints: []
       scene_style_constraints: []
       prop_style_constraints: []
       storyboard_style_constraints: []
-    "4-导演":
+    "4-编剧":
+      adaptation_fidelity_rules: []
+      screenplay_voice_constraints: []
+      dialogue_and_action_projection_notes: []
+    "5-导演":
       director_intent_hints: []
       voice_picture_pairing_rules: []
       dramatic_substance_boundaries: []
-    "5-表演":
-      performance_boundaries: []
-      action_reaction_priorities: []
-      emotional_landing_rules: []
-    "6-氛围":
-      atmosphere_support_rules: []
-      environmental_sound_boundaries: []
-      image_motif_risks: []
-    "7-分镜":
+    "6-分镜":
       continuity_principles: []
       start_path_end_priorities: []
       reference_frame_rules: []
-    "8-摄影":
+    "7-摄影":
       shot_language_baseline: []
       rhythm_and_duration_hints: []
       camera_constraints: []
-    "9-光影":
-      light_color_camera_constraints: []
-      lighting_result_rules: []
-      shadow_and_subject_separation_notes: []
-    "10-分组":
+    "8-分组":
       grouping_rhythm: []
       bridge_policy: []
       north_star_projection_notes: []
-    "11-主体":
+    "3-主体":
       scene_design_invariants: []
       character_design_invariants: []
       prop_design_invariants: []
       asset_constraints: []
-    "12-图像":
+    "9-图像":
       prompt_evidence_rules: []
       visual_asset_constraints: []
-    "13-画布":
+    "10-画布":
       canvas_flow_constraints: []
       video_prompt_order_rules: []
-    "14-审片":
-      review_focus: []
-      defect_watchlist: []
 
 legacy_compat:
   deprecated_stage_seed_aliases:

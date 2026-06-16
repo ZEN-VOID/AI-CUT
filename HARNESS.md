@@ -1,5 +1,5 @@
 # HARNESS.md
-<!-- last_synced: 2026-06-04 | version: 2026-06-04 -->
+<!-- last_synced: 2026-06-15 | version: 2026-06-15 -->
 
 本文件是仓库根层的 HARNESS 总览文档，用于把当前仓库的 Harness 工程化构思、已落地真源、运行方式、现状判断与发展方向收束为一份可快速阅读的初始化说明。
 
@@ -54,6 +54,7 @@
   - 执行深度默认规则
   - 内容创作型任务的 `LLM-first creative authorship` 规则：核心创作必须由 LLM 直出，脚本仅可承担读取/组装/校验/落盘等机械辅助
   - `HARNESS.md` 总览同步责任
+  - 三省六部制编排治理基线、AIGC 改造兼容模式与 `bootstrap_compat` 退出条件回指
   - 批量技能调度默认规则
   - `subagents` 默认真实启动、命中默认 subagent skill 即视为显式许可、以及降级显式报告口径
   - Skill 2.0 runtime-spine 运行规则与项目级记忆 / 上下文规则

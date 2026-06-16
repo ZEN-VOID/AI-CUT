@@ -1,0 +1,17 @@
+[
+  {
+    "id": "single-episode-director-annotation",
+    "prompt": "对 projects/aigc/示例项目/4-编剧/第1集.md 按王家卫风格加 5-导演 批注，并结合 2-美学/画面基调。",
+    "expected": "Loads screenplay and visual tone, builds episode intent, director style, and performance handoff maps, injects （导演批注：...） after all visual points, writes 5-导演/第1集.md and an execution report."
+  },
+  {
+    "id": "specified-script-override",
+    "prompt": "使用我指定的 /tmp/episode-03.md 剧本，参考项目的 2-美学画面基调，以诺兰的导演意识做内联导演批注，不改原文。",
+    "expected": "Marks source_override=true, preserves the specified script text, uses the visual-tone context, injects inline director annotations with actor-executable performance seeds, and avoids project canonical writeback unless an output path is provided."
+  },
+  {
+    "id": "review-repair-director-annotations",
+    "prompt": "检查 projects/aigc/示例项目/5-导演/第2集.md 的导演批注是否漏掉画面点、是否改了剧本、是否太泛。",
+    "expected": "Runs review_only through GATE-DIR-01..18, checks coverage, faithfulness, specificity, and performance handoff, reports findings with fail codes and rework targets, and does not modify the draft unless repair is requested."
+  }
+]

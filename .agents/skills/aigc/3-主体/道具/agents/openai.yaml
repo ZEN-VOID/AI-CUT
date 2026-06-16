@@ -1,0 +1,9 @@
+schema_version: 1
+interface:
+  display_name: "AIGC 道具组根"
+  short_description: "路由 3-主体/道具 的清单、设计、生成、增量对账和域级验收。"
+  default_prompt: "使用 $aigc-design-prop 处理 projects/aigc/<项目名>/3-主体/道具 任务；先判断业务目标、项目路径、道具域现状和最早缺口，再只加载命中的叶子 SKILL.md + CONTEXT.md。组根只做路由、增量对账、缺口说明和域级状态摘要，不直接写道具清单正文、道具设计正文、JSON prompt 或图像资产；任何归并、过滤、设计、prompt 和生成决策必须由对应叶子 LLM-first 逐条理解后落盘，脚本只能做机械读取、枚举、校验、格式检查和 manifest 辅助。"
+metadata:
+  skill_id: "aigc-design-prop"
+  stage: "3-主体/道具"
+  governance_tier: "router"

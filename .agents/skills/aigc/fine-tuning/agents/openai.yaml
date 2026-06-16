@@ -1,0 +1,4 @@
+interface:
+  display_name: AIGC Fine Tuning
+  short_description: Iterative tuning for AIGC 2-10 stage outputs
+  default_prompt: "Use $fine-tuning to identify AIGC 2-10 stage output targets, match stage-specific tuning schemes, run multi-round LLM-first refinement, compare baseline versus candidate, and hand off an owner-safe patch."

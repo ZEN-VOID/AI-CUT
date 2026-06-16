@@ -1,8 +1,8 @@
 [
   {
     "id": "aesthetic-six-way-bridge",
-    "prompt": "使用 $aigc-shot-by-shot 分析这个参考视频，为 projects/aigc/demo 输出对齐 3-美学六个子技能的风格解析。",
-    "expected": "输出 shot-by-shot.md、画面基调解析.md、角色风格解析.md、场景风格解析.md、道具风格解析.md、摄影风格解析.md、分镜风格解析.md 和执行报告；所有解析均为 side context，不改写 3-美学正式协议。"
+    "prompt": "使用 $aigc-shot-by-shot 分析这个参考视频，为 projects/aigc/demo 输出对齐 2-美学六个子技能的风格解析。",
+    "expected": "输出 shot-by-shot.md、画面基调解析.md、角色风格解析.md、场景风格解析.md、道具风格解析.md、摄影风格解析.md、分镜风格解析.md 和执行报告；所有解析均为 side context，不改写 2-美学正式协议。"
   },
   {
     "id": "storyboard-script-preserved",
@@ -11,7 +11,7 @@
   },
   {
     "id": "repair-legacy-style-pack",
-    "prompt": "修复既有 shot-by-shot 包：它只有全局风格解析.md 和设计风格解析.md，需要对齐 3-美学 子技能关注点。",
+    "prompt": "修复既有 shot-by-shot 包：它只有全局风格解析.md 和设计风格解析.md，需要对齐 2-美学 子技能关注点。",
     "expected": "报告旧聚合包的问题，并最小修复为 画面基调、角色、场景、道具、摄影、分镜风格解析；保留分镜脚本合同不变。"
   }
 ]

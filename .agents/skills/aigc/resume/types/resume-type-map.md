@@ -49,9 +49,9 @@
 
 | runtime_profile | signal | action |
 | --- | --- | --- |
-| `current_chinese` | 存在 `0-初始化`、`1-分集`、`2-编剧`、`3-美学`、`4-导演`、`7-分镜`、`8-摄影`、`11-主体` 等当前目录 | 按当前口径继续 |
+| `current_chinese` | 存在 `0-初始化`、`1-分集`、`2-美学`、`3-主体`、`4-编剧`、`5-导演`、`6-分镜`、`7-摄影` 等当前目录 | 按当前口径继续 |
 | `legacy_english` | 只存在 `0-Init`、`1-Planning`、`5-Image` 等旧目录 | 报告 legacy 输入，回根决定迁移或兼容 |
-| `mixed` | 中英文目录并存、`4-设计/11-主体` 并存且状态工件不一致 | `root_reroute` 或 `governance_rebuild` |
+| `mixed` | 中英文目录并存、`4-设计/3-主体` 并存且状态工件不一致 | `root_reroute` 或 `governance_rebuild` |
 | `unknown` | 无法证明项目根或阶段布局 | block 并请求项目路径 |
 
 ## Type Profile Output

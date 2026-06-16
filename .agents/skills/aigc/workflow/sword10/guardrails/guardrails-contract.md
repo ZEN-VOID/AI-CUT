@@ -4,7 +4,7 @@
 
 ## Forbidden Actions
 
-- 不得在主窗口生成、拼接或改写 `2-编剧` 到 `10-分组` 的阶段正文、风格协议或分组稿。
+- 不得在主窗口生成、拼接或改写 `2-美学` 到 `8-分组` 的阶段正文、风格协议或分组稿。
 - 不得把 workflow ledger 写成阶段 canonical 主稿。
 - 不得跳过阶段 `SKILL.md + CONTEXT.md`。
 - 不得在 subagent runtime 不可用时伪称已启用后台隔离线程。

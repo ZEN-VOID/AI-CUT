@@ -1,0 +1,17 @@
+[
+  {
+    "id": "single-scene-generation",
+    "prompt": "使用 $aigc-scene-generation，为 projects/aigc/示例项目/3-主体/场景/2-设计/S001-旧教学楼.md 生成主图和多视图。",
+    "expected": "读取上游 4. 解构，先生成主图和 JSON，再 view_image 主图后生成多视图和 JSON。"
+  },
+  {
+    "id": "main-only-generation",
+    "prompt": "使用 $aigc-scene-generation，只为一个场景设计文档生成主图和同名 JSON。",
+    "expected": "执行 main_only 路由，不执行多视图，图片和 JSON 持久化到项目 3-生成 目录。"
+  },
+  {
+    "id": "repair-missing-json",
+    "prompt": "修复场景生成资产：主图文件存在但同名 JSON 缺失。",
+    "expected": "进入 repair 路由，基于上游设计和已知输出路径补 JSON 证据，不重新设计场景。"
+  }
+]

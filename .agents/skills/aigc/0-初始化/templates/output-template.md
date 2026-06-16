@@ -6,10 +6,10 @@ Use this template for the final user-facing response after scaffold-only `$aigc-
 
 | marker | binding |
 | --- | --- |
-| Required output | current 0-14 project directory scaffold plus project `MEMORY.md` and `CONTEXT/README.md` |
+| Required output | current 0-10 project directory scaffold plus project `MEMORY.md` and `CONTEXT/README.md` |
 | Output format | Markdown final response referencing directories, `MEMORY.md`, and `CONTEXT/` |
 | Output path | `projects/aigc/<项目名>/` |
-| Naming convention | stage directory names match current `.agents/skills/aigc/0-14` package names |
+| Naming convention | stage directory names match current `.agents/skills/aigc/0-10` package names |
 | Completion gate | `review/init-review-gate.md` scaffold sufficiency gate |
 
 ## Completed
@@ -21,19 +21,15 @@ Use this template for the final user-facing response after scaffold-only `$aigc-
 - scaffold_dirs:
   - 0-初始化
   - 1-分集
-  - 2-编剧
-  - 3-美学
-  - 4-导演
-  - 5-表演
-  - 6-氛围
-  - 7-分镜
-  - 8-摄影
-  - 9-光影
-  - 10-分组
-  - 11-主体
-  - 12-图像
-  - 13-画布
-  - 14-审片
+  - 2-美学
+  - 4-编剧
+  - 5-导演
+  - 6-分镜
+  - 7-摄影
+  - 8-分组
+  - 3-主体
+  - 9-图像
+  - 10-画布
 - memory: <projects/aigc/项目名/MEMORY.md>
 - context_root: <projects/aigc/项目名/CONTEXT/>
 - memory_items_captured: <none|summary>

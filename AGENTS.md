@@ -469,7 +469,20 @@ python3 -m pip install <pkg>  # 安装依赖包
 
 ## Harness 工程
 
+### 三省六部制编排治理基线（强制）
+
+- 本仓库的 HARNESS 工程以“三省六部制 + 编排工程”为治理骨架：三省负责目标起草、预审验收与执行调度分权，六部负责能力注册、上下文状态、模板合同、运行生命周期、审计风控与基础设施落地。
+- 三省六部制相关 agent doc、template、registry、route、runbook、audit 和 HARNESS 总览均属于源层治理载体；修改其中任一稳定合同后，必须同步检查直接引用面和审计入口。
+
+### HARNESS.md 总览与同步（强制）
+
 - 根目录 `HARNESS.md` 是本仓库 HARNESS 工程的总览型派生文档，不是新的第一真源。
 - `HARNESS.md` 的定位、维护合同、变更同步范围与更新要求，以 `HARNESS.md` 自身”更新维护合同”章节为准。
 - 当 `AGENTS.md` 的 Harness 相关口径调整时，必须同步检查并更新 `HARNESS.md`；如无法同步，必须报告缺口、原因与临时护栏。
 - AIGC 改造、`bootstrap_compat`、registry/routes/runbook/audit 等 Harness 细节以 `HARNESS.md` 及其声明真源为准，根文件不重复维护操作手册。
+
+### AIGC 改造兼容模式（强制）
+
+- 当前 `.agents/skills/aigc/` 的重大改造允许处于显式 `bootstrap_compat` 模式；该模式只允许作为重构窗口的兼容护栏，不得把父合同通过包装成整树全绿。
+- `bootstrap_compat` 模式下仍必须保留 `projects/aigc/<项目名>/` canonical runtime、registry、routes、runbook、template、audit、已启用卫星技能入口与高风险 preflight / validation gate。
+- `bootstrap_compat` 模式的退出必须满足以下全部量化条件；条件清单、当前状态、阻塞项与更新时间以根目录 `HARNESS.md` 的 `bootstrap_compat 退出条件与进度` 为准。

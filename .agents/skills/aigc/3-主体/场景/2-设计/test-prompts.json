@@ -1,0 +1,17 @@
+[
+  {
+    "id": "single-scene-design",
+    "prompt": "使用 $aigc-scene-design，为场景清单中的 S001-旧教学楼 生成单场景设计稿。",
+    "expected": "读取项目资料、清单、north_star、init synthesis 和风格协议，由 LLM 直写研究、解构和 prompt evidence chain。"
+  },
+  {
+    "id": "incremental-design-fill",
+    "prompt": "使用 $aigc-scene-design，只为 design-manifest.yaml 中 design_gaps 标出的新增场景补设计稿。",
+    "expected": "跳过既有设计稿，只处理缺口主体，不重排 S###，不覆盖旧文件。"
+  },
+  {
+    "id": "repair-empty-shot-prompt",
+    "prompt": "修复一个场景设计稿：英文 prompt 超 2000 characters 且出现人群剪影。",
+    "expected": "返回 N6-DESIGN 修复 prompt，保持纯空镜、主体 ID 一致和 prompt evidence chain。"
+  }
+]

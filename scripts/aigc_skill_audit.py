@@ -16,7 +16,7 @@ ROOT_SKILL = ROOT / "SKILL.md"
 ROOT_CONTEXT = ROOT / "CONTEXT.md"
 REGISTRY = Path(".codex/registry/skills.yaml")
 ROUTES = Path(".codex/registry/routes.yaml")
-DESIGN_ROOT = ROOT / "11-主体"
+DESIGN_ROOT = ROOT / "3-主体"
 DESIGN_DOMAIN_ROOTS = {
     "场景": DESIGN_ROOT / "场景",
     "角色": DESIGN_ROOT / "角色",
@@ -97,36 +97,28 @@ SUBTYPE_PATH_PREFIXES = ("subtypes/", "./subtypes/")
 SHARED_RUNTIME_ROWS = {
     "0-初始化": "projects/aigc/<项目名>/0-初始化/",
     "1-分集": "projects/aigc/<项目名>/1-分集/",
-    "2-编剧": "projects/aigc/<项目名>/2-编剧/",
-    "3-美学": "projects/aigc/<项目名>/3-美学/",
-    "4-导演": "projects/aigc/<项目名>/4-导演/",
-    "5-表演": "projects/aigc/<项目名>/5-表演/",
-    "6-氛围": "projects/aigc/<项目名>/6-氛围/",
-    "7-分镜": "projects/aigc/<项目名>/7-分镜/",
-    "8-摄影": "projects/aigc/<项目名>/8-摄影/",
-    "9-光影": "projects/aigc/<项目名>/9-光影/",
-    "10-分组": "projects/aigc/<项目名>/10-分组/",
-    "11-主体": "projects/aigc/<项目名>/11-主体/",
-    "12-图像": "projects/aigc/<项目名>/12-图像/",
-    "13-画布": "projects/aigc/<项目名>/13-画布/",
-    "14-审片": "projects/aigc/<项目名>/14-审片/",
+    "2-美学": "projects/aigc/<项目名>/2-美学/",
+    "3-主体": "projects/aigc/<项目名>/3-主体/",
+    "4-编剧": "projects/aigc/<项目名>/4-编剧/",
+    "5-导演": "projects/aigc/<项目名>/5-导演/",
+    "6-分镜": "projects/aigc/<项目名>/6-分镜/",
+    "7-摄影": "projects/aigc/<项目名>/7-摄影/",
+    "8-分组": "projects/aigc/<项目名>/8-分组/",
+    "9-图像": "projects/aigc/<项目名>/9-图像/",
+    "10-画布": "projects/aigc/<项目名>/10-画布/",
 }
 ROOT_STAGE_LANDING = (
     "projects/aigc/<项目名>/0-初始化/",
     "projects/aigc/<项目名>/1-分集/",
-    "projects/aigc/<项目名>/2-编剧/",
-    "projects/aigc/<项目名>/3-美学/",
-    "projects/aigc/<项目名>/4-导演/",
-    "projects/aigc/<项目名>/5-表演/",
-    "projects/aigc/<项目名>/6-氛围/",
-    "projects/aigc/<项目名>/7-分镜/",
-    "projects/aigc/<项目名>/8-摄影/",
-    "projects/aigc/<项目名>/9-光影/",
-    "projects/aigc/<项目名>/10-分组/",
-    "projects/aigc/<项目名>/11-主体/",
-    "projects/aigc/<项目名>/12-图像/",
-    "projects/aigc/<项目名>/13-画布/",
-    "projects/aigc/<项目名>/14-审片/",
+    "projects/aigc/<项目名>/2-美学/",
+    "projects/aigc/<项目名>/3-主体/",
+    "projects/aigc/<项目名>/4-编剧/",
+    "projects/aigc/<项目名>/5-导演/",
+    "projects/aigc/<项目名>/6-分镜/",
+    "projects/aigc/<项目名>/7-摄影/",
+    "projects/aigc/<项目名>/8-分组/",
+    "projects/aigc/<项目名>/9-图像/",
+    "projects/aigc/<项目名>/10-画布/",
 )
 ROOT_FORBIDDEN_STAGE_LANDING = (
     "projects/aigc/<项目名>/设定/",
@@ -172,19 +164,15 @@ PROJECT_ROOT_SUPPORTING_ARTIFACTS = (
 )
 COUNCIL_STAGE_REVIEW_PATHS = {
     "1-分集": "projects/aigc/<项目名>/1-分集/validation-report.md",
-    "2-编剧": "projects/aigc/<项目名>/2-编剧/validation-report.md",
-    "3-美学": "projects/aigc/<项目名>/3-美学/validation-report.md",
-    "4-导演": "projects/aigc/<项目名>/4-导演/validation-report.md",
-    "5-表演": "projects/aigc/<项目名>/5-表演/validation-report.md",
-    "6-氛围": "projects/aigc/<项目名>/6-氛围/validation-report.md",
-    "7-分镜": "projects/aigc/<项目名>/7-分镜/validation-report.md",
-    "8-摄影": "projects/aigc/<项目名>/8-摄影/validation-report.md",
-    "9-光影": "projects/aigc/<项目名>/9-光影/validation-report.md",
-    "10-分组": "projects/aigc/<项目名>/10-分组/validation-report.md",
-    "11-主体": "projects/aigc/<项目名>/11-主体/validation-report.md",
-    "12-图像": "projects/aigc/<项目名>/12-图像/validation-report.md",
-    "13-画布": "projects/aigc/<项目名>/13-画布/validation-report.md",
-    "14-审片": "projects/aigc/<项目名>/14-审片/validation-report.md",
+    "2-美学": "projects/aigc/<项目名>/2-美学/validation-report.md",
+    "3-主体": "projects/aigc/<项目名>/3-主体/validation-report.md",
+    "4-编剧": "projects/aigc/<项目名>/4-编剧/validation-report.md",
+    "5-导演": "projects/aigc/<项目名>/5-导演/validation-report.md",
+    "6-分镜": "projects/aigc/<项目名>/6-分镜/validation-report.md",
+    "7-摄影": "projects/aigc/<项目名>/7-摄影/validation-report.md",
+    "8-分组": "projects/aigc/<项目名>/8-分组/validation-report.md",
+    "9-图像": "projects/aigc/<项目名>/9-图像/validation-report.md",
+    "10-画布": "projects/aigc/<项目名>/10-画布/validation-report.md",
 }
 PROJECT_LEVEL_VALIDATION_REPORT = "projects/aigc/<项目名>/validation-report.md"
 REVIEW_TEMPLATE_REQUIRED_MARKERS = (
@@ -206,19 +194,15 @@ STAGE_RUNTIME_EXPECTATIONS = {
     ROOT / "0-初始化" / "SKILL.md": (
         "projects/aigc/<项目名>/0-初始化/",
         "projects/aigc/<项目名>/1-分集/",
-        "projects/aigc/<项目名>/2-编剧/",
-        "projects/aigc/<项目名>/3-美学/",
-        "projects/aigc/<项目名>/4-导演/",
-        "projects/aigc/<项目名>/5-表演/",
-        "projects/aigc/<项目名>/6-氛围/",
-        "projects/aigc/<项目名>/7-分镜/",
-        "projects/aigc/<项目名>/8-摄影/",
-        "projects/aigc/<项目名>/9-光影/",
-        "projects/aigc/<项目名>/10-分组/",
-        "projects/aigc/<项目名>/11-主体/",
-        "projects/aigc/<项目名>/12-图像/",
-        "projects/aigc/<项目名>/13-画布/",
-        "projects/aigc/<项目名>/14-审片/",
+        "projects/aigc/<项目名>/2-美学/",
+        "projects/aigc/<项目名>/3-主体/",
+        "projects/aigc/<项目名>/4-编剧/",
+        "projects/aigc/<项目名>/5-导演/",
+        "projects/aigc/<项目名>/6-分镜/",
+        "projects/aigc/<项目名>/7-摄影/",
+        "projects/aigc/<项目名>/8-分组/",
+        "projects/aigc/<项目名>/9-图像/",
+        "projects/aigc/<项目名>/10-画布/",
         "projects/aigc/<项目名>/MEMORY.md",
         "Forbidden bootstrap paths",
     ),
@@ -226,45 +210,41 @@ STAGE_RUNTIME_EXPECTATIONS = {
         "projects/aigc/<项目名>/1-分集/",
         "projects/aigc/<项目名>/1-分集/执行报告.md",
     ),
-    ROOT / "2-编剧" / "SKILL.md": (
-        "projects/aigc/<项目名>/2-编剧/",
+    ROOT / "4-编剧" / "SKILL.md": (
+        "projects/aigc/<项目名>/4-编剧/",
         "projects/aigc/<项目名>/1-分集/第N集.md",
+        "projects/aigc/<项目名>/2-美学/类型风格.md",
+        "projects/aigc/<项目名>/3-主体/主体注册表.md",
     ),
-    ROOT / "3-美学" / "SKILL.md": (
-        "projects/aigc/<项目名>/3-美学/",
-        "projects/aigc/<项目名>/2-编剧/",
+    ROOT / "2-美学" / "SKILL.md": (
+        "projects/aigc/<项目名>/2-美学/",
+        "projects/aigc/<项目名>/1-分集/",
+        "projects/aigc/<项目名>/2-美学/类型风格.md",
     ),
-    ROOT / "4-导演" / "SKILL.md": (
-        "projects/aigc/<项目名>/4-导演/",
-        "projects/aigc/<项目名>/2-编剧/",
-        "projects/aigc/<项目名>/3-美学/",
+    ROOT / "5-导演" / "SKILL.md": (
+        "projects/aigc/<项目名>/5-导演/",
+        "projects/aigc/<项目名>/4-编剧/",
+        "projects/aigc/<项目名>/2-美学/",
     ),
-    ROOT / "5-表演" / "SKILL.md": (
-        "projects/aigc/<项目名>/5-表演/",
-        "projects/aigc/<项目名>/4-导演/",
+    ROOT / "6-分镜" / "SKILL.md": (
+        "projects/aigc/<项目名>/6-分镜/",
+        "projects/aigc/<项目名>/5-导演/",
     ),
-    ROOT / "6-氛围" / "SKILL.md": (
-        "projects/aigc/<项目名>/6-氛围/",
-        "projects/aigc/<项目名>/5-表演/",
+    ROOT / "7-摄影" / "SKILL.md": (
+        "projects/aigc/<项目名>/7-摄影/",
+        "projects/aigc/<项目名>/6-分镜/",
     ),
-    ROOT / "7-分镜" / "SKILL.md": (
-        "projects/aigc/<项目名>/7-分镜/",
-        "projects/aigc/<项目名>/6-氛围/",
+    ROOT / "8-分组" / "SKILL.md": (
+        "projects/aigc/<项目名>/8-分组/",
+        "projects/aigc/<项目名>/7-摄影/",
+        "projects/aigc/<项目名>/3-主体/subject-registry.yaml",
     ),
-    ROOT / "8-摄影" / "SKILL.md": (
-        "projects/aigc/<项目名>/8-摄影/",
-        "projects/aigc/<项目名>/7-分镜/",
-    ),
-    ROOT / "9-光影" / "SKILL.md": (
-        "projects/aigc/<项目名>/9-光影/",
-        "projects/aigc/<项目名>/8-摄影/",
-    ),
-    ROOT / "10-分组" / "SKILL.md": (
-        "projects/aigc/<项目名>/10-分组/",
-        "projects/aigc/<项目名>/9-光影/",
-    ),
-    ROOT / "11-主体" / "SKILL.md": (
-        "projects/aigc/<项目名>/11-主体/",
+    ROOT / "3-主体" / "SKILL.md": (
+        "projects/aigc/<项目名>/3-主体/",
+        "projects/aigc/<项目名>/1-分集/",
+        "projects/aigc/<项目名>/2-美学/类型风格.md",
+        "projects/aigc/<项目名>/3-主体/主体注册表.md",
+        "projects/aigc/<项目名>/3-主体/subject-registry.yaml",
     ),
     ROOT / "5-Image" / "1-提示词蒸馏" / "SKILL.md": (
         "projects/aigc/<项目名>/5-Image/",
@@ -284,20 +264,13 @@ STAGE_RUNTIME_EXPECTATIONS = {
         "expected_outputs",
         "result_outputs",
     ),
-    ROOT / "13-画布" / "SKILL.md": (
-        "projects/aigc/<项目名>/13-画布/",
-        "projects/aigc/<项目名>/13-画布/libTV画布流/",
-        "projects/aigc/<项目名>/13-画布/分镜画面参照/",
-        "projects/aigc/<项目名>/13-画布/分镜故事板参照/",
-        "projects/aigc/<项目名>/13-画布/C-主体参照/",
-        "projects/aigc/<项目名>/13-画布/D-主板混合参照/",
-        ".agents/skills/aigc/14-审片/SKILL.md",
-    ),
-    ROOT / "14-审片" / "SKILL.md": (
-        "projects/aigc/<项目名>/14-审片/",
-        "projects/aigc/<项目名>/13-画布/",
-        "projects/aigc/<项目名>/10-分组/",
-        "projects/aigc/<项目名>/14-审片/第N集/<group_id>[-variant]-审片.md",
+    ROOT / "10-画布" / "SKILL.md": (
+        "projects/aigc/<项目名>/10-画布/",
+        "projects/aigc/<项目名>/10-画布/libTV画布流/",
+        "projects/aigc/<项目名>/10-画布/分镜画面参照/",
+        "projects/aigc/<项目名>/10-画布/分镜故事板参照/",
+        "projects/aigc/<项目名>/10-画布/C-主体参照/",
+        "projects/aigc/<项目名>/10-画布/D-主板混合参照/",
     ),
     ROOT / "review" / "SKILL.md": (
         "projects/aigc/<项目名>/review/",
@@ -344,7 +317,7 @@ STAGE_RUNTIME_FORBIDDEN = {
         "projects/aigc/<项目名>/1-规划/",
         "projects/aigc/<项目名>/1-Planning/",
     ),
-    ROOT / "13-画布" / "SKILL.md": (
+    ROOT / "10-画布" / "SKILL.md": (
         "projects/aigc/<项目名>/设定/",
         "projects/aigc/<项目名>/5-画面/",
         "projects/aigc/<项目名>/主体/",
@@ -370,57 +343,44 @@ REQUIRED_ROUTE_POLICIES = {
     "aigc-learn-satellite-entry",
     "aigc-motion-enrichment-stage-entry",
     "aigc-image-stage-entry",
-    "aigc-video-review-entry",
 }
 REQUIRED_STAGE_AGENT_DOCS = {
 }
 AGENT_REFERENCE_PATTERN = re.compile(r"\.codex/agents/aigc/[^\s`)\]>\"']+\.md")
 INIT_ONLY_TEAM_STAGE_MARKERS = {
-    "2-编剧": (
-        'team.yaml.init_synthesis.stage_seed_summary."2-编剧"',
+    "2-美学": (
+        'team.yaml.init_synthesis.stage_seed_summary."2-美学"',
         "init_team_synthesis_context",
     ),
-    "3-美学": (
-        'team.yaml.init_synthesis.stage_seed_summary."3-美学"',
+    "4-编剧": (
+        'team.yaml.init_synthesis.stage_seed_summary."4-编剧"',
         "init_team_synthesis_context",
     ),
-    "4-导演": (
-        'team.yaml.init_synthesis.stage_seed_summary."4-导演"',
+    "5-导演": (
+        'team.yaml.init_synthesis.stage_seed_summary."5-导演"',
         "init_team_synthesis_context",
     ),
-    "5-表演": (
-        'team.yaml.init_synthesis.stage_seed_summary."5-表演"',
+    "6-分镜": (
+        'team.yaml.init_synthesis.stage_seed_summary."6-分镜"',
         "init_team_synthesis_context",
     ),
-    "6-氛围": (
-        'team.yaml.init_synthesis.stage_seed_summary."6-氛围"',
+    "7-摄影": (
+        'team.yaml.init_synthesis.stage_seed_summary."7-摄影"',
         "init_team_synthesis_context",
     ),
-    "7-分镜": (
-        'team.yaml.init_synthesis.stage_seed_summary."7-分镜"',
+    "8-分组": (
+        'team.yaml.init_synthesis.stage_seed_summary."8-分组"',
         "init_team_synthesis_context",
     ),
-    "8-摄影": (
-        'team.yaml.init_synthesis.stage_seed_summary."8-摄影"',
-        "init_team_synthesis_context",
-    ),
-    "9-光影": (
-        'team.yaml.init_synthesis.stage_seed_summary."9-光影"',
-        "init_team_synthesis_context",
-    ),
-    "10-分组": (
-        'team.yaml.init_synthesis.stage_seed_summary."10-分组"',
-        "init_team_synthesis_context",
-    ),
-    "11-主体": (
-        'team.yaml.init_synthesis.stage_seed_summary."11-主体"',
+    "3-主体": (
+        'team.yaml.init_synthesis.stage_seed_summary."3-主体"',
         "init_team_synthesis_context",
     ),
 }
 INIT_ONLY_TEAM_LEAF_MARKERS = {
-    ROOT / "11-主体" / "角色" / "2-设计" / "SKILL.md": 'team.yaml.init_synthesis.stage_seed_summary."11-主体"',
-    ROOT / "11-主体" / "道具" / "2-设计" / "SKILL.md": 'team.yaml.init_synthesis.stage_seed_summary."11-主体"',
-    ROOT / "11-主体" / "场景" / "2-设计" / "SKILL.md": 'team.yaml.init_synthesis.stage_seed_summary."11-主体"',
+    ROOT / "3-主体" / "角色" / "2-设计" / "SKILL.md": 'team.yaml.init_synthesis.stage_seed_summary."3-主体"',
+    ROOT / "3-主体" / "道具" / "2-设计" / "SKILL.md": 'team.yaml.init_synthesis.stage_seed_summary."3-主体"',
+    ROOT / "3-主体" / "场景" / "2-设计" / "SKILL.md": 'team.yaml.init_synthesis.stage_seed_summary."3-主体"',
 }
 BOOTSTRAP_COMPAT_MODE = "bootstrap_compat"
 BOOTSTRAP_COMPAT_ROUTE_POLICIES = {
@@ -440,18 +400,18 @@ BOOTSTRAP_COMPAT_STAGE_CHILD_SKILLS = {
 LLM_FIRST_CREATIVE_SECTION = "## LLM-First Creative Authorship Contract"
 LEGACY_SCRIPT_FLAG = "--allow-legacy-script-authorship"
 CREATIVE_AUTHORSHIP_GUARDS = {
-    ROOT / "11-主体" / "场景" / "SKILL.md": (
-        ROOT / "11-主体" / "场景" / "2-设计" / "scripts" / "build_scene_design_context.py",
-        ROOT / "11-主体" / "场景" / "2-设计" / "scripts" / "build_scene_design_packets.py",
-        ROOT / "11-主体" / "场景" / "3-生成" / "scripts" / "generate_scene_panels.py",
+    ROOT / "3-主体" / "场景" / "SKILL.md": (
+        ROOT / "3-主体" / "场景" / "2-设计" / "scripts" / "build_scene_design_context.py",
+        ROOT / "3-主体" / "场景" / "2-设计" / "scripts" / "build_scene_design_packets.py",
+        ROOT / "3-主体" / "场景" / "3-生成" / "scripts" / "generate_scene_panels.py",
     ),
-    ROOT / "11-主体" / "角色" / "SKILL.md": (
-        ROOT / "11-主体" / "角色" / "2-设计" / "scripts" / "build_role_research.py",
-        ROOT / "11-主体" / "角色" / "2-设计" / "scripts" / "build_character_design_packets.py",
+    ROOT / "3-主体" / "角色" / "SKILL.md": (
+        ROOT / "3-主体" / "角色" / "2-设计" / "scripts" / "build_role_research.py",
+        ROOT / "3-主体" / "角色" / "2-设计" / "scripts" / "build_character_design_packets.py",
     ),
-    ROOT / "11-主体" / "道具" / "SKILL.md": (
-        ROOT / "11-主体" / "道具" / "2-设计" / "scripts" / "build_prop_research.py",
-        ROOT / "11-主体" / "道具" / "2-设计" / "scripts" / "build_prop_design_packets.py",
+    ROOT / "3-主体" / "道具" / "SKILL.md": (
+        ROOT / "3-主体" / "道具" / "2-设计" / "scripts" / "build_prop_research.py",
+        ROOT / "3-主体" / "道具" / "2-设计" / "scripts" / "build_prop_design_packets.py",
     ),
     ROOT / "5-Image" / "1-提示词蒸馏" / "分镜帧" / "SKILL.md": (
         ROOT / "5-Image" / "1-提示词蒸馏" / "分镜帧" / "scripts" / "generate_episode_packets.py",
@@ -466,36 +426,28 @@ CREATIVE_AUTHORSHIP_GUARDS = {
 BOOTSTRAP_COMPAT_RUNTIME_EXPECTATIONS = {
     ROOT / "_shared" / "project-runtime-layout.md": (
         "Scaffold-Only Initialization Rule",
-        "projects/aigc/<项目名>/2-编剧/",
-        "projects/aigc/<项目名>/3-美学/",
-        "projects/aigc/<项目名>/4-导演/",
-        "projects/aigc/<项目名>/5-表演/",
-        "projects/aigc/<项目名>/6-氛围/",
-        "projects/aigc/<项目名>/7-分镜/",
-        "projects/aigc/<项目名>/8-摄影/",
-        "projects/aigc/<项目名>/9-光影/",
-        "projects/aigc/<项目名>/10-分组/",
-        "projects/aigc/<项目名>/11-主体/",
-        "projects/aigc/<项目名>/12-图像/",
-        "projects/aigc/<项目名>/13-画布/",
-        "projects/aigc/<项目名>/14-审片/",
+        "projects/aigc/<项目名>/2-美学/",
+        "projects/aigc/<项目名>/4-编剧/",
+        "projects/aigc/<项目名>/5-导演/",
+        "projects/aigc/<项目名>/6-分镜/",
+        "projects/aigc/<项目名>/7-摄影/",
+        "projects/aigc/<项目名>/8-分组/",
+        "projects/aigc/<项目名>/3-主体/",
+        "projects/aigc/<项目名>/9-图像/",
+        "projects/aigc/<项目名>/10-画布/",
     ),
     ROOT / "0-初始化" / "SKILL.md": (
         "projects/aigc/<项目名>/0-初始化/",
         "projects/aigc/<项目名>/1-分集/",
-        "projects/aigc/<项目名>/2-编剧/",
-        "projects/aigc/<项目名>/3-美学/",
-        "projects/aigc/<项目名>/4-导演/",
-        "projects/aigc/<项目名>/5-表演/",
-        "projects/aigc/<项目名>/6-氛围/",
-        "projects/aigc/<项目名>/7-分镜/",
-        "projects/aigc/<项目名>/8-摄影/",
-        "projects/aigc/<项目名>/9-光影/",
-        "projects/aigc/<项目名>/10-分组/",
-        "projects/aigc/<项目名>/11-主体/",
-        "projects/aigc/<项目名>/12-图像/",
-        "projects/aigc/<项目名>/13-画布/",
-        "projects/aigc/<项目名>/14-审片/",
+        "projects/aigc/<项目名>/2-美学/",
+        "projects/aigc/<项目名>/4-编剧/",
+        "projects/aigc/<项目名>/5-导演/",
+        "projects/aigc/<项目名>/6-分镜/",
+        "projects/aigc/<项目名>/7-摄影/",
+        "projects/aigc/<项目名>/8-分组/",
+        "projects/aigc/<项目名>/3-主体/",
+        "projects/aigc/<项目名>/9-图像/",
+        "projects/aigc/<项目名>/10-画布/",
         "projects/aigc/<项目名>/MEMORY.md",
         "Forbidden bootstrap paths",
     ),
@@ -974,7 +926,7 @@ def audit_stage_review_carriers(failures: list[str]) -> None:
 
 
 def audit_design_2_template_registry(failures: list[str]) -> None:
-    """Ensure 11-主体 domain packages keep one Markdown template truth per domain."""
+    """Ensure 3-主体 domain packages keep one Markdown template truth per domain."""
     if not DESIGN_ROOT.exists():
         return
 
@@ -989,7 +941,7 @@ def audit_design_2_template_registry(failures: list[str]) -> None:
 
     for domain, domain_root in DESIGN_DOMAIN_ROOTS.items():
         if not domain_root.exists():
-            failures.append(f"{domain_root}: missing 11-主体 domain package")
+            failures.append(f"{domain_root}: missing 3-主体 domain package")
             continue
 
         detail_root = DESIGN_DETAIL_ROOTS[domain]
@@ -1119,8 +1071,8 @@ def audit_review_runtime_contracts(failures: list[str]) -> None:
 
 
 def audit_screenwriting_reference_integrity(failures: list[str]) -> None:
-    """Keep the adapted 2-编剧 reference layer wired into the root skill contract."""
-    skill_root = ROOT / "2-编剧"
+    """Keep the adapted 4-编剧 reference layer wired into the root skill contract."""
+    skill_root = ROOT / "4-编剧"
     skill_path = skill_root / "SKILL.md"
     references_root = skill_root / "references"
     if not skill_path.exists() or not references_root.exists():
@@ -1130,6 +1082,48 @@ def audit_screenwriting_reference_integrity(failures: list[str]) -> None:
     if "## Module Loading Matrix" not in skill_content:
         failures.append(f"{skill_path}: missing `Module Loading Matrix`")
         return
+
+    for required_marker in (
+        "## Upstream Creative Direction Contract",
+        "Upstream Creative Direction Matrix",
+        "GATE-SCR-23",
+        "FAIL-SCR-UPSTREAM-DIRECTION-MATRIX",
+        "Subject Registry Application Map",
+    ):
+        if required_marker not in skill_content:
+            failures.append(f"{skill_path}: missing screenwriting upstream direction marker `{required_marker}`")
+
+    template_path = skill_root / "templates" / "output-template.md"
+    if template_path.exists():
+        template_content = template_path.read_text(encoding="utf-8")
+        for required_marker in (
+            "GATE-SCR-01..23",
+            "## Upstream Creative Direction Matrix",
+            "## Subject Registry Application Map",
+        ):
+            if required_marker not in template_content:
+                failures.append(f"{template_path}: missing screenwriting output marker `{required_marker}`")
+
+    review_path = skill_root / "review" / "review-contract.md"
+    if review_path.exists():
+        review_content = review_path.read_text(encoding="utf-8")
+        for required_marker in (
+            "GATE-SCR-23",
+            "FAIL-SCR-UPSTREAM-DIRECTION-MATRIX",
+            "upstream_creative_direction_matrix",
+        ):
+            if required_marker not in review_content:
+                failures.append(f"{review_path}: missing screenwriting review marker `{required_marker}`")
+
+    upstream_contract = ROOT / "_shared" / "upstream-context-application-contract.md"
+    if upstream_contract.exists():
+        upstream_content = upstream_contract.read_text(encoding="utf-8")
+        for required_marker in (
+            "Stage-Specific Creative Direction Matrix",
+            "FAIL-SCR-UPSTREAM-DIRECTION-MATRIX",
+        ):
+            if required_marker not in upstream_content:
+                failures.append(f"{upstream_contract}: missing screenwriting upstream contract marker `{required_marker}`")
 
     for reference_path in sorted(references_root.glob("*.md")):
         reference_name = reference_path.name
@@ -1163,7 +1157,7 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
         )
     for required_marker in (
         "scaffold-only project kickoff skill",
-        "0-初始化/` through `14-审片/` directories",
+        "0-初始化/` through `10-画布/` directories",
         "projects/aigc/<项目名>/MEMORY.md",
         "Do not create these former initialization outputs",
         "north_star.yaml",
@@ -1180,19 +1174,15 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
     for current_stage in (
         "0-初始化",
         "1-分集",
-        "2-编剧",
-        "3-美学",
-        "4-导演",
-        "5-表演",
-        "6-氛围",
-        "7-分镜",
-        "8-摄影",
-        "9-光影",
-        "10-分组",
-        "11-主体",
-        "12-图像",
-        "13-画布",
-        "14-审片",
+        "2-美学",
+        "4-编剧",
+        "5-导演",
+        "6-分镜",
+        "7-摄影",
+        "8-分组",
+        "3-主体",
+        "9-图像",
+        "10-画布",
     ):
         if f"├── {current_stage}/" not in init_content and f"└── {current_stage}/" not in init_content:
             failures.append(f"{init_skill}: missing current scaffold stage `{current_stage}/`")
@@ -1277,7 +1267,7 @@ def audit_global_single_skill_contract(failures: list[str]) -> None:
 
     required_root_outputs = (
         "projects/aigc/<项目名>/0-初始化/north_star.yaml",
-        "projects/aigc/<项目名>/2-编剧/validation-report.md",
+        "projects/aigc/<项目名>/4-编剧/validation-report.md",
     )
     io_contract = global_root / "references" / "io-contract.md"
     if io_contract.exists():
@@ -1448,16 +1438,13 @@ def audit_init_only_team_runtime_contracts(stage_index: list[dict], failures: li
             "init_synthesis:",
             "stage_seed_summary:",
             '"1-分集":',
-            '"2-编剧":',
-            '"3-美学":',
-            '"4-导演":',
-            '"5-表演":',
-            '"6-氛围":',
-            '"7-分镜":',
-            '"8-摄影":',
-            '"9-光影":',
-            '"10-分组":',
-            '"11-主体":',
+            '"2-美学":',
+            '"4-编剧":',
+            '"5-导演":',
+            '"6-分镜":',
+            '"7-摄影":',
+            '"8-分组":',
+            '"3-主体":',
         )
         for marker in required_markers:
             if marker not in content:

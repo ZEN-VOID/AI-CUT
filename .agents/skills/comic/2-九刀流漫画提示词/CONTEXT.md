@@ -63,7 +63,7 @@ last_checked_at: 2026-04-17T07:20:00Z
 
 ## Reusable Heuristics
 
-- 当前默认生图执行层为 `.agents/skills/cli/imagegen`；提示词 JSON 的职责是让 9 个单页 job “各有剧情功能”，不是把九页压成九宫格。
+- 当前默认生图执行层为 `.agents/skills/cli/imagegen` built-in `image_gen`；提示词 JSON 的职责是让 9 个单页 prompt / asset “各有剧情功能”，不是把九页压成九宫格。
 - 本技能升级到 Skill 2.0 后，入口 `SKILL.md` 只保留输入、路由、动态引用、Output Contract 与 Root-Cause 链路；来源前奏和九刀节点看 `steps/`，类型分支看 `types/`，审计门禁看 `review/`，风格/版式/提示词经验看 `knowledge-base/`。后续新增规则先判断 owner，不要把长细则重新堆回 `SKILL.md`。
 - 漫画题材知识包已经从父级 `comic/type-packs/漫画/` 迁入本技能 `types/漫画/`；后续题材新增、题材细化、`meta.yaml` 控制面维护都应落在本技能 `types/漫画/<题材>/`，父级 `comic/type-packs/runtime.yaml` 只保留跨阶段默认栈配置。
 - 若 `projects/comic/<项目名>/` 下只有 `metadata.json` 没有目标章节正文，不要先跑整书下载；优先读取 `metadata.data.lists[*].item_id`，用单章级正文抓取补齐当前集源文本，再进入九刀前奏。
@@ -86,7 +86,7 @@ last_checked_at: 2026-04-17T07:20:00Z
 - 文字系统如果只存在于顶层说明文而不进入 `text_slots` 结构字段，生成时就会退化为“模型自由发挥的气泡”。要把 `speaker_id / placement / bubble_style / inside_panel` 当成执行合同，而不是备注。
 - 9 页漫画足够覆盖对白、旁白、独白、SFX 四类文字形态；若最终 JSON 缺其中一类，通常不是“题材不需要”，而是文字系统在切页或模板阶段被压扁了。
 - 正向验证：`滴滴滴` 项目完整链路顺畅，说明三段链、阶段落点和 JSON validator 可作为默认执行路径复用；下一层质量杠杆应转向 `style_bible` 的漫画风格锐化词和 `pages[].layout` 的经典漫画版式轮换，并继续保证这些字段足够支撑 4 号剧集海报的高光提炼。
-- 对 CLI imagegen 逐页漫画，`cinematic realism` 只能保证画面质感，不能保证漫画语法；必须显式写入 `dynamic manga paneling / screentone shadows / high contrast black gutters / oversized SFX / irregular gutters` 这类词。
+- 对 built-in imagegen 逐页漫画，`cinematic realism` 只能保证画面质感，不能保证漫画语法；必须显式写入 `dynamic manga paneling / screentone shadows / high contrast black gutters / oversized SFX / irregular gutters` 这类词。
 - 对 Coze/扣子这类 Agent 平台，只在顶层定义画风通常不够。最稳的做法是：`style_bible` 有全局风格锁，且每页 `positive_prompt` 再重复同一条 `global style anchor + forbidden style shifts`，让模型没有机会把 9 页当成 9 次试风格。
 - 当质量优化点已经明确为“漫画感”和“布局感”时，思行网络不能继续维持单线 `Comic Grammar` 节点；应拆成 `STYLE-SHARPEN / LAYOUT-DIVERSIFY / TEXT-SYSTEM` 三支路，并在汇流门阻断缺风格词、缺动态版式或文字槽失控的 JSON。
 - 如果最终图像出现“第一页像港漫、第二页像儿童绘本、第三页像影视概念图”，根因通常不是故事切页，而是 `global style anchor` 缺失或没有逐页重复注入。

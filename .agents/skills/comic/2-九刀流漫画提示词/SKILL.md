@@ -8,7 +8,7 @@ governance_tier: full
 
 技能包 ID: `comic-nine-blade-prompts`
 
-本技能把 `1-漫画剧本改编` 产出的 `第N组.md`，或用户直接提供的剧本片段，蒸馏为 `nine_blade_comic_prompts.v1` 组级 JSON。每个 page-group 可被 `3-漫画生成` 投影为 9 个 CLI imagegen 单页 jobs，生成 9 张独立竖版漫画页，而不是九宫格拼图、同图九变体或单幅海报。
+本技能把 `1-漫画剧本改编` 产出的 `第N组.md`，或用户直接提供的剧本片段，蒸馏为 `nine_blade_comic_prompts.v1` 组级 JSON。每个 page-group 可被 `3-漫画生成` 投影为 9 个 built-in image_gen 单页 prompts / assets，生成 9 张独立竖版漫画页，而不是九宫格拼图、同图九变体或单幅海报。
 
 ## Context Loading Contract
 

@@ -28,7 +28,7 @@ governance_tier: router
 
 - 1 号分组漫剧正文写作。
 - 2 号九刀流切页、角色/场景/风格锁和页级 prompt 创作。
-- 3 号 CLI imagegen prompt job 编译与真实生图执行。
+- 3 号 built-in imagegen prompt handoff 与真实生图执行。
 - 4 号剧集海报 JSON 创意设计或 imagegen 生图执行。
 
 ## Input Contract
@@ -60,7 +60,7 @@ governance_tier: router
 | 类型包动态推断与 `type_pack_context` 生成 | `scripts/data_modules/comic_type_pack_resolver.py` |
 | 1 号来源改编与分组剧本 | `1-漫画剧本改编/SKILL.md` |
 | 2 号九刀流 group JSON | `2-九刀流漫画提示词/SKILL.md` |
-| 3 号 CLI imagegen 漫画页生成 | `3-漫画生成/SKILL.md` |
+| 3 号 built-in imagegen 漫画页生成 | `3-漫画生成/SKILL.md` |
 | 4 号剧集海报 JSON 与 imagegen handoff | `4-剧集海报/SKILL.md` |
 | 题材类型包真源 | `2-九刀流漫画提示词/types/漫画/<题材>/` |
 | 跨阶段默认栈配置 | `type-packs/runtime.yaml` |
@@ -71,7 +71,7 @@ governance_tier: router
 | --- | --- | --- | --- | --- |
 | 1 | [1-漫画剧本改编](1-漫画剧本改编/SKILL.md) | 任意文本、图像/视频摘要、新闻/热搜、多源素材 | `第1组.md`、`第2组.md`... 分组漫剧剧本 | `projects/comic/<项目名>/1-漫画剧本改编/` |
 | 2 | [2-九刀流漫画提示词](2-九刀流漫画提示词/SKILL.md) | `第N组.md` 或 raw source fallback | 每组一份 `page-group-XX-nine_blade_comic_prompts.json`，多集用 `第N集-` 前缀 | `projects/comic/<项目名>/2-九刀流漫画提示词/` |
-| 3 | [3-漫画生成](3-漫画生成/SKILL.md) | 单个 `nine_blade_comic_prompts.v1` group JSON | CLI imagegen plan、JSONL jobs、逐页 prompt、报告；execute 模式下 9 张 PNG | `projects/comic/<项目名>/3-漫画生成/<group_slug>/imagegen-cli/` |
+| 3 | [3-漫画生成](3-漫画生成/SKILL.md) | 单个 `nine_blade_comic_prompts.v1` group JSON | built-in imagegen handoff plan、prompt set、逐页 prompt、报告；execute 模式下 9 张 PNG | `projects/comic/<项目名>/3-漫画生成/<group_slug>/built-in-imagegen/` |
 | 4 | [4-剧集海报](4-剧集海报/SKILL.md) | 当前集分组剧本、九刀流 JSON、可选 3 号漫画页 | `comic_episode_poster_design.v1` JSON；用户要求时交给 `.agents/skills/cli/imagegen` 生图 | `projects/comic/<项目名>/4-剧集海报/` |
 
 ## Routing Contract
@@ -144,7 +144,7 @@ flowchart TD
 
 - 目标阶段 artifact 已落到 `projects/comic/<项目名>/<阶段>/`。
 - handoff 链上 `type_stack_ref / type_pack_context` 可追溯。
-- 3 号默认 provider 为 `.agents/skills/cli/imagegen`，不是旧 Seedream/Dreamina 路径。
+- 3 号默认 provider 为 `.agents/skills/cli/imagegen` built-in `image_gen`，不是旧 CLI/API、Seedream/Dreamina 路径。
 - 4 号如需生图，必须由已校验 poster JSON 交接 `.agents/skills/cli/imagegen`。
 
 ## Root-Cause Execution Contract
@@ -158,7 +158,7 @@ flowchart TD
 | 阶段路由错、目录编号错 | root | 修本 `Child Skill Index` 与 registry/routes |
 | 没有 `第N组.md` 就进入 2 号 | 1/root handoff | 回 1 号补分组剧本或让 2 号按 raw fallback |
 | 3 号没有合格 group JSON | 2/root handoff | 回 2 号 JSON 与 validator |
-| 3 号仍默认 Seedream/Dreamina | 3 | 修 3 号 Runtime Policy 与 runner |
+| 3 号仍默认 CLI/API、Seedream/Dreamina | 3 | 修 3 号 Runtime Policy、planner 与 legacy runner 边界 |
 | 4 号输出到旧 `5-剧集海报` | 4/root route | 改回 `4-剧集海报/` 并同步引用 |
 | 海报脱离当前集事实 | 4 | 回 4 号上游回读与高光候选 |
 | 类型包只在某一段生效 | root + child handoff | 检查 `type_stack_ref / type_pack_context` 透传 |

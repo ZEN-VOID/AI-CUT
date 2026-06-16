@@ -1,0 +1,27 @@
+[
+  {
+    "id": "full-canvas-control",
+    "prompt": "使用 $aigc-video-libtv-canvas-flow 根据 projects/aigc/示例项目/8-分组/第1集.md，在 LibTV 项目空间“示例项目”下创建或选择“第1集”画布，上传 3-主体 下角色、场景、道具参照图，回刷 YAML，并只创建/连线视频节点，不执行生成。",
+    "expected": "路由到 full_canvas_control；加载 full-canvas、canvas-control、image-order、output-template、review、scripts、guardrails；输出 projectUuid、YAML backfill、唯一 video_node_instance_id、imageList/mixedList final query、执行报告和未生成状态。"
+  },
+  {
+    "id": "backfill-only",
+    "prompt": "只把 projects/aigc/示例项目/8-分组/第2集.md 中能匹配到的角色、场景、道具 UUID 回刷为 图片N 主体名 UUID，不要创建视频节点。",
+    "expected": "路由到 backfill_only；只执行 N1 到 N4 和 N9；不创建或修改 video 节点；输出 YAML diff/excerpt、upload registry、skipped subjects 和证据报告。"
+  },
+  {
+    "id": "node-rebuild-only",
+    "prompt": "第3集 YAML 已经有 图片N 主体名 UUID，请在现有 LibTV 画布上为所有非连接件分镜组重建一批新视频节点，旧节点不要删除。",
+    "expected": "路由到 node_rebuild_only；加载 node-rebuild、image-order、review 和 output-template；为每个 source_group_id 创建新的 vid__...__bNNN__r00__v001 实例，registry 保留旧实例并记录 active_instance_id。"
+  },
+  {
+    "id": "repair-image-order",
+    "prompt": "修复第4集画布中视频节点的 {{Image N}} 错绑问题，远端 imageList 顺序必须和本地 YAML 图片N 顺序一致。",
+    "expected": "路由到 repair_order；回到 N7-ORDER-LOCK 和 N8-PROMPT-AND-FINAL-QUERY；重新写入 imageList/mixedList/imageListOrder/mixedListOrder，final query 证明顺序一致。"
+  },
+  {
+    "id": "multi-storyboard-reference",
+    "prompt": "给第5集第1组使用多分镜图参照模式，把 001.png 到 006.png 作为连续分镜参照图，并在 prompt 里逐段说明每张分镜图对应的时间、图名和 {{Image N}}，同时保留角色和道具主体参照。",
+    "expected": "路由到 multi_storyboard_video_node；加载 multi-storyboard reference；manifest 中 storyboard_refs 在前、subject_refs 在后；prompt 包含分镜段 01 到 06、时间范围、图名、{{Image N}} 和主体参照映射。"
+  }
+]

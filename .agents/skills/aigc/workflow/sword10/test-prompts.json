@@ -1,18 +1,18 @@
 [
   {
     "id": "sword10-bounded-episode-chain",
-    "prompt": "Use $aigc-workflow-sword10 for projects/aigc/TMBR episodes 第1集-第2集 from 2-编剧 to 10-分组 with real subagents.",
-    "expected": "Select bounded_episode_chain, preflight project root and episodes, create workflow/sword10/<run_id>/ ledger and dispatch packets, run 2-编剧 through 10-分组, treat 3-美学 as stage_suite, and output completion-report without copying stage正文."
+    "prompt": "Use $aigc-workflow-sword10 for projects/aigc/TMBR episodes 第1集-第2集 from 2-美学 to 8-分组 with real subagents.",
+    "expected": "Select bounded_episode_chain, preflight project root and episodes, create workflow/sword10/<run_id>/ ledger and dispatch packets, run 2-美学 through 8-分组, treat 2-美学 as stage_suite, and output completion-report without copying stage正文."
   },
   {
     "id": "sword10-episode-batch-chain",
     "prompt": "Run sword10 for projects/aigc/蜀山传 第2集-第7集, main window only tracks dispatch and gates.",
-    "expected": "Select episode_batch_chain, build a nine-stage stage plan, dispatch episode subagents for per-episode stages, run 3-美学 as suite, preserve stage canonical paths, and report pass, partial, or blocked with failure routes."
+    "expected": "Select episode_batch_chain, build a nine-stage stage plan, dispatch episode subagents for per-episode stages, run 2-美学 as suite, preserve stage canonical paths, and report pass, partial, or blocked with failure routes."
   },
   {
     "id": "sword10-retry-from-stage",
-    "prompt": "Continue projects/aigc/TMBR 第3集 from 8-摄影 to 10-分组 after 7-分镜 passed.",
-    "expected": "Select retry_from_stage, verify 7-分镜 output and required 3-美学 style protocols, dispatch 8-摄影 then 9-光影 then 10-分组, and mark reused outputs plus retry_start_stage evidence."
+    "prompt": "Continue projects/aigc/TMBR 第3集 from 7-摄影 to 8-分组 after 6-分镜 passed.",
+    "expected": "Select retry_from_stage, verify 6-分镜 output and required 2-美学 style protocols, dispatch 7-摄影 then 8-分组, and mark reused outputs plus retry_start_stage evidence."
   },
   {
     "id": "sword10-blocked-preflight",

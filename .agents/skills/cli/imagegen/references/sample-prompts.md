@@ -1,8 +1,6 @@
 # Sample prompts (copy/paste)
 
-These prompt recipes are shared across both top-level modes of the skill:
-- built-in `image_gen` tool (default)
-- `scripts/image_gen.py` CLI fallback for explicit CLI/API/model requests or user-confirmed true-transparent-output fallback requests
+These prompt recipes are for the built-in `image_gen` tool, which is the only execution route for this skill.
 
 Use these as starting points. They are intentionally complete prompt recipes, not the default amount of augmentation to add to every user request.
 
@@ -13,15 +11,11 @@ When adapting a user's prompt:
 
 The labeled lines are prompt scaffolding, not a closed schema. `Asset type` and `Input images` are prompt-only scaffolding; the CLI does not expose them as dedicated flags.
 
-Execution details such as explicit CLI flags, `quality`, `input_fidelity`, masks, output formats, and local output paths depend on mode. Use the built-in tool by default, including simple transparent-image requests. For transparent images, prompt for a flat chroma-key background and remove it locally with `python "${CODEX_HOME:-$HOME/.codex}/skills/.system/imagegen/scripts/remove_chroma_key.py"`; only apply CLI-specific controls when the user explicitly opts into fallback mode or explicitly confirms that the transparent request should use true CLI transparency.
+Execution details such as API flags, `quality`, `input_fidelity`, masks, output formats, and hard local output paths are not built-in `image_gen` tool arguments. Use the built-in tool, including simple transparent-image requests. For transparent images, prompt for a flat chroma-key background and remove it locally with `python "${CODEX_HOME:-$HOME/.codex}/skills/.system/imagegen/scripts/remove_chroma_key.py"` when applicable. Do not apply CLI-specific controls from this skill.
 
-CLI model notes:
-- `gpt-image-2` is the fallback CLI default for new workflows.
-- Default target resolution is 2K when neither the user nor upstream handoff specifies a size. In built-in mode, express this in the prompt; in CLI fallback with `gpt-image-2`, omitted `--size` resolves to `2048x1152`.
-- `gpt-image-2` supports `quality` values `low`, `medium`, `high`, and `auto`.
-- For user-requested or upstream-requested 4K-style `gpt-image-2` output, use `3840x2160` or `2160x3840`.
-- If transparent output needs true CLI fallback, ask before using `gpt-image-1.5` unless the user already explicitly requested `gpt-image-1.5`, `scripts/image_gen.py`, or CLI fallback. Explain that built-in chroma-key removal is the default path, but `gpt-image-2` does not support `background=transparent`.
-- Do not set `input_fidelity` with `gpt-image-2`; image inputs already use high fidelity.
+Resolution notes:
+- Default target resolution is 2K when neither the user nor upstream handoff specifies a size. In built-in mode, express this in the prompt.
+- For user-requested or upstream-requested 4K-style output, carry the 4K target in the prompt and report.
 
 For prompting principles (structure, specificity, invariants, iteration), see `references/prompting.md`.
 
@@ -396,7 +390,7 @@ Scene/backdrop: perfectly flat solid #00ff00 chroma-key background for local bac
 Constraints: background must be one uniform color with no shadows, gradients, texture, reflections, floor plane, or lighting variation; crisp silhouette; generous padding; no halos or fringing; preserve label text exactly; no restyling; do not use #00ff00 anywhere in the subject
 ```
 
-Post-process note: after built-in generation, run `python "${CODEX_HOME:-$HOME/.codex}/skills/.system/imagegen/scripts/remove_chroma_key.py" --input <source> --out <final.png> --auto-key border --soft-matte --transparent-threshold 12 --opaque-threshold 220 --despill`. Ask before using CLI `gpt-image-1.5 --background transparent --output-format png` for true/native transparency, failed chroma-key validation, or complex subjects such as hair, fur, glass, smoke, liquids, translucent materials, reflections, or soft shadows, unless the user already explicitly requested `gpt-image-1.5`, `scripts/image_gen.py`, or CLI fallback.
+Post-process note: after built-in generation, run `python "${CODEX_HOME:-$HOME/.codex}/skills/.system/imagegen/scripts/remove_chroma_key.py" --input <source> --out <final.png> --auto-key border --soft-matte --transparent-threshold 12 --opaque-threshold 220 --despill`. For true/native transparency, failed chroma-key validation, or complex subjects such as hair, fur, glass, smoke, liquids, translucent materials, reflections, or soft shadows, report `blocked_non_builtin_route` rather than switching to CLI/API from this skill.
 
 ### style-transfer
 ```
@@ -432,3 +426,9 @@ Input images: Image 1: drawing
 Primary request: turn the drawing into a photorealistic image
 Constraints: preserve layout, proportions, and perspective; choose realistic materials and lighting; do not add new elements or text
 ```
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| Were sample prompts used as examples rather than as automatic creative output? | Copying a recipe without adapting to the user request or using samples as scripted generation fails | `FAIL-IMG-PROMPT-AUTHORSHIP` | `SKILL.md#llm-first-creative-authorship-contract` / `references/sample-prompts.md` | adapted prompt spec and user-constraint preservation note |

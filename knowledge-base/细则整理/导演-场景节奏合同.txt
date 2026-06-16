@@ -1,15 +1,15 @@
 导演-场景节奏合同
 来源技能：导演
-来源文件：.agents/skills/aigc/4-导演/references/scene-rhythm-contract.md
+来源文件：.agents/skills/aigc/5-导演/references/scene-rhythm-contract.md
 原始标题：Scene Rhythm Contract
 
 ---
 
-## 4-导演 Adaptation Notice
+## 5-导演 Adaptation Notice
 
-本文件从 `.agents/skills/aigc/2-编导/references/scene-rhythm-contract.md` 引入，作为 `4-导演` 的授权 reference 细则。凡原文出现 `2-编导`、`script layer`、`steps/directing-workflow.md` 或其他旧路径时，在本技能中映射为 `N2-DIR-UNDERSTAND` 的 `scene_rhythm_profile`、`N4-DIR-POINT-MAP` 的注入密度计划和 `N5-DIR-INJECT` 的批注节奏取舍。
+本文件从 `.agents/skills/aigc/2-编导/references/scene-rhythm-contract.md` 引入，作为 `5-导演` 的授权 reference 细则。凡原文出现 `2-编导`、`script layer`、`steps/directing-workflow.md` 或其他旧路径时，在本技能中映射为 `N2-DIR-UNDERSTAND` 的 `scene_rhythm_profile`、`N4-DIR-POINT-MAP` 的注入密度计划和 `N5-DIR-INJECT` 的批注节奏取舍。
 
-在 `4-导演` 中，本文件只用于让导演批注体现场景长度体感、信息密度、节奏类型和转出方式；不得提前生成剪辑方案、镜头时长、摄影分镜或视频参数。
+在 `5-导演` 中，本文件只用于让导演批注体现场景长度体感、信息密度、节奏类型和转出方式；不得提前生成剪辑方案、镜头时长、摄影分镜或视频参数。
 
 ## Purpose
 

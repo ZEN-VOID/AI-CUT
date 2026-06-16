@@ -4,7 +4,7 @@
 
 ## Core Rules
 
-1. 一个目标分集在一个逐集阶段只能对应一个后台隔离 subagent；阶段级套件如 `3-美学` 按该阶段父级合同派发。
+1. 一个目标分集在一个逐集阶段只能对应一个后台隔离 subagent；阶段级套件如 `2-美学` 按该阶段父级合同派发。
 2. 同一逐集阶段可并发启动多个 episode subagents；阶段之间必须等待汇流门。
 3. 每个 subagent 的 task packet 必须写清项目根、集数、阶段技能路径、输入路径、输出路径、加载上下文和完成 gate。
 4. 主窗口只保留 `subagent_id / episode_id / stage / status / output_path / verdict / fail_code`，不得把分集正文复制回主上下文。
@@ -17,11 +17,11 @@
 | --- | --- |
 | `project_root` | `projects/aigc/<项目名>/` |
 | `episode_id` | `第N集` 或等价稳定集号 |
-| `stage_scope` | `episode` 或 `stage_suite`；`3-美学` 使用 `stage_suite` |
-| `stage_slug` | `2-编剧`、`3-美学`、`4-导演`、`5-表演`、`6-氛围`、`7-分镜`、`8-摄影`、`9-光影`、`10-分组` |
+| `stage_scope` | `episode` 或 `stage_suite`；`2-美学` 使用 `stage_suite` |
+| `stage_slug` | `2-美学`、`3-主体`、`4-编剧`、`5-导演`、`6-分镜`、`7-摄影`、`8-分组` |
 | `stage_skill` | `.agents/skills/aigc/<stage>/SKILL.md` |
-| `input_path` | 上一阶段 canonical 文件或阶段声明的 source packet；`2-编剧` 读取 `1-分集/第N集.md` |
-| `output_path` | 当前阶段 canonical 产物；逐集阶段通常是 `第N集.md`，`3-美学` 可是父级总览和协议集合 |
+| `input_path` | 上一阶段 canonical 文件或阶段声明的 source packet；`4-编剧` 读取 `1-分集/第N集.md` |
+| `output_path` | 当前阶段 canonical 产物；逐集阶段通常是 `第N集.md`，`2-美学` 可是父级总览和协议集合 |
 | `context_bundle` | 阶段 `SKILL.md + CONTEXT.md`、项目 `MEMORY.md`、相关项目 `CONTEXT/` |
 | `completion_gate` | 阶段 review contract 中对该集的通过条件 |
 

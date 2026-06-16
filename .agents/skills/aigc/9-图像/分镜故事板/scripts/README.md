@@ -1,0 +1,18 @@
+# Scripts
+
+本目录只承载机械辅助脚本说明。`分镜故事板` 的 prompt 主体、组级完整性裁决、参照取舍和审查结论必须由 LLM / skill 合同完成，脚本不得主创正文。
+
+允许脚本承担：
+
+- 扫描 `8-分组/第N集.md` 的 `## x-y-z` 标题和 fenced YAML。
+- 统计 `分镜N:` 数量。
+- 检查图片路径是否存在。
+- 生成 dry-run manifest、批量执行计划或校验报告。
+- 汇总 imagegen 执行结果。
+
+禁止脚本承担：
+
+- 改写、扩写、摘要或补写分镜组正文。
+- 猜测 YAML 未声明的主体。
+- 用 JSON 设计稿伪装成图片参照。
+- 绕过 `.agents/skills/cli/imagegen` 的内置 `image_gen` 路线，切换到 CLI/API/provider 专属控制。

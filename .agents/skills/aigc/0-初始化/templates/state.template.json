@@ -1,5 +1,5 @@
 {
-  "_inactive_for_current_aigc_init": "Current scaffold initialization writes only 0-14 directories plus project MEMORY.md and CONTEXT/README.md.",
+  "_inactive_for_current_aigc_init": "Current scaffold initialization writes only 0-10 directories plus project MEMORY.md and CONTEXT/README.md.",
   "schema_version": "aigc-state/v1",
   "project_root": "projects/aigc/__PROJECT_NAME__/",
   "current_stage": "0-初始化",
@@ -22,19 +22,15 @@
     "stage_roots": [
       "projects/aigc/__PROJECT_NAME__/0-初始化/",
       "projects/aigc/__PROJECT_NAME__/1-分集/",
-      "projects/aigc/__PROJECT_NAME__/2-编剧/",
-      "projects/aigc/__PROJECT_NAME__/3-美学/",
-      "projects/aigc/__PROJECT_NAME__/4-导演/",
-      "projects/aigc/__PROJECT_NAME__/5-表演/",
-      "projects/aigc/__PROJECT_NAME__/6-氛围/",
-      "projects/aigc/__PROJECT_NAME__/7-分镜/",
-      "projects/aigc/__PROJECT_NAME__/8-摄影/",
-      "projects/aigc/__PROJECT_NAME__/9-光影/",
-      "projects/aigc/__PROJECT_NAME__/10-分组/",
-      "projects/aigc/__PROJECT_NAME__/11-主体/",
-      "projects/aigc/__PROJECT_NAME__/12-图像/",
-      "projects/aigc/__PROJECT_NAME__/13-画布/",
-      "projects/aigc/__PROJECT_NAME__/14-审片/"
+      "projects/aigc/__PROJECT_NAME__/2-美学/",
+      "projects/aigc/__PROJECT_NAME__/3-主体/",
+      "projects/aigc/__PROJECT_NAME__/4-编剧/",
+      "projects/aigc/__PROJECT_NAME__/5-导演/",
+      "projects/aigc/__PROJECT_NAME__/6-分镜/",
+      "projects/aigc/__PROJECT_NAME__/7-摄影/",
+      "projects/aigc/__PROJECT_NAME__/8-分组/",
+      "projects/aigc/__PROJECT_NAME__/9-图像/",
+      "projects/aigc/__PROJECT_NAME__/10-画布/"
     ]
   },
   "governance": {

@@ -1,13 +1,13 @@
 编剧-好莱坞质量规格
 来源技能：编剧
-来源文件：.agents/skills/aigc/2-编剧/references/hollywood-quality-spec.md
+来源文件：.agents/skills/aigc/4-编剧/references/hollywood-quality-spec.md
 原始标题：Hollywood Quality Specification
 
 ---
 
 ## Purpose
 
-本规格包为 `4-导演` stage 提供"高质量但不越过保真"的质量标准参照。它定义了什么样的导演创作可以被视为好莱坞级质量，同时明确了哪些越权行为是禁止的。
+本规格包为 `5-导演` stage 提供"高质量但不越过保真"的质量标准参照。它定义了什么样的导演创作可以被视为好莱坞级质量，同时明确了哪些越权行为是禁止的。
 
 **定位澄清**：本文件是顶层质量宪章，不是快速参考卡片；它为 `N3-DIR-SUBSTANCE`、`N4-DIR-PEAK`、`N7-DIR-AESTHETIC` 提供必须满足的质量基线，为 `N10-DIR-REVIEW` 提供可执行的检查规格。
 
@@ -18,8 +18,8 @@
 - 本文件拥有好莱坞级质量的定义、允许/禁止边界、证据结构和失败模式。
 - `directorial-authorship-contract.md` 负责导演创作内核的具体规划证据；本文件负责质量标准的顶层判断。
 - `climax-visual-treatment-contract.md` 负责高潮画面的兑现模式；本文件负责判断强化是否越权。
-- `.agents/skills/aigc/3-美学/SKILL.md` 负责单场画面美学；本文件负责判断"画面密度"和"节奏控制"是否达标。
-- `.agents/skills/aigc/6-氛围/references/atmosphere-and-mood-contract.md` 负责五感氛围和意境技法；本文件负责判断意境是否可拍可感而非抽象。
+- `.agents/skills/aigc/2-美学/SKILL.md` 负责单场画面美学；本文件负责判断"画面密度"和"节奏控制"是否达标。
+- `.agents/skills/aigc/backup/6-氛围/references/atmosphere-and-mood-contract.md` 负责五感氛围和意境技法；本文件负责判断意境是否可拍可感而非抽象。
 
 ## Dependency Graph
 
@@ -39,7 +39,7 @@ hollywood-quality-spec.md (顶层质量宪章)
 
 ## Quality Dimensions
 
-以下 5 个质量维度是 `4-导演` stage 必须同时满足的好莱坞级质量基线。
+以下 5 个质量维度是 `5-导演` stage 必须同时满足的好莱坞级质量基线。
 
 ### 1. 戏剧实质深度 (Dramatic Substance Depth)
 
@@ -123,7 +123,7 @@ hollywood-quality-spec.md (顶层质量宪章)
 
 ## Forbidden Overreach
 
-以下 8 类越权行为是 `4-导演` stage 的绝对禁止项，任何一个发生即为 quality failure。
+以下 8 类越权行为是 `5-导演` stage 的绝对禁止项，任何一个发生即为 quality failure。
 
 | forbidden action | reason | detection method | example |
 | --- | --- | --- | --- |
@@ -131,7 +131,7 @@ hollywood-quality-spec.md (顶层质量宪章)
 | **未锚定新增对白** | 改写上游正文或脱离叙事锚点自由加话 | 检查引号内内容；若既不是上游已有对白，也没有通过 `narration-to-voice-adaptation-contract.md` 留证，即为新增 | "为角色添加没有原文锚点的内心独白对白" |
 | **新增因果** | 改变事件逻辑 | 若角色行为原因在上游无锚点即为新增因果 | "让角色因为新原因做出选择" |
 | **新增桥段** | 增加上游没有的事件 | 若场景中出现上游无描述的动作序列即为新增桥段 | "新增追逐戏" |
-| **摄影越权** | 越界到下游 8-摄影 | 检查是否出现机位、景别、镜头运动、分镜编号或图像提示词 | "写分镜编号、机位、景别、镜头运动" |
+| **摄影越权** | 越界到下游 7-摄影 | 检查是否出现机位、景别、镜头运动、分镜编号或图像提示词 | "写分镜编号、机位、景别、镜头运动" |
 | **改写对白** | 改变角色语言 | 若角色语言在上游对白中找不到对应表述即为改写 | "让角色说更高级的话" |
 | **改写场景顺序** | 改变叙事结构 | 若事件发生的先后顺序与上游不一致即为改写 | "调整事件发生的先后" |
 | **改写场景标题** | 改变场景功能 | 若场景功能（压迫/转折/释放）与上游设定不符即为改写 | "把场景改得更戏剧化" |

@@ -1,15 +1,15 @@
 导演-信息不对称合同
 来源技能：导演
-来源文件：.agents/skills/aigc/4-导演/references/information-asymmetry-contract.md
+来源文件：.agents/skills/aigc/5-导演/references/information-asymmetry-contract.md
 原始标题：Information Asymmetry Contract
 
 ---
 
-## 4-导演 Adaptation Notice
+## 5-导演 Adaptation Notice
 
-本文件从 `.agents/skills/aigc/2-编导/references/information-asymmetry-contract.md` 引入，作为 `4-导演` 的授权 reference 细则。凡原文出现 `2-编导`、`script layer`、`steps/directing-workflow.md` 或其他旧路径时，在本技能中映射为 `N2-DIR-UNDERSTAND` 的 `information_asymmetry_map`、`N4-DIR-POINT-MAP` 的批注意图和 `N5-DIR-INJECT` 的信息释放/隐藏策略。
+本文件从 `.agents/skills/aigc/2-编导/references/information-asymmetry-contract.md` 引入，作为 `5-导演` 的授权 reference 细则。凡原文出现 `2-编导`、`script layer`、`steps/directing-workflow.md` 或其他旧路径时，在本技能中映射为 `N2-DIR-UNDERSTAND` 的 `information_asymmetry_map`、`N4-DIR-POINT-MAP` 的批注意图和 `N5-DIR-INJECT` 的信息释放/隐藏策略。
 
-在 `4-导演` 中，本文件只用于让导演批注明确观众和角色谁知道什么、何时揭示、何时隐藏、何时误导；不得借信息差设计新增剧情事实或提前泄露上游没有写出的真相。
+在 `5-导演` 中，本文件只用于让导演批注明确观众和角色谁知道什么、何时揭示、何时隐藏、何时误导；不得借信息差设计新增剧情事实或提前泄露上游没有写出的真相。
 
 ## Purpose
 

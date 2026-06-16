@@ -11,5 +11,5 @@
 
 - 初始化 `.agents/skills/aigc/query` 为 Skill 2.0 查询卫星技能包。
 - 参照 `.agents/skills/aigc-old/query` 保留 `PROJECT_ROOT` guard、truth-role first、存在不等于验收、registry/routes 制度查证等配置意图。
-- 对齐当前 `.agents/skills/aigc` 中文阶段链路：`0-初始化`、`1-分集`、`2-编导`、`3-运动`、`4-摄影`、`10-分组`、`11-主体`、`12-图像`、`13-画布`、`14-审片`。
+- 对齐当前 `.agents/skills/aigc` 中文阶段链路：`0-初始化`、`1-分集`、`2-编导`、`3-运动`、`4-摄影`、`8-分组`、`3-主体`、`9-图像`、`10-画布`、`11-审片`。
 - 将旧英文阶段路径降级为 legacy compatibility，并写入 `references/legacy-migration-matrix.md`。

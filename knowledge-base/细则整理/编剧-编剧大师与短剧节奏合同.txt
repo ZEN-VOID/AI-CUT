@@ -1,11 +1,11 @@
 编剧-编剧大师与短剧节奏合同
 来源技能：编剧
-来源文件：.agents/skills/aigc/2-编剧/references/screenwriting-masters-and-shortdrama-rhythm-contract.md
+来源文件：.agents/skills/aigc/4-编剧/references/screenwriting-masters-and-shortdrama-rhythm-contract.md
 原始标题：Screenwriting Masters And Short-Drama Rhythm Contract
 
 ---
 
-本合同为 `2-编剧` 提供新增细则：题材类型解析、叙事情节解析、编剧大师改编逻辑、爆款短剧节奏表现手法、匹配机制、套用逻辑、高潮强化和尾钩设计。它补充 copied references，不覆盖 `SKILL.md`、保真边界或输出路径。
+本合同为 `4-编剧` 提供新增细则：题材类型解析、叙事情节解析、编剧大师改编逻辑、爆款短剧节奏表现手法、匹配机制、套用逻辑、高潮强化和尾钩设计。它补充 copied references，不覆盖 `SKILL.md`、保真边界或输出路径。
 
 ## Evidence Sources
 
@@ -68,7 +68,7 @@ narrative_beat:
 
 ## Adaptation Logic From Masters
 
-| principle | usable rule in `2-编剧` | forbidden misuse |
+| principle | usable rule in `4-编剧` | forbidden misuse |
 | --- | --- | --- |
 | 原作核心优先 | 先锁原作这一集最不可丢的关系、欲望、主题和事件结果，再决定删繁、压缩或转译 | 为了“更短剧”直接改结局或动机 |
 | 结构独立成立 | 单集剧本必须有开场钩子、中段升级、当集落点和下一集问题，不依赖观众读过小说 | 用旁白解释“前情提要”替代当前场景冲突 |

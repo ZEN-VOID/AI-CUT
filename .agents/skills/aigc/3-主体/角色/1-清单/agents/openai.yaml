@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 角色清单"
+  short_description: "从 3-主体 subject-registry 生成角色清单。"
+  default_prompt: "使用 $aigc-design-character-list，从 projects/aigc/<项目名>/3-主体/subject-registry.yaml 的 subjects.characters、source_anchors、projects/aigc/<项目名>/1-分集/ 与 2-美学/角色风格协议生成角色清单，并输出到 3-主体/角色/1-清单/角色清单.md。"

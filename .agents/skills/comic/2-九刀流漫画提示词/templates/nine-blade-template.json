@@ -16,15 +16,17 @@
     "next_group_hook": ""
   },
   "generation_contract": {
-    "provider": "cli-imagegen",
-    "call_mode": "per_page_batch",
+    "provider": "built-in-imagegen",
+    "call_mode": "per_page_builtin_calls",
     "image_count": 9,
     "page_aspect_ratio": "9:16",
     "imagegen": {
       "tool_skill_path": ".agents/skills/cli/imagegen",
-      "model": "gpt-image-2",
-      "size": "1152x2048",
-      "quality": "medium",
+      "mode": "built_in_image_gen",
+      "batch_execution": "subagents_parallel_default",
+      "max_concurrency": 10,
+      "resolution_target": "2k_default",
+      "resolution_value": "2K",
       "output_format": "png"
     },
       "hard_constraints": [

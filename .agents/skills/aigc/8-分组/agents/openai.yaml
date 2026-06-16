@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 分组"
+  short_description: "将逐集摄影稿切成带场景标题、全局风格、首帧衔接/回龙帧和统计的完整分镜组。"
+  default_prompt: "使用 $aigc-grouping，把 projects/aigc/<项目名>/7-摄影/第N集.md 按真实集-场-组切成完整分镜组；只读消费 team.yaml.init_synthesis.stage_seed_summary.\"8-分组\"、init_handoff.grouping_seed 与 north_star.yaml.创作阶段不变量.分组，不调用 team 身份、旧 stage profile 或补造顾问问答。每组标题后重复当前场景标题，场景标题下方立即写“全局风格：”，字段内只保留一行：固定前置词加 300 字以内当前组 Global Style Prompt 整理句，不输出 Visual Slogan、Design Principle、Visual Gene Profile 或 Negative Traits 独立行。随后直接进入第一个时间码分镜行；第二组起首行必须复现上一组尾帧状态锚点，包括主体、动作余势、关键道具/介质、光声残留和空间关系，再换景别/机位进入本组，不只承接情绪或直接开新动作。按完整分镜行和声画承托裁决约 14.5 秒分组，通常 10-11.5 秒，硬上限 14.5 秒，组内时间码从 0 连续递增且最终累计结束秒以 .5 结尾，不新增剧情、不改对白、不输出连接件、分镜画面、画面构图、位置细节或旧字段；输出到 projects/aigc/<项目名>/8-分组/第N集.md。"

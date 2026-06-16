@@ -1,11 +1,11 @@
 光影-源文本增量光影注入合同
 来源技能：光影
-来源文件：.agents/skills/aigc/9-光影/references/source-incremental-light-injection-contract.md
+来源文件：.agents/skills/aigc/backup/9-光影/references/source-incremental-light-injection-contract.md
 原始标题：Source Incremental Light Injection Contract
 
 ---
 
-本文件定义 `9-光影` 对上游 `8-摄影` 或用户指定文稿的保真和增量注入规则。
+本文件定义 `9-光影` 对上游 `7-摄影` 或用户指定文稿的保真和增量注入规则。
 
 `9-光影` 只在原有 `分镜N（N-N秒）：原有内容` 后追加光影美学描述，不替换原有内容，不删除分镜编号，不改秒数，不重排分镜，不改剧情事实、对白、景别、构图或摄影运镜。
 

@@ -1,6 +1,6 @@
 # CHANGELOG.md
 
-> INACTIVE for current `$aigc-init` scaffold initialization. Current initialization writes only 0-14 directories plus project `MEMORY.md` and `CONTEXT/README.md`.
+> INACTIVE for current `$aigc-init` scaffold initialization. Current initialization writes only 0-10 directories plus project `MEMORY.md` and `CONTEXT/README.md`.
 
 项目：__PROJECT_TITLE__
 
@@ -9,4 +9,4 @@
 ## __DATE__
 
 - 初始化项目根。
-- 创建 `0-初始化/` 至 `14-审片/` 的项目 runtime 骨架、项目级 `MEMORY.md` 与项目级 `CONTEXT/README.md`。
+- 创建 `0-初始化/` 至 `10-画布/` 的项目 runtime 骨架、项目级 `MEMORY.md` 与项目级 `CONTEXT/README.md`。
