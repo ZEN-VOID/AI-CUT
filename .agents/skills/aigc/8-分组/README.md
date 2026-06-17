@@ -28,11 +28,11 @@
 - 技能入口：`SKILL.md`
 - 运行上下文：`CONTEXT.md`
 - 项目级必读：`projects/aigc/<项目名>/MEMORY.md`
-- 项目北极星：`projects/aigc/<项目名>/0-初始化/north_star.yaml`
-- 初始化综合：`projects/aigc/<项目名>/team.yaml.init_synthesis.stage_seed_summary."8-分组"`、`init_handoff.grouping_seed`、`north_star.yaml.创作阶段不变量.分组`
+- 美学上下文：`projects/aigc/<项目名>/2-美学/类型风格.md`、`projects/aigc/<项目名>/2-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `2-美学/<风格>/风格协议.md`
+- 初始化上下文：项目 `MEMORY.md` / `project_memory_init_context`
 - 边界规则：`references/group-boundary-contract.md`
 - 类型索引：`types/type-map.md`
-- 画面基调风格整理：`references/north-star-projection-contract.md`（legacy 文件名，当前真源为 `2-美学/画面基调/全局风格协议.md`）
+- 画面基调风格整理：`references/visual-tone-projection-contract.md`
 - YAML 统计：`references/statistics-yaml-contract.md`
 - 验收：`review/review-contract.md`
 - 输出模板：`templates/output-template.md`
@@ -42,8 +42,8 @@
 ## 输出
 
 - 输入：优先 `projects/aigc/<项目名>/7-摄影/第N集.md`；也接受用户显式指定的分镜稿、摄影稿、剧本/编导稿或粘贴文本
-- 风格真源：`projects/aigc/<项目名>/2-美学/画面基调/全局风格协议.md` 的 `Global Style Prompt`；`north_star.yaml` 只作为项目禁区、不变量和初始化综合边界
-- 分组综合：只读消费冻结初始化综合，不调用 team 身份、旧 stage profile 或新顾问问答
+- 风格真源：`projects/aigc/<项目名>/2-美学/画面基调/全局风格协议.md` 的 `Global Style Prompt`；题材与下游边界来自 `2-美学/类型风格.md`、`美学总览.md` 和对应风格协议
+- 分组综合：只读消费项目 `MEMORY.md` / `project_memory_init_context`，不调用 team 身份、旧 stage profile、旧初始化风格载体或新顾问问答
 - 时长口径：标准摄影路径按 `7-摄影` 正文中的完整 `分镜N（起始秒-结束秒）：...` 行或兼容 `[起始秒-结束秒]` 行作为 atomic unit 累计；direct screenplay / 无显式时长 source 路径由 LLM 按剧本声画 atomic unit 规划约 14.5 秒/组，通常 10-11.5 秒，硬上限 14.5 秒；落盘后使用当前分镜组基准下连续递增的 `分镜N（N-N秒）：` 或 `[N-N秒]` 时间码，后一个时间段起点接前一个终点，组内 `时长估算` 取最终结束秒；最终累计结束秒必须以 `.5` 结尾，若自然相加不是 `.5` 结尾则在组尾上调 0.5 秒；组头、场景标题、全局风格和 YAML 不计入时长
 - 输出：`projects/aigc/<项目名>/8-分组/第N集.md`
 - 报告：`projects/aigc/<项目名>/8-分组/执行报告.md`

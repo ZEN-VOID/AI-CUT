@@ -1,5 +1,7 @@
 # aigc 6-氛围
 
+> 退役备份：本目录仅保留旧 AIGC 氛围链路的审计和追溯价值，不再作为正式 `projects/aigc/<项目名>/6-氛围/` 生成阶段。小说语境中的场景压力、感官承托和视觉可读性强化已迁入 `.agents/skills/story/3-初稿/references/scene-pressure-texture-contract.md`、`.agents/skills/story/4-润色/types/prose-texture-repair.md` 和 `.agents/skills/story/4-润色/types/visual-readability-repair.md`。
+
 `6-氛围` 将 `projects/aigc/<项目名>/5-表演/第N集.md` 的逐集表演稿，结合 `2-美学` 的画面基调、角色风格和场景风格，选择性新增 `氛围画面：XXX` 字段。
 
 ## 目录树

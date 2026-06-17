@@ -40,6 +40,7 @@
 8. 场景密度、信息延迟、身体反应、物件和空间压力只要承担叙事功能就应保留。
 9. 输出必须是完整章节 prose，不得输出点评、建议、差异说明或多个版本。
 10. 脚本、模板、正则和映射表不得生成润色正文；正文必须来自 LLM-first 主创。
+11. 命中类型化场面修复时，必须先锁定 source anchor、affected span、项目题材轴和场景功能轴；不得把局部场面修复扩大成整章重写、武侠化默认、题材包机械套用或第三正文真源。
 
 ## Frontmatter Contract
 
@@ -56,7 +57,7 @@
 - finding 指向全章结构失效时，必须报告扩大范围原因；正式整章重润需要用户授权。
 - 修补后应保留初稿的事实顺序、人物意图、信息揭示和章末牵引。
 
-## Built-in Acceptance Gate Mapping
+## Review Gate Mapping
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
@@ -64,6 +65,7 @@
 | 是否保留初稿事实、骨架、文本分布和人物气口？ | `minimal_repair` | `FAIL-POLISH-SCOPE` | `P3-REPAIR-PLAN` | diff summary |
 | 润色是否没有造成结构、连续性、逻辑、人物、时间线或任务汇聚回退？ | `regression_structure_logic` | `FAIL-POLISH-REGRESSION` | `P3-REPAIR-PLAN` / `P4-CREATIVE-POLISH` | regression issue map |
 | 是否保留并强化题材质感、场景密度、句群节奏和追读力？ | `genre_texture_density` / `reader_pull` | `FAIL-POLISH-TEXTURE` / `FAIL-POLISH-READER-PULL` | `P4-CREATIVE-POLISH` | before/after evidence |
+| 命中类型化场面修复时是否按 source anchor、affected span、双轴路由和必要 subtype repair package 最小修补，且没有改事实、改结果或题材越界？ | `genre_scene_integrity` | `FAIL-POLISH-GENRE-SCENE` | `P3-REPAIR-PLAN` / `P4-CREATIVE-POLISH` | `repair_type_package_manifest`、`genre_scene_repair_profile`、before/after evidence |
 | AI 腔修补是否定位到具体特征？ | `anti_ai_features` | `FAIL-POLISH-AI-FEATURES` | `P3-REPAIR-PLAN` | issue list |
 | 润色是否由 LLM-first 主创，脚本没有生成正文？ | `creative_authorship` | `FAIL-POLISH-AUTHORSHIP` | `P4-CREATIVE-POLISH` | script audit |
 | 输出是否只写入 canonical path，并同步生成 `第N章.acceptance.json`？ | `output_state` | `FAIL-POLISH-WRITEBACK` | `P6-WRITEBACK-STATE` | expected vs actual path |

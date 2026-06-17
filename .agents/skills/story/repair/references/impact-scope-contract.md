@@ -81,8 +81,8 @@ impact_map:
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 本次 repair 是否输出了覆盖 upstream truth、same-layer predecessor、current locality、downstream existing、future constraints、acceptance/actualization 的 impact map？ | `impact_scope` | `FAIL-REPAIR-SCOPE` | `steps/repair-workflow.md#N2-IMPACT-MAP` | repair packet 中的 `impact_map` 六类 surface 与路径/状态/理由 |
-| 修改对象是否按 Universal Type Matrix 判型，并加载了命中的 `types/scope/*` 包？ | `type_matrix` | `FAIL-REPAIR-TYPE-MATRIX` | `types/type-map.md`、`steps/repair-workflow.md#N2-IMPACT-MAP` | `scope_packages_loaded`、命中矩阵行、typed package 列表 |
-| 旧口径在上游真源命中时，是否先进入源层修复，而不是只改正文或润色稿？ | `source_priority` | `FAIL-REPAIR-OWNER` | `references/source-truth-ledger.md`、`steps/repair-workflow.md#N3-OWNER-ROUTE` | `canonical_owner`、`writeback_order`、旧/新口径检索证据 |
-| 已 PASS 或 return actualized 的事实被改动时，是否处理 stage acceptance packet、return actualization 与 STATE？ | `accepted_truth` | `FAIL-REPAIR-AUDIT` | `steps/repair-workflow.md#N6-DOWNSTREAM-SYNC`、`steps/repair-workflow.md#N8-REVIEW-GATE` | acceptance/return/state action、重验/失效/保留理由 |
-| 影响范围无法证明收敛时，是否停止写回并交付 repair plan？ | `convergence` | `FAIL-REPAIR-CONVERGENCE` | `SKILL.md#Mode Selection`、`steps/repair-workflow.md#N9-CLOSE` | verdict、阻断项、residual risks、下一步约束 |
+| 本次 repair 是否输出了覆盖 upstream truth、same-layer predecessor、current locality、downstream existing、future constraints、acceptance/actualization 的 impact map？ | `impact_scope` | `FAIL-REPAIR-SCOPE` | `N2-IMPACT-MAP` | repair packet 中的 `impact_map` 六类 surface 与路径/状态/理由 |
+| 修改对象是否按 Universal Type Matrix 判型，并加载了命中的 `types/scope/*` 包？ | `type_matrix` | `FAIL-REPAIR-TYPE-MATRIX` | `types/type-map.md`、`N2-IMPACT-MAP` | `scope_packages_loaded`、命中矩阵行、typed package 列表 |
+| 旧口径在上游真源命中时，是否先进入源层修复，而不是只改正文或润色稿？ | `source_priority` | `FAIL-REPAIR-OWNER` | `references/source-truth-ledger.md`、`N3-OWNER-ROUTE` | `canonical_owner`、`writeback_order`、旧/新口径检索证据 |
+| 已 PASS 或 return actualized 的事实被改动时，是否处理 stage acceptance packet、return actualization 与 STATE？ | `accepted_truth` | `FAIL-REPAIR-AUDIT` | `N6-DOWNSTREAM-SYNC`、`N8-REVIEW-GATE` | acceptance/return/state action、重验/失效/保留理由 |
+| 影响范围无法证明收敛时，是否停止写回并交付 repair plan？ | `convergence` | `FAIL-REPAIR-CONVERGENCE` | `Mode Selection`、`N9-CLOSE` | verdict、阻断项、residual risks、下一步约束 |

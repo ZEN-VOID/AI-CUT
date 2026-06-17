@@ -18,7 +18,7 @@ metadata:
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 先读取本 `SKILL.md` 的 runtime spine，再按 `Module Loading Matrix` 加载必要模块；不得因为目录存在而自动全量读取。
 - 每次调用本技能时，必须依据本文件的 `Type Routing Matrix` 与同目录 `types/type-map.md` 锁定类型画像；`types/` 只能提供上下文画像，不替代主入口节点。
-- 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中和图像阶段相关的上下文；legacy `0-初始化/north_star.yaml` 仅在旧项目已存在且本轮需要回读风格边界时加载。
+- 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中和图像阶段相关的上下文；需要风格边界时读取 `2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md` 以及当前集优先/项目级回退的故事板相关风格协议。
 - `8-分组` 是本技能的主要信息来源；不得回到 `7-摄影`、archived `backup/9-光影` 或更早阶段重写分镜组内容，除非用户显式要求修复上游。
 - 正式生成、repair 或 review 时，必须加载 `../../_shared/upstream-context-application-contract.md`，并在执行报告中记录 `Image Upstream Visual Direction Matrix`：说明 `2-美学`、`3-主体`、`8-分组`、可选 `分镜平面图` 侧车和项目上下文如何导向 source comprehension、storyboard frame units、layout、visual prompt atoms、参照保真和 imagegen handoff；完整组稿中的上游电影风格仍必须被隔离为 evidence-only，不得覆盖黑白线稿故事板画风。
 - 分镜故事板 prompt 主体必须直接引用 `8-分组` 对应分镜组的完整内容；LLM 只负责裁决提取范围、frame-unit 识别、panel 描述精简整合、layout 策略、visual prompt atoms、缺口说明和审查，不得扩写或改写剧情事实。
@@ -274,7 +274,7 @@ flowchart LR
 
 ## Execution Contract
 
-1. 加载本 `SKILL.md + CONTEXT.md`；项目任务中加载 `MEMORY.md` 与相关项目 `CONTEXT/`，legacy `north_star.yaml` 仅在已存在且需要回读风格边界时加载。
+1. 加载本 `SKILL.md + CONTEXT.md`；项目任务中加载 `MEMORY.md`、相关项目 `CONTEXT/`、`2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md` 以及当前集优先/项目级回退的故事板相关风格协议。
 2. 按 `types/type-map.md` 锁定 mode、集号范围、目标分镜组集合和 imagegen 路由；本技能不得以 prompt-only、review-only、空间侧车等待、等待确认或 `imagegen-plan.json` 作为完成态。
 3. 执行 `N3-GROUP-INDEX`：以 `projects/aigc/<项目名>/8-分组` 为主要信息来源，解析每个 `## x-y-z` 分镜组，完整提取组正文和底部 YAML，建立 `group_full_source` 和 `source_comprehension`；连接件不进入生图任务。
 4. 执行 `N4-FRAME-LAYOUT`：基于当前分组视觉节拍识别 storyboard frame units；`source_shot_labels` 只作追溯字段，允许拆分或合并；每个 frame unit 必须有 `source_span`、`rich_brief panel_description`、`character_name_labels`、`annotation_plan` 和默认 locked `16:9` image box。再按 panel 数反推 layout，生成 `layout_aspect_decision` 和 `panel_geometry_blueprint`；无法保持比例和可读性时分页或多 sheet。

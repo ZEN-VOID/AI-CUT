@@ -16,6 +16,7 @@
 - `output_path`:
 - `naming`: `story-repair-YYYYMMDD.md`
 - `mode`: `impact_assessment | repair_plan | execute_repair | audit_only`
+- `eval_mode`: `full_test | dry_run | n/a`
 
 ## Repair Packet
 
@@ -26,6 +27,8 @@
 - `creative_engine_note`:
 - `writeback_order`:
 - `scope_packages_loaded`:
+- `loaded_context_manifest`:
+- `permission_boundary_check`:
 
 ## Impact Map
 
@@ -36,6 +39,24 @@
 - `future_constraints`:
 - `review_actualization`:
 - `project_specific_extensions`:
+
+## Execution Decision Trace
+
+- `business_profile`:
+- `type_profile`:
+- `attention_anchor`:
+- `source_owner_decision`:
+- `authorship_boundary_decision`:
+- `fallback_or_degradation`:
+
+## Module And Gate Evidence
+
+- `module_trigger_manifest`:
+- `checkpoint_evidence`:
+- `review_gate_findings`:
+- `rule_evidence_map`:
+- `n_a_justification`:
+- `repair_log`:
 
 ## Stage Routes
 
@@ -65,5 +86,7 @@
 - Impact map completed:
 - Source owner locked:
 - Creative authorship preserved:
+- LLM-first authorship checked:
 - Review/return handled:
 - Residual risks reported:
+- Next generation constraints recorded:

@@ -65,7 +65,7 @@ roles:
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| `init_mode` 是否固定为 `team代入模式`，且合法编组子路径只有 `auto/custom`？ | `mode` | `FAIL-INIT-MODE` | `SKILL.md` Mode Selection、`steps/init-workflow.md` N1 | init_mode、team_lineup_mode、mode_source |
-| `team.yaml` 是否是唯一 team 真源，且未生成并行 advisor/team manifest？ | `team` | `FAIL-INIT-TEAM` | 本文件 Team Manifest Contract、`steps/init-workflow.md` N3 | team.yaml 路径、唯一性扫描结果 |
+| `init_mode` 是否固定为 `team代入模式`，且合法编组子路径只有 `auto/custom`？ | `mode` | `FAIL-INIT-MODE` | `SKILL.md` Mode Selection、`SKILL.md` N2-MODE | init_mode、team_lineup_mode、mode_source |
+| `team.yaml` 是否是唯一 team 真源，且未生成并行 advisor/team manifest？ | `team` | `FAIL-INIT-TEAM` | 本文件 Team Manifest Contract、`SKILL.md` N5-TEAM-LOCK | team.yaml 路径、唯一性扫描结果 |
 | 自定义成员是否均位于 `.agents/skills/team/`，自动组队是否读取 team 根 `SKILL.md + CONTEXT.md`？ | `team` | `FAIL-INIT-TEAM` | 本文件 Team Lineup Routes、`.agents/skills/team/SKILL.md` | roster 路径清单、auto selection notes |
 | planning 固定题包直答是否由 `roles.planning.members` 真实执行，或已明确报告阻断/降级？ | `subagents` | `FAIL-INIT-SUBAGENT` | 本文件 Subagent Execution Rule、`references/prompt-packet-contract.md` | dispatch evidence、未启动成员列表、降级来源 |

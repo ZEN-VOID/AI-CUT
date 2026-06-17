@@ -1,7 +1,7 @@
 ---
 name: story2026
 description: "Use when coordinating story2026 novel projects across init, cards, planning, draft, polish, built-in acceptance, return, repair, query, or resume."
-governance_tier: lite
+governance_tier: router
 skill_role: parent_guide
 allowed-tools: Read Grep Bash Write Edit Task
 ---
@@ -33,6 +33,25 @@ allowed-tools: Read Grep Bash Write Edit Task
 - `repair/SKILL.md` 负责局部修改牵动整体时的影响判型、source-first 修复计划、跨阶段分流和验收；根层只路由到 repair，不复制 repair 的类型化矩阵。
 - 根级 `CONTEXT.md` 只沉淀跨阶段经验，不吞并阶段私有故障模式。
 
+## Business Requirement Analysis Contract
+
+| field | requirement | evidence | fail_code |
+| --- | --- | --- | --- |
+| `business_goal` | 为 story2026 小说项目提供跨阶段路由、truth owner 判定、共享载体边界和源层追因总入口。 | `target_stage`、`truth_role`、`canonical_owner` | `FAIL-SYS-ROUTING-01` |
+| `business_object` | `.agents/skills/story/` 技能树、`projects/story/<项目名>/` 项目根、阶段 `SKILL.md + CONTEXT.md`、共享 `_shared/`、`scripts/` 与 `templates/`。 | `shared_refs_to_load`、`canonical_runtime_root` | `FAIL-SYS-CARRIER-02` |
+| `constraint_profile` | 根层只裁决总线与 owner，不替阶段执行正文、设定、规划、润色、验收或 actualization。 | `non_owner_layers_to_avoid` | `FAIL-SYS-OWNER-04` |
+| `success_criteria` | 任一泛化 story 请求都能落到唯一默认入口，且类型化场面强化不会形成独立主阶段或第三正文真源。 | `next_action`、`genre_scene_route.owner_stage` | `FAIL-SYS-CLOSURE-06` |
+| `complexity_source` | 复杂度来自多阶段 truth ownership、项目记忆、共享载体、阶段内置验收和 return/handoff gate。 | `symptom`、`direct_cause`、`rule_source` | `FAIL-SYS-TRACE-05` |
+| `topology_fit` | 父级 router 负责分流，阶段 full skill 负责执行，卫星技能负责 query/resume/repair/return。 | `target_stage`、`shared_refs_to_load` | `FAIL-SYS-ROUTING-01` |
+
+## Multi-Subskill Continuous Workflow
+
+- 无序号技能如 `query`、`resume`、`repair`、`return` 默认是卫星或 checkpoint，不自动并入 numbered 主链。
+- 数字序号阶段按 `0-初始化 -> 1-设定 -> 2-卷章 -> 3-初稿 -> 4-润色` 的主线语义串行；正文阶段再按卷闭环进入 `return`。
+- 英文序号若未来出现在同级子技能中，默认表示互斥候选，必须由父级路由或用户意图单选，不得全量并行改同一真源。
+- 卫星技能默认不并入主链串行聚合：`query / resume / repair / return` 只在触发条件满足时进入，并按自身 `SKILL.md + CONTEXT.md` 执行。
+- 每次路由到子阶段或卫星技能时，必须加载目标 `SKILL.md + CONTEXT.md`；绑定项目时还必须加载项目根 `MEMORY.md` 与相关 `CONTEXT/`。
+
 ## 类型机制
 
 `story` 现在采用：
@@ -40,10 +59,11 @@ allowed-tools: Read Grep Bash Write Edit Task
 - 固定前置主链
 - 卷级创作闭环
 - 人工维护的 `north_star.yaml.genre_contract`
+- 类型化场面强化横切合同
 - 正文阶段根技能包
 - 阶段内置自动验收
 
-五层架构。
+六层架构。
 
 ### 正文阶段根技能包
 
@@ -101,6 +121,7 @@ allowed-tools: Read Grep Bash Write Edit Task
 - `1-设定` 不再单独设置 `类型卡`。
 - `2-卷章` 只导入 `story_promise / genre_corridor / navigation_rules`，不再二次猜题材。
 - `3-初稿` 只消费人工题材承诺与 planning handoff，不再消费自动 step hook。
+- `3-初稿` / `4-润色` 可按 `_shared/genre-scene-strengthening-contract.md` 建立 `project_genre_axis + scene_function_axis`，把武侠、言情、玄幻、恐怖、悬疑、现实等题材差异投影为当前场景的功能性强化；该合同不拥有独立正文写权。
 - `3-初稿` 与 `4-润色` 内置验收继续覆盖结构/连续性/逻辑/人物/时间线/任务汇聚和文体读感，不再保留独立 `story/review` 阶段；必要时可用 `code-reviewer` 做辅助审计，再把 findings 回流到 owning stage。
 - `4-润色` 可以沉淀反馈，但不得自动改写 `north_star.yaml.genre_contract`。
 - `return` 只承接终稿 PASS 且明确 handoff 的 validated actualization，不回写规划正文。
@@ -109,6 +130,8 @@ allowed-tools: Read Grep Bash Write Edit Task
 
 - 通用基座必须能在没有任何题材包目录的情况下独立运行。
 - 题材判断默认属于人工创作层，不得再被系统隐式反向硬绑。
+- 类型化强化必须按“项目题材轴 + 场景功能轴”双轴判定；不得因为新增动作/武戏能力而把 story 默认变成武侠小说工作流。
+- 类型化强化不得新增 `3.5-强化`、`5-类型强化` 或任何默认主链阶段；首写回到 `3-初稿`，源章局部修复回到 `4-润色`，跨阶段影响回到 `repair`。
 - 若题材方向发生变化，优先修改 `north_star.yaml.genre_contract`，不要在 downstream 阶段静默偷改。
 
 ## When to Use
@@ -124,6 +147,22 @@ allowed-tools: Read Grep Bash Write Edit Task
 - Required input: 用户诉求文本，或可定位的项目根 `projects/story/<项目名>/`，或需要审计/修复的 story 技能树路径。
 - Optional input: 卷号、章号、目标阶段、错误日志、现有项目 `STATE.json`、`MEMORY.md`、`CONTEXT/` 与报告路径。
 - Reject or reroute when: 影视/电影/视频项目初始化请求应路由到 `.agents/skills/aigc/0-初始化/SKILL.md`；阶段内部创作细则必须交给 owning stage。
+
+## Module Loading Matrix
+
+| module | load_when | authority | forbidden_use | rework_target |
+| --- | --- | --- | --- | --- |
+| `CONTEXT.md` | 每次调用 story 根 router | 提供跨阶段经验、失败模式和修复打法 | 不得重定义根 `SKILL.md` 的路由、owner 或输出合同 | 根级路由重判 |
+| `_shared/` | 涉及跨阶段共享 schema、上下文加载、题材过滤或类型化场面强化 | 提供共享合同和跨阶段参考 | 不得替代阶段 `SKILL.md` 或成为正文真源 | 共享合同回读 |
+| `scripts/` | 涉及项目定位、workflow 状态、共享校验或状态 hook | 执行机械检查、状态记录和路径解析 | 不得生成创作正文或审美判断 | 脚本 dry-run / smoke |
+| `templates/` | 需要跨阶段报告、摘要或脚手架模板 | 提供输出骨架 | 不得另立阶段输出路径或完成门禁 | Output Contract |
+| `0-初始化/` | 初始化、north_star、题材方向盘或项目起盘 | 拥有立项和 `north_star.yaml.genre_contract` 真源 | 不得替 `1/2/3/4` 阶段创作正文 | `0-初始化/SKILL.md + CONTEXT.md` |
+| `1-设定/` | 对象卡、角色/场景/物品/技能真源 | 拥有对象真源 | 不得替规划或正文阶段写章节 | `1-设定/SKILL.md + CONTEXT.md` |
+| `2-卷章/` | 部级、卷级、章级规划 | 拥有规划真源 | 不得直接写正文或润色稿 | `2-卷章/SKILL.md + CONTEXT.md` |
+| `3-初稿/` | 写章、续写、重写、初稿验收、类型化场面首写 | 拥有 candidate draft 与初稿验收包 | 不得改上游 truth 或授权 return | `3-初稿/SKILL.md + CONTEXT.md` |
+| `4-润色/` | 源章最小局部修补、终稿验收、类型化场面 affected-span repair | 拥有 polished manuscript 与终稿验收包 | 不得覆盖初稿或从 planning 从零起草 | `4-润色/SKILL.md + CONTEXT.md` |
+| `repair/` | 局部修改牵动多层真源、影响图和 source-first 修复计划 | 拥有 impact map 与修复分流 | 不得直接冒充设定/规划/正文主创 | `repair/SKILL.md + CONTEXT.md` |
+| `query/` / `resume/` / `return/` | 查询、续跑、validated actualization | 提供卫星查询、恢复和 PASS-gated 回流 | 不得绕过 owning stage gate | 对应卫星 `SKILL.md + CONTEXT.md` |
 
 ## System Topology
 
@@ -243,6 +282,9 @@ python3 .agents/skills/story/scripts/workflow_manager.py record-skill-completion
 - `_shared/reading-power-taxonomy.md`
 - `_shared/cool-points-guide.md`
 - `_shared/genre-trope-quality-filter.md`（起草阶段加载题材类型包时必须作为质量过滤层，防止机械爽点和低级套路覆盖项目风格）
+- `_shared/genre-scene-strengthening-contract.md`（类型化场面强化横切合同；按项目题材轴与场景功能轴路由到 `3-初稿`、`4-润色` 或 `repair`，不得成为独立主阶段）
+- `_shared/cross-volume-continuity-contract.md`（跨卷叙事一致性追踪合同；定义伏笔/人物/物件/能力四维追踪模型，由 `return` 生成卷级状态摘要，由 `3-初稿` 卷首章消费）
+- `_shared/live-quality-brief-contract.md`（写前实时质量导向合同；在 N5/P4 创作前生成轻量质量简报，减少事后返工率）
 
 ### 根级 `scripts/`
 
@@ -269,7 +311,9 @@ python3 .agents/skills/story/scripts/workflow_manager.py record-skill-completion
 | 全局设定/整书风格/类型方向盘修订 | `0-初始化/north_star.yaml` |
 | 长篇规划、MAP、章节编排、冲突/任务/线索/伏笔设计 | `2-卷章` |
 | 写章节、章节级执行包、从 planning 直接产出正文 | `3-初稿` |
+| 要求武戏、文戏、言情拉扯、玄幻能力兑现、恐怖悬疑、现实制度压力等类型化场面首写或重写进当前章 | `3-初稿`，加载 `_shared/genre-scene-strengthening-contract.md` 与阶段授权细则 |
 | 承接已有 `3-初稿` 做最小局部修补、中文表达局部校准、题材质感微调，并输出到 `4-润色/第N卷/第N章.md` | `4-润色` |
+| 已有初稿中的类型化场面弱、乱、读不清、题材味被磨平或被误写成单一武侠/动作模板 | `4-润色`，只做 source-anchored affected-span repair |
 | 明确要求“按章写正文”、输出到 `3-初稿/第N卷/第N章.md`、或要求 YAML 头携带 global/style/`north_star` 摘要 | `3-初稿` |
 | 初稿质量验收、初稿 PASS/FAIL、初稿返工、初稿 handoff 到润色 | `3-初稿` 内置验收 |
 | 终稿质量验收、终稿 PASS/FAIL、终稿返工、终稿 handoff 到 return | `4-润色` 内置验收 |
@@ -301,6 +345,8 @@ python3 .agents/skills/story/scripts/workflow_manager.py record-skill-completion
 | --- | --- |
 | 根级共享合同 | `_shared/context-loading-contract.md`、`_shared/core-constraints.md` |
 | 起草阶段加载题材类型包或网文题材细则 | `_shared/genre-trope-quality-filter.md` |
+| 跨卷叙事一致性（伏笔/人物/物件/能力跨卷追踪） | `_shared/cross-volume-continuity-contract.md`；卷首章起草时加载 `CONTEXT/volume-状态摘要/`，actualization 后由 `return` 生成 |
+| 类型化场面强化、武戏/文戏/言情/玄幻/恐怖/悬疑/现实等场景功能分流 | `_shared/genre-scene-strengthening-contract.md`；首写或重写继续加载 `3-初稿/SKILL.md + CONTEXT.md`，已有源章局部修复继续加载 `4-润色/SKILL.md + CONTEXT.md` |
 | 跨阶段路由和执行拓扑 | 本文件 `System Topology` 与目标阶段 `SKILL.md + CONTEXT.md` |
 | 局部修改牵动整体、repair 判型和影响图 | `repair/SKILL.md + repair/CONTEXT.md`、`repair/types/type-map.md`、命中的 `repair/types/scope/*.md`、`repair/references/impact-scope-contract.md` |
 | 质量门禁和审计 | 目标阶段 `SKILL.md + CONTEXT.md` 与其内置 `review/review-contract.md` |
@@ -351,5 +397,6 @@ python3 .agents/skills/story/scripts/workflow_manager.py record-skill-completion
 - 已能说明该请求应读的 canonical truth 与不该误读的非真源层。
 - 已区分根级 `_shared`、`scripts/`、`templates/` 的共享职责。
 - 已能说明当前项目的题材方向盘如何从 `north_star.yaml.genre_contract` 进入 planning / drafting / polishing / built-in acceptance。
+- 已能说明类型化场面强化不会新建独立主阶段，而是按 owner 路由到 `3-初稿`、`4-润色` 或 `repair`。
 - 已能指出 repo 级 `.codex/` 真源与项目级 `STATE.json.workflow_runtime` 内联工件链的分工。
 - 已能说明 planning root/slice 的分工、`stage_acceptance_packet` 的 covenant，以及 上下文回流 的 PASS+handoff gate。

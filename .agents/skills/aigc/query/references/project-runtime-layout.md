@@ -33,7 +33,7 @@ projects/aigc/<项目名>/
 
 | current stage | project carrier | legacy carrier | query note |
 | --- | --- | --- | --- |
-| `0-初始化` | `0-初始化/`、`MEMORY.md`、`CONTEXT/` | `0-Init/`、legacy `north_star/init_handoff/team` | 新项目 scaffold-only；legacy carrier 存在时标注 optional/readback |
+| `0-初始化` | `0-初始化/`、`MEMORY.md`、`CONTEXT/` | `0-Init/`、旧初始化 carrier | 新项目 scaffold-plus-memory；旧 carrier 存在时只标注历史存在性，不作为当前上下文真源 |
 | `1-分集` | `1-分集/第N集.md` | `1-Planning/` | 旧 `1-Planning` 不再是新链路默认分集目录 |
 | `4-编剧` | `4-编剧/第N集.md` | `2-编导/第N集.md`、`3-Detail/第N集.json` | 旧编导/detail 只在旧项目或用户点名时回读 |
 | `2-美学` | `2-美学/**` | none | 美学协议阶段 |

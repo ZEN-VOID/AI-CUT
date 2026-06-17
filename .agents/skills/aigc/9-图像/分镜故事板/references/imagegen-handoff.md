@@ -20,7 +20,7 @@
 - built-in `image_gen` 支持在对话上下文中使用可见图片作为参照；本地图片路径本身不等于视觉输入。
 - `reference_images` 中的每个本地路径必须先通过 `view_image` 检视进入对话上下文，并在 prompt / manifest / plan 中标注图片角色，之后才可声明为参考图生图或参照图生成。
 - 绑定场景图时，场景图必须标注为 `scene_spatial_reference` 与 `subject_identity_reference`；imagegen prompt 和 plan 必须要求在黑白线稿中保留空间结构、主体身份和关键环境特征，不得要求生成画面风格、光影、氛围与场景参照图保持一致。
-- 分镜故事板统一使用 `standard_storyboard_manuscript_black_white_line_art_base_with_controlled_annotation_colors`；不得把项目全局风格、north star 全局画风或场景图画风作为风格词传入 imagegen。
+- 分镜故事板统一使用 `standard_storyboard_manuscript_black_white_line_art_base_with_controlled_annotation_colors`；不得把项目全局风格、`2-美学` 电影化画面基调或场景图画风作为故事板画风词传入 imagegen。
 - 每个 imagegen task 必须携带 `style_lock_spec`、逐 panel `visual_prompt_atoms`、`layout_aspect_decision` 与 `panel_geometry_blueprint`。
 - 彩色只允许用于标注系统：红色箭头=身体运动；蓝色箭头=摄影机运动；绿色标记=取景/构图笔记；橙色标记=灯光方向；紫色标记=情绪/声音/叙事强调；黑色文本=每个可见角色头顶的角色名、简短镜头笔记和面板标签。
 - 可选 `spatial_handoff` 只用于补充角色站位、相对距离、运动路径或机位方向证据；不得作为 imagegen 前置门禁。缺失时记录 `spatial_handoff_status: none` 并继续。

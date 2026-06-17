@@ -22,9 +22,15 @@
 | `GATE-QRY-05` | “已经发生 / 已兑现 / 已通过”带 actualization + PASS 证据，或明确说未见证据 | `FAIL-QRY-ACTUALIZATION` |
 | `GATE-QRY-06` | `core/current_state`、`planned/actual`、`workflow_state/execution_state` 未混答 | `FAIL-QRY-LAYER-MIX` |
 | `GATE-QRY-07` | legacy fallback 明确标注，不冒充 canonical | `FAIL-QRY-LEGACY` |
+| `GATE-QRY-08` | 输出含结论、truth role、置信度、证据、边界/冲突和下一入口 | `FAIL-QRY-OUTPUT` |
+| `GATE-QRY-09` | 模块没有新增第二执行主链，且不存在 `steps/` 目录 | `FAIL-QRY-MODULE-DRIFT` |
 
 ## Provider Note
 
 `query/` 默认不需要真实 subagent reviewer。若上游任务把本查询包纳入 Skill 2.0 结构审计，可按 `skill-工作车间` 的 review provider 规则另行调度；若上层策略阻断真实 subagent，则降级为本地 checklist 并报告阻断来源。
 
 本仓库的上层运行策略只允许在用户显式要求 subagents / delegation / parallel agent work 时启动真实 subagent；因此普通 `$story-query` 执行默认采用本地 gate checklist。
+
+## Review Gate Mapping
+
+No independent gate beyond `SKILL.md` Review Gate Binding; this file expands the local checklist and verdict vocabulary only.

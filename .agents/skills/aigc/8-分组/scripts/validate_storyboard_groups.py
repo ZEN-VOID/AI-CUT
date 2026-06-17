@@ -494,7 +494,7 @@ def validate_global_style(prefix: str, body: str, errors: list[str]) -> None:
         if label in style_header:
             errors.append(f"{prefix} style header exposes old visible label {label}")
     if "（" in style_header or "）" in style_header:
-        errors.append(f"{prefix} style header must not wrap north_star fields in Chinese parentheses")
+        errors.append(f"{prefix} style header must not wrap legacy style fields in Chinese parentheses")
 
 
 def connector_sequence(groups: list[GroupBlock]) -> list[tuple[str, str]]:

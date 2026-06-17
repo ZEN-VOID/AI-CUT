@@ -1,0 +1,72 @@
+version: 1
+updated_at: "2026-06-17"
+
+default_model:
+  display_name: "Midjourney V8.1"
+  libtv_node_type: "image"
+  resolution_policy: "handled_by_libtv_model_schema"
+  model_key_resolution: "before execution, run libtv model search --type image \"Midjourney V8.1\" and inspect the selected model schema with libtv model <modelKey>"
+
+model_policy:
+  new_subject_default:
+    display_name: "Midjourney V8.1"
+    applies_when: "same subject and same state has no reusable existing image under projects/aigc/<项目名>/3-主体"
+  state_variant_exception:
+    display_name: "Lib Image"
+    applies_when: "same subject is required in a distinct visual state such as costume, age, injury, battle-before-after, damage, time-of-day, season, open-closed, or restored-ruined"
+    model_key_resolution: "before execution, run libtv model search --type image \"Lib Image\" and inspect the selected model schema with libtv model <modelKey>"
+    reference_policy: "must use an existing same-subject image node or uploaded local asset as reference; preserve style and aspect ratio from the base asset"
+    suffix_policy: "inherit subject aspect ratio and fixed quality/style suffix; state variant names add a state suffix before 主图 or 多视图"
+
+suffix_policy:
+  always:
+    - "--hd"
+    - "--style raw"
+  aspect_ratio_by_subject_type:
+    character: "--ar 9:16"
+    prop: "--ar 3:2"
+    scene: "--ar 16:9"
+  final_order:
+    - "style_preset"
+    - "aspect_ratio"
+    - "--hd"
+    - "--style raw"
+
+style_presets:
+  武侠片:
+    id: "wuxia"
+    status: "active"
+    midjourney_params: "--profile lsp4mxl cce1fkr qe4r8p2"
+    applies_to:
+      - "character"
+      - "prop"
+      - "scene"
+  现代都市:
+    id: "modern_city"
+    status: "todo"
+    midjourney_params: ""
+    applies_to:
+      - "character"
+      - "prop"
+      - "scene"
+  悬疑惊悚:
+    id: "mystery_thriller"
+    status: "todo"
+    midjourney_params: ""
+    applies_to:
+      - "character"
+      - "prop"
+      - "scene"
+  科幻:
+    id: "sci_fi"
+    status: "todo"
+    midjourney_params: ""
+    applies_to:
+      - "character"
+      - "prop"
+      - "scene"
+
+assembly_examples:
+  character_wuxia: "--profile lsp4mxl cce1fkr qe4r8p2 --ar 9:16 --hd --style raw"
+  prop_wuxia: "--profile lsp4mxl cce1fkr qe4r8p2 --ar 3:2 --hd --style raw"
+  scene_wuxia: "--profile lsp4mxl cce1fkr qe4r8p2 --ar 16:9 --hd --style raw"

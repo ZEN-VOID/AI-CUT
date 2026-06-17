@@ -25,18 +25,18 @@ last_checked_at: 2026-04-26
 | 多章高超对决千篇一律 | duel variation collapse | 补 `duel_variation_axis`，至少改变对手类型、对决场域、胜法、代价或情绪色彩中的两项 | review gate 检查近邻章节对决差异 | 高超感来自不同博弈，不只是更大声量 |
 | 爽点很刺激但不像这个角色会做的事 | character-payoff mismatch | 补 `character_anchor` 与 `exaggeration_logic`，回指角色个性、欲望、缺陷、惯常反应、关系姿态或成长压力 | 在 payoff review gate 固定角色一致性检查 | 爽点夸张但合情理，不靠剧情需要硬拽角色 |
 | 章级没有本章时间推进 | chapter chronology gap | 补 `chapter_start_state / visible_time_span / event_order / parallel_hidden_events / chapter_end_state / handoff_to_next_chapter` | 在模板和 review gate 固定时间推进槽位 | drafting 能继承章内事件顺序和章末状态 |
-| 本章时间推进漂离卷级时间线 | timeline inheritance drift | 回读目标卷 `本卷时间线 / chapter_chronology` 后重写本章时间推进 | steps 固定 `N3-CHAPTER-TIMELINE` | 章级不静默改变卷级事件顺序 |
+| 本章时间推进漂离卷级时间线 | timeline inheritance drift | 回读目标卷 `本卷时间线 / chapter_chronology` 后重写本章时间推进 | `SKILL.md` 节点表固定 `N3-CHAPTER-TIMELINE` | 章级不静默改变卷级事件顺序 |
 | `selected_mode` 只有枚举值，没有选择依据 | mode arbitration gap | 补 `mode_selection_reason`，并让理由回指本章冲突、任务、信息压力、情绪调性、旅程/游玩状态、`micro_payoff` 或 `exit_hook` | 在 shared handoff、chapter rhythm rules、模板、review gate 和 validator 固定该槽位 | 势能/动能/浪能选择可复核，不靠直觉 |
 | 章内七步完整但连续章感很平 | chapter wave flattening | 补 `previous_next_contrast`，写清承接上一章与预留下一章的波形变化 | 在模板与 review gate 固定前后章对比槽位 | 章节读感有起伏，不是每章同构 |
 | `rhythm_intensity=高` 被滥用 | intensity inflation | 重判本章强度，只有强转折、强行动、强压迫、强情绪或阶段爆点才保留高强度 | 用 `rhythm_intensity` 控制连续高点密度 | 真正高点不被普通章节稀释 |
 | `payoff_type` 与 `micro_payoff` 不一致 | payoff mismatch | 先裁定本章主导读者满足，再改写 `micro_payoff` 或 `payoff_type` 对齐 | review gate 检查 payoff 与兑现动作的一致性 | 读者读完能知道本章“爽点/暖点/信息点”是什么 |
 | `浪能式` 被误写成无事发生 | soft-rhythm payoff gap | 补情绪、关系、世界感、软信息或状态修复层面的 `micro_payoff` | 在 rhythm rules 固定浪能式七步职责，避免把松弛等同于空转 | 松弛但不空，舒缓但有轻盈 payoff |
-| 章级悬念被写成“吊胃口”口号或提前剧透 | chapter suspense switch gap | 补 `本章悬念开关`，明确读者可知、角色可知、隐藏、误导、揭秘、只埋不揭、章末压力和正文禁区 | 模板、steps、review 固定悬念开关并回指卷级 | drafting 能执行信息边界，不写上帝视角说明 |
+| 章级悬念被写成“吊胃口”口号或提前剧透 | chapter suspense switch gap | 补 `本章悬念开关`，明确读者可知、角色可知、隐藏、误导、揭秘、只埋不揭、章末压力和正文禁区 | 模板、`SKILL.md` 节点表、review 固定悬念开关并回指卷级 | drafting 能执行信息边界，不写上帝视角说明 |
 | 一章同时动太多悬念导致读者疲劳 | chapter suspense overload | 补 `本章悬念线程动作` 与 `本章悬念负载`，标出主操作和副操作 | review gate 检查线程动作、负载理由和微兑现 | 本章知道主推哪条悬念、哪条只轻触 |
 | 线索与伏笔混写 | chapter-level information drift | 拆开 `本章线索` 和 `本章伏笔` | 在模板固定两个标题，review gate 禁止合并 | 信息推进和长期回照可区分 |
 | 伏笔只写铺设，不写兑现位判断 | foreshadow incompleteness | 即使无兑现也明确标 `本章无兑现` | 在模板保留 `铺设 / 兑现` 双槽位 | 伏笔段落完整 |
 | 本章支流没有汇聚动作或去向 | task convergence gap | 补 `汇聚动作 / 未汇聚任务去向` | 在模板固定任务关系槽位，review gate 检查支流闭环 | validation 能判断支流是否回到主任务 |
-| 章级局部补写漂离卷级职责 | upstream reread skipped | 重新回读目标卷 `卷规划.md` 与 `整体规划.md` 后再修订 | steps 固定 `N1-UPSTREAM-REREAD`，Input Contract 禁止缺上游落盘 | 章级 `上承卷级任务` 能回指卷级任务线 |
+| 章级局部补写漂离卷级职责 | upstream reread skipped | 重新回读目标卷 `卷规划.md` 与 `整体规划.md` 后再修订 | `SKILL.md` 节点表固定 `N1-UPSTREAM-REREAD`，Input Contract 禁止缺上游落盘 | 章级 `上承卷级任务` 能回指卷级任务线 |
 | 建议写法变成正文句段 | planning/drafting boundary drift | 删除对白、叙述段、正文桥段，只保留结构建议 | review gate 固定非正文化检查 | 章级文件仍是 planning，不是 drafting |
 | 启用 subagents 后没有按项目顾问请教章级执行问题 | advisor consultation gap | 按 `team.yaml` 的 `roles.planning.members` 追问本章职责、时间推进、爽点变奏、悬念开关、任务汇聚和 drafting handoff | 显式启用 subagents 时先生成 `advisor_consultation_packet`，再进入章级规划创作 | `第N章.md` 能说明顾问建议如何转成时间、爽点、悬念、任务或节奏 handoff 指导 |
 
@@ -59,7 +59,7 @@ last_checked_at: 2026-04-26
 14. 若信息推进混乱，先拆 `本章线索` 与 `本章伏笔`，再分别检查可见信息推进和长期回照。
 15. 若输出模板或标题不齐，回到 `templates/chapter-planning.template.md` 与 `templates/output-template.md`。
 16. 若审查意见指出正文化，删除句段级文本，只保留 planning 义务、建议写法和结构意图。
-17. 修复技能包结构后运行工作车间 validator；修复业务章规划后运行父层 planning 输出校验或人工 review gate。
+17. 修复技能包结构后运行 `skill-2.0` validator；修复业务章规划后运行父层 planning 输出校验或人工 review gate。
 18. 如果显式启用 subagents，顾问问题要落到“这一章具体该承担什么变化”，例如本章只开线还是兑现、本章高潮如何和近邻章变奏、本章哪些信息正文不能说。
 
 ## Reusable Heuristics

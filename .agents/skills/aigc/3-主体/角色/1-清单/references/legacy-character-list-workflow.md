@@ -11,7 +11,7 @@ No independent gate: this file is a legacy workflow expansion preserved for audi
 | `constraint_profile` | 上游真源约束、LLM-first 归并约束、三列表格输出约束、首次登场可回指约束。 |
 | `success_criteria` | 每个角色条目都有 registry 来源、首次登场锚点准确、别名/代称归并可解释、表头固定。 |
 | `non_goals` | 不生成角色设计稿、外貌设定、服装方案、提示词或跨域道具/场景清单。 |
-| `complexity_source` | 复杂度来自别名、代称、称谓变化、群体角色和 registry/source anchor 缺口。 |
+| `complexity_source` | 复杂度来自别名、代称、称谓变化、群体角色、多状态/多服装/年龄阶段变体和 registry/source anchor 缺口。 |
 | `topology_fit` | 串行主干 + 风险分支 + review 失败回路。 |
 
 ## Thinking-Action Topology
@@ -57,6 +57,7 @@ flowchart TD
 | `ambiguous_pronoun` | 候选为代称且 source anchor 无法唯一回指 | 不强归并；报告待确认 |
 | `possible_alias` | 不同称呼疑似同一人 | 读取 `types/character-identity-type-map.md` 后由 LLM 裁决 |
 | `group_character` | 候选是群体称呼 | 判断是否为下游设计主体；否则报告不纳入理由 |
+| `state_variant` | 候选是同一角色的服装、战斗、战损、受伤、少年、老年或时间跳跃状态 | 归入 base character，记录 `variant_state_map`；必要时传给 design manifest |
 
 ## Failure Recovery Routes
 
@@ -66,10 +67,12 @@ flowchart TD
 | `merge_gap` | 别名、代称或称谓归并理由不足 | `N3-EVIDENCE-LOOKUP` | source anchor 关键词、项目记忆、人工确认记录 |
 | `first_appearance_gap` | 首次登场晚于候选证据 | `N5-FIRST-APPEARANCE` | 全部出现位置排序表 |
 | `template_drift` | 表头或字段超出三列 | `N6-RENDER` | 当前表头、模板对齐记录 |
+| `variant_split` | 同一角色的状态被拆成多个主体 | `N4-MERGE` | base character 证据、状态标签、source anchor |
 | `script_overreach` | 脚本替代 LLM 生成归并或描述 | `N4-MERGE` | 脚本输出证据、人工/LLM 裁决记录 |
 
 ## Evidence Gate
 
 - 每个最终角色行必须能回到至少一个 `registry_id + canonical_name + source_anchor`。
 - 每个合并必须能说明 `observed_names -> canonical_name` 的证据。
+- 每个状态变体必须能说明 `variant_label -> base_character` 的证据，或标记为待确认风险。
 - 每个首次登场必须早于或等于该角色其他出现位置。

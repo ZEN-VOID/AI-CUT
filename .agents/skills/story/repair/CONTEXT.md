@@ -23,6 +23,7 @@ recommended_action: keep-knowledge-base-focused
 | 只修本章，不检查同层前列导致动机或伏笔断裂 | sibling continuity drift | 回读同卷前序章、上一章末尾、同线索首次埋点和最近一次兑现 | impact scope 固定包含同层前列与后续最近消费者 | 线索首埋、发展、当前修复和后续兑现连续 |
 | 影响范围表只有抽象 surface，执行时仍靠感觉判断 | type matrix underspecification | 回到 `references/impact-scope-contract.md#Universal Type Matrix`，按对象类型加载 `types/scope/*` 包 | 通用规则层固定“当 XX 时检查 XX”，项目层只追加具体章节/对象 | repair packet 列出 `scope_packages_loaded` 与矩阵命中行 |
 | story 项目清理只删除文件，`STATE.json` 仍指向已删除产物 | state projection drift | 同轮写入 `state-maintenance` run，重置当前 stage_progress、workflow_state.last_stable_state，并失效依赖这些源稿的下游投影 | 对 `projects/story/<项目名>/` 的移除/清理操作默认把 `STATE.json` 列为必改或必检对象 | 删除路径不存在；`3-drafting`/`4-polishing` 不再 completed 指向缺失文件；orphan projection 已记录 |
+| repair workflow 同时存在于 `SKILL.md` 与 `steps/`，升级后 validator 阻断 | runtime spine drift | 将节点表、Mermaid、fail loops、module trigger 和 convergence 收回 `SKILL.md`，删除 `steps/` | story repair 的长期节点真源只允许在 `SKILL.md`；references/review 只能回指节点 ID，不再回指 steps 文件 | `validate_skill_2_0.py --mode delivery` 不再报告 unsupported `steps/`，smoke route 能到达 done |
 
 ## Repair Playbook
 
@@ -44,3 +45,5 @@ recommended_action: keep-knowledge-base-focused
 - repair brief 应写给 owning stage 根技能执行，而不是写成最终正文；这能保住阶段真源、作者性边界和后续审计。
 - 通用类型矩阵放在 skill 规则层，项目层只补具体名称、章节和对象；不要让单项目特殊性反向削弱通用必查项。
 - 删除 story 项目章节正文时，`STATE.json` 是运行时真源的一部分；即使相关路径被 `.gitignore` 忽略，也必须以磁盘 JSON 校验为准，同步 `stage_progress`、`workflow_state.last_stable_state`、`governance_index` 与 `task_log`。
+- `story-repair` 的节点、路由、gate、Mermaid 和 fail-code 覆盖必须留在 `SKILL.md`；长细则可以放在 references/types/review，但只允许回指节点 ID。
+- 输出 repair report 时，把 `module_trigger_manifest`、`checkpoint_evidence`、`fallback_or_degradation` 和 `next_generation_constraints` 当成闭环证据，而不是散文式补充。

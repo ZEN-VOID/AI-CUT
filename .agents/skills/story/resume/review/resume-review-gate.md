@@ -61,8 +61,8 @@ finding:
 当无法真实启动默认 reviewer 时，主 agent 本地执行以下 checklist：
 
 1. 运行结构 validator。
-2. 检查 `SKILL.md` 是否只保留入口、路由、门禁和输出合同。
-3. 检查 `references/`、`steps/`、`types/`、`review/` 是否各有单一 owner。
+2. 检查 `SKILL.md` 是否保留入口、类型路由、思行节点、模块触发、门禁和输出合同。
+3. 检查 `references/`、`types/`、`review/` 是否只展开 `SKILL.md` 已授权的细则，不承载第二节点真源。
 4. 检查输出模板是否包含 Output Contract Alignment。
 5. 检查危险动作是否被过滤。
 6. 检查 legacy runtime 是否只作为兼容说明出现。

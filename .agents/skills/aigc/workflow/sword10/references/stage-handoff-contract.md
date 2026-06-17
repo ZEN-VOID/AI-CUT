@@ -12,14 +12,14 @@
 | `5-导演` | `projects/aigc/<项目名>/4-编剧/第N集.md` + `projects/aigc/<项目名>/2-美学/画面基调/全局风格协议.md` | `projects/aigc/<项目名>/5-导演/第N集.md` | `.agents/skills/aigc/5-导演/SKILL.md` |
 | `6-分镜` | `projects/aigc/<项目名>/5-导演/第N集.md` + `2-美学/画面基调` and `2-美学/分镜风格` | `projects/aigc/<项目名>/6-分镜/第N集.md` | `.agents/skills/aigc/6-分镜/SKILL.md` |
 | `7-摄影` | `projects/aigc/<项目名>/6-分镜/第N集.md` + `2-美学/画面基调` and `2-美学/摄影风格` | `projects/aigc/<项目名>/7-摄影/第N集.md` | `.agents/skills/aigc/7-摄影/SKILL.md` |
-| `8-分组` | `projects/aigc/<项目名>/7-摄影/第N集.md` + `projects/aigc/<项目名>/3-主体/subject-registry.yaml` + optional `projects/aigc/<项目名>/0-初始化/north_star.yaml` | `projects/aigc/<项目名>/8-分组/第N集.md` | `.agents/skills/aigc/8-分组/SKILL.md` |
+| `8-分组` | `projects/aigc/<项目名>/7-摄影/第N集.md` + `projects/aigc/<项目名>/3-主体/subject-registry.yaml` + `projects/aigc/<项目名>/2-美学/类型风格.md` + `projects/aigc/<项目名>/2-美学/画面基调/全局风格协议.md` + current/baseline storyboard/cinematography style protocols | `projects/aigc/<项目名>/8-分组/第N集.md` | `.agents/skills/aigc/8-分组/SKILL.md` |
 
 ## Handoff Rules
 
 1. 下游阶段只消费上一阶段 canonical 产物，不消费 workflow ledger 或主窗口摘要。
 2. 续跑时若 `start_stage` 不是 `2-美学`，必须确认上一阶段产物和本表声明的额外输入存在且可信；否则回到缺失产物的 owning stage。
 3. 每个阶段完成后只把路径、校验结果、失败码和必要统计交回主窗口。
-4. `8-分组` 额外需要 `3-主体/subject-registry.yaml`；缺失时阻断正式 pass，不得在分组 YAML 中临时新增主体。旧项目存在 `0-初始化/north_star.yaml` 时可作为只读风格回读。
+4. `8-分组` 额外需要 `3-主体/subject-registry.yaml` 与 `2-美学` 的类型、画面基调和相关风格协议；缺失主体注册表时阻断正式 pass，不得在分组 YAML 中临时新增主体；缺失美学输出时回到 `2-美学` 或记录明确的 N/A/返工目标。
 5. 阶段产物不得写入 legacy 英文路径或旧中文漂移路径。
 
 ## Resume Matrix

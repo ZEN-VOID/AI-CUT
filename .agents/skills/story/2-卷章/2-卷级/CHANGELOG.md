@@ -1,8 +1,15 @@
 # Changelog
 
+## 2026-06-16
+
+- Migrated the former external workflow nodes into `SKILL.md` `Thinking-Action Node Map` as the canonical runtime spine.
+- Added runtime-spine contracts for business requirement analysis, type routing, module loading/triggering, convergence, review gates, quantifiable execution criteria, attention, checkpoints, evaluation prompts, and learning writeback.
+- Added `test-prompts.json`, reference-level review gate mappings, and synchronized README/types/review/guardrails/knowledge/scripts references to the current `skill-2.0` delivery validator.
+- Retired the unsupported external workflow directory after preserving its node semantics in `SKILL.md`.
+
 ## 2026-05-30
 
-- Synced with latest `skill-工作车间` Skill 2.0 delivery contract.
+- Synced with latest `skill-2.0` delivery contract.
 - Added `guardrails/guardrails-contract.md` and `Runtime Guardrails` markers in `SKILL.md`.
 - Rebuilt `types/type-map.md` as a loadable Package Index that points to `types/volume-planning-type-map.md`.
 - Extended review dimensions with `security`, `runtime_behavior`, `integration`, and `convergence`.
@@ -26,7 +33,7 @@
 ## 2026-04-26
 
 - Upgraded `2-卷级` to a Skill 2.0 package.
-- Added canonical partitions: `steps/`, `review/`, `types/`, `knowledge-base/`, `scripts/`, and `agents/`.
+- Added canonical partitions: `review/`, `types/`, `knowledge-base/`, `scripts/`, and `agents`; legacy workflow nodes now live in `SKILL.md`.
 - Rewrote `SKILL.md` as a dynamic reference entry with Input Contract, Reference Loading Guide, Root-Cause Execution Contract, Field Mapping, Mermaid maps, and five-field Output Contract.
 - Added `templates/output-template.md` and aligned the legacy volume template with the Output Contract.
 - Added `references/legacy-upgrade-matrix.md` to preserve old section ownership and migration traceability.

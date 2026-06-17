@@ -31,4 +31,4 @@
 2. 选择 scope 包定位影响对象；先加载 `scope.locality`，再按对象类型加载 1 个或多个 typed scope 包。
 3. 选择 operation 包决定是否写回。
 4. 选择 acceptance 包确定验收深度。
-5. 将命中包作为固定上下文交给 `steps/repair-workflow.md`。
+5. 将命中包作为固定上下文交给 `SKILL.md` 的 `Thinking-Action Node Map`。

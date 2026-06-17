@@ -115,3 +115,10 @@
 
 - 章级是 planning 的最细层，但仍只锁“这章怎么跑”，不直接写正文段落。
 - `mode_selection_reason` 是 planning 证据，不是正文导语；不得写成可直接放入正文的叙述段。
+
+## Review Gate Mapping
+
+| review_question | review_gate | fail_code | rework_target | report_evidence |
+| --- | --- | --- | --- | --- |
+| 本章节奏 handoff 是否齐全？ | 缺 `selected_pack / selected_mode / mode_selection_reason / payoff_type / rhythm_intensity / previous_next_contrast / 七步职责映射 / 规划义务 / 义务段位 / 建议写法` 或无 Mermaid 图即失败 | `FAIL-CH-RHYTHM` | `SKILL.md#N7-CHAPTER-RHYTHM` | 节奏 handoff 字段和 Mermaid 图 |
+| 节奏裁决是否消费本章爽点设计且不正文越界？ | `payoff_type / micro_payoff / selected_mode` 与爽点设计脱节，或建议写法变成正文导语即失败 | `FAIL-CH-RHYTHM` | `SKILL.md#Review Gate Binding` | mode 选择依据、micro_payoff、planning-only 检查 |

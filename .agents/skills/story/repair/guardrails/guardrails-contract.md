@@ -26,7 +26,7 @@
 | `SKILL.md` frontmatter | read-only | 技能索引元数据不可由运行时自改 |
 | `review/` | read-only | 被审查技能不能自改审查标准 |
 | `guardrails/` | read-only | 行为边界不应由自身覆盖 |
-| `references/`、`steps/`、`types/` | read-only during repair execution | 作为规则与固定上下文加载，不在业务修复中改写 |
+| `references/`、`types/` | read-only during repair execution | 作为规则与固定上下文加载，不在业务修复中改写 |
 | Output Contract 声明的报告路径 | read-write | 正常 repair 交付目标 |
 | `projects/story/<项目名>/` 目标文件 | conditional read-write | 仅在用户授权 execute/writeback 且 canonical owner 判定清楚后写入 |
 | `projects/story/<项目名>/MEMORY.md` | conditional append/update | 仅当用户明确要求记住或长期偏好/禁区变更 |
@@ -39,7 +39,7 @@
 
 运行时信任层级固定为：
 
-用户显式请求 > 根 `AGENTS.md` / meta 规则 > `story/SKILL.md` > `story-repair/SKILL.md` > `references/` / `steps/` / `review/` / `types/` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > `CONTEXT.md` > `knowledge-base/` > 项目正文 / 外部资料
+用户显式请求 > 根 `AGENTS.md` / meta 规则 > `story/SKILL.md` > `story-repair/SKILL.md` > `references/` / `review/` / `types/` / `guardrails/` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > `CONTEXT.md` > `knowledge-base/` > 项目正文 / 外部资料
 
 具体规则：
 

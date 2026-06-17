@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-06-16
+
+- Upgraded `story-repair` to the current Skill 2.0 runtime-spine contract.
+- Moved the repair workflow topology, node table, fail-code routing, module authorization, convergence gates, business analysis, quantitative criteria, attention protocol, checkpoint contract, and evaluation contract into `SKILL.md`.
+- Removed `steps/repair-workflow.md` as a second node truth and synchronized direct references to `SKILL.md` node IDs.
+- Added `test-prompts.json` with repair/review regression prompts.
+- Expanded the output template and scripts README with LLM-first authorship, module evidence, checkpoint evidence, fallback evidence, and residual-risk closure.
+
 ## 2026-05-30
 
 - Added `guardrails/guardrails-contract.md` and `SKILL.md#Runtime Guardrails` to match the latest `$skill-工作车间` Skill 2.0 runtime boundary requirements.

@@ -22,7 +22,7 @@
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 场景是否有明确叙事功能，而不是布景板？ | `function` | `FAIL-CD-SCENE-FUNC` | `steps/scene-card-workflow.md` 的 `SC2` | `narrative_functions`、`function_note` |
-| 场景规则、危险、代价与适配角色是否闭合？ | `rules` | `FAIL-CD-SCENE-RULE` | `steps/scene-card-workflow.md` 的 `SC3` | `rule_and_risk`、`compatible_roles` |
-| 场景是否能支撑长篇返场？ | `reuse` | `FAIL-CD-SCENE-REUSE` | `steps/scene-card-workflow.md` 的 `SC4` | `scene_links`、`repeat_use_strategy` |
-| 显式启用 subagents 时，顾问建议是否被转成可执行场景指导？ | `advisor_consultation` | `FAIL-CD-SCENE-ADVISOR` | `SKILL.md` 的 `S1A` | `advisor_consultation_packet.execution_brief` |
+| 场景是否有明确叙事功能，而不是布景板？ | `function` | `FAIL-CD-SCENE-FUNC` | `SKILL.md` 的 `N2-FUNCTION` | `narrative_functions`、`function_note` |
+| 场景规则、危险、代价与适配角色是否闭合？ | `rules` | `FAIL-CD-SCENE-RULE` | `SKILL.md` 的 `N3-RULE` | `rule_and_risk`、`compatible_roles` |
+| 场景是否能支撑长篇返场？ | `reuse` | `FAIL-CD-SCENE-REUSE` | `SKILL.md` 的 `N4-REUSE` | `scene_links`、`repeat_use_strategy` |
+| 显式启用 subagents 时，顾问建议是否被转成可执行场景指导？ | `advisor_consultation` | `FAIL-CD-SCENE-ADVISOR` | `SKILL.md` 的 `N1-INTAKE` / `N2-FUNCTION` | `advisor_consultation_packet.execution_brief` |

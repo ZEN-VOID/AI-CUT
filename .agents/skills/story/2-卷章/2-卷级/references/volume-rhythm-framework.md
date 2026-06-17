@@ -55,3 +55,10 @@
 - `handoff_to_chapter_level`：说明哪些章节需要章级重点处理 `previous_next_contrast`，例如高压后换气、浪能后反拧、冲顶后余波。
 
 本表只给中波职责，不直接锁章级 `selected_pack / selected_mode`；章级仍需根据单章冲突、payoff 与上下章对比自行裁定。
+
+## Review Gate Mapping
+
+| review_question | review_gate | fail_code | rework_target | report_evidence |
+| --- | --- | --- | --- | --- |
+| 本卷节奏是否采用六拍机制而非部级 15 步？ | 套用 Save the Cat 15 步、缺六拍职责或无卷级 promise 即失败 | `FAIL-VOL-RHYTHM` | `SKILL.md#N6-SIX-BEAT-RHYTHM` | 六拍职责、卷 promise、章节功能 |
+| `volume_orchestration_map` 是否能给章级继承？ | 缺 `chapter_payoff_map / chapter_intensity_map / respite_chapters / pressure_chapters / handoff_to_chapter_level` 或无 Mermaid 图即失败 | `FAIL-VOL-RHYTHM` | `SKILL.md#Review Gate Binding` | 配器字段和 Mermaid 图 |

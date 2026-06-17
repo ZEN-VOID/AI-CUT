@@ -144,7 +144,7 @@
    - `primary_issues`
    - `priority_rework_targets`
    - `next_action: 3-初稿-acceptance|3-初稿-rework`
-3. 默认必须经过 `scripts/drafting_volume_quality_guard.py`
+3. 默认必须经过 `../scripts/drafting_volume_quality_guard.py`
 4. 若 guard 返回 `block`：
    - runtime / resume 下一稳定入口必须仍是 `3-初稿`
    - 不得把 `next_step` 继续写成 `review`

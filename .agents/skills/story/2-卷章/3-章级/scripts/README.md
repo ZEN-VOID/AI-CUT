@@ -5,7 +5,7 @@
 ## Available Checks
 
 ```bash
-python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-工作车间/scripts/validate_skill_2_0.py .agents/skills/story/2-卷章/3-章级
+python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-2.0/scripts/validate_skill_2_0.py .agents/skills/story/2-卷章/3-章级 --mode delivery
 python3 .agents/skills/story/2-卷章/scripts/validate_planning_outputs.py --help
 ```
 

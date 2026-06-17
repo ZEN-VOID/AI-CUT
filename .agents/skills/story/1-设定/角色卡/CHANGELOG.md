@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-16
+
+- Upgraded `SKILL.md` to runtime-spine Skill 2.0 with Business Requirement Analysis, Type Routing, Thinking-Action Node Map, Module Loading/Trigger, Convergence, Review Gate Binding, Quantifiable Criteria, Attention, Checkpoint, and Evaluation Prompt contracts.
+- Moved workflow node authority from the old workflow directory into `SKILL.md`; removed obsolete workflow files and duplicate runtime-experience files.
+- Added `test-prompts.json` for generate, repair, and audit regression prompts.
+- Synchronized references, types, guardrails, and README to the new source-truth layout.
+
 ## 2026-05-30
 
 - Aligned package with latest `skill-工作车间` Skill 2.0 delivery contract.

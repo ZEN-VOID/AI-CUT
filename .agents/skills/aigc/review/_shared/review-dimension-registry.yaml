@@ -22,7 +22,7 @@ policies:
 checkpoints:
   - id: "init-handoff-ready"
     stage: "0-初始化"
-    trigger_node: "scaffold-only runtime + MEMORY.md ready"
+    trigger_node: "scaffold-plus-memory runtime + MEMORY.md ready"
     scope: "project"
     mandatory_dimensions:
       - "planning-seed-validator"

@@ -1,6 +1,6 @@
 # Query Heuristics
 
-本文件保存 `$story-query` 可复用查询经验。强制执行规则仍以 `SKILL.md`、`types/`、`steps/` 和 `review/` 为准。
+本文件保存 `$story-query` 可复用查询经验。强制执行规则仍以 `SKILL.md`、`types/`、`references/` 和 `review/` 为准。
 
 ## Heuristics
 
@@ -15,4 +15,4 @@
 
 ## Migration Note
 
-2026-04-27 的 Skill 2.0 升级把旧 `SKILL.md` 中的步骤、判型、输出样式和质量门禁拆到 `steps/`、`types/`、`templates/`、`review/`。后续新增细则时优先写入对应 owner，不要把入口文件重新写成大全。
+2026-06-16 的 runtime-spine 升级把执行节点、路由、gate 和 Mermaid 拓扑收回 `SKILL.md`，并把旧 `steps/` 的只读命令细节迁入 `references/query-command-catalog.md`。后续新增细则时优先写入对应 owner，但不得恢复第二执行主链。

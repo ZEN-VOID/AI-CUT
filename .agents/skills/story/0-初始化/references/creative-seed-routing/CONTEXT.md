@@ -40,3 +40,10 @@
 - 反套路包是题材映射问题，不是 team 编组问题；把它绑在上层 team 路由里会越改越乱。
 - 趋势资料天然比其他 leaf docs 更不稳定，因此必须永远保持 L3 受控入口。
 - `think-think` 真正执行到位的标志，不是“模块里出现了三轴三重标题”，而是能看到事实/推断分层、增强验证、落盘矩阵和正式设计报告同时成立。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 本 CONTEXT 是否只沉淀创意路由经验，而不新增父 `SKILL.md` 未授权的入口、节点或输出合同？ | `creative_seed` / `integration` | `FAIL-INIT-CREATIVE-ROUTE` / `FAIL-INIT-INTEGRATION` | `references/creative-seed-routing/module-spec.md`、父 `SKILL.md` Module Loading Matrix | context entry summary、module authorization check |
+| 趋势资料与 leaf reference 读取经验是否仍受 `module-spec.md` 的最小读取和趋势双闸门约束？ | `creative_seed` / `security` | `FAIL-INIT-CREATIVE-ROUTE` / `FAIL-INIT-SECURITY` | `references/creative-seed-routing/module-spec.md` Phase 1-2 | loaded_leaf_references、trend_gate evidence |

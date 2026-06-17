@@ -6,6 +6,7 @@
 - 候选角色只从 registry 条目的 `id`、`canonical_name`、`aliases`、`first_appearance`、`source_anchors` 和 `style_refs` 进入清单候选池。
 - `1-分集` 故事源和 `2-美学/角色风格` 协议只作为 source anchor 与风格证据回查，用于解释 registry 中的别名、代称、身份称呼或含糊项。
 - 已有 `8-分组` 稿只允许作为后置命名对齐证据；不得直接从 `8-分组`、`7-摄影`、剧情梗概、场景清单、道具清单或外部设定创建角色清单条目。
+- 多服装、多状态和年龄阶段只作为 `variant_state` 证据。`常服`、`礼服`、`制服`、`伪装`、`战斗态`、`战损态`、`受伤态`、`恢复态`、`少年期`、`老年期`、时间跳跃等不得绕过 registry 创建新角色；它们应归入同一 base character 的 `variant_state_map`。
 
 ## Evidence Rules
 
@@ -13,6 +14,7 @@
 | --- | --- | --- |
 | registry `subjects.characters` | 创建候选角色、记录 canonical name / alias、定位首次登场 | 自动扩写角色设定 |
 | source anchors / 故事源 | 解释候选角色身份、代称回指、合并证据 | 绕过 registry 新增候选 |
+| variant state anchors | 识别同一角色的服装、战斗、战损、受伤、年龄阶段和时间状态 | 把状态直接升格为新角色主体 |
 | 项目 `MEMORY.md` | 应用已确认命名偏好、禁区、长期别名规则 | 推翻上游明确事实 |
 | 项目 `CONTEXT/` | 复核已有角色映射和人工设定 | 替代本轮 registry 证据 |
 
@@ -23,11 +25,13 @@
 3. 群体角色只有在下游需要作为设计主体时才纳入；普通背景人群记录到执行报告风险区。
 4. 低置信度归并不得强行落入清单；应在执行报告中列出待确认项。
 5. `名称` 单元承载别名，例如 `林晓（别名：班长、她）`；清单主体不新增 `别名` 列。
+6. 状态变体默认不拆行：服装、战斗、战损、受伤、年龄阶段或伪装身份若仍指向同一叙事主体，必须归入该角色；只有 registry 明确给出不同人物、克隆体、分身或独立叙事主体时，才进入独立行或上游修复建议。
 
 ## Description Rules
 
 - `原文描述（关键词式）` 使用分号或顿号分隔关键词。
 - 关键词来源优先级：registry 原词 > source anchor 中用于辨认身份的短语 > 项目已确认别名规则。
+- 允许追加紧凑变体标签：`变体：常服/礼服/战斗态/战损态/受伤态/少年期/老年期`。
 - 禁止加入外貌设计、服装设计、性格分析、后续剧情推断或提示词。
 
 ## Review Gate Mapping
@@ -41,6 +45,8 @@
 | 姓名、身份称呼、亲属称呼、职务称呼、代称之间的归并是否都有 source anchor 或项目上下文证据，而不是因称谓相似、职业相同或代词性别相同就硬合并？ | `GATE-CHAR-LIST-03` | `FAIL-CHAR-LIST-03` | `types/character-identity-type-map.md` / `N4-MERGE` | `identity_type_profile` 标注 `ID-NAME`、`ID-ALIAS`、`ID-ROLE-TITLE`、`ID-RELATION`、`ID-PRONOUN` 等类型；报告列出归并依据和被拆分的误并候选。 |
 | 群体角色是否只有在下游需要作为设计主体时才纳入；普通背景人群是否进入执行报告风险区或不纳入说明？ | `GATE-CHAR-LIST-05` | `FAIL-CHAR-LIST-09` | `N7-REVIEW` | `group_character` 风险项列出 registry 原值、涉及 source anchor、纳入/不纳入理由和待确认问题。 |
 | 低置信度归并是否没有强行落入清单，而是在执行报告中列出待确认项？ | `GATE-CHAR-LIST-05` | `FAIL-CHAR-LIST-09` | `N7-REVIEW` | `review_result` 或 `执行报告.md` 包含低置信候选、证据不足点、建议人工确认口径和暂不强归并处理。 |
+| 多服装、多状态、年龄阶段、战斗、战损、受伤、伪装或时间跳跃是否被识别为同一 base character 的变体，而不是拆成多个 canonical 角色行？ | `GATE-CHAR-LIST-09` | `FAIL-CHAR-LIST-VARIANT-SPLIT` | `N3-EVIDENCE` / `N4-MERGE` | `variant_state_map` 记录 `base_character`、`variant_label`、`variant_type`、`source_anchor` 和归属裁决。 |
+| 显著状态证据是否没有被吞掉；需要设计多套资产时是否写入关键词标签或可选 `design-manifest.yaml.character_variants` sidecar？ | `GATE-CHAR-LIST-09` | `FAIL-CHAR-LIST-VARIANT-OMISSION` | `N3-EVIDENCE` / `N6-RENDER` | `description_keyword_evidence` 或 manifest sidecar 标出 `design_needed`。 |
 | `名称` 单元是否承载别名信息，没有新增独立 `别名` 列或把同一角色拆成多个主体行？ | `GATE-CHAR-LIST-07` | `FAIL-CHAR-LIST-05` | `N6-RENDER` | 渲染后的 `角色清单.md` 表头检查、重复主体检查和别名收束记录。 |
 | `原文描述（关键词式）` 是否按 registry 原词、source anchor 身份短语、项目已确认别名规则的优先级取证，并保持关键词式表达？ | `GATE-CHAR-LIST-07` | `FAIL-CHAR-LIST-08` | `N6-RENDER` | `description_keyword_evidence` 标明每个关键词来源；执行报告列出被压缩或删除的扩写内容。 |
 | `原文描述（关键词式）` 是否没有加入外貌设计、服装设计、性格分析、后续剧情推断或提示词？ | `GATE-CHAR-LIST-07` | `FAIL-CHAR-LIST-08` | `N6-RENDER` | `角色清单.md` 抽样行、扩写删除记录和触发 `FAIL-CHAR-LIST-08` 的原句证据。 |

@@ -25,7 +25,7 @@
 | 直接接手剧本时被旧规则阻断到 7-摄影 | 源层输入路由 | 设置 `source_state=direct_screenplay`，以剧本声画 atomic unit 由 LLM 自动规划约 14.5 秒/组，并在报告声明时间码来源 | boundary/review 固定 direct screenplay intake rule；不把本阶段规划时间码伪称为 `7-摄影` 真源 | frontmatter 和报告含 `source_state=direct_screenplay`，validator 结构通过，报告说明 `7-摄影` diff 不适用，最终结束秒以 `.5` 结尾 |
 | 单组总时长超过 14.5 秒仍被放行 | 时长硬门禁层 | 重裁边界，移动完整 atomic unit 到相邻组或新组；若单个 atomic unit 自身超 14.5 秒，回退 `7-摄影` | review 和 validator 固定 `>14.5s = error`，执行报告不得写完整性例外放行 | validator 对超 14.5 秒组报 error |
 | 旧字段残留 | schema 迁移层 | 删除 `分镜画面：`、`增补首帧：`、`回龙帧：`、`入场镜头：`、`出场画面：`、`画面属性：`、`入场画面：`；只保留 `全局风格：` 和分镜行标题下的普通时间码正文 | validator 与 review 固定旧字段 error | 新产物不含旧字段，组头顺序符合新合同 |
-| 全局风格位置错误 | 风格字段层 | 把 `全局风格：` 移到场景标题行下方，字段内只保留单行固定前置词 + 当前组 `Global Style Prompt` 整理句 | north-star projection contract 固定场景标题行之后立即输出 `全局风格：` 单行内容 | 每组均为 `场景 -> 全局风格 -> 单行内容` |
+| 全局风格位置错误 | 风格字段层 | 把 `全局风格：` 移到场景标题行下方，字段内只保留单行固定前置词 + 当前组 `Global Style Prompt` 整理句 | visual-tone projection contract 固定场景标题行之后立即输出 `全局风格：` 单行内容 | 每组均为 `场景 -> 全局风格 -> 单行内容` |
 | 全局风格被完整照抄到每个分镜组 | 风格场景化整理层 | 回到 `Global Style Prompt` 母稿和当前组证据，只抽取当前组匹配风格句，压到 300 字以内；不得补回 `Visual Slogan`、`Design Principle`、`Visual Gene Profile` 或 `Negative Traits` 独立行 | projection contract 固定 `group_style_projection`，全局风格是并集母稿，分组输出是当前组匹配摘取 | 每组单行以固定前置词开头，后接当前组专属风格整理句 |
 | 画面构图或位置细节字段残留 | schema 迁移层 | 删除 `画面构图：` 和六类位置细节字段，并重算 YAML 字数 | validator 与 review 固定禁用位置字段 error | 新产物不含画面构图或位置细节字段 |
 | 首帧衔接/回龙帧缺失、落位错误或写成规则说明 | 线头帧层 | 把衔接内容并入第一个时间码分镜行内第一条普通 `[0-N秒]` 分镜行；删除 `分镜画面：`、`增补首帧：` 和 `回龙帧：` 标签；第二组起先抽取上一组尾帧状态锚点五项元素 | workflow 固定 `N6-FIRST-LINE-CONTINUITY`，review 固定 `first_storyboard_continuity_review` | 第一个时间码行只写画面和必要声音，不写来源说明、规则说明或模板化尾句；第二组起能看见上一组尾帧状态锚点 |
@@ -34,15 +34,15 @@
 | YAML 统计或风格字段被算入口径 | 统计边界层 | 重新统计标题后场景标题行和分镜剧本正文，排除组标题、`全局风格：` 单行内容和 fenced YAML | statistics contract 固定计入/排除边界 | `字数统计` 与 validator 估算一致或报告差异 |
 | 脚本生成分组正文 | LLM-first 层 | 停用生成逻辑，改为 LLM 输出 canonical 分组稿，脚本只校验 | scripts README 和 validator 明确只读检查 | 脚本没有生成边界决策、首帧衔接或 canonical 分组正文 |
 | 分组稿格式合规但像固定模板、批量插入、正则套句或映射投影 | LLM-first 作者性层 | 废弃候选稿，回到 source atomic unit、边界裁决、首帧衔接和组级风格节点，由 LLM 重做 canonical 分组稿；脚本只保留校验 | review 固定 `GATE-GROUP-AUTHORSHIP`，不得用同义改写或换序润色放行 | `FAIL-GROUP-SCRIPTED-PROJECTION` 为 0，`boundary_reason` 和 `authorship_integrity_audit` 可复查 |
-| 上游上下文没有导向分组决策 | 上游方向继承层 | 补 `Upstream Context Application Map` 与 `Upstream Grouping Direction Matrix`，把美学、主体注册表、摄影/source、north_star 和项目上下文分别落到组边界、全局风格、首帧衔接、YAML 主体统计与下游 handoff | review 固定 `GATE-GROUP-UPSTREAM-CONTEXT` 与 `GATE-GROUP-UPSTREAM-DIRECTION`；分组不新增主体 | 矩阵可回指 source anchor、stage decision、output anchor 和 no-new-subjects boundary |
+| 上游上下文没有导向分组决策 | 上游方向继承层 | 补 `Upstream Context Application Map` 与 `Upstream Grouping Direction Matrix`，把 `2-美学` 输出、主体注册表、摄影/source 和项目上下文分别落到组边界、全局风格、首帧衔接、YAML 主体统计与下游 handoff | review 固定 `GATE-GROUP-UPSTREAM-CONTEXT` 与 `GATE-GROUP-UPSTREAM-DIRECTION`；分组不新增主体 | 矩阵可回指 source anchor、stage decision、output anchor 和 no-new-subjects boundary |
 | 氛围描写过载导致武侠动作推进变慢 | 画面功能层 | 保留风格锚点，删减重复光学/材质/微观物理解释，把镜头任务改写为威胁路径、人物判断、攻防因果、代价结果或下游生成锚点 | review 增加“氛围是否服务动作/保护/代价/尾钩”的语义复核；不把月光、雾、水膜、折射等高频词堆叠当作电影感 | 每组首要功能可一句话说清；动作段中人物/兵器/空间因果优先于环境解释；收束段才允许高比例氛围 |
-| 项目记忆中的动作风格词只停留在全局风格句，正文动作没有落实 | MEMORY 投影层 | 把 `MEMORY.md` / `north_star.yaml` 中的动作词逐项翻译为正文机制：大幅跟踪=连续空间镜头，低角度=撞点压迫，极速剪辑=三拍快切，芭蕾强度=肩腰胯脚连续发力，白刃气流=攻击方向和破坏路径，实体破坏=石瓦泥木水汽可见后果 | repair/review 时增加“风格词 -> 动作机制 -> 画面证据”映射，不允许只在 `全局风格：` 中重复长期词汇 | 动作组正文能指出身体身法、镜头运动、兵器撞点、实体破坏和叙事状态变化；不是只有风格标签 |
+| 项目记忆或 2-美学中的动作风格词只停留在全局风格句，正文动作没有落实 | MEMORY/2-美学 投影层 | 把 `MEMORY.md`、`2-美学/画面基调` 或 `2-美学/分镜/摄影风格` 中的动作词逐项翻译为正文机制：大幅跟踪=连续空间镜头，低角度=撞点压迫，极速剪辑=三拍快切，芭蕾强度=肩腰胯脚连续发力，白刃气流=攻击方向和破坏路径，实体破坏=石瓦泥木水汽可见后果 | repair/review 时增加“风格词 -> 动作机制 -> 画面证据”映射，不允许只在 `全局风格：` 中重复长期词汇 | 动作组正文能指出身体身法、镜头运动、兵器撞点、实体破坏和叙事状态变化；不是只有风格标签 |
 | 分组提示词脱离已生成主体参照图 | 主体参照投影层 | 先逐图核对角色服装、发型、武器、道具、场景空间结构、材质和主色，再把正文中冲突词替换为参照图可见事实；无图主体只保留剧情锚点，不做图像事实扩写 | repair/review 时若用户提供角色/场景图片路径，必须先做 asset-reference alignment pass，再跑 validator；不要只依赖旧稿想象或泛武侠模板 | 正文不再出现与图片冲突的颜色/服装/道具/空间词；角色造型、场景结构和 YAML 引用能一一对应到已生成主体图 |
 | Skill 2.0 delivery validator reject 但业务合同看似完整 | runtime-spine 可解析性层 | 补齐 validator 机械要求的 `Multi-Subskill Continuous Workflow`、`Field Mapping`、S20 注意力/检查点行、Runtime Guardrails、顶层数组 `test-prompts.json`、types 索引和模块根授权 | 升级 skill 时先跑 meta `validate_skill_2_0.py --mode delivery` 与 `smoke_test_skill_2_0.py --mode delivery`，再根据 fail code 同步 SKILL、references、templates、review、README 和 test prompts | delivery validator exit 0，smoke verdict 为 accept；不存在旧节点名、未映射 fail code 或模板 YAML 形状漂移 |
 
 ## Repair Playbook
 
-1. 先锁定 `source_camera_path`、`north_star_path` 和目标集号，确认输出与上游一一对应。
+1. 先锁定 `source_camera_path`、`visual_tone_path`、`type_style_path` 和目标集号，确认输出与上游一一对应。
 2. 从摄影稿或用户指定 source 中建立 atomic unit：场景标题、字段行、`分镜N（起始秒-结束秒）：` 行或兼容 `[起始秒-结束秒]` 时间段必须同组移动。
 3. 先按真实场景建立候选组，再在场内按上游每个分镜行最后结束秒累计出的分镜总时长、atomic unit 完整性和字数/对白风险复核裁决边界；落盘时把组内时间段改写为当前分镜组基准下连续递增的 `[N-N秒]`。
 3a. 若用户要求 `8-分组` 直接接手剧本或编导稿，先判为 `direct_screenplay`：把剧本字段、对白与对应画面、动作落点、音效画面、物件证据和转场整理为声画 atomic unit，由 LLM 规划约 14.5 秒/组并补写连续时间码；报告必须声明源路径、时间码来源和 `.5` 收束。
@@ -60,7 +60,7 @@
 14. 若用户或 review 指出“氛围太多”，不要简单删除风格词；先按组判断氛围功能：开场氛围应建立威胁路径，动作段氛围应显影攻防因果，牺牲/葬礼/尾钩氛围应承载代价余韵。凡只解释月光、雾、水膜、折射、反射率、半毫米位移而不改变人物判断、空间关系、攻击路线或情绪后果的句子，优先压缩或改写为可拍动作锚点。
 15. 若用户要求按 `MEMORY.md` 复核“拍摄风格词汇”是否在动作设计中到位，先抽取长期词汇，再逐项落到分镜正文机制：`大幅跟踪运镜` 要有连续空间位移和镜头路径，`极速剪辑` 要有明确快切拍点，`芭蕾般动作强度` 要有肩线、腰胯、脚步、反力和衣袍弧线，`白刃剑气流` 要指向攻防路线，`实体破坏/金属火花` 要产生石、瓦、泥、木、水汽或火星落点的可见后果。缺哪项，就只修对应动作组，不把安魂、葬礼、尾钩改成动作奇观。
 16. 若用户指出提示词脱离角色/场景参照图，先逐张查看已生成主体图并记录可见事实，再修正文中的颜色、服装、道具、武器、发型、空间结构和材质词；例如伞面颜色、衣衫颜色、场景入口/门缝/木桩/盐袋等都以图片为准。没有提供参照图的主体只保留剧情功能，不把想象细节写成图像事实。修完后用关键词扫描旧冲突词，并跑分组 validator。
-17. 若分组报告只写读取了 `2-美学`、`3-主体`、`7-摄影` 或 north_star，但没有说明它们如何改变边界、风格、首帧衔接、YAML 和下游 handoff，按 `FAIL-GROUP-UPSTREAM-DIRECTION-MATRIX` 返工；尤其要确认 YAML 主体只来自 `subject-registry.yaml`，不能在矩阵里补造新主体。
+17. 若分组报告只写读取了 `2-美学`、`3-主体` 或 `7-摄影`，但没有说明它们如何改变边界、风格、首帧衔接、YAML 和下游 handoff，按 `FAIL-GROUP-UPSTREAM-DIRECTION-MATRIX` 返工；尤其要确认 YAML 主体只来自 `subject-registry.yaml`，不能在矩阵里补造新主体。
 
 ## Reusable Heuristics
 
@@ -72,7 +72,7 @@
 - 新产物不再输出 `画面构图：` 和六类位置细节字段；如旧稿迁移，应先删除这些字段，再重算每组 `字数统计`。
 - 首帧衔接不是输出字段；本阶段可称为回龙帧，但它必须内化到第一个时间码分镜行里，不要写 `回龙帧：`、规则说明或来源解释。第二组起，普通首行必须能复现上一组尾帧状态锚点的五类元素，而不是只写“承接上一组”或承接情绪。
 - 不再生成独立 3-4 秒连接件；相邻组的“线头”只存在于下一组第一个普通时间码分镜行中。
-- north_star 全局风格是作品全集总风格母稿，分组输出不是完整照抄，而是按当前组场景类型抽取匹配部分。
+- `2-美学/画面基调/全局风格协议.md` 是作品全集总风格母稿，分组输出不是完整照抄，而是按当前组场景类型抽取匹配部分。
 - 每集首组之前没有上一组尾帧，因此首组第一个 `[0-N秒]` 行直接整理本组开始画面；从第二组开始回看上一组最后分镜行，完整代入尾帧状态锚点：主体、动作余势、关键道具/介质、光声残留和空间关系；只调整景别和镜头视角。若回龙到声音承托画面，同步带入对应声音内容，但落盘时不显式写来源说明。
 - 武侠项目的氛围应是“压迫/遮蔽/显影/代价/尾钩”的功能层，不应退化为持续的微观物理说明。动作组里，水膜、月光、雾线、花瓣、水珠等元素必须尽量绑定攻击方向、身体反应、兵器撞点或防线状态；否则会削弱武侠电影的动能。
 - 武侠动作的项目级风格词必须在正文中变成“身体 + 镜头 + 撞点 + 后果”。如果只在 `全局风格：` 写大幅跟踪、低角度、极速剪辑、芭蕾强度、白刃气流和实体破坏，而普通分镜正文仍只有静物、氛围或器物反应，下游视频会得到风格标签而不是动作设计。

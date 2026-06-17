@@ -1,6 +1,6 @@
 # Volume Planning Heuristics
 
-本文件保存稳定可复用经验。强制入口与门禁仍以 `SKILL.md`、`references/`、`steps/` 和 `review/` 为准。
+本文件保存稳定可复用经验。强制入口与门禁仍以 `SKILL.md`、`references/` 和 `review/` 为准。
 
 ## Heuristics
 

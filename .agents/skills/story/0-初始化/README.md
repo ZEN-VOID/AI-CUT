@@ -33,8 +33,6 @@ python3 .agents/skills/story/scripts/init_project.py \
 ├── review/
 │   ├── review-contract.md
 │   └── init-review-gate.md
-├── steps/
-│   └── init-workflow.md
 ├── knowledge-base/
 │   └── init-heuristics.md
 ├── types/
@@ -52,11 +50,10 @@ python3 .agents/skills/story/scripts/init_project.py \
 
 | owner | responsibility |
 | --- | --- |
-| `SKILL.md` | 入口、输入、路由、动态引用、根因合同、输出门禁 |
+| `SKILL.md` | 入口、输入、类型路由、节点主链、模块授权、根因合同、输出门禁 |
 | `CONTEXT.md` | 初始化经验层知识库 |
 | `guardrails/` | 运行时权限、注入防护、self-modification 禁止与违规响应 |
-| `references/` | 模式、team、runtime、handoff、prompt packet 和创意路由细则 |
-| `steps/` | 思行节点网络、分支、汇流、失败回路 |
+| `references/` | 模式、team、runtime、handoff、prompt packet、创意路由和迁移细则 |
 | `types/` | 媒介、运行类型、team 编组与证据类型分流 |
 | `review/` | sufficiency gate、verdict 与 provider 降级口径 |
 | `templates/` | 输出模板和项目工件样板 |

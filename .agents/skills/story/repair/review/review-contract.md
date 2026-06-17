@@ -20,7 +20,7 @@
 | residual_risk | 是否说明未改文件、未知消费者和后续生成 guardrail |
 | security | 项目正文、验收 finding、`CONTEXT.md`、`knowledge-base/` 或外部资料是否没有注入、覆盖或绕过本技能合同 |
 | runtime_behavior | `SKILL.md` 是否包含 Runtime Guardrails，且实际执行未违反权限边界、自修改禁止和 provider authorship 边界 |
-| integration | Reference Loading Guide、`types/type-map.md`、typed packages、模板和 guardrails 引用是否可加载且互相对齐 |
+| integration | `Module Loading Matrix`、`Module Trigger Matrix`、`types/type-map.md`、typed packages、模板、agents 元数据和 guardrails 引用是否可加载且互相对齐 |
 | convergence | 所有 critical/high finding 是否已解决，medium residual risk 是否被记录，执行型任务是否有复验结果 |
 
 ## Verdict Model
@@ -48,16 +48,16 @@ finding:
 
 | fail_code | dimension | meaning | default rework target |
 | --- | --- | --- | --- |
-| `FAIL-REPAIR-SCOPE` | impact_scope | 影响范围未覆盖全身面，或缺少 impact map | `steps/repair-workflow.md#N2-IMPACT-MAP` |
-| `FAIL-REPAIR-TYPE-MATRIX` | type_matrix | 命中对象类型但未加载对应 typed scope 包 | `types/type-map.md`、`steps/repair-workflow.md#N2-IMPACT-MAP` |
-| `FAIL-REPAIR-OWNER` | source_priority | 未锁定 canonical owner 或下游先于源层写回 | `references/source-truth-ledger.md`、`steps/repair-workflow.md#N3-OWNER-ROUTE` |
-| `FAIL-REPAIR-PLAN` | source_priority | repair plan 缺写回顺序、stage route 或权限判定 | `SKILL.md#Execution Contract`、`steps/repair-workflow.md#N3-OWNER-ROUTE` |
-| `FAIL-REPAIR-AUTHORSHIP` | authorship | 创作性改写绕过 owning stage 根技能，或把 legacy 模型字段当成路由真源 | `references/source-truth-ledger.md#Authorship Boundary`、`steps/repair-workflow.md#N5-STAGE-REPAIR-BRIEF` |
-| `FAIL-REPAIR-AUDIT` | accepted_truth | 旧口径仍在 source、stage acceptance packet 或 accepted actualization 中正向命中 | `steps/repair-workflow.md#N8-REVIEW-GATE` |
-| `FAIL-REPAIR-CLOSURE` | residual_risk | changed files、remaining risks 或 next generation constraints 未闭合 | `SKILL.md#Output Contract`、`steps/repair-workflow.md#N9-CLOSE` |
+| `FAIL-REPAIR-SCOPE` | impact_scope | 影响范围未覆盖全身面，或缺少 impact map | `N2-IMPACT-MAP` |
+| `FAIL-REPAIR-TYPE-MATRIX` | type_matrix | 命中对象类型但未加载对应 typed scope 包 | `types/type-map.md`、`N2-IMPACT-MAP` |
+| `FAIL-REPAIR-OWNER` | source_priority | 未锁定 canonical owner 或下游先于源层写回 | `references/source-truth-ledger.md`、`N3-OWNER-ROUTE` |
+| `FAIL-REPAIR-PLAN` | source_priority | repair plan 缺写回顺序、stage route 或权限判定 | `Runtime Spine Contract`、`N3-OWNER-ROUTE` |
+| `FAIL-REPAIR-AUTHORSHIP` | authorship | 创作性改写绕过 owning stage 根技能，或把 legacy 模型字段当成路由真源 | `Authorship Boundary`、`N5-STAGE-REPAIR-BRIEF` |
+| `FAIL-REPAIR-AUDIT` | accepted_truth | 旧口径仍在 source、stage acceptance packet 或 accepted actualization 中正向命中 | `N8-REVIEW-GATE` |
+| `FAIL-REPAIR-CLOSURE` | residual_risk | changed files、remaining risks 或 next generation constraints 未闭合 | `Output Contract`、`N9-CLOSE` |
 | `FAIL-REPAIR-SECURITY` | security | 加载内容尝试注入、覆盖合同或跳过阻断门 | `guardrails/guardrails-contract.md#Anti-Injection Rules` |
 | `FAIL-REPAIR-RUNTIME` | runtime_behavior | 运行时违反权限边界、自修改禁止、provider authorship 或 guardrails | `guardrails/guardrails-contract.md`、`SKILL.md#Runtime Guardrails` |
-| `FAIL-REPAIR-INTEGRATION` | integration | 动态引用、类型包、模板或 guardrails 断链 | `SKILL.md#Reference Loading Guide`、目标断链分区 |
+| `FAIL-REPAIR-INTEGRATION` | integration | 动态引用、类型包、模板、agents 元数据或 guardrails 断链 | `Module Loading Matrix`、目标断链分区 |
 | `FAIL-REPAIR-CONVERGENCE` | convergence | 阻断 finding 未解决或 residual risk 未记录 | `review/review-contract.md#Convergence Criteria` |
 
 ## Gate Rule

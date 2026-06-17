@@ -23,7 +23,7 @@ This file records the 2026-04-24 upgrade from the former single-file `0-初始�
 | initialization option card | `templates/init-option-card.template.md` | move | medium | template readback |
 | Team Manifest Contract | `references/mode-and-team-contract.md` | move | high | semantic review |
 | Prompt Packet Contract | `references/mode-and-team-contract.md` | move | high | semantic review |
-| North Star / Stage Entry / Adaptation | `references/artifacts-and-sources.md` | move | high | template + review gate |
+| Retired global style carrier / Stage Entry / Adaptation | `references/artifacts-and-sources.md` | move and retire active style ownership | high | template + review gate |
 | Lazy Governance | `references/artifacts-and-sources.md` | move | medium | review gate |
 | Story Source Manifest / Completeness / Reconciliation | `references/artifacts-and-sources.md` | move | high | semantic review |
 | Synthesis Contract | `references/artifacts-and-sources.md` | move | high | review gate |
@@ -40,7 +40,7 @@ This file records the 2026-04-24 upgrade from the former single-file `0-初始�
 | `CONTEXT.md` | `CONTEXT.md` | keep, patch obsolete single-source notes | context audit |
 | `CHANGELOG.md` | `CHANGELOG.md` | keep, append migration | manual readback |
 | `agents/openai.yaml` | `agents/openai.yaml` | keep, shorten description and update prompt | validator |
-| `templates/north-star.template.yaml` | same | keep | template readback |
+| `templates/north-star.template.yaml` | removed | retire; `2-美学` owns downstream aesthetic context | AIGC strict audit |
 | `templates/init-handoff.template.yaml` | same | keep | template readback |
 | `templates/project-memory.template.md` | same | keep | template readback |
 | missing output-template binding | `templates/output-template-map.md` | create | Output Contract alignment |

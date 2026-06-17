@@ -7,8 +7,11 @@
 
 project_root: `projects/aigc/<项目名>`
 output_root: `projects/aigc/<项目名>/3-主体/场景/3-生成`
-imagegen_mode: `built_in_generate`
-reference_context_status: `visible_in_conversation_context | pending_view_image`
+libtv_canvas_mode: `libtv_canvas_generate`
+asset_reuse_decision: `generate_new_subject | reuse_existing_asset | upload_existing_asset | generate_state_variant`
+local_sync_status: `already_present | synced | copied | pending | blocked`
+model_policy: `new_subject_midjourney_default | state_variant_lib_image`
+reference_context_status: `linked_in_libtv_canvas | pending_libtv_node_reference`
 review_status: `external_provider | local_checklist`
 
 ## Inputs
@@ -19,9 +22,9 @@ review_status: `external_provider | local_checklist`
 
 ## Outputs
 
-| subject_id | subject | main_image | main_json | multiview_image | multiview_json | verdict |
-| --- | --- | --- | --- | --- | --- | --- |
-| {{主体ID}} | {{主体名称}} | `{{主体ID}}-{{主体名称}}-主图.{{ext}}` | `{{主体ID}}-{{主体名称}}-主图.json` | `{{主体ID}}-{{主体名称}}-多视图.{{ext}}` | `{{主体ID}}-{{主体名称}}-多视图.json` | {{verdict}} |
+| subject_id | subject | main_image | main_json | multiview_image | multiview_json | asset_reuse_decision | canvas_action | local_sync_status | verdict |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| {{主体ID}} | {{主体名称}} | `{{主体ID}}-{{主体名称}}-主图.{{ext}}` | `{{主体ID}}-{{主体名称}}-主图.json` | `{{主体ID}}-{{主体名称}}-多视图.{{ext}}` | `{{主体ID}}-{{主体名称}}-多视图.json` | {{asset_reuse_decision}} | {{canvas_action}} | {{local_sync_status}} | {{verdict}} |
 
 ## Review
 
@@ -49,11 +52,22 @@ notes: ""
   "subject_id_source": "source_deconstruction_subject_id | source_filename_prefix",
   "subject_name": "<主体名称>",
   "image_role": "main_image | multiview_sheet",
-  "imagegen_mode": "built_in_generate",
+  "libtv_canvas_mode": "libtv_canvas_generate",
+  "asset_reuse_decision": "generate_new_subject | reuse_existing_asset | upload_existing_asset | generate_state_variant",
+  "generation_skipped": false,
+  "canvas_action": "create_new_node | node_already_present | uploaded_existing_image_to_canvas",
+  "local_sync_required": true,
+  "local_sync_action": "confirm_local_canonical_present | download_generated_canvas_node | download_existing_canvas_node | copy_existing_local_to_canonical | prompt_only_pending",
+  "local_sync_status": "already_present | synced | copied | pending | blocked",
+  "local_asset_path": "projects/aigc/<项目名>/3-主体/场景/3-生成/<主体ID>-<主体名称>-主图.png",
+  "download_command": "libtv download -p <canvas_uuid> -n <node_id_or_node_name> -o projects/aigc/<项目名>/3-主体/场景/3-生成 | not_applicable",
+  "model_policy": "new_subject_midjourney_default | state_variant_lib_image",
+  "state_variant_suffix": "",
+  "base_reference_node_name": "",
   "prompt": "",
   "negative_prompt": "",
   "reference_images": [],
-  "reference_context_status": "pending_view_image | visible_in_conversation_context | not_applicable",
+  "reference_context_status": "pending_libtv_node_reference | linked_in_libtv_canvas | not_applicable",
   "output_path": "projects/aigc/<项目名>/3-主体/场景/3-生成/<主体ID>-<主体名称>-主图.png",
   "review": {
     "verdict": "pending",
@@ -72,8 +86,8 @@ notes: ""
 
 | Output Contract field | Template alignment |
 | --- | --- |
-| Required output | Report and prompt record cover main image, multi-view image, same-name JSON, source document, imagegen mode, and review status. |
+| Required output | Report and prompt record cover main image, multi-view image, same-name JSON, source document, libTV canvas mode, asset reuse decision, model policy, and review status. |
 | Output format | Markdown report and JSON prompt records; bitmap image files are referenced by path. |
 | Output path | All asset examples point to `projects/aigc/<项目名>/3-主体/场景/3-生成`. |
 | Naming convention | Uses fixed `主体ID-主体名称-主图` and `主体ID-主体名称-多视图` stems. |
-| Completion gate | Includes source, path, prompt, reference image, reference context status and review fields needed for final gate validation. |
+| Completion gate | Includes source, path, prompt, existing-asset scan, upload/reuse action, local canonical confirm-or-fill evidence (`already_present` allowed), state-variant Lib Image evidence, reference node status and review fields needed for final gate validation. |

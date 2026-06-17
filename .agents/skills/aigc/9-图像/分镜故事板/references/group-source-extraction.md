@@ -10,12 +10,14 @@
 projects/aigc/<项目名>/8-分组/第N集.md
 ```
 
-辅助上下文可读但不得覆盖组正文；legacy `north_star.yaml` 仅在旧项目已存在且本轮需要回读风格边界时加载：
+辅助上下文可读但不得覆盖组正文；需要风格边界时读取 `2-美学` 的正式输出：
 
 ```text
 projects/aigc/<项目名>/MEMORY.md
 projects/aigc/<项目名>/CONTEXT/
-projects/aigc/<项目名>/0-初始化/north_star.yaml (legacy optional)
+projects/aigc/<项目名>/2-美学/类型风格.md
+projects/aigc/<项目名>/2-美学/画面基调/全局风格协议.md
+projects/aigc/<项目名>/2-美学/第N集/<风格>/...协议.md
 ```
 
 ## Group Boundary

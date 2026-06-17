@@ -123,7 +123,7 @@ metadata:
 | `CONTEXT.md` | 每次调用本组根 | 跨叶子路由经验和失败模式 | 重定义叶子输出合同或替代项目记忆 | `Learning / Context Writeback` |
 | `1-清单/` | `scene_list`、清单缺失、清单返工或最早缺口为清单 | 场景清单叶子执行真源 | 被组根拿来批量补正文或补占位清单 | `Type Routing Matrix` |
 | `2-设计/` | `scene_detail`、设计缺口、清单已验收后补设计 | 单场景设计叶子执行真源 | 被组根越权写设计正文或 prompt | `Type Routing Matrix` |
-| `3-生成/` | `scene_generation`、生成缺口、设计已验收后补图像资产 | 场景生成叶子执行真源 | 被组根直接调用 imagegen 或改上游设计 | `Type Routing Matrix` |
+| `3-生成/` | `scene_generation`、生成缺口、设计已验收后补图像资产 | 场景生成叶子执行真源 | 被组根直接调用 libTV 或改上游设计 | `Type Routing Matrix` |
 | `agents/` | 产品入口或工具索引需要场景域入口元数据 | 入口元数据 | 承载执行规则或完成门禁 | `Field Mapping` |
 | `test-prompts.json` | 回归、dry-run、Darwin 评估或标准变更 | 典型路由任务样例 | 替代真实输入校验或叶子执行 | `Evaluation Prompt Contract` |
 

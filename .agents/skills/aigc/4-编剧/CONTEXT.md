@@ -13,7 +13,7 @@ monitor_version: 1
 soft_limit_chars: 20000
 hard_limit_chars: 40000
 status: ok
-last_checked_at: 2026-06-04
+last_checked_at: 2026-06-16
 ```
 
 ## Type Map
@@ -30,6 +30,7 @@ last_checked_at: 2026-06-04
 | 剧本像模板套壳或同义改写批量稿 | 源层主创缺失层 | 废弃候选稿，回 `N6` 基于本集 source、题材画像、节奏证据和声画字段重新 LLM 主创，不做表层润色 | `GATE-SCR-19` 独立阻断脚本、映射表、规则模板、关键词锚点替换、句式轮换和同义改写 | `anti_scripted_draft_audit` 无重复句式和锚点替换风险 |
 | 编剧跳过 `类型风格.md` 或只复述题材标签 | 阶段顺序与类型风格继承层 | 回 `N1/N2`，加载 `2-美学/类型风格.md`，把主题材、标志性元素和题材专属表现技巧投影到本集节奏、高潮、尾钩和声画策略 | `Type Style Application Map` 必须进入执行报告；正式主链缺 `类型风格.md` 不得 pass | `type_style_application_map` 能说明每条继承规则如何影响本集局部剧本决策 |
 | 编剧跳过 `3-主体/主体注册表.md` 或自行改名角色/场景/道具 | 主体命名真源继承层 | 回 `N1/N2`，加载 `3-主体/主体注册表.md`，把角色、场景、道具 canonical name 投影到本集剧本命名 | `Subject Registry Application Map` 必须进入执行报告；正式主链缺主体注册表不得 pass | `subject_registry_application_map` 能说明剧本主体命名如何对齐注册表 |
+| 编剧只读取 `3-主体/主体注册表.md`，但项目已有 `场景/2-设计` 或 `场景/3-生成` 时没有匹配场景设计/场景图 | 场景资产上下文继承层 | 回 `N1/N2/N3`，建立 `scene_asset_context_manifest` 和 `Scene Asset Integration Map`；只读映射到场景标题、环境白描、连续性和 handoff | `GATE-SCR-24` 阻断“已存在场景资产但未映射/被当作剧情真源/prompt/镜头”的情况 | `scene_asset_integration_map` 有 used_for、script_landing、boundary_check 或 N/A |
 | 编剧读取了 `1-分集`、`2-美学`、`3-主体` 和项目上下文，但没有说明这些上下文如何引导创作方向 | 上游方向矩阵缺失层 | 回 `N1/N2`，把每类上游上下文拆成剧情真源、题材方向、主体命名、长期约束或 side context，并写成 `upstream_creative_direction_matrix` | `GATE-SCR-23` 阻断只列“已读取/已参考”；执行报告必须给出 direction_role、used_as、script_decision、script_landing 和 boundary_check | `upstream_creative_direction_matrix` 能证明上游如何影响节奏、声画、主体命名、高潮和尾钩，且没有越权覆盖 source 或注册表 |
 | 误把 imported director 规则当导演稿 | 模块边界层 | 回 `Imported Reference Adaptation Contract`，只保留承托，不写导演/表演/镜头 | `GATE-SCR-14` 阻断下游越权 | 正文无机位、景别、运镜、prompt |
 | 报告只写“已参考”但无执行证据 | 报告证据层 | 回 `N8`，补 `Execution Decision Trace`、`Reference Execution Matrix`、`Rule Evidence Map`、`N/A Justification`、`Repair Log` | `GATE-SCR-16` 把缺失证据列为阻断项 | 每份触发 reference 都有 applied_to/evidence_in_output 或 n/a_reason |
@@ -40,17 +41,18 @@ last_checked_at: 2026-06-04
 2. 检查 `reference_load_manifest` 是否包含用户指定 8 个 copied references 和新增节奏合同。
 3. 检查 `2-美学/类型风格.md` 和 `3-主体/主体注册表.md` 是否已进入 source/context manifest；缺失时先补对应上游，存在时把题材规则写成 `type_style_application_map`，把主体命名写成 `subject_registry_application_map`。
 4. 在进入正文前先检查 `upstream_creative_direction_matrix`：`1-分集` 是剧情真源，`2-美学/类型风格.md` 是题材方向，`3-主体/主体注册表.md` 是命名真源，项目记忆/上下文是长期约束；每项必须有 used_as、script_decision、script_landing 和 boundary_check。
-5. 检查题材画像是否能解释节奏，不解释就回 `N2`。
-6. 检查场景标题是否包含天气后缀；未知天气用 `天气待定` 并报告 followup。
-7. 对新增对白/独白逐条查 source anchor、voice owner、知识依据和语音预算。
-8. 对每个节奏机制查承托字段；无承托就删机制或补正文落点。
-9. 检查相邻画面字段是否其实是同一拍摄单位：同一主体、同一停顿、同一手部动作、同一道具状态、同一声源反应要合并；只有主体/空间/时间/信息/节奏功能变化时才保留连续字段。
-10. 如果“画面化”变成比喻或概念，先删掉“像/仿佛/宿命/高级/压迫感”等词，再补可见身体动作、道具状态、空间距离、声源、光照和时间变化。
-11. 用户指出“脚本化/偷懒/未思考/未差异化”时，不接受逐句润色；直接废弃候选稿，回 `N2-N6` 重建证据和正文。
-12. 高潮只强化已有事件的声画/情绪/行动，不改结果。
-13. 尾钩必须落在最后可感对象上，不接受“悬念拉满”类总结。
-14. 报告服务修复和下游交接，必须能回指正文位置。
-15. 报告不得写自由散文式“思考过程”；必须写可审计的 `Execution Decision Trace`、`Reference Execution Matrix` 和 `Upstream Creative Direction Matrix`。
+5. 若已有 `3-主体/场景/2-设计`、`3-主体/场景/3-生成` 或 `design-manifest.yaml`，先建立 `scene_asset_context_manifest`；只把场景资产用于场景标题、环境白描、空间连续性和 handoff，不能覆盖 source 事实、注册表或写 prompt/镜头。
+6. 检查题材画像是否能解释节奏，不解释就回 `N2`。
+7. 检查场景标题是否包含天气后缀；未知天气用 `天气待定` 并报告 followup。
+8. 对新增对白/独白逐条查 source anchor、voice owner、知识依据和语音预算。
+9. 对每个节奏机制查承托字段；无承托就删机制或补正文落点。
+10. 检查相邻画面字段是否其实是同一拍摄单位：同一主体、同一停顿、同一手部动作、同一道具状态、同一声源反应要合并；只有主体/空间/时间/信息/节奏功能变化时才保留连续字段。
+11. 如果“画面化”变成比喻或概念，先删掉“像/仿佛/宿命/高级/压迫感”等词，再补可见身体动作、道具状态、空间距离、声源、光照和时间变化。
+12. 用户指出“脚本化/偷懒/未思考/未差异化”时，不接受逐句润色；直接废弃候选稿，回 `N2-N6` 重建证据和正文。
+13. 高潮只强化已有事件的声画/情绪/行动，不改结果。
+14. 尾钩必须落在最后可感对象上，不接受“悬念拉满”类总结。
+15. 报告服务修复和下游交接，必须能回指正文位置。
+16. 报告不得写自由散文式“思考过程”；必须写可审计的 `Execution Decision Trace`、`Reference Execution Matrix` 和 `Upstream Creative Direction Matrix`。
 
 ## Reusable Heuristics
 
@@ -65,4 +67,5 @@ last_checked_at: 2026-06-04
 - 锚点不是差异化本身；把角色名、地点名、道具名换掉但保留同一节奏句式和同一尾钩模板，应按源层主创失败处理。
 - `2-美学/类型风格.md` 是分集后的题材类型真源；`4-编剧` 可以做单集副题材校准，但不得无证据推翻其中的主题材、标志性元素和题材专属表现技巧。
 - `3-主体/主体注册表.md` 是分集和美学后的主体命名真源；`4-编剧` 可以在剧情中自然使用主体，但不得静默新增、改名或把同一主体拆成多个称呼真源。
+- 已有场景设计和场景图是视觉/空间 side context，不是剧情真源；它们能帮助剧本少写漂移地点和模糊环境，但不能让编剧反向新增事件、复制 prompt 或写镜头。
 - `Upstream Creative Direction Matrix` 是进入正文前的方向锁定，不是事后报告装饰；它应把“上游输入物”翻译成“本集应该怎样写、写在哪里、不能越过什么边界”。

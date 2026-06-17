@@ -1,6 +1,6 @@
 # Payoff Genre Type Map
 
-本文件承载章级爽点设计的类型画像。它用于避免不同类型小说被写成同一种爽法；执行时先形成 `genre_payoff_profile`，再进入 `references/chapter-payoff-rules.md` 与 `steps/N4-CHAPTER-PAYOFF`。
+本文件承载章级爽点设计的类型画像。它用于避免不同类型小说被写成同一种爽法；执行时先形成 `genre_payoff_profile`，再进入 `references/chapter-payoff-rules.md` 与 `SKILL.md#N5-CHAPTER-PAYOFF`。
 
 ## Loading Boundary
 

@@ -114,3 +114,10 @@ flowchart TD
 ## Planning-Only Boundary
 
 章级允许写结构义务、场面功能、人物任务、信息推进和建议写法；不允许写可直接进入正文的对白、叙述段、段落桥接或文面句子。
+
+## Review Gate Mapping
+
+| review_question | review_gate | fail_code | rework_target | report_evidence |
+| --- | --- | --- | --- | --- |
+| 章级规划是否具备全部必填标题和字段？ | 缺 `章标题 / 本章故事概要 / 本章时间推进 / 本章冲突 / 本章爽点设计 / 本章悬念开关 / 本章节奏曲线 / 资源段落 / 本章任务线 / 章末达成 / 本章线索 / 本章伏笔 / 规避` 任一项即失败 | `FAIL-CH-OUTPUT` | `SKILL.md#Thinking-Action Node Map` | 缺失标题、缺失字段和对应节点 |
+| 章级规划是否仍是 planning 而非正文？ | 出现对白、叙述段落、正文桥接或建议写法直接正文越界即失败 | `FAIL-CH-OUTPUT` | `SKILL.md#Review Gate Binding` | planning-only 检查和越界片段 |

@@ -18,14 +18,17 @@
 | `movement_speed` | 速度曲线与停点 |
 | `focus_behavior` | 摄影语义正确的焦点静止或变化：清晰主体、景深层次、对焦/拉焦/转焦/失焦再合焦或真实变焦边界明确 |
 | `focus_transition_map` | 对焦变化必须拆出 `focus_start`、`focus_end`、`focus_mode`、`depth_of_field_strategy`、`must_remain_readable`；避免浅景深虚掉关键线索 |
+| `camera_light_integration` | 仅在影响摄影观看时记录布光类型/光型、阴影组织、叙事美学功能、主体可读性控制、镜头运动中的光影交接和必要的 source motivation boundary；必须服务机位、运动、焦点和主体可读性；不得恢复独立光影层 |
 | `continuity_handoff` | 入点和交出点 |
 | `one_take_link` | 一镜到底时与前后分镜的链路 |
 
 ## Integration Rule
 
-只有当 `camera_movement_plan` 能同时解释剧情功能、美学继承、运镜四要素、既有空间使用方式、镜头运动/焦距/透视边界、焦点计划和连续性交接时，才允许进入正文注入。计划失败不得靠润色句子掩盖。
+只有当 `camera_movement_plan` 能同时解释剧情功能、美学继承、运镜四要素、既有空间使用方式、镜头运动/焦距/透视边界、焦点计划、必要的布光/阴影设计、主体可读性和连续性交接时，才允许进入正文注入。计划失败不得靠润色句子掩盖。
 
 `focus_behavior` 必须先在内部 plan 中通过语义检查：叙事关注点、信息落点和心理压力只能作为选择焦点的理由，不能直接填入焦点字段；若使用“变焦”，必须说明焦距变化带来的视角收窄或放宽，而不是摄影机移动。`focus_transition_map` 不完整时，不得用“焦点接力”一词直接进入正文。
+
+`camera_light_integration` 只允许吸收旧 `9-光影` 中能服务摄影观看的部分：使用什么布光类型或光型，角色脸部/身体/空间保留什么阴影，阴影如何揭示或遮蔽信息，光影如何烘托阴谋、权力、危险、亲密、孤立、审判感或失控感，并如何随机位、运动和焦点交接。上述叙事功能只进入内部 plan 和报告证据；正文必须投影为可见的亮面、暗面、阴影边界、遮挡区域、清晰主体和焦点交接，不输出“阴谋感由...完成”“危险感来自...”等解释性因果句。光源可信、色温、材质和空气介质只作为边界与连续性依据：不得为了“电影感”新增雨雪烟尘、逆光、火光、霓虹、雾气或灯位说明，也不得反复罗列可能发光物来替代布光设计。
 
 ## Review Gate Mapping
 
@@ -39,3 +42,5 @@
 | `spatial_movement_action_map` 是否能回指 6-分镜 的起始状态帧空间依据？ | `GATE-CAM-08-SPATIAL-ACTION` | `FAIL-CAM-SPATIAL-ACTION-UNSUPPORTED` | `N6/N6B` | spatial_movement_action_map |
 | `lens_or_camera_motion_boundary` 是否区分机位运动、焦距变化和透视效果？ | `GATE-CAM-08-LENS-MOTION-BOUNDARY` | `FAIL-CAM-LENS-MOTION-CONFLATION` | `N6-CAM-MOVEMENT-DESIGN` | lens_or_camera_motion_boundary |
 | `focus_transition_map` 是否包含起止焦点、对焦模式、景深策略和必须保持可读的信息？ | `GATE-CAM-08-FOCUS-PLAN` | `FAIL-CAM-FOCUS-PLAN-INCOMPLETE` | `N6/N6B` | focus_transition_map |
+| `camera_light_integration` 是否有明确的布光类型/光型、阴影组织、叙事美学功能和主体可读性控制，并服务机位、运动、焦点？是否没有退化成发光物观察清单？ | `GATE-CAM-08-LIGHT-INTEGRATION` | `FAIL-CAM-LIGHT-INTEGRATION` | `N4/N6/N6B` | camera_light_plan / lighting_design_type_map / shadow_design_map / narrative_light_function_map / camera_light_alignment_map |
+| 光影是否被整合进摄影观看计划，而不是恢复旧 `9-光影` 独立追加句、灯位图或 prompt？ | `GATE-CAM-08-LIGHT-STAGE-BOUNDARY` | `FAIL-CAM-LIGHT-STAGE-DRIFT` | `N7/N8` | camera_light_integration_boundary |

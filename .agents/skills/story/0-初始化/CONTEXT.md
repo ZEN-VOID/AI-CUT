@@ -40,6 +40,7 @@
 | 初始化项目骨架仍停留在旧 runtime：生成 `Drafting/`、`正文/`、无序号阶段目录、`.env.example`、`.webnovel`，还顺手建项目内 `.git` | runtime skeleton contract | 按根 `story/SKILL.md` 的 canonical runtime root 改写 `init_project.py`，只预建 `0-初始化 / 1-设定 / 2-卷章 / 3-初稿 / 4-润色 / review / context-return` 与当前对象卡子树，并补回归测试 | 以后凡阶段路径或 cards 子树发生 canonical 迁移，必须同步审计 `init_project.py` 的 `directories` 骨架、默认 sidecar 与“自动 git 初始化”副作用，防止新项目继续落旧版结构 | 新项目初始化后不再出现 `Drafting/`、`正文/`、`1-设定/其他设定/`、`.env.example`、`.webnovel/`、项目内 `.git/`，且存在 `1-设定/2-角色卡/主要角色/`、`2-卷章/`、`4-润色/`、`review/` 与 `context-return/` |
 | `1-设定 / 2-卷章 / 3-初稿 / 4-润色 / review / context-return` 已更新，但初始化目录骨架与 `STATE.json` 仍停在旧阶段快照 | init project-state sync contract | 在 `init_project.py` 同步预建 `源/` 与阶段根，卡片子目录由 `1-设定` 按实际调度创建 | 以后凡阶段树或 workflow runtime schema 演进，必须同时审计 `PROJECT_SKELETON_DIRS + STATE.json.paths + workflow_runtime.execution_state.stage_progress + re-init task_log` 四处，而不是只改目录或只改文档 | 新项目初始化后，目录骨架、`STATE.json.paths`、`workflow_runtime` 与当前阶段链一致；重初始化也会追加 `project_reinitialized` 事件 |
 | 用户级 registry 与全局 `.env` 仍停留在 `~/.claude/webnovel-writer/`，而用户层命令已切到 `story-*` | shared script compatibility layer | 改成 `~/.claude/story2026/` 新路径优先读写，旧路径双读兼容并自动迁移 | 在 `project_locator.py` 与 `data_modules/config.py` 固化“新路径优先、旧路径兼容、命中旧路径即 best-effort 迁移”的共享策略，并用测试锁住 | 旧用户目录不丢配置，新目录能自动接管后续写入 |
+| `SKILL.md` 看似有执行顺序，但节点真源下沉在 `steps/`，Skill 2.0 delivery validator 直接拒绝 | runtime-spine source drift | 将业务画像、节点表、Mermaid、失败回路、模块矩阵、汇流门和 review binding 回收进 `SKILL.md`，删除 unsupported `steps/` | 升级或修复本技能时优先跑当前 `skill-2.0` validator/smoke，禁止恢复 `steps/` 作为第二执行链 | `validate_skill_2_0.py --mode delivery` 与 `smoke_test_skill_2_0.py --mode delivery` 不再报 unsupported steps 或缺 runtime spine 标记 |
 
 ## Repair Playbook
 
@@ -50,7 +51,7 @@
 5. 项目骨架与 `STATE.json.paths` 不一致时，同时回修目录、paths、stage progress 与 task log。
 6. 项目长期偏好写入项目根 `MEMORY.md`；技能复盘、失败模式和跨项目经验写回本 `CONTEXT.md` 或 `knowledge-base/`。
 7. 旧路径、旧阶段名或旧 Init companion 文件回潮时，先跑全仓 `rg` 做引用同步，再修脚本和模板。
-8. Skill 2.0 分区缺失时，先补 owner 分区和动态引用，再运行工作车间 validator。
+8. Skill 2.0 分区缺失时，先补 runtime spine、模块授权和动态引用，再运行当前 `skill-2.0` validator 与 smoke test。
 
 ## Reusable Heuristics
 
@@ -77,3 +78,4 @@
 - 涉及用户级路径升级时，最稳的策略不是一次性硬切，而是“新路径优先 + 旧路径兼容读取 + 命中旧路径即迁移到新路径”。
 - 新项目若还没有任何具体 run，也应先创建 `STATE.json.workflow_runtime` 骨架；“先有内联执行态，再有具体 run”比让每个下游命令各自补状态更稳。
 - 当阶段树已经升级而初始化还没跟上时，优先同步四件事：`源/ + stage roots`、`STATE.json.paths`、`workflow_runtime.execution_state.stage_progress`、`task_log` 的重初始化事件；缺一都会让下游脚本读到“目录存在但状态没跟上”或“状态更新了但目录没跟上”的半完成态。
+- 对 runtime-spine Skill 2.0 包，节点真源必须在 `SKILL.md`；外部模块只能展开细则。若 validator 报 `steps/` unsupported，最小安全修复是先把节点、路由、gate 和 Mermaid 迁回主合同，再同步所有 active references。

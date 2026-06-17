@@ -7,7 +7,7 @@
 stage: 8-分组
 source_camera_path: projects/aigc/<项目名>/7-摄影/第N集.md
 visual_tone_path: projects/aigc/<项目名>/2-美学/画面基调/全局风格协议.md
-north_star_path: projects/aigc/<项目名>/0-初始化/north_star.yaml
+type_style_path: projects/aigc/<项目名>/2-美学/类型风格.md
 output_path: projects/aigc/<项目名>/8-分组/第N集.md
 grouping_policy: lighting_shot_line_sum_target_14_5s_band_10_14_5s_hard_max_14_5s_end_on_half_second_source_override_supported
 first_storyboard_line_policy: hulong_frame_tail_state_anchor_and_sound_folded_into_normal_timecoded_line

@@ -92,6 +92,7 @@ One-line gate: `PASS` is necessary but not sufficient; only `PASS + return hando
 | Canonical artifact shape | `templates/context-return.json` and `templates/output-template.md` |
 | Mechanical script boundary and command hints | `scripts/README.md`, `../scripts/context_return_manager.py`, `../scripts/workflow_manager.py` |
 | Product-side metadata | `agents/openai.yaml` |
+| 卷级状态摘要生成（跨卷伏笔/人物/物件/能力追踪） | `../_shared/cross-volume-continuity-contract.md` |
 
 ## Visual Maps
 
@@ -110,6 +111,7 @@ flowchart TD
     H --> I["Write story_map slice actualization"]
     I --> J["Refresh root summary/index and STATE projections"]
     J --> K["Emit context-return/第V卷.context-return.json"]
+    K --> L["生成 CONTEXT/volume-状态摘要/第V卷-状态.md<br/>（跨卷伏笔/人物/物件/能力追踪）"]
 ```
 
 ```mermaid
@@ -139,6 +141,7 @@ stateDiagram-v2
 - `story_map` details go to the matched volume slice actualization; root `全息地图.json` only receives summary/index actualization and must not become a second detail store.
 - Project `CONTEXT/validated-actuals/第V卷.md` records the validated facts of the accepted volume.
 - Project `CONTEXT/carryover/第V卷-to-第V+1卷.md` gives the next drafting/replan run a readable carryover packet.
+- **卷级状态摘要**：actualization 完成后，必须按 `../_shared/cross-volume-continuity-contract.md` 生成 `projects/story/<项目名>/CONTEXT/volume-状态摘要/第V卷-状态.md`，包含本卷伏笔变动、人物状态变化、物件流转和能力成长曲线四维追踪数据。该摘要由 LLM 基于接受的终稿（4-润色）正文消费后结构化生成，不得替代角色卡/planning 作为创作真源。
 - `STATE.json` receives projection refresh, runtime markers, pending manifest, and committed manifest updates.
 
 ## Root-Cause Execution Contract

@@ -8,10 +8,13 @@
 # - 承接阶段入口种子、来源分层、unknowns
 # - 供后续阶段读取，不替代各阶段 canonical
 
-north_star_ref: "0-初始化/north_star.yaml"
-team_ref: "team.yaml"
-story_source_manifest_ref: "0-初始化/story-source-manifest.yaml"
-state_ref: "STATE.json"
+memory_ref: "MEMORY.md"
+aesthetic_type_style_ref: "2-美学/类型风格.md"
+aesthetic_visual_tone_ref: "2-美学/画面基调/全局风格协议.md"
+aesthetic_style_protocol_ref: "2-美学/第N集/<风格>/...协议.md"
+legacy_team_ref: "team.yaml"
+legacy_story_source_manifest_ref: "0-初始化/story-source-manifest.yaml"
+legacy_state_ref: "STATE.json"
 runtime_layout_ref: ".agents/skills/aigc/_shared/project-runtime-layout.md"
 source_root_ref: "源/"
 context_root_ref: "CONTEXT/"
@@ -51,7 +54,7 @@ stage_entry_seeds:
   grouping_seed:
     grouping_rhythm: []
     bridge_policy: []
-    north_star_projection_notes: []
+    visual_tone_projection_notes: []
   design_seed:
     scene_design_invariants: []
     character_design_invariants: []

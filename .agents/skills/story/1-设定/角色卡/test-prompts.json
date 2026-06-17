@@ -1,0 +1,17 @@
+[
+  {
+    "id": "generate-character-cards",
+    "prompt": "Use $story-cards-character to create full-series character cards for a story project from north_star, init_handoff, and a supplied cast roster.",
+    "expected": "Routes to character cards, loads CONTEXT and type packages, creates one JSON per character, preserves full-series scope, and produces relationship graph evidence."
+  },
+  {
+    "id": "repair-character-growth",
+    "prompt": "Use $story-cards-character to repair a protagonist card whose growth only says the hero became stronger.",
+    "expected": "Routes to N3-SHAPE and N4-CLOSURE, rewrites skill, heart, and emotion axes, updates current_state.growth_state, and keeps history separate from validated growth state."
+  },
+  {
+    "id": "audit-character-graph",
+    "prompt": "Use $story-cards-character to audit whether 角色关系图谱.md has become a second character truth.",
+    "expected": "Runs review gates, confirms the graph is only side output, checks source_graph_path and relationship_edges, and reports pass, conditional, or fail with rework target."
+  }
+]

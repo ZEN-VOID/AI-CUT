@@ -18,21 +18,25 @@ last_checked_at: 2026-04-25
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
 | 设计稿脱离清单角色 | 上游锚点层 | 回到 `角色清单.md`，恢复名称、首次登场和原文描述复述 | 每份设计稿开头固定写清清单锚点 | 文件首段可回指清单行 |
+| 多状态变体被设计成新角色 | 变体身份层 | 恢复 `base_subject_id`，为状态稿派生 `variant_id`，补 `identity_invariants` 和 `variant_state_delta` | `SKILL.md`、template、review 和 slot bundle 固定 `GATE-CHAR-DESIGN-23` | 文件名前缀、解构 ID、提示词 ID 和 prompt 前缀使用同一 `asset_id`；变体稿仍能识别为同一角色 |
+| 多状态变体被遗漏 | 设计缺口层 | 从清单 `变体：...`、执行报告或 manifest sidecar 建立 `variant_design_gaps` | 增量补缺同时检查 base design 与 variant design | 同一角色多服装/战斗/战损/受伤/少年/老年等进入待设计或 N/A 说明 |
 | 角色设计泛化成美术口号 | 视觉解构层 | 补 `Identity & Story Pressure` 与 `Visual Drivers` 的具体张力 | 先写角色叙事压力，再写造型元素 | 视觉细节能解释角色处境 |
+| 身高、身形、发型或服装配色缺槽 | 身体造型与配色语法层 | 补身高档位/安全范围、身形结构、比例重心、发型长度/体量/轮廓/时代职业适配、服装主色/辅色/点缀色与明度/饱和度/冷暖/反差关系 | `Detailed Character Design` 和 `Detailed Costume Design` 必须显式落位 `height_scale`、`body_build`、`hair_design`、`costume_color_palette`，低证据也写 `inferred` | 输出能指导画师/图像模型执行，而不是只写“高挑、修长、黑发、深色衣服” |
+| 面部阴影过重导致五官不可读 | 面部可读性光线层 | 把 `shadowed face`、`deep facial shadow`、`low-key silhouette`、`dark face` 等主提示改为受控侧光/轮廓光/局部眼尾压暗，并补 `soft frontal fill light`、`clear readable facial features` 或等价短语 | `Cinematography` 与英文 prompt 必须显式落位 `face_readability_lighting`；阴郁、危险、压迫或神秘感不能靠遮脸实现 | 眉眼、鼻梁、嘴部、骨相、肤色层次和表情意图清楚可读，角色仍有气质与压迫感 |
 | 服装描述只有风格词 | 服装细节层 | 增加廓形、层次、材质、颜色、服装状态/维护状态、配件和时代线索；磨损只在有依据时写入 | `Detailed Costume Design` 必须服务角色身份与动作 | 服装可被画师或图像模型执行，且没有默认做旧 |
-| 角色设计像手术式关键词还原但缺少镜头魅力 | 审美吸引力层 | 补 `Aesthetic Appeal Evidence`、`Source-Fit Aesthetic Target`、`Charisma Floor`、`Face / Bone Aesthetic` 和 `Costume Appeal Strategy`，把容貌、妆发、骨相、身形、服装廓形、材质和色彩提升为来源匹配的设计 | 每个角色默认检查来源匹配审美吸引力；主角、核心情感线角色、长期复用角色、大反派、主要对抗者、长线威胁和终局 Boss 必须达到 `charisma_floor=high`；普通反派与配角也必须有个性化魅力或可识别度 | 设计稿能说清“为什么这个角色有型/有魅力/可识别”，且主角/大反派不能只停在“可识别” |
+| 角色设计像手术式关键词还原但缺少镜头魅力 | 审美吸引力层 | 补 `Aesthetic Appeal Evidence`、`Source-Fit Aesthetic Target`、`Lead Beauty / Handsomeness Floor`、`Lead Presence / Temperament Floor`、`Charisma Floor`、`Face / Bone Aesthetic` 和 `Costume Appeal Strategy`，把容貌、妆发、骨相、身形、服装廓形、材质、色彩和整体气质提升为来源匹配的设计 | 每个角色默认检查来源匹配审美吸引力；主角、核心情感线角色和长期复用角色必须达到 `lead_beauty_handsomeness_floor=required` 与 `lead_presence_temperament_floor=required`；主角、核心情感线角色、长期复用角色、大反派、主要对抗者、长线威胁和终局 Boss 必须达到 `charisma_floor=high`；普通反派与配角也必须有个性化魅力或可识别度 | 设计稿能说清“为什么这个角色有型/有魅力/可识别”，且主角不能缺帅/美主角级好看，也不能缺整体气质和主角感，大反派不能只停在“可识别” |
 | 命中审美强化但没有使用语料库 | 语料触发层 | 加载 `knowledge-base/character-design-corpus.md`，补 `Corpus Usage Trace`，说明角色类型、妆容、服装时代语境和原创转译 | `Module Trigger Matrix` 固定审美强化、妆容化、角色类型语料、服装时代语境和 prompt 审美短语均触发语料库 | `corpus_usage_trace` 有触发原因、选用 lens、原创转译和剔除语料 |
 | 服装风格化脱离时代语境 | 服装时代母体层 | 回到项目时代/地域/阶层/职业，先定服装母体，再做廓形、色彩、材质和纹样风格化 | 使用语料库的 `Costume Period Context Guardrails`；时代不明时写 project-era-consistent costume silhouette，不强行套朝代 | 服装字段能说明时代母体和被剔除的错配语料 |
 | 真实人物灵感写成现实人物复刻 | 肖像灵感边界层 | 默认改用 none/generic_only；只有用户/项目允许且有必要时，才写脸型、骨相、眼神、妆发、镜头魅力的原创组合 | `Celebrity Face Inspiration` 默认不用真实人物；允许时也只允许原创转译，不允许精确复刻、换脸、同款肖像或现实本人可识别 | 输出没有要求生成某现实人物本人，prompt 只保留原创化审美短语 |
 | 摄影字段写成剧情概述 | 影像表达层 | 改写为镜头距离、焦段感、光线、构图、运动和质感 | `Cinematography` 只写拍法，不复述故事 | 字段可直接指导镜头提示 |
 | 提示词超 1300 characters | 提示词压缩层 | 删除重复形容词，保留主体、服装、姿态、光线、`画面基调 + 角色风格`、固定画面和自然语言负向约束 | 完成后执行字符长度检查 | 英文 prompt 长度不超过 1300 characters，且不含 `--no` |
-| 解构区或文件名缺少主体 ID | 结构投影层 | 在 `## 4. 解构` 下方补 `主体ID号：<主体ID>`，并同步文件名前缀、`## 5. 提示词设计` 与英文 prompt 前缀 | 模板和 review gate 固定四处 ID 一致性 | 文件名前缀、解构 ID、提示词字段 ID、prompt 开头完全一致 |
+| 解构区或文件名缺少 asset ID | 结构投影层 | 在 `## 4. 解构` 下方补 `主体ID号：<asset_id>`；默认稿用 `base_subject_id`，变体稿用 `variant_id`，并同步文件名前缀、`## 5. 提示词设计` 与英文 prompt 前缀 | 模板和 review gate 固定四处 asset ID 一致性；变体稿不得沿用 base ID 当作变体资产前缀 | 文件名前缀、解构 ID、提示词字段 ID、prompt 开头完全一致，且变体保留 base identity invariants |
 | 英文提示词只补前缀后缀，未整合解构主体 | Prompt 整合层 | 回到 `## 4. 解构`，逐项压缩身份压力、视觉驱动、角色细节、服装细节和摄影字段进英文 prompt，并在 `deconstruction_coverage` 说明合并或剔除理由 | 模板和 review gate 固定“整合对象是解构全部有效信息” | final English prompt 可反查到身份、外观、服装、姿态、摄影与固定画面槽位 |
 | 研究考据侵占创作判断 | 考据边界层 | 把来源作为启发，不把搜索结果当作设计真源 | 冷门信息只作支撑，最终方案由 LLM 综合 | 考据段说明使用边界 |
 | 研究层停留在资料摘录 | 研究转化层 | 按身份、职业、阶层、地域年代、服饰工艺、身体姿态、审美吸引力、禁区、不确定性补成 evidence chain | 每个研究点必须写出 design implication 和 prompt phrase | `Prompt Evidence Chain` 可回指研究证据 |
 | prompt 出现无证据文化/制服/身份短语 | prompt evidence 层 | 删除或回到研究层补证据与不确定性 | prompt 关键短语按 `evidence -> design decision -> prompt phrase` 审查 | prompt 中的特定词均可回指研究或项目风格 |
 | 初始化综合消费 输出互相竞争 | 汇流层 | 主 agent 只吸收 patch 和 risk，统一写 canonical 设计稿 | 初始化综合消费 不直接落盘最终稿 | 最终文件只有一个主稿声音 |
-| 初始化综合存在但仍触发顾问代入 | 初始化综合边界层 | 只读消费 `team.yaml.init_synthesis.stage_seed_summary."3-主体"`、`init_handoff.design_seed` 与 `north_star.yaml.创作阶段不变量.设计`，提炼当前角色节点可执行的约束、启发和风险 | `init_team_synthesis_context` 固定在 LLM 角色设计前消费，并记录 `node_ref / pass_ref / gate_ref`；禁止 team 身份调用、旧 stage profile 和伪顾问问答 | 可见指导改变当前节点的判断、执行取舍、局部 patch 或风险提示，且没有新增创作阶段顾问身份 |
+| 初始化综合存在但仍触发顾问代入 | 初始化综合边界层 | 只读消费项目 `MEMORY.md` 的 `project_memory_init_context`、团队配置与协作偏好、资料吸收摘要和阶段上下文读取指南，提炼当前角色节点可执行的约束、启发和风险；legacy team/style evidence 只作 provenance note | `project_memory_init_context` 固定在 LLM 角色设计前消费，并记录 `node_ref / pass_ref / gate_ref`；禁止 team 身份调用、旧 stage profile 和伪顾问问答 | 可见指导改变当前节点的判断、执行取舍、局部 patch 或风险提示，且没有新增创作阶段顾问身份 |
 | references 细则存在但未进入执行/验收 | 合同汇流层 | 把 reference 同步接入 Reference Loading Guide、steps 节点、review gate 和必要的机械 resolver | 新增硬规则 reference 时必须同时声明加载场景、消费节点和阻断门禁 | `rg` 能在 SKILL、steps、review、scripts/README 中找到该 reference 的消费点 |
 | 脚本生成正文 | LLM-first 层 | 删除生成逻辑，保留字段校验或长度检查 | scripts 分区固定机械辅助边界 | 脚本不输出研究、物语、解构和提示词正文 |
 | 角色设计稿字段完整但像批量模板换名 | 反模板伪差异层 | 废弃候选设计稿，回到研究、解构和 prompt 节点重做角色专属裁决 | `SKILL.md` 固定 `FAIL-CHAR-DESIGN-PSEUDO-DIFF`，禁止用字段完整、长度合规、审美词或语料库加载抵消 | 每个角色有不可互换的身份压力、骨相/妆发、服装系统或姿态裁决证据 |
@@ -42,24 +46,27 @@ last_checked_at: 2026-04-25
 ## Repair Playbook
 
 1. 先核对角色是否来自 `角色/1-清单`，不要用设计阶段的兴趣新增主体。
-2. 读取 `2-美学/画面基调/全局风格协议.md` 与当前集优先/项目级回退的 `2-美学/角色风格/角色风格协议.md` 后先锁定 `Global Style Prompt + Character Style Prompt`，并记录 episode override / fallback；读取 `north_star.yaml` 时只抽取项目北极星、主题、禁区和设计不变量。
-3. 读取 `team.yaml` 时只使用 `init_synthesis.stage_seed_summary."3-主体"` 和 provenance，不从成员名单推导新角色身份；每条采纳必须能落到造型、服装、摄影或气质。
+2. 读取 `2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md` 与当前集优先/项目级回退的 `2-美学/角色风格/角色风格协议.md` 后先锁定 `Global Style Prompt + Character Style Prompt`，并记录 episode override / fallback；项目主题、禁区和长期偏好从 `MEMORY.md` 与相关 `CONTEXT/` 读取。
+3. 读取项目 `MEMORY.md` 时只使用与角色设计相关的团队配置、协作偏好、资料吸收摘要、禁区和阶段上下文读取指南；每条采纳必须能落到造型、服装、摄影或气质。
 4. 执行初始化综合消费时，先锁定当前 `node_id / pass_id / gate_id`，再把冻结综合转译为节点级判断、局部 patch 或风险提示；不要补造顾问问答、身份扮演或固定字段问卷。
 5. 单角色设计先写“为什么这个人必须这样长”，再写“具体长什么样”。
+5A. 单角色变体设计先写“哪些东西证明还是同一个人”，再写“这个状态改变了什么”；不要一上来重写脸、身形和气质。
 6. 角色设计不是法医式关键词还原；先确定来源匹配的审美路线和镜头辨识度，再把清单身份、阶层、性格和剧情压力折进具体脸、身形、妆发和服装。
-7. 不再按“女性默认美丽、男性默认英俊”执行；审美路线按清单证据、年龄、性别/性别表达、身份、物种/族群、项目调性和角色权重判断。主角、核心情感线角色、长期复用角色、大反派、主要对抗者、长线威胁和终局 Boss 必须达到 `charisma_floor=high`；普通反派可以危险、阴郁、病态或怪诞，但仍要有魅力或可识别度。
+7. 不再按“非主角女性默认美丽、非主角男性默认英俊”执行；审美路线按清单证据、年龄、性别/性别表达、身份、物种/族群、项目调性和角色权重判断。主角、核心情感线角色和长期复用角色必须达到 `lead_beauty_handsomeness_floor=required`，也就是来源匹配的帅哥/美女/主角级好看；同时必须达到 `lead_presence_temperament_floor=required`，也就是整体气质、主角感、精神状态、姿态能量和镜头存在感可见；主角、核心情感线角色、长期复用角色、大反派、主要对抗者、长线威胁和终局 Boss 必须达到 `charisma_floor=high`；普通反派可以危险、阴郁、病态或怪诞，但仍要有魅力或可识别度。
 8. 真实人物灵感默认不用或泛化处理；只有用户/项目允许且有必要时，才取骨相、眼神、妆发、镜头感等抽象设计因子，再和角色身份重新组合；不要写“长得像某明星本人”或让 prompt 生成现实人物同款肖像。
 9. 命中审美强化、妆容化、角色类型语料、服装时代语境或 prompt 审美短语时，先加载 `knowledge-base/character-design-corpus.md`，再按当前角色原创转译；不要直接贴词库。
 10. 服装风格化必须先回答“这个角色处在哪个时代/地域/阶层/职业母体”，再回答“如何让它好看”；时代不明时保持 project-era-consistent，不强行写具体朝代服制。
 11. 研究考据要服务视觉选择；冷门资料若无法验证，宁可写成“可参考方向”，不要写成事实断言。
 12. 研究层先问“这个证据能改变什么可见设计”，再决定是否进入最终稿。
-13. 服装细节按“时代母体 -> 廓形 -> 材质 -> 工艺 -> 闭合方式 -> 配件 -> 服装状态/维护状态 -> 条件性使用痕迹 -> 行动功能 -> 审美吸引力”检查；磨损、污渍、补丁和做旧必须有依据。
-14. 英文提示词最后生成，必须先确认 `## 4. 解构` 下的主体 ID，并让文件名前缀、提示词设计字段与英文 prompt 前缀使用同一个 ID。
-15. 英文提示词最后生成，必须融合 `画面基调.Global Style Prompt + 角色风格.Character Style Prompt`，而不是把中文段落直译堆叠。
-16. 批量执行时，每个角色先独立成稿，再做跨角色一致性审查，避免所有角色共享同一套形容词、同一张模板脸或同一套服装吸引力。
-17. 初始化综合消费 并行时，主 agent 只采纳可回指清单、项目风格和字段要求的内容。
-18. 若发现清单字段错误，不在本技能直接修 `角色清单.md`；输出上游修复建议。
-19. 若发现研究、物语、解构或 prompt 只是替换姓名、职业、性别、服装色或审美形容词，不局部润色；整稿作废并从 LLM 研究/解构/prompt 节点重做。
+13. 身体与妆发按“身高档位/安全范围 -> 骨架和肩颈背 -> 腰线和四肢比例 -> 重心站姿 -> 发型长度/体量/轮廓 -> 发际鬓角/头饰 -> 时代职业适配”检查；不要让“高挑、修长、黑发”替代设计。
+14. 服装细节按“时代母体 -> 廓形 -> 材质 -> 工艺 -> 闭合方式 -> 主色/辅色/点缀色 -> 明度/饱和度/冷暖/反差 -> 配件 -> 服装状态/维护状态 -> 条件性使用痕迹 -> 行动功能 -> 审美吸引力”检查；磨损、污渍、补丁和做旧必须有依据。
+15. 英文提示词最后生成，必须先确认 `## 4. 解构` 下的 asset ID；默认稿使用 `base_subject_id`，变体稿使用 `variant_id`，并让文件名前缀、提示词设计字段与英文 prompt 前缀使用同一个 ID。
+16. 英文提示词最后生成，必须融合 `画面基调.Global Style Prompt + 角色风格.Character Style Prompt`，而不是把中文段落直译堆叠。
+17. 光线检查顺序放在英文 prompt 定稿前：先确认五官、骨相、肤色层次和表情意图可读，再决定是否保留阴影气质；阴郁、危险、压迫感优先用眼神、骨相、姿态、服装材质、受控侧光和轮廓光解决，不用重阴影遮脸解决。
+18. 批量执行时，每个角色先独立成稿，再做跨角色一致性审查，避免所有角色共享同一套形容词、同一张模板脸或同一套服装吸引力。
+19. 初始化综合消费 并行时，主 agent 只采纳可回指清单、项目风格和字段要求的内容。
+20. 若发现清单字段错误，不在本技能直接修 `角色清单.md`；输出上游修复建议。
+21. 若发现研究、物语、解构或 prompt 只是替换姓名、职业、性别、服装色或审美形容词，不局部润色；整稿作废并从 LLM 研究/解构/prompt 节点重做。
 
 ## Reusable Heuristics
 
@@ -68,9 +75,12 @@ last_checked_at: 2026-04-25
 - 初始化综合的价值在于选择与克制，不在于把初始化成员或大师名字都写进稿子。
 - 初始化综合消费的最佳产物不是固定字段答案或“某大师会怎么想”的长段扮演，而是能改变当前思维·执行节点判断、取舍、局部 patch 或风险提示的短指令。
 - 英文提示词越接近“可拍摄、可制衣、可执行”的语言，越适合进入后续生成阶段。
-- 主体 ID 是结构锚点，不只是 prompt 前缀；批量修复时优先验证文件名前缀、`## 4. 解构`、`## 5. 提示词设计` 和英文 prompt 开头四处一致。
+- Asset ID 是结构锚点，不只是 prompt 前缀；批量修复时优先验证文件名前缀、`## 4. 解构`、`## 5. 提示词设计` 和英文 prompt 开头四处一致。默认稿 asset ID 是 `base_subject_id`，变体稿 asset ID 是 `variant_id`。
+- 变体 ID 是资产锚点，不是新角色 ID；`C001-V02` 说明它是 `C001` 的第二个状态资产，设计稿仍必须保留 `C001` 的身份不变量。
 - 对主角可以增加心理和符号层次；对群像或功能角色应控制篇幅，强调辨识度和资产复用。
-- 主角的审美标准应明显高于普通功能角色：强化镜头完成度、气质、服装系统和可复用视觉识别，同时保留项目调性和角色压力；不得机械套用女性美丽、男性英俊。
+- 主角的审美标准应明显高于普通功能角色：必须有来源匹配的帅哥/美女/主角级好看吸引力，也必须有整体气质、主角感、精神状态、姿态能量和镜头存在感；这些气质证据要落到眼神意图、面部情绪张力、头颈肩背、重心、动作节奏、服装承托和身份压力中，同时保留项目调性和角色压力；不得写成模板脸、网红脸、成人化、性化或空泛“有气质”。
+- 身高不必总写具体厘米，但必须给出可执行尺度判断；发型不必总复杂，但必须有轮廓和时代/职业适配；服装配色不必总华丽，但必须有主辅点缀色与明度/冷暖/反差逻辑。
+- 阴影是气质工具，不是角色脸部设计工具；角色定妆照应优先保证清晰五官、骨相、肤色层次和表情意图。需要暗调时，用 soft frontal fill light 保脸，用 subtle rim light 或 controlled side light 保轮廓，用局部眼尾压暗表达危险感。
 - 大反派/主要对抗者的审美标准也应明显高于普通功能反派：必须有压迫性镜头魅力、危险吸引力或权力气场，证据落在脸部骨相、眼神、妆发、姿态、服装轮廓和材质中。
 - 反派和阴暗角色不等于丑化；更稳定的做法是把危险、锋利、病态、阴郁或怪诞转成有控制力的脸部骨相、眼神、妆发、服装轮廓和材质。
 - 真实人物灵感不是默认解法；需要解决“脸不够有镜头记忆点”时优先用泛化镜头脸、骨相、眼神和妆发策略，只有获允许时才使用真实人物抽象灵感。

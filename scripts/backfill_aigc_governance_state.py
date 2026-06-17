@@ -419,11 +419,10 @@ def build_governance_state(project_root: Path) -> dict[str, Any]:
         relative.as_posix()
         for relative in [
             Path("MEMORY.md"),
-            Path("0-初始化/north_star.yaml"),
-            Path("0-初始化/init_handoff.yaml"),
-            Path("0-Init/north_star.yaml"),
-            Path("0-Init/init_handoff.yaml"),
+            Path("CONTEXT/README.md"),
             Path("1-分集/validation-report.md"),
+            Path("2-美学/类型风格.md"),
+            Path("2-美学/画面基调/全局风格协议.md"),
             Path("2-美学/validation-report.md"),
             Path("3-主体/validation-report.md"),
             Path("4-编剧/validation-report.md"),

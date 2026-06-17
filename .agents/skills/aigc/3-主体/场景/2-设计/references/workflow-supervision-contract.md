@@ -13,8 +13,8 @@ workflow_supervision:
   subject_id: ""
   dispatch_mode: external_provider | local_checklist | user_disabled
   blocking_layer: none | system | developer | tool | user
-  init_synthesis_source: "projects/aigc/<项目名>/team.yaml.init_synthesis"
-  init_team_synthesis_context: present | blocked | not_applicable
+  project_memory_source: "projects/aigc/<项目名>/MEMORY.md"
+  project_memory_init_context: present | blocked | not_applicable
   init_synthesis_node_coverage:
     - node_ref: ""
       pass_ref: ""
@@ -64,8 +64,8 @@ slot_bundles:
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
 | 每个被设计或审查的场景主体是否都有非空 `workflow_supervision` 记录，而不是只在口头报告中声明已 review？ | `GATE-SCENE-DESIGN-12` | `FAIL-SCENE-DESIGN-WORKFLOW` | `N7-REVIEW` | 报告记录 `subject_id`、`dispatch_mode`、完整 packet 路径或本地记录位置。 |
-| `dispatch_mode`、`blocking_layer`、`init_synthesis_source` 是否能说明外部 provider 可用性、上层阻断层级和项目 `team.yaml.init_synthesis` 来源？ | `GATE-SCENE-DESIGN-12` | `FAIL-SCENE-DESIGN-WORKFLOW` | `N7-REVIEW` | 留下 provider 状态、阻断层级、synthesis 来源和降级理由。 |
-| 初始化综合存在时，`init_team_synthesis_context` 与 `init_synthesis_node_coverage` 是否绑定当前 `node_ref / pass_ref / gate_ref`，并包含初始化综合 lens 对节点判断、执行取舍、局部 patch 或风险提示的影响？ | `GATE-SCENE-DESIGN-11` | `FAIL-SCENE-DESIGN-11` | `N5-RESEARCH` | 报告记录初始化综合采纳内容、节点引用、gate 引用、初始化综合建议和进入研究/设计草稿的采纳点。 |
+| `dispatch_mode`、`blocking_layer`、`project_memory_source` 是否能说明外部 provider 可用性、上层阻断层级和项目 `MEMORY.md` 来源？ | `GATE-SCENE-DESIGN-12` | `FAIL-SCENE-DESIGN-WORKFLOW` | `N7-REVIEW` | 留下 provider 状态、阻断层级、项目记忆来源和降级理由。 |
+| 项目记忆存在时，`project_memory_init_context` 与 `init_synthesis_node_coverage` 是否绑定当前 `node_ref / pass_ref / gate_ref`，并包含项目初始化记忆对节点判断、执行取舍、局部 patch 或风险提示的影响？ | `GATE-SCENE-DESIGN-11` | `FAIL-SCENE-DESIGN-11` | `N5-RESEARCH` | 报告记录项目记忆采纳内容、节点引用、gate 引用、记忆约束和进入研究/设计草稿的采纳点。 |
 | `reviewer_roster` 是否覆盖 `research-reviewer`、`scene-design-reviewer`、`cinematography-reviewer`、`prompt-reviewer`，并明确记录未启动 reviewer 或本地 checklist 替代路径？ | `GATE-SCENE-DESIGN-12` | `FAIL-SCENE-DESIGN-WORKFLOW` | `N7-REVIEW` | 留下 reviewer roster、`unlaunched_reviewers`、`local_checklist_note` 和替代审查范围。 |
 | `slot_bundles` 是否使用 canonical 非空 `SCENE-BUNDLE-01` 定义，而不是把 legacy audit marker `slot_bundles: []` 当作交付通过证据？ | `GATE-SCENE-DESIGN-SLOT-01` | `FAIL-SCENE-DESIGN-SLOT-01` | `N7-REVIEW` | 报告记录 bundle id、owner、required slots、legacy marker 是否仅作为兼容标记。 |
 | `SCENE-BUNDLE-01.required_slots` 中的 `scene_id`、`deconstruction_subject_id`、`period_region_anchor`、`space_style_token`、`research_brief`、`source_posture`、`visual_translation`、`prompt_evidence_chain`、`deconstruction_coverage` 是否都有证据位置？ | `GATE-SCENE-DESIGN-SLOT-01` | `FAIL-SCENE-DESIGN-SLOT-01` | `N7-REVIEW` | 留下 slot evidence 表、缺槽名、证据位置和对应返工节点；`space_style_token` 必须说明类型选择依据，非建筑场景不得以建筑流派充数。 |

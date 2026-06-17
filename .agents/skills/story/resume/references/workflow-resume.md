@@ -184,3 +184,12 @@ B) 先人工核对 acceptance packet 与 accepted manuscript refs，再执行 ac
 </example>
 
 </examples>
+
+## Review Gate Mapping
+
+| review_question | review_gate | fail_code | rework_target | report_evidence |
+| --- | --- | --- | --- | --- |
+| 恢复判断是否先执行或消费 `workflow detect`？ | 未取得 detect 或等价诊断证据即判断断点失败 | `FAIL-RESUME-EVIDENCE` | `SKILL.md#N3-DETECT` | detect payload、诊断替代证据 |
+| 无 tracked 中断时是否继续检查 artifact fallback？ | 直接宣布无事可做且未检查 fallback 即失败 | `FAIL-RESUME-FALLBACK` | `SKILL.md#N3-DETECT` / `types/resume-type-map.md` | fallback evidence files、next_entry |
+| `story-query` 是否保持轻恢复？ | query run 出现章节 cleanup 模板即失败 | `FAIL-RESUME-QUERY-CLEANUP` | `SKILL.md#N4-TYPE` / `SKILL.md#N5-NORMALIZE` | tracked_command、normalized options |
+| cleanup 是否先 preview 再等待确认？ | 未 preview 或未明确确认就执行 confirm 即失败 | `FAIL-RESUME-SAFETY` | `review/resume-review-gate.md` / `scripts/README.md` | command sequence、user confirmation |

@@ -1,12 +1,14 @@
 ---
 name: aigc-atmosphere-fx
-description: "Use when enriching AIGC episode performance drafts with selective physical atmosphere and practical FX visual beats."
+description: "Retired backup skill. Use only when auditing or redirecting the old AIGC atmosphere stage; do not execute as a canonical AIGC stage."
 governance_tier: full
 metadata:
-  short-description: AIGC 逐集氛围与现场物理特效增写
+  short-description: 退役备份：旧 AIGC 逐集氛围增写
 ---
 
 # aigc 6-氛围
+
+> 退役兼容入口：本技能已从正式 AIGC 主链移出，不再作为 `projects/aigc/<项目名>/` 的 canonical 生成阶段执行。后续若需要“氛围”能力，应在小说语境中使用 `.agents/skills/story/3-初稿/references/scene-pressure-texture-contract.md` 的场景压力与感官承托纪律，或在润色时使用 `.agents/skills/story/4-润色/types/prose-texture-repair.md`、`.agents/skills/story/4-润色/types/visual-readability-repair.md` 做局部修复。若用户只要求审计旧稿，可只读本技能；不得写回新的 `6-氛围` 正式产物。
 
 `6-氛围` 负责在上游 `5-表演` 的逐集表演稿基础上，结合 `2-美学` 的画面基调、角色风格和场景风格，选择性增写现场物理/舞台特效层面的氛围营造细节。核心文本动作是“保留原表演稿，在相关触发点新增字段”：只在被判定需要渲染、烘托或增强的画面点之后插入 `氛围画面：XXX`，不把每个画面点都机械加满。
 

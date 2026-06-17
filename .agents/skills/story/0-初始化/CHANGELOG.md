@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-06-16
+
+- Upgraded `story-init` to runtime-spine Skill 2.0 delivery standard.
+- Moved the executable node network, business analysis, quant criteria, attention protocol, checkpoint contract, module matrices, convergence gates and review binding into `SKILL.md`.
+- Retired unsupported `steps/` execution source after migrating its semantic content into the main runtime spine.
+- Added `test-prompts.json` for regression prompts covering auto init, custom roster init, repair/review drift and film route blocking.
+- Synced active references from the retired workflow file to `SKILL.md` node references and updated the validation command to the current `skill-2.0` meta scripts.
+- Added Review Gate Mapping to `references/creative-seed-routing/CONTEXT.md`.
+
 ## 2026-05-30
 
 - Added latest Skill 2.0 guardrails layer with `guardrails/guardrails-contract.md` and `SKILL.md` Runtime Guardrails.

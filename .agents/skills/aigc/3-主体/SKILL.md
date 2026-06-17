@@ -25,7 +25,9 @@ metadata:
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用 `$aigc-design-subjects` 或 `.agents/skills/aigc/3-主体` 时，必须同时加载本目录 `SKILL.md + CONTEXT.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与主体命名、资产禁区、长期视觉偏好、参考图/视频、下游模型限制或既有主体资产相关的文件。
+- 项目任务必须从 `projects/aigc/<项目名>/MEMORY.md` 构造 `project_memory_init_context`，消费初始化用户要求、团队配置与协作偏好、资料吸收摘要和阶段上下文读取指南；该上下文只作为主体清单、注册表和设计分发的约束与启发，不触发 team 身份、顾问问答或 `team.yaml` 生成。
 - 父级整体调用必须先构造同一份 `Subject Registry Packet`，包含项目路径、`1-分集` source manifest、`2-美学/类型风格.md`、画面基调与三域风格协议、项目记忆、参考资料、写回权限、禁止项和后置 reconciliation 来源；再为 3 个 subagents 分发同源 `Subject Task Packet`。
+- 若本轮进入任一 `3-生成` 叶子，父级必须把共享生成合同回指给对应子技能：`_shared/midjourney风格参数.yaml` 提供默认 Midjourney V8.1 与后缀策略，`_shared/主体图复用与状态变体规则.md` 提供跨集复用、本地 canonical 已有跳过、画布缺失时上传、本地缺失时下载补齐和 `Lib Image` 状态变体分流。
 - 每个 subagent 必须独立加载自身 `SKILL.md + CONTEXT.md`，并按自身 Output Contract 继续路由到 `1-清单`、`2-设计` 或 `3-生成` 叶子技能。
 - 整体调用不得因为某一类主体输出尚未产出而降级为串行执行；缺失的跨域依赖在对应 subagent 输出中标记为 `dependency_gap`，并由父级汇流报告记录。
 - 核心主体抽取、归并、设计判断、提示词蒸馏和冲突裁决必须由 LLM 直接完成；脚本只可承担读取、整理、校验、索引生成、字数统计和污染扫描。

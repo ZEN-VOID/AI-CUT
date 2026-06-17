@@ -2,7 +2,7 @@
   {
     "id": "single-scene-design",
     "prompt": "使用 $aigc-scene-design，为场景清单中的 S001-旧教学楼 生成单场景设计稿。",
-    "expected": "读取项目资料、清单、north_star、init synthesis 和风格协议，由 LLM 直写研究、解构和 prompt evidence chain。"
+    "expected": "读取项目资料、清单、2-美学类型/画面基调/场景风格协议和项目 MEMORY，由 LLM 直写研究、解构和 prompt evidence chain。"
   },
   {
     "id": "incremental-design-fill",

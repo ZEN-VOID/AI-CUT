@@ -14,5 +14,5 @@
 
 - 生成、改写或扩写角色 prompt 正文。
 - 重新设计角色身份、服装、时代、气质或视觉风格。
-- 调用 imagegen 时绕过 `.agents/skills/cli/imagegen/SKILL.md` 的模式与持久化合同。
+- 调用 libTV 时绕过 `.agents/skills/cli/libTV/SKILL.md` 的模式与持久化合同。
 - 修改上游 `角色/2-设计` 文档、registry、父级 skill 或其他 worker 负责的目录。

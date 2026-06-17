@@ -6,8 +6,8 @@
 
 | truth role | canonical carriers | notes |
 | --- | --- | --- |
-| project governance | `projects/aigc/<项目名>/governance-state.yaml`；缺失时回读 `STATE.json`、`MEMORY.md`、`CONTEXT/` | `governance-state.yaml` 是结构化治理快照；`STATE.json` 是轻量入口；legacy `north_star/init_handoff/team` 只在存在时标注回读 |
-| initialization | `projects/aigc/<项目名>/0-初始化/`、项目根 `MEMORY.md`、项目根 `CONTEXT/` | scaffold-only 初始化工件优先于惰性治理工件 |
+| project governance | `projects/aigc/<项目名>/governance-state.yaml`；缺失时回读 `STATE.json`、`MEMORY.md`、`CONTEXT/` | `governance-state.yaml` 是结构化治理快照；`STATE.json` 是轻量入口；旧初始化 carrier 只在存在时标注历史存在性 |
+| initialization | `projects/aigc/<项目名>/0-初始化/`、项目根 `MEMORY.md`、项目根 `CONTEXT/` | scaffold-plus-memory 初始化工件优先于惰性治理工件 |
 | episode split | `projects/aigc/<项目名>/1-分集/第N集.md`、`1-分集/执行报告.md` | 查询原文分集与分集执行状态 |
 | screenwriting | `projects/aigc/<项目名>/4-编剧/第N集.md`、`4-编剧/执行报告.md` | legacy `2-编导` / `3-Detail` 只在旧项目或用户点名时兼容回读 |
 | aesthetic | `projects/aigc/<项目名>/2-美学/**` | 视觉基调、角色/场景/道具/分镜/摄影风格协议 |

@@ -12,7 +12,7 @@
   {
     "id": "route-character-generation",
     "prompt": "使用 $aigc-design-character，为 projects/aigc/示例项目 从 2-设计 的角色稿生成主图和多视图。",
-    "expected": "Router selects character_generation, loads 3-生成/SKILL.md + CONTEXT.md, and preserves the default imagegen executor boundary."
+    "expected": "Router selects character_generation, loads 3-生成/SKILL.md + CONTEXT.md, and preserves the default libTV executor boundary."
   },
   {
     "id": "domain-reconcile",

@@ -40,16 +40,17 @@ metadata:
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与世界观、地理、年代、建筑、美术风格、摄影风格相关的上下文。
+- 项目任务必须从 `projects/aigc/<项目名>/MEMORY.md` 构造 `project_memory_init_context`，消费初始化用户要求、团队配置与协作偏好、资料吸收摘要和阶段上下文读取指南；该上下文只作为场景设计约束、审查视角和风险提示，不触发 team 身份、顾问问答或 `team.yaml` 生成。
 - 必须读取上游 `projects/aigc/<项目名>/3-主体/场景/1-清单/场景清单.md`；该清单只提供主体索引和原文证据，不替代本阶段的设计判断。
 - 必须读取 `projects/aigc/<项目名>/2-美学/画面基调/全局风格协议.md`，提取 `Global Style Prompt`、`Visual Gene Profile`、`Negative Traits` 等画面基调最终内容；场景设计风格词的全局部分以此为准。
+- 必须读取 `projects/aigc/<项目名>/2-美学/类型风格.md`，提取类型元素、媒介属性和下游 handoff 指引；它是场景设计的类型边界索引，不替代细目风格协议。
 - 必须解析目标场景的 `首次登场`、用户指定集号或清单中的 `episode_id`。若能推断 `第N集`，必须优先读取 `projects/aigc/<项目名>/2-美学/第N集/场景风格/场景风格协议.md`；缺失时回退 `projects/aigc/<项目名>/2-美学/场景风格/场景风格协议.md`。该协议用于提取 `Scene Style Prompt`、空间/建筑/材质/地域时间风格等场景风格最终内容；场景设计风格词的细目部分以此为准。
-- 必须读取 `projects/aigc/<项目名>/0-初始化/north_star.yaml`，提取项目北极星、故事母题、创作阶段不变量和禁区；不得再把 `north_star.yaml` 当作场景最终风格提示词真源。
-- 必须读取 `projects/aigc/<项目名>/team.yaml.init_synthesis`，提取与设计、美术、建筑、摄影、导演相关的初始化综合上下文；该上下文作为风格约束和审查视角，不替代场景设计正文。
-- 初始化综合存在时，必须读取 `../../../_shared/team-advisor-consultation-contract.md`，优先消费 `team.yaml.init_synthesis.stage_seed_summary."3-主体"`、`init_handoff.design_seed` 与 `north_star.yaml.创作阶段不变量.设计`；不得在本阶段调用项目监制成员、解析叶子专属 profile、派生新顾问问题或代入顾问角色意识，只能在 LLM 场景设计前形成 `init_team_synthesis_context`。
+- 旧初始化风格载体或旧团队综合文件若存在，只能作为只读迁移证据；可把仍有效且未被项目记忆覆盖的设计种子、约束、启发和风险压入 `project_memory_init_context.provenance_notes`，不得替代 `2-美学` 输出。
+- 初始化上下文消费必须读取 `../../../_shared/team-advisor-consultation-contract.md`；不得在本阶段调用项目监制成员、解析叶子专属 profile、派生新顾问问题或代入顾问角色意识，只能在 LLM 场景设计前形成 `project_memory_init_context`。
 - 固定画面约束：场景设计默认只输出纯空镜空间设计，不得出现人物、人体局部、剪影、倒影或可识别人类存在；英文提示词必须显式包含 `empty shot, no people, no human figures` 等等价约束。
 - 时间/地域/空间风格锚点护栏：最终 prompt 需要显式时间与地域锚点，但不得为了满足显式 token 编造具体年代、国家、城市、族群、宗教或建筑流派。时间与地域必须来自上游清单、项目资料、`type_profile`、用户补充、可靠外部来源或明确标注的保守推断；无法确认时使用 `non-specific / project-era-consistent / inferred geography` 等有来源姿态的保守英文锚点。建筑/空间风格 token 必须按 `scene_type` 条件选择：建筑、室内、街区可写 architecture/interior/urban style；自然地貌、超现实、交通/过渡或抽象空间应改写为空间规则、地理/生态、材质系统或变形逻辑，不得强行套建筑风格标签。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `review/` / `types/` / `templates/` / `scripts/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
-- 本 skill 在仓库治理口径下声明 reviewer -> 初始化综合消费默认路径：先按共享初始化综合消费合同读取 `team.yaml.init_synthesis.stage_seed_summary."3-主体"`、`init_handoff.design_seed` 与 `north_star.yaml.创作阶段不变量.设计`，再由研究考据、Scene Design、Cinematography、Prompt Review 作为本地 reviewer 路径；不得把 team 成员作为创作阶段 subagent 预设。若初始化综合不可用或用户显式禁用，必须直接使用本地 review checklist；本地 checklist 只记录 verdict、finding、修复项和 synthesis 摘要。
+- 本 skill 在仓库治理口径下声明 reviewer -> 初始化上下文消费默认路径：先按共享项目记忆初始化上下文合同读取 `project_memory_init_context`，再由研究考据、Scene Design、Cinematography、Prompt Review 作为本地 reviewer 路径；不得把 team 成员作为创作阶段 subagent 预设。若初始化上下文不可用或用户显式禁用，必须直接使用本地 review checklist；本地 checklist 只记录 verdict、finding、修复项和 synthesis 摘要。
 
 ## Context Processing Contract
 
@@ -87,7 +88,7 @@ Accepted input:
 Required input:
 
 - 可读取的项目根 `MEMORY.md` 和相关 `CONTEXT/`，若缺失必须报告并使用临时护栏。
-- 可读取的 `2-美学/画面基调/全局风格协议.md`、当前集优先的 `2-美学/第N集/场景风格/场景风格协议.md`（缺失时回退 `2-美学/场景风格/场景风格协议.md`）、`0-初始化/north_star.yaml` 与 `team.yaml.init_synthesis`。
+- 可读取的 `2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md`、当前集优先的 `2-美学/第N集/场景风格/场景风格协议.md`（缺失时回退 `2-美学/场景风格/场景风格协议.md`）与项目 `MEMORY.md` 初始化上下文。
 - 可读取的 `3-主体/场景/1-清单/场景清单.md`，且至少包含 `名称`、`首次登场`、`原文描述（关键词式）` 三列。
 - 至少一个目标场景主体；未指定时默认处理清单中尚未存在设计稿的全部场景。
 
@@ -100,7 +101,7 @@ Optional input:
 Reject or clarify when:
 
 - 上游场景清单不存在或列结构无法识别。
-- `north_star.yaml` 或 `team.yaml.init_synthesis` 不存在且用户不允许临时降级。
+- 项目 `MEMORY.md` 初始化上下文不存在且用户不允许临时降级。
 - 用户要求脚本自动生成研究、物语、空间解构、摄影设计或提示词。
 - 用户要求本阶段直接改写上游清单、生成图片、批量提交 registry 或覆盖其他 worker 的技能包。
 
@@ -109,10 +110,10 @@ Reject or clarify when:
 | field | requirement | evidence | fail_code |
 | --- | --- | --- | --- |
 | `business_goal` | 为上游场景主体生成可制作、可追溯、可进入图像生成的单场景设计稿 | 用户请求、清单行、既有设计稿 | `FAIL-SCENE-DESIGN-BUSINESS-GOAL` |
-| `business_object` | 清单场景主体、项目风格资料、north star、init synthesis、单场景 Markdown | `input_manifest`、输出路径 | `FAIL-SCENE-DESIGN-BUSINESS-OBJECT` |
+| `business_object` | 清单场景主体、`2-美学` 输出、项目记忆初始化上下文、单场景 Markdown | `input_manifest`、输出路径 | `FAIL-SCENE-DESIGN-BUSINESS-OBJECT` |
 | `constraint_profile` | LLM-first、纯空镜、上游清单唯一主体来源、prompt <= 2000 chars、三处主体 ID 一致 | 本合同、references、模板、review | `FAIL-SCENE-DESIGN-BUSINESS-CONSTRAINT` |
 | `success_criteria` | 研究闭环、物语、解构、提示词设计、prompt evidence chain、review verdict 均完整且可回指 | `research_brief`、`scene_design_draft`、`review_verdict` | `FAIL-SCENE-DESIGN-BUSINESS-SUCCESS` |
-| `complexity_source` | 复杂度来自类型分型、研究可靠性、初始化综合消费、反抽象转译、prompt 覆盖和批量差异化 | `type_profile`、`init_team_synthesis_context` | `FAIL-SCENE-DESIGN-BUSINESS-COMPLEXITY` |
+| `complexity_source` | 复杂度来自类型分型、研究可靠性、项目记忆初始化上下文消费、反抽象转译、prompt 覆盖和批量差异化 | `type_profile`、`project_memory_init_context` | `FAIL-SCENE-DESIGN-BUSINESS-COMPLEXITY` |
 | `topology_fit` | 串行来源锁定避免新增主体；研究先行防止空泛设计；review 回路能按研究/设计/prompt 分层返工 | Visual Maps、节点表、Type Routing Matrix | `FAIL-SCENE-DESIGN-TOPOLOGY-FIT` |
 
 ## Mode Selection
@@ -141,7 +142,7 @@ Reject or clarify when:
 flowchart TD
     A["调用 $aigc-scene-design"] --> B["加载 SKILL.md + CONTEXT.md"]
     B --> C["加载项目 MEMORY.md 与相关 CONTEXT/"]
-    C --> D["读取 north_star.yaml / team.yaml.init_synthesis / 场景清单.md"]
+    C --> D["读取 project_memory_init_context / 场景清单.md"]
     D --> E{"选择 mode"}
     E -->|"single_scene"| F["锁定单个清单主体"]
     E -->|"batch_scene"| G["锁定多个或全部缺口主体"]
@@ -161,8 +162,8 @@ flowchart TD
 ```mermaid
 flowchart LR
     A["上游场景清单"] --> D["input_manifest"]
-    B["north_star.yaml"] --> D
-    C["team.yaml.init_synthesis"] --> D
+    B["项目 MEMORY.md"] --> D
+    C["project_memory_init_context"] --> D
     E["MEMORY.md / CONTEXT/"] --> D
     D --> F["type_profile"]
     F --> G["scene_design_draft"]
@@ -232,10 +233,10 @@ stateDiagram-v2
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-LOAD` | 加载技能、项目上下文和业务画像 | `SKILL.md`、`CONTEXT.md`、项目 `MEMORY.md`、项目 `CONTEXT/` | 锁定强制规则、项目偏好、禁区、`business_profile` 和注意力锚点 | `loaded_context_manifest`, `business_profile` | `N2-SOURCES` | 必需上下文缺失已报告；业务画像六字段完整 |
-| `N2-SOURCES` | 建立输入证据 | 画面基调、场景风格、`north_star.yaml`、`team.yaml.init_synthesis`、`场景清单.md` | 提取 style prompts、初始化综合设计种子、北极星/禁区和清单行 | `input_manifest` | `N3-SELECT` | 核心来源可回指；缺失已降级或阻塞 |
+| `N2-SOURCES` | 建立输入证据 | 画面基调、场景风格、project_memory_init_context、`场景清单.md` | 提取 style prompts、初始化上下文设计种子、禁区和清单行 | `input_manifest` | `N3-SELECT` | 核心来源可回指；缺失已降级或阻塞 |
 | `N3-SELECT` | 选择目标场景 | 用户指定、清单缺口、manifest | 确定单个/批量场景与稳定 `S###` 编号，跳过既有设计稿除非 repair | `target_scene_list` | `N4-TYPE` / `N7-REVIEW` | 不新增清单外主体；review_only 可直达 review |
 | `N4-TYPE` | 形成类型画像 | 目标场景、清单关键词、项目资料 | 判定空间类型、研究重点、风格入口、来源姿态和摄影风险 | `type_profile` | `N5-RESEARCH` | 类型画像足以指导研究，不用类型表自动写正文 |
-| `N5-RESEARCH` | LLM 直出研究闭环 | 上游证据、north star、init synthesis、type profile | 写 `research_brief`、`source_posture`、`uncertainty_register`、`visual_translation`，形成 `init_team_synthesis_context` | `research_brief`, `init_team_synthesis_context` | `N6-DESIGN` | 研究能落到可见空间，不把推断写成事实 |
+| `N5-RESEARCH` | LLM 直出研究闭环 | 上游证据、project_memory_init_context、type profile | 写 `research_brief`、`source_posture`、`uncertainty_register`、`visual_translation`，形成 `project_memory_init_context` 的场景级应用 | `research_brief`, `project_memory_init_context` | `N6-DESIGN` | 研究能落到可见空间，不把推断写成事实 |
 | `N6-DESIGN` | LLM 直出设计正文 | research brief、type profile、反抽象合同、输出合同 | 写物语、`## 4. 解构` 主体 ID、Scene Design、Cinematography、prompt evidence chain 和英文 prompt | `scene_design_draft`, `anti_abstract_design_projection` | `N7-REVIEW` | 核心正文非脚本生成；prompt 以主体 ID 开头、含时间地域、纯空镜且 <= 2000 chars |
 | `N7-REVIEW` | 质量门禁与 reviewer 汇流 | draft、review contract、slot bundle、workflow supervision | 执行本地 checklist / reviewer 汇流，记录缺槽、阻断项和返工层级 | `review_verdict`, `slot_bundle_review`, `workflow_supervision_record` | `N8-WRITE` / `N5-RESEARCH` / `N6-DESIGN` | verdict 非阻断；slot bundle 和 supervision 记录非空 |
 | `N8-WRITE` | 落盘与报告 | accepted draft | 写入 canonical `S###-<场景名>.md`，可选报告和 manifest patch | output files, output summary | done | 路径、命名、字段和写入边界正确 |
@@ -243,11 +244,11 @@ stateDiagram-v2
 ## Execution Contract
 
 1. 读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目根 `MEMORY.md` 与相关项目 `CONTEXT/`。
-2. 读取 `north_star.yaml`、`team.yaml.init_synthesis`、上游 `场景清单.md` 和可选 `projects/aigc/<项目名>/3-主体/场景/design-manifest.yaml`，建立 `input_manifest`。
+2. 读取项目 `MEMORY.md` / `project_memory_init_context`、`2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `2-美学/场景风格/场景风格协议.md`、上游 `场景清单.md` 和可选 `projects/aigc/<项目名>/3-主体/场景/design-manifest.yaml`，建立 `input_manifest`；legacy 初始化风格或团队综合载体只可作为只读迁移证据。
 3. 按用户指定、清单缺口或 manifest 的 `design_gaps` 选择目标场景，不新增未在上游清单出现的场景主体；已有设计稿默认跳过，除非用户明确要求 repair / regenerate。
 4. 按 `types/scene-design-type-map.md` 形成 `type_profile`：现实建筑、自然地貌、城市街区、室内空间、交通/过渡空间、仪式空间、超现实/异化空间、复合空间等。
-5. 按共享初始化综合消费合同优先消费 `team.yaml.init_synthesis.stage_seed_summary."3-主体"`、`init_handoff.design_seed` 或 `north_star.yaml.创作阶段不变量.设计`，形成 `init_team_synthesis_context`；采纳内容必须来自当前节点、目标场景上下文和 review gate，不能退化为固定字段清单或只点名大师；不得请教项目监制顾问或派生新 team 问答。
-6. 按 `references/scene-design-contract.md` 由 LLM 从上到下逐个场景理解清单主体、空间功能、项目风格和初始化综合后完成研究层闭环：`research_brief`、`source_posture`、`uncertainty_register`、`visual_translation`；创作时必须吸收 `init_team_synthesis_context` 中已裁决的可执行指导，冷门信息可在许可条件下网络搜索，并记录来源、推断边界或未解不确定性。
+5. 按共享项目记忆初始化上下文消费合同形成 `project_memory_init_context`；采纳内容必须来自当前节点、目标场景上下文和 review gate，不能退化为固定字段清单或只点名大师；不得请教项目监制顾问或派生新 team 问答。
+6. 按 `references/scene-design-contract.md` 由 LLM 从上到下逐个场景理解清单主体、空间功能、项目风格和初始化上下文后完成研究层闭环：`research_brief`、`source_posture`、`uncertainty_register`、`visual_translation`；创作时必须吸收 `project_memory_init_context` 中已裁决的可执行指导，冷门信息可在许可条件下网络搜索，并记录来源、推断边界或未解不确定性。
 7. 按 `references/scene-design-contract.md`、`references/design-output-contract.md` 与 `../../../_shared/anti-abstract-language-contract.md` 由 LLM 完成物语、解构、英文提示词与 `prompt_evidence_chain`；必须把抽象空间气质、主题承载、风格标签和百科式研究转译为空间结构、尺度边界、材质表面、色彩陈设、动线、镜头距离、构图、光线、焦段、景深和可追溯 prompt token；最终英文整合提示词的整合对象是 `## 4. 解构` 的全部有效信息，而不是只拼接主体 ID、画面基调、场景风格、时间地域、空镜负向词等前缀/后缀；提示词中的关键空间、材质、光线、构图、风格、时间和地域 token 必须能回指研究、初始化综合指导、类型条件风格入口或设计依据，且不得把保守推断写成具体事实。
 8. 为每个场景锁定唯一主体 ID；默认使用上游清单或文件名前缀 `S###`。该 ID 必须同时写入 `## 4. 解构` 标题下方的 `主体ID号：<主体ID>`、`## 5. 提示词设计` 的主体 ID 字段，并作为英文 prompt 的开头 `<主体ID>: ...`。
 9. 按 `templates/output-template.md` 输出单场景 Markdown，必须包含：名称/首次登场/原文描述复述、研究考据/Research Brief、物语、解构、提示词设计。
@@ -260,7 +261,7 @@ stateDiagram-v2
 
 | field_id | 输出/证据 | 内容要求 | 失败码 |
 | --- | --- | --- | --- |
-| `FIELD-SCENE-DESIGN-01` | 输入取证 | 可回指项目根、`north_star.yaml`、`team.yaml.init_synthesis`、上游场景清单行 | `FAIL-SCENE-DESIGN-01` |
+| `FIELD-SCENE-DESIGN-01` | 输入取证 | 可回指项目根、`MEMORY.md` / `project_memory_init_context`、上游场景清单行 | `FAIL-SCENE-DESIGN-01` |
 | `FIELD-SCENE-DESIGN-02` | 场景主体 | 主体来自上游清单，不新增平行清单真源 | `FAIL-SCENE-DESIGN-02` |
 | `FIELD-SCENE-DESIGN-02A` | 增量补缺 | 只处理缺设计稿或用户指定 repair 的主体，未静默覆盖既有设计稿 | `FAIL-SCENE-DESIGN-02A` |
 | `FIELD-SCENE-DESIGN-03` | 研究层闭环 | 包含 `research_brief`、`source_posture`、`uncertainty_register`、`visual_translation`，并与类型画像相关 | `FAIL-SCENE-DESIGN-03` |
@@ -271,7 +272,7 @@ stateDiagram-v2
 | `FIELD-SCENE-DESIGN-08` | 写入边界 | 只写项目 `3-主体/场景/2-设计` 输出，不改 registry 或其他技能 | `FAIL-SCENE-DESIGN-08` |
 | `FIELD-SCENE-DESIGN-09` | 纯空镜约束 | 摄影与 prompt 明确为纯空镜，不出现人物、人体局部、剪影、倒影或人群 | `FAIL-SCENE-DESIGN-09` |
 | `FIELD-SCENE-DESIGN-10` | Prompt 证据链 | `prompt_evidence_chain` 将关键 prompt token 回指来源、推断或设计翻译 | `FAIL-SCENE-DESIGN-10` |
-| `FIELD-SCENE-DESIGN-11` | Init team synthesis | 已按 `team.yaml.init_synthesis.stage_seed_summary."3-主体"`、`init_handoff.design_seed` 或 `north_star.yaml.创作阶段不变量.设计` 形成 `init_team_synthesis_context`，并把节点级判断、执行取舍、局部 patch 或风险提示作为创作前上下文；缺失时有明确记录 | `FAIL-SCENE-DESIGN-11` |
+| `FIELD-SCENE-DESIGN-11` | Project memory init context | 已按 `project_memory_init_context` 形成节点级判断、执行取舍、局部 patch 或风险提示作为创作前上下文；缺失时有明确记录 | `FAIL-SCENE-DESIGN-11` |
 | `FIELD-SCENE-DESIGN-12` | 反抽象设计投影 | `anti_abstract_design_projection` 或等价证据能说明抽象空间气质、主题、风格和研究判断已转为可见空间结构、材质、光线、构图与 prompt token | `FAIL-ANTI-ABSTRACT-DESIGN` |
 | `FIELD-SCENE-DESIGN-13` | 反模板伪差异 | 研究、物语、Scene Design、Cinematography、prompt evidence chain 和英文提示词不是由脚本批量生成、批量插入、正则套句、映射投影、模板槽位、关键词锚点替换、句式轮换或同义改写制造；每个场景至少有一个不可互换的空间结构、材质/光线或镜头裁决证据 | `FAIL-SCENE-DESIGN-PSEUDO-DIFF` |
 
@@ -279,12 +280,12 @@ stateDiagram-v2
 
 | step_id | pass_name | input | judgment | output |
 | --- | --- | --- | --- | --- |
-| `PASS-SCENE-DESIGN-01` | 输入锁定 | 项目路径、`north_star.yaml`、`team.yaml.init_synthesis`、`场景清单.md` | 三个核心来源是否可读，缺口是否需要本地 checklist 结果 | `input_manifest` |
+| `PASS-SCENE-DESIGN-01` | 输入锁定 | 项目路径、`MEMORY.md` / `project_memory_init_context`、`场景清单.md` | 核心来源是否可读，缺口是否需要本地 checklist 结果 | `input_manifest` |
 | `PASS-SCENE-DESIGN-02` | 主体选择 | 用户指定项、上游清单或 manifest | 是否只处理清单已有场景，是否需要跳过已有设计稿或补 `design_gaps` | `target_scene_list` |
 | `PASS-SCENE-DESIGN-03` | 类型画像 | 场景名、原文关键词、项目资料 | 场景类型、建筑/空间风格入口、研究需求和摄影风险 | `type_profile` |
-| `PASS-SCENE-DESIGN-04` | 初始化综合汇流 | `team.yaml.init_synthesis`、共享初始化综合消费合同、场景目标、当前 `node_id / pass_id / gate_id` | 是否已把初始化综合压缩为可执行指导、局部 patch 或风险提示，且未触发 team 身份调用或伪顾问问答 | `init_team_synthesis_context` |
-| `PASS-SCENE-DESIGN-05` | 研究简报 | 上游证据、north star、team、type profile、init team synthesis context | 来源姿态、不确定性和视觉翻译是否足以支撑设计 | `research_brief` |
-| `PASS-SCENE-DESIGN-06` | LLM 设计 | research brief、north star、team、type profile、init team synthesis context、反抽象语言合同 | 物语、解构、提示词和 prompt 证据链是否由 LLM 直出，抽象空间气质是否已转成可见设计材料 | `scene_design_draft`、`anti_abstract_design_projection` |
+| `PASS-SCENE-DESIGN-04` | 初始化上下文汇流 | `project_memory_init_context`、共享项目记忆初始化上下文合同、场景目标、当前 `node_id / pass_id / gate_id` | 是否已把初始化上下文压缩为可执行指导、局部 patch 或风险提示，且未触发 team 身份调用或伪顾问问答 | `project_memory_init_context` |
+| `PASS-SCENE-DESIGN-05` | 研究简报 | 上游证据、`2-美学` 输出、项目记忆、type profile、project memory init context | 来源姿态、不确定性和视觉翻译是否足以支撑设计 | `research_brief` |
+| `PASS-SCENE-DESIGN-06` | LLM 设计 | research brief、`2-美学` 输出、项目记忆、type profile、project memory init context、反抽象语言合同 | 物语、解构、提示词和 prompt 证据链是否由 LLM 直出，抽象空间气质是否已转成可见设计材料 | `scene_design_draft`、`anti_abstract_design_projection` |
 | `PASS-SCENE-DESIGN-07` | reviewer 汇流 | 设计稿草案与 review contract | 初始化综合消费 或本地 checklist 是否通过门禁 | `review_verdict` |
 | `PASS-SCENE-DESIGN-08` | 落盘验收 | accepted draft | 路径、命名、字段、prompt 字符数是否合规 | `S###-<场景名>.md` |
 
@@ -295,7 +296,7 @@ stateDiagram-v2
 | `PASS-SCENE-DESIGN-01` | 读取技能与项目上下文，建立来源清单 | `input_manifest` | `N1-LOAD` |
 | `PASS-SCENE-DESIGN-02` | 从上游 `场景清单.md` 选择目标主体 | `target_scene_list` | `references/scene-design-contract.md` |
 | `PASS-SCENE-DESIGN-03` | 生成 `type_profile` 并确定建筑/空间风格入口 | `type_profile` | `types/scene-design-type-map.md` |
-| `PASS-SCENE-DESIGN-04` | 初始化综合存在时形成 `init_team_synthesis_context`，缺失时记录 `not_applicable` / `blocked` | synthesis 来源、采纳内容、可执行指导或本地 review 记录 | `../../../_shared/team-advisor-consultation-contract.md` |
+| `PASS-SCENE-DESIGN-04` | 初始化上下文存在时形成 `project_memory_init_context`，缺失时记录 `not_applicable` / `blocked` | memory 来源、采纳内容、可执行指导或本地 review 记录 | `../../../_shared/team-advisor-consultation-contract.md` |
 | `PASS-SCENE-DESIGN-05` | 由 LLM 直写 `research_brief`、来源姿态、不确定性和视觉翻译 | `research_brief` | `references/scene-design-contract.md` |
 | `PASS-SCENE-DESIGN-06` | 由 LLM 直写物语、解构、英文提示词和 `prompt_evidence_chain`，并按反抽象语言合同完成设计投影 | `scene_design_draft`、`anti_abstract_design_projection` | `templates/output-template.md`、`../../../_shared/anti-abstract-language-contract.md` |
 | `PASS-SCENE-DESIGN-07` | 执行 初始化综合/reviewer 或本地等价 review | `review_verdict` | `review/review-contract.md` |
@@ -350,7 +351,7 @@ stateDiagram-v2
 | convergence_point | pass_condition | fail_condition | evidence | rework_target |
 | --- | --- | --- | --- | --- |
 | `C1-BUSINESS-LOCKED` | business profile 六字段完整，拓扑适配理由明确 | 缺目标、对象、约束、成功标准、复杂度或拓扑理由 | `business_profile` | `Business Requirement Analysis Contract` |
-| `C2-SOURCE-LOCKED` | 每个目标场景可回指清单行、north star、style source 和 init synthesis 状态 | 上游清单缺失、清单外主体或风格来源不可回指 | `input_manifest`, `target_scene_list` | `N2-SOURCES` / `N3-SELECT` |
+| `C2-SOURCE-LOCKED` | 每个目标场景可回指清单行、`2-美学` style source 和 project memory init context 状态 | 上游清单缺失、清单外主体或风格来源不可回指 | `input_manifest`, `target_scene_list` | `N2-SOURCES` / `N3-SELECT` |
 | `C3-RESEARCH-TRANSLATED` | 研究闭环包含 source posture、uncertainty 和 visual translation | 研究空泛、百科摘抄、推断写事实或无法影响画面 | `research_brief` | `N5-RESEARCH` |
 | `C4-LLM-DESIGN-CLEAN` | 设计正文、解构和 prompt 由 LLM 主创，且无模板伪差异 | 脚本批量生成、正则套句、映射投影或同义改写伪差异 | anti-script audit, `scene_design_draft` | `N6-DESIGN` |
 | `C5-REVIEW-PASS` | review verdict 非阻断，slot bundle 和 supervision 记录非空 | 字段、ID、prompt、纯空镜或 workflow gate 阻断 | `review_verdict` | `N7-REVIEW` |
@@ -372,7 +373,7 @@ stateDiagram-v2
 
 - 从剧情想象新增了上游清单没有的场景主体。
 - 上游清单增量更新后，没有识别缺设计稿主体，或覆盖了已有场景设计稿。
-- 未读取 `north_star.yaml` 或 `team.yaml.init_synthesis` 就生成风格判断。
+- 未读取项目 `MEMORY.md` / `project_memory_init_context` 就生成初始化风格判断。
 - 研究考据由脚本、模板拼接、批量插入、正则套句、映射投影或无来源断言替代 LLM 判断。
 - 研究层只有百科式段落，没有 `research_brief`、来源姿态、不确定性和视觉翻译。
 - 英文提示词关键 token 无法通过 `prompt_evidence_chain` 回指来源、推断或设计选择。
@@ -435,11 +436,11 @@ stateDiagram-v2
 ### Completion gate
 
 - 已读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md` 与相关项目 `CONTEXT/`。
-- 已读取 `north_star.yaml`、`team.yaml.init_synthesis` 和上游 `场景清单.md`。
+- 已读取项目 `MEMORY.md` / `project_memory_init_context` 和上游 `场景清单.md`。
 - 每个输出文件都能回指上游清单行的 `名称`、`首次登场`、`原文描述（关键词式）`。
 - 已识别并跳过既有设计稿；仅补齐缺设计稿或用户明确指定 repair 的主体。
 - 每个设计稿包含 required output 中的全部板块和字段。
-- 已按 `team.yaml.init_synthesis.stage_seed_summary."3-主体"`、`init_handoff.design_seed` 或 `north_star.yaml.创作阶段不变量.设计` 形成 `init_team_synthesis_context`，且采纳内容已绑定当前 `node_id / pass_id / gate_id` 并转成节点级判断、执行取舍、局部 patch 或风险提示；若不可用，已记录 `not_applicable` 或 `blocked`。
+- 已按 `project_memory_init_context` 形成可执行上下文，且采纳内容已绑定当前 `node_id / pass_id / gate_id` 并转成节点级判断、执行取舍、局部 patch 或风险提示；若不可用，已记录 `not_applicable` 或 `blocked`。
 - 研究层已经产出 `research_brief`、`source_posture`、`uncertainty_register` 与 `visual_translation`，没有把猜测写成事实。
 - 已按 `../../../_shared/anti-abstract-language-contract.md` 完成反抽象设计投影，抽象空间气质、风格标签、主题承载和研究判断均已转成可见空间、材质、光线、构图与 prompt token。
 - 英文提示词以主体 ID 号开头，不超过 2000 characters，显式承接 `画面基调.Global Style Prompt + 场景风格.Scene Style Prompt`、有来源姿态的时间锚点与地域锚点，按场景类型选择建筑/空间/自然/材质风格 token，并已整合 `## 4. 解构` 的 Scene Design 与 Cinematography 全部有效信息。

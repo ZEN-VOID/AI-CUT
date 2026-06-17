@@ -17,6 +17,7 @@ metadata:
 - 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与角色命名、长期偏好、禁区和已有设定相关的上下文文件。
 - 上游唯一准确信息来源固定为 `projects/aigc/<项目名>/3-主体/subject-registry.yaml` 的 `subjects.characters` 条目及其 `source_anchors`；必要时回查 `1-分集` 故事源和 `2-美学/角色风格` 协议作为证据。已有 `8-分组` 稿只能用于后置命名对齐，不得新增角色主体。
+- 多状态 / 多服装 / 年龄阶段归属约束：`常服`、`礼服`、`制服`、`伪装`、`战斗态`、`战损态`、`受伤态`、`恢复态`、`少年期`、`青年期`、`成年期`、`老年期`、时间跳跃或同一角色不同装束，默认都是同一 base character 的 `variant_state`，不得拆成新的 canonical 角色行；只有 registry 明确登记为不同人物时才可成为独立主体。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 - 角色归并、别名判断、代称识别和首次登场裁决必须由 LLM 直接完成；`scripts/` 只能做读取、抽取、表格列检查、重复项提示和机械校验。
 - 脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成的角色清单判断、canonical 名称、归并理由或关键词描述，直接判定为 `FAIL-CHAR-LIST-PSEUDO-DIFF`；字段完整、三列表格合规或数量达标不得抵消该失败。
@@ -51,8 +52,8 @@ metadata:
 | `business_goal` | 建立可被 `2-设计` 消费的角色主体清单，保证主体唯一、首次登场可回指、描述短而可证。 | 用户请求、`subject-registry.yaml`、既有 `角色清单.md`、source anchors。 | `FAIL-CHAR-LIST-BUSINESS-GOAL` |
 | `business_object` | registry 中的 `subjects.characters`、角色 ID、canonical name、aliases、source anchors、first appearance。 | registry 条目、故事源锚点、项目记忆中的命名偏好。 | `FAIL-CHAR-LIST-BUSINESS-OBJECT` |
 | `constraint_profile` | canonical 候选只能来自 registry；故事源只做证据回查；输出固定三列；LLM 裁决身份归并。 | Context Loading Contract、source-and-merge reference、Output Contract。 | `FAIL-CHAR-LIST-CONSTRAINT` |
-| `success_criteria` | 每条角色可回指 registry 与至少一个 source anchor；别名/代称归并有裁决证据；表头精确三列。 | candidate_evidence_table、canonical_role_map、first_appearance_map、review_result。 | `FAIL-CHAR-LIST-SUCCESS` |
-| `complexity_source` | 复杂度来自别名、代称、职务称呼、群体角色、增量 merge、缺 source anchor 和伪差异风险。 | identity_type_profile、reconcile_delta、risk register。 | `FAIL-CHAR-LIST-COMPLEXITY` |
+| `success_criteria` | 每条角色可回指 registry 与至少一个 source anchor；别名/代称归并有裁决证据；多状态/多服装/年龄阶段被归为同一角色变体而非拆行；表头精确三列。 | candidate_evidence_table、canonical_role_map、variant_state_map、first_appearance_map、review_result。 | `FAIL-CHAR-LIST-SUCCESS` |
+| `complexity_source` | 复杂度来自别名、代称、职务称呼、群体角色、多服装/多状态/年龄阶段变体、增量 merge、缺 source anchor 和伪差异风险。 | identity_type_profile、variant_state_map、reconcile_delta、risk register。 | `FAIL-CHAR-LIST-COMPLEXITY` |
 | `topology_fit` | 串行主干适配证据链；身份风险分支回流归并；review 失败回到具体节点，避免清单、设计、生成混写。 | Thinking-Action Node Map、Mermaid Visual Contract、Convergence Contract。 | `FAIL-CHAR-LIST-TOPOLOGY` |
 
 ## Type Routing Matrix
@@ -72,8 +73,8 @@ metadata:
 | `N1-INTAKE` | 锁定项目、范围、业务画像和上下文 | 用户请求、项目路径、可选集号 | 加载 `SKILL.md + CONTEXT.md`、项目 `MEMORY.md`、相关 `CONTEXT/`，形成 input manifest | `input_manifest`、`business_profile`、`loaded_context_manifest` | `N9-RECONCILE` / `N2-REGISTRY-SCAN` / `N7-REVIEW` | registry 不可定位且无授权修复时停止 |
 | `N9-RECONCILE` | 保护既有清单和新增上游 | 既有清单、manifest、registry diff | 建立 `reconcile_delta`，只标注新增、更新、冲突、缺口 | `reconcile_delta` | `N2-REGISTRY-SCAN` | 不静默覆盖旧清单、旧设计锚点或生成资产 |
 | `N2-REGISTRY-SCAN` | 收集角色候选 | `subject-registry.yaml` | 按 registry 顺序遍历 `subjects.characters` 的 id/name/aliases/source anchors | `candidate_evidence_table` | `N3-EVIDENCE` | 候选必须来自 registry |
-| `N3-EVIDENCE` | 回查含糊或风险证据 | source anchors、故事源、角色风格协议 | 只回查与 registry 候选相关的正文证据，标注缺 anchor 风险 | `identity_evidence`、`source_gap_log` | `N4-MERGE` | 正文不得绕过 registry 新增候选 |
-| `N4-MERGE` | LLM 身份归并 | 候选、别名、代称、项目记忆 | 逐角色裁决主名、别名、代称、误并和待核风险 | `canonical_role_map`、`identity_type_profile` | `N5-FIRST-APPEARANCE` | 每个合并/拆分/待核必须有主体级 LLM 裁决 |
+| `N3-EVIDENCE` | 回查含糊或风险证据 | source anchors、故事源、角色风格协议 | 只回查与 registry 候选相关的正文证据，标注缺 anchor 风险；识别服装、战斗、战损、受伤、少年、老年等状态证据 | `identity_evidence`、`variant_state_evidence`、`source_gap_log` | `N4-MERGE` | 正文不得绕过 registry 新增候选；状态证据不得直接升格为新角色 |
+| `N4-MERGE` | LLM 身份归并 | 候选、别名、代称、项目记忆、状态证据 | 逐角色裁决主名、别名、代称、误并、状态变体和待核风险 | `canonical_role_map`、`variant_state_map`、`identity_type_profile` | `N5-FIRST-APPEARANCE` | 每个合并/拆分/待核/变体归属必须有主体级 LLM 裁决 |
 | `N5-FIRST-APPEARANCE` | 裁决首次登场 | canonical_role_map、source anchors | 选择最早可回指分镜组 ID，必要时带 `第N集.md /` | `first_appearance_map` | `N6-RENDER` | 首次登场不得晚于最早证据 |
 | `N6-RENDER` | 渲染三列表格 | canonical map、first appearance、关键词证据 | 写 `名称 / 首次登场 / 原文描述（关键词式）`，不加主体列 | `rendered_table` | `N7-REVIEW` | 表头精确三列；描述保持关键词式 |
 | `N7-REVIEW` | 执行验收 | 清单、报告、辅助脚本检查 | 按 review gate 检查来源、归并、三列、LLM-first、伪差异 | `review_result`、`anti_script_evidence` | `N8-WRITE` / `N10-REPAIR` / `N11-CLOSE` | 阻断 finding 必须返工 |
@@ -106,6 +107,7 @@ metadata:
 | `review_only` / `FAIL-CHAR-LIST-REVIEW-ONLY` | `review/review-contract.md`, `scripts/README.md` | `N7-REVIEW` | `C4-REVIEW-PASS` | review_result only |
 | `FAIL-CHAR-LIST-BUSINESS-GOAL` / `FAIL-CHAR-LIST-BUSINESS-OBJECT` / `FAIL-CHAR-LIST-CONSTRAINT` / `FAIL-CHAR-LIST-SUCCESS` / `FAIL-CHAR-LIST-COMPLEXITY` / `FAIL-CHAR-LIST-TOPOLOGY` | `CONTEXT.md` | `N1-INTAKE` | `Business Requirement Analysis Contract` | business_profile complete |
 | `FAIL-CHAR-LIST-AUTHORSHIP` / `FAIL-CHAR-LIST-PSEUDO-DIFF` | `scripts/README.md`, `templates/output-template.md`, `review/review-contract.md` | `N7-REVIEW -> N10-REPAIR` | `LLM-First Creative Authorship Contract` | anti-script evidence |
+| `FAIL-CHAR-LIST-VARIANT-SPLIT` / `FAIL-CHAR-LIST-VARIANT-OMISSION` | `references/source-and-merge-contract.md`, `types/character-identity-type-map.md`, `review/review-contract.md` | `N3-EVIDENCE -> N4-MERGE -> N6-RENDER` | `C3-MERGE-DECIDED` | variant_state_map present or N/A |
 
 ## Convergence Contract
 
@@ -114,6 +116,7 @@ metadata:
 | `C1-BUSINESS-LOCKED` | business_profile 完整，registry source 和三列输出边界明确 | 缺项目、缺 registry、输出边界混入设计/生成 | `business_profile` | `Business Requirement Analysis Contract` |
 | `C2-CANDIDATES-LOCKED` | 候选均来自 registry，风险项有 source_gap_log | 正文或分组稿绕过 registry 新增候选 | `candidate_evidence_table` | `N2-REGISTRY-SCAN` |
 | `C3-MERGE-DECIDED` | 每个保留、合并、拆分、待核项都有主体级 LLM 裁决 | 字符串相似或脚本规则直接归并 | `canonical_role_map` | `N4-MERGE` |
+| `C3A-VARIANTS-GROUPED` | 服装、战斗、战损、受伤、年龄阶段等状态证据归入对应 base character，并记录为变体标签或 sidecar | 把同一角色变体拆成多行，或遗漏显著变体证据 | `variant_state_map`、`description_keyword_evidence` | `N3-EVIDENCE` / `N4-MERGE` / `N6-RENDER` |
 | `C4-REVIEW-PASS` | source、三列、首次登场、LLM-first、伪差异均通过 | 任何阻断 finding 未返工 | `review_result` | `N7-REVIEW` / `N10-REPAIR` |
 | `C5-WRITE-READY` | canonical 表格和可选报告路径确定，旧资产保护成立 | 静默覆盖、路径漂移、额外主体列 | `write_summary`、`changed_files` | `N8-WRITE` |
 
@@ -123,6 +126,7 @@ metadata:
 | --- | --- | --- | --- | --- |
 | 候选角色是否全部来自 registry `subjects.characters`？ | 非 registry 候选即失败 | `FAIL-CHAR-LIST-PROJECT-ALL` | `N2-REGISTRY-SCAN` | candidate_evidence_table |
 | 别名、代称、称谓、群体角色是否由 LLM 逐条裁决？ | 脚本或字符串规则直接裁决即失败 | `FAIL-CHAR-LIST-AUTHORSHIP` | `N4-MERGE` | canonical_role_map、LLM decision notes |
+| 多服装、战斗、战损、受伤、少年、老年等状态是否归入同一 base character？ | 状态被拆成新角色行，或显著状态证据被遗漏即失败 | `FAIL-CHAR-LIST-VARIANT-SPLIT` / `FAIL-CHAR-LIST-VARIANT-OMISSION` | `N3-EVIDENCE` / `N4-MERGE` / `N6-RENDER` | variant_state_map、description_keyword_evidence |
 | 首次登场是否可回指最早 source anchor？ | 首次登场晚于证据或不可回指即失败 | `FAIL-CHAR-LIST-REPAIR` | `N5-FIRST-APPEARANCE` | first_appearance_map |
 | 输出表格是否精确三列且描述为关键词式？ | 表头漂移或描述扩写成设计正文即失败 | `FAIL-CHAR-LIST-REPAIR` | `N6-RENDER` | rendered_table、template check |
 | 增量 merge 是否保护既有清单和下游资产？ | 覆盖旧清单、旧设计锚点或旧生成资产即失败 | `FAIL-CHAR-LIST-INCREMENTAL` | `N9-RECONCILE` | reconcile_delta、asset stability note |
@@ -300,9 +304,9 @@ stateDiagram-v2
 3. 对每个 registry entry，只从 `id`、`canonical_name`、`aliases`、`source_anchors` 和 `style_refs` 收集候选证据；当条目含糊、代称化或疑似漏项时，回查对应 `1-分集` source anchor，不跨源臆测。
 4. 对候选角色执行 LLM 归并：识别别名、代称、同一角色不同称呼、称谓变化和身份称呼；优先保留 registry 的 `canonical_name`，新增候选只能触发 registry repair，不得在清单内静默创建新主体。
 5. 首次登场使用 registry 的 `first_appearance` 或最早 `source_anchor`；若后置分组对齐已存在，可补充 `第N集.md / 1-1-1` 作为 sidecar 证据。
-6. `原文描述（关键词式）` 只写来自 registry、故事源 anchor 与角色风格协议的关键词，不扩写成角色设定，不加入外貌、性格或剧情推断。
-7. 写入 canonical 输出 `projects/aigc/<项目名>/3-主体/角色/1-清单/角色清单.md`；如生成执行报告，写入同目录 `执行报告.md`；可同步更新 `projects/aigc/<项目名>/3-主体/角色/design-manifest.yaml` 的 source/subject 映射。
-8. 按 `review/review-contract.md` 检查三列固定、首次登场可回指、归并理由可解释、无脚本主创、无跨域内容和无静默覆盖。
+6. `原文描述（关键词式）` 只写来自 registry、故事源 anchor 与角色风格协议的关键词，不扩写成角色设定，不加入外貌、性格或剧情推断；若存在多服装、多状态或年龄阶段，只允许用短标签写为 `变体：常服/礼服/战斗态/战损态/受伤态/少年期/老年期` 等。
+7. 写入 canonical 输出 `projects/aigc/<项目名>/3-主体/角色/1-清单/角色清单.md`；如生成执行报告，写入同目录 `执行报告.md`；可同步更新 `projects/aigc/<项目名>/3-主体/角色/design-manifest.yaml` 的 source/subject 映射和 `character_variants` sidecar。
+8. 按 `review/review-contract.md` 检查三列固定、首次登场可回指、归并理由可解释、状态变体未拆行、无脚本主创、无跨域内容和无静默覆盖。
 
 ## Script And Metadata Contract
 
@@ -323,6 +327,7 @@ stateDiagram-v2
 | `FIELD-CHAR-LIST-06` | LLM-first | 脚本没有生成归并判断、描述关键词或 canonical 清单正文 | `FAIL-CHAR-LIST-06` |
 | `FIELD-CHAR-LIST-07` | 增量 merge | 既有清单被读取并对账，新角色追加、旧角色稳定，未静默全量覆盖 | `FAIL-CHAR-LIST-07` |
 | `FIELD-CHAR-LIST-08` | 反脚本化伪差异 | 身份归并、代称裁决、首次登场和关键词描述不是由映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成；每个保留/合并/待核结论有主体级 LLM 裁决证据 | `FAIL-CHAR-LIST-PSEUDO-DIFF` |
+| `FIELD-CHAR-LIST-09` | 多状态变体归并 | 多服装、常服、礼服、制服、伪装、战斗、战损、受伤、少年、青年、老年等状态默认归为同一 base character 的变体标签；不得拆成独立角色行，显著变体证据不得遗漏 | `FAIL-CHAR-LIST-VARIANT-SPLIT` / `FAIL-CHAR-LIST-VARIANT-OMISSION` |
 
 ## Thought Pass Map
 
@@ -332,6 +337,7 @@ stateDiagram-v2
 | `PASS-CHAR-LIST-02` | 候选采集 | registry `subjects.characters` | 候选是否只来自注册表，故事源是否仅作 anchor 补证 | `role_candidates` |
 | `PASS-CHAR-LIST-03` | 增量对账 | 既有清单、manifest、候选角色 | 新主体、归并候选、同名文件风险是否识别 | `reconcile_delta` |
 | `PASS-CHAR-LIST-04` | 别名归并 | 候选角色、source anchor 关键词、项目记忆 | 别名、代称、称谓变化是否指向同一角色 | `canonical_role_map` |
+| `PASS-CHAR-LIST-04A` | 状态变体归属 | 候选角色、source anchor 状态词、项目记忆 | 服装、战斗、战损、受伤和年龄阶段是否只是同一角色变体 | `variant_state_map` |
 | `PASS-CHAR-LIST-05` | 首次登场裁决 | canonical 角色与出现顺序 | 最早可回指分镜组 ID 是否准确 | `first_appearance_map` |
 | `PASS-CHAR-LIST-06` | 表格落盘 | canonical 映射与关键词证据 | 三列是否固定且无二创描述 | `角色清单.md` |
 | `PASS-CHAR-LIST-07` | 验收回查 | 清单与上游文件 | 来源、归并、字段和路径是否通过 review gate | `review_result` |
@@ -344,6 +350,7 @@ stateDiagram-v2
 | `PASS-CHAR-LIST-02` | 只从 registry `subjects.characters` 采集候选 | 候选清单与 registry ID | `references/legacy-character-list-workflow.md` |
 | `PASS-CHAR-LIST-03` | 对既有清单和新增上游执行 merge 对账 | `reconcile_delta` | ../../references/incremental-reconciliation-contract.md |
 | `PASS-CHAR-LIST-04` | 由 LLM 裁决别名、代称和同一角色归并 | canonical role map | `types/character-identity-type-map.md` |
+| `PASS-CHAR-LIST-04A` | 由 LLM 裁决多服装、多状态和年龄阶段的 base character 归属 | variant state map | `types/character-identity-type-map.md` |
 | `PASS-CHAR-LIST-05` | 选择最早分镜组作为首次登场 | first appearance map | `review/review-contract.md` |
 | `PASS-CHAR-LIST-06` | 输出固定三列表格 | `角色清单.md` | `templates/output-template.md` |
 | `PASS-CHAR-LIST-07` | 执行人工或等价机械验收 | review result | `review/review-contract.md` |
@@ -355,6 +362,7 @@ stateDiagram-v2
 
 - 绕过 `subject-registry.yaml` 直接创建 canonical 清单。
 - 把同一角色的姓名、别名、身份称呼或代称拆成多个条目，且无证据说明。
+- 把同一角色的多服装、战斗态、战损态、受伤态、少年期、老年期或时间跳跃状态拆成多个 canonical 角色行，或遗漏这些显著变体证据。
 - 把不同角色因为同称谓或同职业错误合并。
 - 首次登场晚于上游最早分镜组，或无法回指分镜组 ID。
 - `原文描述（关键词式）` 写成二创设定、外貌设计或性格分析。
@@ -393,16 +401,17 @@ stateDiagram-v2
 - Output format: Markdown table，主体字段固定为 `名称`、`首次登场`、`原文描述（关键词式）`。
 - Output path: `projects/aigc/<项目名>/3-主体/角色/1-清单/角色清单.md`；报告写同目录 `执行报告.md`。
 - Naming convention: 清单文件固定命名 `角色清单.md`；首次登场使用 `集-场-组` 或 `第N集.md / 集-场-组`；别名写入 `名称` 单元。
-- Completion gate: 已加载上下文；候选来自 registry；每条输出可回指 source anchor；LLM 完成身份归并和首次登场裁决；表头三列固定；无脚本化伪差异；review 通过。
+- Completion gate: 已加载上下文；候选来自 registry；每条输出可回指 source anchor；LLM 完成身份归并、变体归属和首次登场裁决；表头三列固定；无脚本化伪差异；review 通过。
 
 ### Required output
 
 1. 角色清单固定写入 `projects/aigc/<项目名>/3-主体/角色/1-清单/角色清单.md`。
 2. 可选执行报告写入 `projects/aigc/<项目名>/3-主体/角色/1-清单/执行报告.md`。
-3. 可选增量状态索引写入 `projects/aigc/<项目名>/3-主体/角色/design-manifest.yaml`；它只是 sidecar，不替代 `角色清单.md`。
+3. 可选增量状态索引写入 `projects/aigc/<项目名>/3-主体/角色/design-manifest.yaml`；它只是 sidecar，不替代 `角色清单.md`。若记录多状态，建议使用 `character_variants`：`base_subject_id`、`variant_id`、`variant_label`、`variant_type`、`source_anchor`、`design_needed`。
 4. 角色清单必须是 table 式 Markdown。
 5. 每个主体字段固定为：`名称`、`首次登场`、`原文描述（关键词式）`。
 6. 别名、代称和同一角色不同称呼必须归并到同一 `名称` 单元；若存在低置信度合并，应在执行报告中列为风险，不在清单中强行二创。
+7. 同一角色的多服装、多状态和年龄阶段必须归为同一清单行；清单三列不新增变体列，必要时在 `原文描述（关键词式）` 用短标签写 `变体：...`，完整变体资产索引进入可选 manifest sidecar。
 
 ### Output format
 
@@ -410,6 +419,7 @@ stateDiagram-v2
 | --- | --- |
 | `OUTPUT-CHARACTER-LIST` | Markdown table，主体列固定为 `名称`、`首次登场`、`原文描述（关键词式）` |
 | `OUTPUT-CHARACTER-REPORT` | Markdown 执行报告，可选 |
+| `OUTPUT-CHARACTER-MANIFEST` | YAML sidecar，可选；允许记录 `character_variants`，不替代清单真源 |
 
 ### Output path
 
@@ -425,6 +435,7 @@ stateDiagram-v2
 - 执行报告命名为 `执行报告.md`。
 - 首次登场使用 `集-场-组` 分镜组 ID，例如 `1-1-1`；跨文件或需要消歧时使用 `第N集.md / 1-1-1`。
 - `名称` 单元可写 `主名（别名：A、B）`，但不得新增 `别名` 独立主体列。
+- `原文描述（关键词式）` 可追加紧凑变体标签，如 `变体：少年期、老年期、战斗态、战损态、受伤态、礼服/常服`；不得展开成外貌、服装或提示词设计正文。
 - 角色设计稿已存在时，清单 merge 不得让同一角色变成新的 canonical 主体；名称变化默认记录映射，不静默重命名文件。
 
 ### Completion gate
@@ -433,6 +444,7 @@ stateDiagram-v2
 - 上游 `3-主体/subject-registry.yaml` 可回指，候选角色均来自 registry `subjects.characters`。
 - 每个清单条目都能回指至少一个分镜组 ID。
 - 别名、代称和同一角色不同称呼已由 LLM 裁决；低置信度项进入执行报告风险区。
+- 多服装、多状态和年龄阶段已由 LLM 裁决为同一 base character 的变体；未把变体拆成新角色行，显著变体证据已进入 `variant_state_map` 或标记 N/A。
 - 输出表格只含 `名称`、`首次登场`、`原文描述（关键词式）` 三个主体字段。
 - 若已有清单或 manifest，已执行 merge 对账，未静默覆盖旧清单、旧设计稿锚点或旧生成资产。
 - 未使用映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量制造角色清单伪差异；疑似命中时已废弃候选稿并回到 LLM 归并节点。

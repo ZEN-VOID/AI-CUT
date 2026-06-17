@@ -13,5 +13,25 @@
     "id": "explicit-model-no-lane",
     "prompt": "帮我续写第12章初稿。",
     "expected": "Routes to root story-drafting chapter_continue or chapter_draft according to existing target chapter state."
+  },
+  {
+    "id": "presence-texture-drafting",
+    "prompt": "第12章初稿里人物反应太像表演说明，场景也像氛围堆料，请重新起草这一章的关键冲突段。",
+    "expected": "Routes to story-drafting local_repair or chapter_rewrite as authorized; applies character-presence and scene-pressure references inside N5, making reactions and scene particles serve pressure, information, relationship, and reader pull rather than adding a separate performance or atmosphere layer."
+  },
+  {
+    "id": "genre-scene-action-drafting",
+    "prompt": "这本不是纯武侠，但第12章有一场巷战追逐。请在初稿里把动作写清楚，不要等到 AIGC 分镜再补。",
+    "expected": "Loads the shared genre-scene contract and genre-scene drafting reference, builds project_genre_axis plus scene_function_axis with primary_scene_function=action_combat, writes action beats into N5 prose with distance, direction, cost, material response, and no standalone 3.5 genre-strengthening stage."
+  },
+  {
+    "id": "wuxia-blade-qi-flow-drafting",
+    "prompt": "第12章是港式武侠白刃剑气流，剑气、刀气、剑风和刀剑风压要在小说原文阶段写具体，不要等 AIGC 分镜再一次性补精彩打斗。",
+    "expected": "Loads types/type-map.md, 武侠之战斗设计.md, and 白刃剑气流.md; records type_package_manifest with real loaded paths; drafts action_combat subtype=wuxia_blade_qi_flow through blade path, physical contact, material fracture, character cost, and aftermath traces without xianxia spell, laser, modern CG, or standalone genre stage."
+  },
+  {
+    "id": "genre-scene-romance-horror-drafting",
+    "prompt": "第12章是言情关系拉扯夹恐怖悬疑，不要写成武侠打斗模板，直接在初稿里处理。",
+    "expected": "Selects one primary scene function and at most two secondary functions from genre_scene_route, grounds romance or horror beats in relationship pressure, sensory delay, and chapter obligations, and passes genre_scene_fit without mechanical trope copying."
   }
 ]

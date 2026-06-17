@@ -8,7 +8,7 @@
 
 1. `group_full_content`：来自 `8-分组` 对应 `## x-y-z` 的完整正文。
 2. `shot_points[]`：组内普通 `分镜N` 与 `shot_id` 的顺序映射。
-3. `project_style_context`：来自项目 `MEMORY.md` 与相关 `CONTEXT/` 的风格边界直引或等价原文；legacy `north_star.yaml` 仅在旧项目存在且已加载时作为辅助证据。
+3. `project_style_context`：来自 `2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的分镜/画面相关风格协议、项目 `MEMORY.md` 与相关 `CONTEXT/` 的风格边界直引或等价原文。
 4. YAML 中对应角色、场景、道具主体图的参照状态。
 
 禁止只把某个 `分镜N` 的片段作为 prompt 主源；组内前后关系、声音承托、画面风格和组底 YAML 都属于该组多图一致性的基础。

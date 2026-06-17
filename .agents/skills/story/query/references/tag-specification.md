@@ -152,3 +152,11 @@ purpose: XML 标签格式参考
 ❌ `[NEW_ENTITY: 角色, 陆辰, ...]` → ✅ 使用XML格式
 ❌ `<entity-update ref="xxx"></entity-update>` → ✅ 至少包含一个 `<set key="..." value="..."/>`
 </errors>
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 标签规范是否只在 `manual_spec` 查询中加载？ | 普通剧情、角色或实绩查询进入标签规范即失败 | `FAIL-QRY-MANUAL-SPEC` | `SKILL.md` `N3-TRUTH-ROLE` | type_profile |
+| 答复是否说明当前主流程不要求 XML 标签？ | 把手动标签说成章节写作必填即失败 | `FAIL-QRY-SOURCE` | 本文件 current convention | manual spec answer |
+| 标签示例是否不改写 story 项目业务真源？ | 查询过程中写入正文、STATE、index 或 Cards 即失败 | `FAIL-QRY-MODULE-DRIFT` | `SKILL.md` Runtime Guardrails | output boundary |

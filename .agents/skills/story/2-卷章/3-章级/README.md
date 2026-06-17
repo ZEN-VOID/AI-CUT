@@ -19,8 +19,6 @@
 │   └── output-template.md
 ├── review/
 │   └── review-contract.md
-├── steps/
-│   └── chapter-planning-workflow.md
 ├── knowledge-base/
 │   └── chapter-planning-heuristics.md
 ├── types/
@@ -32,7 +30,8 @@
 ├── CHANGELOG.md
 ├── CONTEXT.md
 ├── README.md
-└── SKILL.md
+├── SKILL.md
+└── test-prompts.json
 ```
 
 ## 快速入口
@@ -59,6 +58,6 @@
 ## 验证
 
 ```bash
-python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-工作车间/scripts/validate_skill_2_0.py .agents/skills/story/2-卷章/3-章级 --mode delivery
-python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-工作车间/scripts/smoke_test_skill_2_0.py .agents/skills/story/2-卷章/3-章级 --mode delivery
+python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-2.0/scripts/validate_skill_2_0.py .agents/skills/story/2-卷章/3-章级 --mode delivery
+python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-2.0/scripts/smoke_test_skill_2_0.py .agents/skills/story/2-卷章/3-章级 --mode delivery
 ```

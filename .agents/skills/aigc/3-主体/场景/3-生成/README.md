@@ -15,7 +15,7 @@ It generates:
 - `主体ID-主体名称-主图` image and prompt JSON.
 - `主体ID-主体名称-多视图` image and prompt JSON.
 
-The skill only calls `$imagegen` from existing design documents. It does not redesign scene subjects or modify upstream design files.
+The skill only calls `$libTV` from existing design documents. It does not redesign scene subjects or modify upstream design files.
 
 ## Directory Tree
 

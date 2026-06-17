@@ -218,5 +218,5 @@
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
 | 规则怪谈/悬疑反套路是否只在 `module-spec.md` 判定命中规则或推理缺口时加载？ | `creative_seed` | `FAIL-INIT-CREATIVE-ROUTE` | `references/creative-seed-routing/module-spec.md` Phase 1-2 | anti_trope_mapping、loaded_leaf_references |
-| 规则是否有威胁、代价和交互，不被主角能力轻易破解？ | `creative_seed` / `handoff` | `FAIL-INIT-HANDOFF` | 本文件规则设计段、`steps/init-workflow.md` N5 | hard_constraints、risk_notes |
+| 规则是否有威胁、代价和交互，不被主角能力轻易破解？ | `creative_seed` / `handoff` | `FAIL-INIT-HANDOFF` | 本文件规则设计段、`SKILL.md` N6B-N7 | hard_constraints、risk_notes |
 | 规则种子是否只进入初始化 seed 和 unknowns，不替代后续谜题结构与卷章规划？ | `convergence` | `FAIL-INIT-CONVERGENCE` | `review/review-contract.md` Verdict Rules | planning_seed、deferred_to_planning |

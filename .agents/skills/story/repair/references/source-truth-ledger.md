@@ -39,8 +39,8 @@
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 本次修复是否锁定最早 canonical owner，并按 source -> projection -> draft/polish -> acceptance/return/state -> future guardrail 的顺序处理？ | `source_priority` | `FAIL-REPAIR-OWNER` | `steps/repair-workflow.md#N3-OWNER-ROUTE`、`steps/repair-workflow.md#N4-SOURCE-WRITEBACK` | `canonical_owner`、`writeback_order`、changed files 顺序 |
-| 是否避免让 `3-初稿`、`4-润色`、return 或 STATE 越权拥有上游设定、规划或非本阶段验收事实？ | `cards_planning_alignment` | `FAIL-REPAIR-OWNER` | `references/source-truth-ledger.md#Truth Owners`、`steps/repair-workflow.md#N6-DOWNSTREAM-SYNC` | owner ledger 判定、未改文件理由、同步/失效动作 |
-| 创作性正文修复是否回到 owning stage 根技能，而不是由 repair brief、脚本或验收 finding 直接改写？ | `authorship` | `FAIL-REPAIR-AUTHORSHIP` | `steps/repair-workflow.md#N5-STAGE-REPAIR-BRIEF` | `owning_stage`、repair brief、creative authorship note |
-| 用户显式切换执行环境时，是否只记录 `creative_engine_note`，并保持阶段 frontmatter 合同？ | `authorship` | `FAIL-REPAIR-AUTHORSHIP` | `steps/repair-workflow.md#N5-STAGE-REPAIR-BRIEF`、`SKILL.md#Execution Contract` | 切换授权、阶段字段、final report 说明 |
+| 本次修复是否锁定最早 canonical owner，并按 source -> projection -> draft/polish -> acceptance/return/state -> future guardrail 的顺序处理？ | `source_priority` | `FAIL-REPAIR-OWNER` | `N3-OWNER-ROUTE`、`N4-SOURCE-WRITEBACK` | `canonical_owner`、`writeback_order`、changed files 顺序 |
+| 是否避免让 `3-初稿`、`4-润色`、return 或 STATE 越权拥有上游设定、规划或非本阶段验收事实？ | `cards_planning_alignment` | `FAIL-REPAIR-OWNER` | `Truth Owners`、`N6-DOWNSTREAM-SYNC` | owner ledger 判定、未改文件理由、同步/失效动作 |
+| 创作性正文修复是否回到 owning stage 根技能，而不是由 repair brief、脚本或验收 finding 直接改写？ | `authorship` | `FAIL-REPAIR-AUTHORSHIP` | `N5-STAGE-REPAIR-BRIEF` | `owning_stage`、repair brief、creative authorship note |
+| 用户显式切换执行环境时，是否只记录 `creative_engine_note`，并保持阶段 frontmatter 合同？ | `authorship` | `FAIL-REPAIR-AUTHORSHIP` | `N5-STAGE-REPAIR-BRIEF`、`Execution Contract` | 切换授权、阶段字段、final report 说明 |
 | 脚本是否只做读取、diff、统计、校验和落盘，没有生成 canonical creative truth？ | `runtime_behavior` | `FAIL-REPAIR-RUNTIME` | `guardrails/guardrails-contract.md`、`scripts/README.md` | 脚本调用清单、人工/LLM 创作判定、final report 降级说明 |

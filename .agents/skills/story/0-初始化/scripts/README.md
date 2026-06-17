@@ -23,5 +23,5 @@ python3 .agents/skills/story/scripts/init_project.py \
 Skill 2.0 结构校验使用工作车间 validator：
 
 ```bash
-python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-工作车间/scripts/validate_skill_2_0.py .agents/skills/story/0-初始化
+python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-2.0/scripts/validate_skill_2_0.py .agents/skills/story/0-初始化 --mode delivery
 ```

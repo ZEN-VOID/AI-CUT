@@ -29,7 +29,7 @@ projects/aigc/<项目名>/8-分组/
 
 ### Completion gate
 
-- 输入摄影稿或用户指定 source 与 `2-美学/画面基调/全局风格协议.md` 可回指；项目存在初始化综合时，已只读消费 `team.yaml.init_synthesis.stage_seed_summary."8-分组"`、`init_handoff.grouping_seed` 或 `north_star.yaml.创作阶段不变量.分组`，形成 `init_team_synthesis_context`，且未触发 team 身份、旧 stage profile 或伪顾问问答。用户指定非 `7-摄影` source 时，执行报告必须声明 `source_override=true` 与不适用的摄影稿专属检查。
+- 输入摄影稿或用户指定 source 与 `2-美学/画面基调/全局风格协议.md`、`2-美学/类型风格.md` 和当前集优先/项目级回退的相关风格协议可回指；项目初始化信息只从 `MEMORY.md` / `project_memory_init_context` 消费，不读取旧初始化风格载体、team 或 handoff 作为上下文真源。用户指定非 `7-摄影` source 时，执行报告必须声明 `source_override=true` 与不适用的摄影稿专属检查。
 - 每组标题后先写当前场景标题行，例如 `场景1：外景 扶桑战船外舷与黑礁 - 夜`；即便未切换场景，新的分镜组也必须重复同一个场景标题。场景标题行下方立即输出字段标题 `全局风格：`，字段内只保留一行内容：以固定前置词 `视频生成的画面风格，光影和氛围与场景参照图保持一致。需要生成现场物理互动音效、氛围感音效、环境声、自然现象声、动作声，不要生成任何字幕，不要生成背景音乐。` 开头，后接根据当前分镜组从 `画面基调.Global Style Prompt` 抽取的匹配风格句，300 字以内；不得输出 `Visual Slogan`、`Design Principle`、`Visual Gene Profile` 或 `Negative Traits` 独立行。
 - `全局风格：` 单行内容之后直接进入 source 分镜正文；第一行必须直接是普通 `分镜N（0-N秒）：` 或 `[0-N秒]` 时间码分镜行。首组自然整理本组开始画面，第二组起按回龙帧口径先复现上一组尾帧状态锚点，再只调整景别和镜头视角进入本组；尾帧状态锚点至少包含可见主体、动作/姿态/运动余势、关键道具/介质/环境残留、光线/烟雾/水汽/碎片/声音余波、保护线/战斗线/空间方位关系。若该画面点来自对白画面、独白画面、旁白画面或音效画面，必须同步带入对应声音内容；不得只承接情绪或空间大方向，不得直接开启新动作；不得输出 `分镜画面：`、`增补首帧：`、`回龙帧：`、来源说明或规则说明。
 - YAML `字数统计` 必须计入分镜组标题后的场景标题行和分镜剧本正文；这些组头描述不计入 `时长估算`；字段标题 `全局风格：` 及其单行 `Global Style Prompt` 整理内容、YAML fenced block 本身均不计入 `字数统计`。`角色`、`场景`、`道具` 的非空项必须写成 `{id, name}`，并命中 `3-主体/subject-registry.yaml` 的 `id` 与 `canonical_name`；空项写 `[]`。
@@ -45,7 +45,7 @@ projects/aigc/<项目名>/8-分组/
 | `2-美学/画面基调` |  | `N4-GLOBAL-STYLE` |  |  |  |
 | `3-主体/subject-registry.yaml` |  | `N7-ASSEMBLE-STATS` |  |  | no_new_subjects |
 | `7-摄影/第N集.md` 或 source override |  | `N2/N3/N6` |  |  | source_order_preserved |
-| `north_star.yaml` / project context |  | `N1/N4/N6` |  |  | no_persona_dispatch |
+| `MEMORY.md` / `project_memory_init_context` |  | `N1/N4/N6` |  |  | no_persona_dispatch |
 
 ## Upstream Grouping Direction Matrix
 

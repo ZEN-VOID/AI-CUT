@@ -1,0 +1,17 @@
+[
+  {
+    "id": "create-volume-plan",
+    "prompt": "使用 $story-plan-volume-level 为 projects/story/demo 的第1卷生成 2-卷章/第1卷/卷规划.md；整体规划.md 已存在。",
+    "expected": "加载 SKILL.md + CONTEXT.md，完整回读整体规划.md，按 N1-N9 生成含卷标题、本卷故事大纲、本卷时间线、章划分、本卷冲突、本卷悬念开关、本卷节奏曲线、资源投影、本卷任务线、卷末达成和规避的 Markdown 卷级规划。"
+  },
+  {
+    "id": "revise-volume-suspense",
+    "prompt": "使用 $story-plan-volume-level 修订第2卷卷规划，只补本卷悬念开关和章级约束，不重写本卷故事大纲。",
+    "expected": "先完整回读整体规划和旧卷规划，限定字段 patch 范围，补齐悬念线程表、隐藏/露出/误导/揭秘、悬念负载和对章级规划的约束，并通过 review gate。"
+  },
+  {
+    "id": "audit-volume-plan",
+    "prompt": "使用 $story-plan-volume-level 审查第3卷卷规划是否可以交给章级，不直接落盘。",
+    "expected": "执行 audit_volume_plan 路由，检查上游继承、本卷时间线、悬念开关、六拍节奏、任务线汇聚和 planning-only 边界，返回 findings、fail_code、rework_target 与 verdict。"
+  }
+]

@@ -1,6 +1,6 @@
 # Global Style Analysis Contract
 
-`全局风格解析.md` 是 `shot-by-shot` 输出给项目风格底座的 legacy 解析细则。它参照旧 `global-style-director` 的字段逻辑，但在本技能中只作为 side context，不直接生成或改写 `style_contract.json`、legacy `north_star.yaml` 或其他初始化 canonical 文件。
+`全局风格解析.md` 是 `shot-by-shot` 输出给项目风格底座的 legacy 解析细则。它参照旧 `global-style-director` 的字段逻辑，但在本技能中只作为 side context，不直接生成或改写 `style_contract.json`、`2-美学` canonical 输出、`MEMORY.md` 或其他初始化 canonical 文件。
 
 ## Scope
 
@@ -106,7 +106,7 @@
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| `全局风格解析.md` 是否只作为 side context，不直接生成或改写 legacy `north_star.yaml`、`style_contract.json` 或当前项目 `MEMORY.md` / `CONTEXT/`？ | `GATE-SBS-ADAPT-01` | `FAIL-SBS-ADAPT-SIDE-CONTEXT` | `N5-BRIDGE` | 使用边界与未写 canonical 文件证据 |
+| `全局风格解析.md` 是否只作为 side context，不直接生成或改写 `2-美学` canonical 输出、`style_contract.json` 或当前项目 `MEMORY.md` / `CONTEXT/`？ | `GATE-SBS-ADAPT-01` | `FAIL-SBS-ADAPT-SIDE-CONTEXT` | `N5-BRIDGE` | 使用边界与未写 canonical 文件证据 |
 | `## 叙事与世界约束` 是否包含 TL;DR、主题三联、世界三联、时代/地域/类型/节奏倾向，并标注推导补位？ | `GATE-SBS-GLOBAL-01` | `FAIL-GLOBAL-NARRATIVE-WEAK` | `N5-BRIDGE` | narrative_research 字段与 evidence grade |
 | 类型叙事承诺是否说明核心契约、高光类型、观众期待兑现节奏和子类型权重？ | `GATE-SBS-GLOBAL-02` | `FAIL-GLOBAL-GENRE-PROMISE` | `N5-BRIDGE` | genre_promise 字段表 |
 | 视觉母题是否提炼为可迁移母题语法，而不是复制参考片具体符号、构图或对象细节？ | `GATE-SBS-GLOBAL-03` | `FAIL-GLOBAL-VISUAL-MOTIF` | `N5-BRIDGE` | visual_motif_seed 与 do_not_import 对照 |

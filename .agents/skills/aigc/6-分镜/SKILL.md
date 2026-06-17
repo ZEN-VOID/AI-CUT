@@ -21,6 +21,7 @@ metadata:
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用 `$aigc-storyboard-split`、`6-分镜`、`分镜拆分`、`内联分镜` 或命中本目录时，必须同时加载本目录 `SKILL.md + CONTEXT.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与题材、审美禁区、分镜偏好、下游模型限制、场景连续性或制作限制相关的文件。
+- 项目任务必须从 `projects/aigc/<项目名>/MEMORY.md` 构造 `project_memory_init_context`，消费初始化用户要求、团队配置与协作偏好、资料吸收摘要和阶段上下文读取指南；该上下文只作为分镜拆分、构图、节拍和制作限制的约束，不触发 team 身份、顾问问答或 `team.yaml` 生成。
 - 默认 source 为 `projects/aigc/<项目名>/5-导演/第N集.md`。若 `5-导演` 不存在而用户明确指定上游文稿，可读取用户指定文稿；不得自行假设跳过路径。
 - 必读美学上下文：`projects/aigc/<项目名>/2-美学/画面基调/全局风格协议.md` 与当前集优先的 `projects/aigc/<项目名>/2-美学/第N集/分镜风格/分镜风格协议.md`；逐集分镜风格缺失时回退 `projects/aigc/<项目名>/2-美学/分镜风格/分镜风格协议.md`。这两类上下文缺失时，可使用用户提供的等价风格文本并记录降级来源；若没有任何画面基调或分镜风格，不得正式写回 canonical。
 - 正式生成、repair 或 review 时，必须加载 `../_shared/upstream-context-application-contract.md`，并在执行报告中记录 `Upstream Context Application Map`：说明 `5-导演` 或指定 source 的画面点、心理/表演/氛围字段以及 `2-美学` 画面基调/分镜风格如何投影为节拍量化、构图、起始状态帧、空间层次和时值。

@@ -1,8 +1,10 @@
 # {{道具名称}}
 
 source_prop_list: `projects/aigc/<项目名>/3-主体/道具/1-清单/道具清单.md`
-source_north_star: `projects/aigc/<项目名>/0-初始化/north_star.yaml`
-source_team_synthesis: `projects/aigc/<项目名>/team.yaml.init_synthesis`
+source_type_style: `projects/aigc/<项目名>/2-美学/类型风格.md`
+source_visual_tone: `projects/aigc/<项目名>/2-美学/画面基调/全局风格协议.md`
+source_prop_style: `projects/aigc/<项目名>/2-美学/第N集/道具风格/道具风格协议.md` 或 `projects/aigc/<项目名>/2-美学/道具风格/道具风格协议.md`
+source_project_memory: `projects/aigc/<项目名>/MEMORY.md`
 
 ## 固定画面约束
 
@@ -22,13 +24,13 @@ source_team_synthesis: `projects/aigc/<项目名>/team.yaml.init_synthesis`
 
 ## 2. 研究考据
 
-{{结合 north_star.yaml 中的世界观，思考当前道具符合叙事的文化属性和具象特征；若涉及冷门信息点且本地资料不足，可启用网络搜索并记录来源或不确定性。研究必须转译为可见设计，不写不能改变形制、材料、工艺、年代、使用状态/保存状态、功能逻辑或 prompt token 的百科段落。}}
+{{结合道具清单、2-美学输出、项目 MEMORY / CONTEXT 和必要考据，思考当前道具符合叙事的文化属性和具象特征；若涉及冷门信息点且本地资料不足，可启用网络搜索并记录来源或不确定性。研究必须转译为可见设计，不写不能改变形制、材料、工艺、年代、使用状态/保存状态、功能逻辑或 prompt token 的百科段落。}}
 
 ### 研究证据链
 
 | source cue | confidence | visual translation | design lock / allow variation | prompt evidence token |
 | --- | --- | --- | --- | --- |
-| {{清单 / north_star / team / MEMORY / CONTEXT / source_fact / inference / inspired_by / unknown}} | {{confirmed / probable / inferred / uncertain；说明风险或缺口}} | {{形制 / 材料 / 工艺 / 年代 / 使用状态/保存状态 / 功能逻辑 / 风险不确定性}} | {{必须锁定的识别点；允许变化的细节}} | {{英文 prompt 中可追溯的短 token}} |
+| {{清单 / 2-美学 / MEMORY / CONTEXT / source_fact / inference / inspired_by / unknown}} | {{confirmed / probable / inferred / uncertain；说明风险或缺口}} | {{形制 / 材料 / 工艺 / 年代 / 使用状态/保存状态 / 功能逻辑 / 风险不确定性}} | {{必须锁定的识别点；允许变化的细节}} | {{英文 prompt 中可追溯的短 token}} |
 
 ### 研究转译清单
 
@@ -142,4 +144,4 @@ notes: ""
 | Output format | Markdown 单道具设计稿；`## 4. 解构` 标题下方必须先写 `主体ID号：<主体ID>`，再写固定解构字段 `Photography` 与 `Prop Design`；英文 prompt 放入 fenced text block。 |
 | Output path | canonical path 为 `projects/aigc/<项目名>/3-主体/道具/2-设计/PROP-###-<安全文件名>.md`；若上游已有主体 ID，则用该 ID 替代 `PROP-###`。 |
 | Naming convention | 默认使用 `<主体ID>-<安全文件名>.md`；主体 ID 默认从 `PROP-001` 起按清单顺序补零；同名或多状态道具在安全文件名后追加首次登场 ID 或状态。 |
-| Completion gate | 道具来自上游清单；已消费 `2-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `2-美学/道具风格/道具风格协议.md`、`north_star.yaml` 与 `team.yaml.init_synthesis`；正文由 LLM 创作；研究已转译为形制/材料/工艺/设计细节/文化或身份符号适用性/年代/使用状态/保存状态/功能逻辑/风险不确定性；道具有可见设计价值，不得只是简单功能还原或平凡物件；文化符号、纹样、铭文、徽记和装饰只在有证据、有语境或有功能必要时出现，不得默认贴花；磨损、污渍、包浆、锈蚀、破损等旧化词只在有依据时出现，不得默认做旧；触发时已加载 `knowledge-base/prop-design-corpus.md` 并完成原创转译，文化/身份符号符合项目时代、地域、阶层、职业和禁区；prompt evidence chain 可追溯；`## 4. 解构` 下的主体 ID、`## 5. 提示词设计` 的主体 ID 和英文 prompt 开头三者一致；英文 prompt 以主体 ID 号开头，融合 `画面基调.Global Style Prompt + 道具风格.Prop Style Prompt`，整合 `## 4. 解构` 全部有效信息，使用自然语言负向约束且不含 `--no`，不超过 1300 characters；画面固定为纯色背景完整全貌展示、45 度视角，完整展示道具全貌、完整轮廓与主要结构，仅展示道具，不做局部特写、裁切特写或半截道具画面，不置身具体场景，不出现人物或背景元素。 |
+| Completion gate | 道具来自上游清单；已消费 `2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `2-美学/道具风格/道具风格协议.md`、项目 `MEMORY.md` 与 `project_memory_init_context`；正文由 LLM 创作；研究已转译为形制/材料/工艺/设计细节/文化或身份符号适用性/年代/使用状态/保存状态/功能逻辑/风险不确定性；道具有可见设计价值，不得只是简单功能还原或平凡物件；文化符号、纹样、铭文、徽记和装饰只在有证据、有语境或有功能必要时出现，不得默认贴花；磨损、污渍、包浆、锈蚀、破损等旧化词只在有依据时出现，不得默认做旧；触发时已加载 `knowledge-base/prop-design-corpus.md` 并完成原创转译，文化/身份符号符合项目时代、地域、阶层、职业和禁区；prompt evidence chain 可追溯；`## 4. 解构` 下的主体 ID、`## 5. 提示词设计` 的主体 ID 和英文 prompt 开头三者一致；英文 prompt 以主体 ID 号开头，融合 `画面基调.Global Style Prompt + 道具风格.Prop Style Prompt`，整合 `## 4. 解构` 全部有效信息，使用自然语言负向约束且不含 `--no`，不超过 1300 characters；画面固定为纯色背景完整全貌展示、45 度视角，完整展示道具全貌、完整轮廓与主要结构，仅展示道具，不做局部特写、裁切特写或半截道具画面，不置身具体场景，不出现人物或背景元素。 |

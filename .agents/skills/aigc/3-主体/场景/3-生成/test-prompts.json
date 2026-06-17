@@ -2,7 +2,7 @@
   {
     "id": "single-scene-generation",
     "prompt": "使用 $aigc-scene-generation，为 projects/aigc/示例项目/3-主体/场景/2-设计/S001-旧教学楼.md 生成主图和多视图。",
-    "expected": "读取上游 4. 解构，先生成主图和 JSON，再 view_image 主图后生成多视图和 JSON。"
+    "expected": "读取上游 4. 解构，先生成主图和 JSON，再 同画布主图节点 主图后生成多视图和 JSON。"
   },
   {
     "id": "main-only-generation",

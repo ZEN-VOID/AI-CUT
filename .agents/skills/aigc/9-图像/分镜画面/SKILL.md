@@ -24,7 +24,7 @@ metadata:
 
 - 每次调用 `$aigc-image-storyboard-frame` 时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 项目任务中必须加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与图像阶段相关的上下文；legacy `projects/aigc/<项目名>/0-初始化/north_star.yaml` 仅在旧项目已存在且本轮需要回读风格边界时加载。
+- 项目任务中必须加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与图像阶段相关的上下文；需要风格边界时读取 `2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md` 以及当前集优先/项目级回退的分镜/画面相关风格协议。
 - 必须按 `Type Routing Matrix` 与 `Module Trigger Matrix` 加载授权模块；不得因为目录存在而全量读取模块。
 - 正式生成、repair 或 review 时，必须加载 `../../_shared/upstream-context-application-contract.md`，并在执行报告中记录 `Image Upstream Visual Direction Matrix`：说明 `2-美学`、`3-主体`、`8-分组`、已有同组/同场景图和项目上下文如何导向组级一致性、单张 Image prompt、参照保真、比例/输出策略和 imagegen handoff；上游电影风格词只能作为证据或保真边界，不得覆盖本叶子的单独分镜画面目标。
 - 若执行生成，必须同时读取 `.agents/skills/cli/imagegen/SKILL.md + CONTEXT.md`，并遵守其内置 `image_gen`、批量 subagents 并发上限和输出持久化合同；`scripts/image_gen.py`、CLI/API/provider 控制不是本技能的默认或 fallback 路线。
@@ -73,7 +73,7 @@ Accepted input:
 Required input:
 
 - 可定位的 `projects/aigc/<项目名>/8-分组/第N集.md`。
-- 可定位的项目级风格上下文：优先来自 `MEMORY.md` 与相关 `CONTEXT/`；legacy `0-初始化/north_star.yaml` 可作为旧项目辅助证据但不得成为必需输入。
+- 可定位的项目级风格上下文：优先来自 `2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的分镜/画面相关风格协议、`MEMORY.md` 与相关 `CONTEXT/`。
 - 目标普通分镜组必须可唯一定位；若用户只给四段式 `shot_id`，必须回溯到对应 `group_id` 并默认处理该组完整多图任务。
 - 对应组内必须能统计至少 1 个普通 `分镜N` 点位；连接件不计入。
 - 可读取 `3-主体/角色/3-生成`、`3-主体/场景/3-生成`、`3-主体/道具/3-生成`；缺图可 `prompt_only` 或 `pass_with_todo`，但生成模式不得伪造参照。
@@ -339,7 +339,7 @@ stateDiagram-v2
 
 ### Permission Boundaries
 
-- Read-only: `8-分组` 源稿、项目 `MEMORY.md`、相关 `CONTEXT/`、legacy optional `north_star.yaml`、`3-主体/*/3-生成` 主体图片。
+- Read-only: `8-分组` 源稿、项目 `MEMORY.md`、相关 `CONTEXT/`、`2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的分镜/画面相关风格协议、`3-主体/*/3-生成` 主体图片。
 - Writable: `projects/aigc/<项目名>/9-图像/分镜画面/` 下 prompt、manifest、plan、results、images、报告。
 - Conditional: 覆盖已有图片、用户要求主线程逐一执行、同步其他技能包必须有用户显式授权或源层维护任务触发；CLI/API/provider 控制不属于本技能默认 imagegen route。
 

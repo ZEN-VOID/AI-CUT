@@ -30,10 +30,10 @@ last_checked_at: 2026-04-25
 | Scene Design 与 Cinematography 混写 | 解构层 | 拆成空间/材质/色彩/动线与镜头/光线/运动/焦段 | 模板固定双字段 | 两组字段互不替代 |
 | 提示词没有承接画面基调与场景风格 | 风格继承层 | 回读 `2-美学/画面基调/全局风格协议.md` 与当前集优先/项目级回退的 `2-美学/场景风格/场景风格协议.md`，补 `Global Style Prompt + Scene Style Prompt` 引用 | 提示词前固定记录 visual tone source、scene style source 和 fallback 状态 | prompt 有 visual tone + scene style anchor |
 | 解构区缺少主体 ID | 结构投影层 | 在 `## 4. 解构` 下方补 `主体ID号：<主体ID>`，并同步 `## 5. 提示词设计` 与英文 prompt 前缀 | 模板和 review gate 固定三处 ID 一致性 | 解构 ID、提示词字段 ID、prompt 开头完全一致 |
-| 场景/空间风格缺失、空泛或被强行建筑化 | 空间风格策略层 | 从场景风格协议、场景类型、初始化综合、项目 north star 或用户要求中确定 `space_style_entry`；建筑场景才写建筑流派，自然/超现实/交通空间改写为地理、生态、材质、路径或变形规则 | `types/` 对不同场景给出建筑/空间/自然/材质风格入口；`2-美学/场景风格` 提供最终细目风格锚点 | prompt 有 scene style / space_style_token，且非建筑场景没有被强行建筑化 |
+| 场景/空间风格缺失、空泛或被强行建筑化 | 空间风格策略层 | 从 `2-美学/类型风格.md`、场景风格协议、场景类型、项目记忆或用户要求中确定 `space_style_entry`；建筑场景才写建筑流派，自然/超现实/交通空间改写为地理、生态、材质、路径或变形规则 | `types/` 对不同场景给出建筑/空间/自然/材质风格入口；`2-美学/场景风格` 提供最终细目风格锚点 | prompt 有 scene style / space_style_token，且非建筑场景没有被强行建筑化 |
 | 英文提示词缺少时间或地域，或编造具体时间地域 | 时间地域锚点层 | 从 `research_brief`、`type_profile`、上游清单或项目资料中补 period / region token；无法确认时使用有来源姿态的保守锚点，不编造具体年代、城市、国家、族群或宗教 | prompt evidence chain 固定加入 `period_region_tokens` 与来源姿态 | final English prompt 同时含时间与地域，且能回指来源或保守推断 |
 | 英文提示词只补前缀后缀，未整合解构主体 | Prompt 整合层 | 回到 `## 4. 解构`，逐项压缩 Scene Design 与 Cinematography 的有效槽位进英文 prompt，并在 `deconstruction_coverage` 说明合并或剔除理由 | 模板和 review gate 固定“整合对象是解构全部有效信息” | final English prompt 可反查到空间、材质、光线、构图和镜头槽位 |
-| 初始化综合存在但仍触发顾问代入 | 初始化综合边界层 | 只读消费 `team.yaml.init_synthesis.stage_seed_summary."3-主体"`、`init_handoff.design_seed` 与 `north_star.yaml.创作阶段不变量.设计`，提炼当前场景节点可执行的约束、启发和风险 | `init_team_synthesis_context` 固定在 LLM 场景设计前消费，并记录 `node_ref / pass_ref / gate_ref`；禁止 team 身份调用、旧 stage profile 和伪顾问问答 | 可见指导改变当前节点的判断、执行取舍、局部 patch 或风险提示，且没有新增创作阶段顾问身份 |
+| 初始化综合存在但仍触发顾问代入 | 初始化综合边界层 | 只读消费项目 `MEMORY.md` 的 `project_memory_init_context`、团队配置与协作偏好、资料吸收摘要和阶段上下文读取指南，提炼当前场景节点可执行的约束、启发和风险；legacy team/style evidence 只作 provenance note | `project_memory_init_context` 固定在 LLM 场景设计前消费，并记录 `node_ref / pass_ref / gate_ref`；禁止 team 身份调用、旧 stage profile 和伪顾问问答 | 可见指导改变当前节点的判断、执行取舍、局部 patch 或风险提示，且没有新增创作阶段顾问身份 |
 | references 细则存在但未进入执行/验收 | 合同汇流层 | 把 reference 同步接入 Reference Loading Guide、steps 节点、review gate 和必要的机械 resolver | 新增硬规则 reference 时必须同时声明加载场景、消费节点和阻断门禁 | `rg` 能在 SKILL、steps、review、scripts/README 中找到该 reference 的消费点 |
 | 英文提示词超 2000 characters | 输出约束层 | 压缩冗余形容词、合并同义短语、删除过程解释 | 交付前字符计数 | prompt <= 2000 characters |
 | 冷门信息无来源 | 考据可靠性层 | 标注为推断或在许可下网络搜索 | 区分本地资料、常识推断、网络来源 | 冷门信息有来源策略 |
@@ -44,8 +44,8 @@ last_checked_at: 2026-04-25
 ## Repair Playbook
 
 1. 先确认目标设计稿对应上游清单的哪一行，避免从正文想象新增主体。
-2. 读取 `2-美学/画面基调/全局风格协议.md` 与当前集优先/项目级回退的 `2-美学/场景风格/场景风格协议.md` 时优先抓取 `Global Style Prompt + Scene Style Prompt`，并记录 episode override / fallback；读取 `north_star.yaml` 时只抓取项目北极星、母题、禁区和设计不变量，不再把它改写成单场景最终风格提示词。
-3. 读取 `team.yaml` 时只使用 `init_synthesis.stage_seed_summary."3-主体"` 和 provenance；没有相关初始化综合时记录为 `未声明`，不要从成员名单虚构顾问视角。
+2. 读取 `2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md` 与当前集优先/项目级回退的 `2-美学/场景风格/场景风格协议.md` 时优先抓取 `Global Style Prompt + Scene Style Prompt`，并记录 episode override / fallback；项目主题、母题、禁区和设计不变量从 `MEMORY.md` 与相关 `CONTEXT/` 读取。
+3. 读取项目 `MEMORY.md` 时只使用与场景设计相关的团队配置、协作偏好、资料吸收摘要、禁区和阶段上下文读取指南；没有相关初始化上下文时记录为 `未声明`，不要从成员名单虚构顾问视角。
 4. 对现实或半现实场景，先确定年代、地域、空间类型、材质和空间使用方式；只有建筑/室内/街区场景才进一步确定建筑类型或建筑流派，再写视觉描述。
 5. 对超现实、梦境、异化或象征空间，仍要建立可制作的空间规则：尺度、边界、材质、光源、动线。
 6. 执行初始化综合消费时，先锁定当前 `node_id / pass_id / gate_id`，再把冻结综合转译为节点级判断、局部 patch 或风险提示；不要补造顾问问答、身份扮演或固定字段问卷。

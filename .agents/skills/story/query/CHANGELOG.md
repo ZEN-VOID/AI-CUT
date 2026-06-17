@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-06-16
+
+- Upgraded `story-query` to runtime-spine Skill 2.0 delivery shape.
+- Moved execution nodes, routes, gates, convergence, module triggers, attention protocol and evaluation contract into `SKILL.md`.
+- Removed unsupported `steps/` execution module; migrated read-only command details to `references/query-command-catalog.md`.
+- Added `types/type-map.md` and `test-prompts.json` for type package loading and regression prompt coverage.
+- Added reference gate mappings and synchronized README, CONTEXT and knowledge-base owner wording.
+
 ## 2026-04-27
 
 - Upgraded `story-query` to Skill 2.0 layout.

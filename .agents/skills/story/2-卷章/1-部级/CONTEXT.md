@@ -26,7 +26,7 @@ last_checked_at: 2026-04-26
 | 多个整书谜团没有主次和揭示窗口 | book suspense pool gap | 补 `整书悬念池` 和 `多重悬念编排规则` | 每条线程固定 `suspense_id / priority / status / reveal_window / dependency` | 卷级能继承悬念线程，而不是把谜团混写 |
 | 故事编年史只写成卷名列表 | chronology flattening | 改为事件先后、因果里程碑和状态变化 | 用 `_shared/timeline-design-contract.md` 区分时间线与节奏/卷职责 | 后续卷章不会凭空调整事件发生顺序 |
 | 规避写成空话 | avoidance drift | 改成可执行禁飞区 | 在模板中要求“不要写成什么” | 规避可直接约束卷/章 |
-| 局部修订偷偷改写整部总纲 | revision blast radius | 只 patch 本轮命中的字段 | 在 steps 固定旧稿回读和 patch 范围声明 | diff 中无无关字段重写 |
+| 局部修订偷偷改写整部总纲 | revision blast radius | 只 patch 本轮命中的字段 | 在 `SKILL.md` 节点表固定旧稿回读和 patch 范围声明 | diff 中无无关字段重写 |
 | 部级规划复制角色卡/场景卡/物品卡 | cross-stage duplication | 改成 planning 所需摘要和引用 | 回到父层 bridge，禁止复制完整卡册 | planning 文件不冒充第二套卡册 |
 | 启用 subagents 后没有按项目顾问请教部级结构问题 | advisor consultation gap | 按 `team.yaml` 的 `roles.planning.members` 追问整书承诺、卷划分、任务树、悬念池、编年史、长波节奏和总规避 | 显式启用 subagents 时先生成 `advisor_consultation_packet`，再进入部级规划创作 | `整体规划.md` 能说明顾问建议如何转成卷划分、任务关系、悬念或节奏指导 |
 

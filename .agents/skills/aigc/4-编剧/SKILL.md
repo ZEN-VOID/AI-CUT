@@ -18,10 +18,13 @@ metadata:
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，先读取本 `SKILL.md` 的 runtime spine，再按 `Module Loading Matrix` 和 `Module Trigger Matrix` 加载必要模块；不得因为目录存在而自动全量读取。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与当前集、题材、角色、风格、禁区、制作限制直接相关的文件。
+- 项目任务必须从 `projects/aigc/<项目名>/MEMORY.md` 构造 `project_memory_init_context`，消费初始化用户要求、团队配置与协作偏好、资料吸收摘要和阶段上下文读取指南；该上下文只作为剧本改编方向、保真边界和制作约束，不触发 team 身份、顾问问答或 `team.yaml` 生成。
 - 上游默认真源固定为 `projects/aigc/<项目名>/1-分集/第N集.md`，除非用户显式指定其他单集小说正文。
-- 正式主链中，`projects/aigc/<项目名>/2-美学/类型风格.md` 是本阶段题材类型和题材专属表现技巧的上游上下文；文件存在时必须加载并在执行报告中生成 `Type Style Application Map`。若文件缺失且本轮不是用户显式跳过美学的 legacy repair/query，必须回到 `2-美学` 补齐或在报告中标记 `FAIL-SCR-TYPE-STYLE-CONTEXT`。
+- 正式主链中，`projects/aigc/<项目名>/2-美学/类型风格.md` 是本阶段题材类型和题材专属表现技巧的上游上下文；文件存在时必须加载并在执行报告中生成 `Type Style Application Map`。若文件缺失且本轮不是用户显式跳过美学的 legacy repair/query，必须回到 2-美学 补齐或在报告中标记 `FAIL-SCR-TYPE-STYLE-CONTEXT`。
 - 正式主链中，`projects/aigc/<项目名>/3-主体/主体注册表.md` 是角色、场景、道具命名真源；文件存在时必须加载并在执行报告中生成 `Subject Registry Application Map`。若文件缺失且本轮不是用户显式 legacy repair/query，必须回到 `3-主体` 补齐或在报告中标记 `FAIL-SCR-SUBJECT-REGISTRY-CONTEXT`。
-- 正式生成、repair 或 review 时，必须加载 `../_shared/upstream-context-application-contract.md`，并把 `1-分集` 或用户指定 source 如何投影为剧本事实、声画字段、节奏、高潮和尾钩写入 `Upstream Context Application Map`；同时生成 `Upstream Creative Direction Matrix`，说明 `1-分集`、`2-美学/类型风格.md`、`3-主体/主体注册表.md`、项目 `MEMORY.md/CONTEXT/` 分别如何引导本集创作方向、落到正文哪里、禁止越过什么边界。只记录“已读取 source”不得判定 pass。
+- 若项目中已存在 `projects/aigc/<项目名>/3-主体/场景/2-设计/` 的场景设计稿、`projects/aigc/<项目名>/3-主体/场景/3-生成/` 的场景主图/多视图/同名 JSON，或 `projects/aigc/<项目名>/3-主体/场景/design-manifest.yaml`，本阶段必须把它们作为只读 `scene_asset_context` 记录到 `Scene Asset Integration Map`。缺失时写明 N/A，不阻断正式主链。
+- 场景设计和场景图只用于稳定场景 canonical name、空间结构、环境白描、可见状态、天气/时间缺口、场景连续性和 AIGC handoff；不得覆盖 1-分集 剧情事实，不得改写 3-主体/主体注册表.md，不得把图像 prompt、主图构图、镜头语言或生成参数写入剧本正文。
+- 正式生成、repair 或 review 时，必须加载 `../_shared/upstream-context-application-contract.md`，并把 1-分集 或用户指定 source 如何投影为剧本事实、声画字段、节奏、高潮和尾钩写入 `Upstream Context Application Map`；同时生成 `Upstream Creative Direction Matrix`，说明 1-分集、2-美学/类型风格.md、3-主体/主体注册表.md、项目 `MEMORY.md/CONTEXT/` 分别如何引导本集创作方向、落到正文哪里、禁止越过什么边界。只记录“已读取 source”不得判定 pass。
 - 涉及“可拍/可听/可演/画面字段/心理反应/高潮视觉冲击/尾钩可感落点/AIGC 下游理解/抽象转写/比喻化画面”时，必须加载 `../_shared/anti-abstract-language-contract.md`，并把画面化理解为文学白描式的直接可见、可听、可演材料。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > 本 `Module Loading Matrix` 授权模块 > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 - legacy `2-编导/references/` 已迁入本包 `references/`；当前本包内同名 reference 由本文件的 `Imported Reference Adaptation Contract` 限定其在 `4-编剧` 中的触发方式。
@@ -54,25 +57,27 @@ metadata:
 | `B14` | `Formal Screenplay Field System` | 在主入口直接定义 `4-编剧` 正文允许字段、声音字段概念、声画配对和禁用标题 |
 | `B15` | `Execution Report Evidence Standard` | 定义执行报告中的决策链、references 细则执行矩阵、证据映射、N/A 说明和返工记录 |
 | `B16` | `Upstream Creative Direction Contract` | 定义上游 source、类型风格、主体注册表和项目记忆如何共同约束编剧创作方向 |
+| `B17` | `Scene Asset Integration Contract` | 定义已有场景设计稿、场景图和 manifest 如何只读参与剧本场景命名、环境白描、连续性和 handoff |
 
 ## Core Task Contract
 
 Core task:
 
 - 将单集小说正文改编为好莱坞格式可读、短剧节奏更强、AIGC 下游更易解析的逐集剧本。
-- 以 `1-分集` 的故事事实、`2-美学/类型风格.md` 的题材类型/标志性元素/题材专属表现技巧、`3-主体/主体注册表.md` 的主体命名真源和项目 `MEMORY.md/CONTEXT/` 的长期约束共同建立 `Upstream Creative Direction Matrix`，再据此设计节奏，而不是套“快、爽、燃、虐”等空泛形容。
+- 以 1-分集 的故事事实、2-美学/类型风格.md 的题材类型/标志性元素/题材专属表现技巧、3-主体/主体注册表.md 的主体命名真源和项目 `MEMORY.md/CONTEXT/` 的长期约束共同建立 `Upstream Creative Direction Matrix`，再据此设计节奏，而不是套“快、爽、燃、虐”等空泛形容。
+- 当 3-主体/场景/2-设计 和 3-主体/场景/3-生成 已有产物存在时，将其作为只读场景资产上下文，校准场景标题地点、环境描写、空间连续性和下游 handoff，但不反向改变剧情事实或输出图像 prompt。
 - 对陈述性小说信息做受控影视化转译：优先设计为人物对白、独白、内心独白、喊出式台词、场内声音、道具证据、动作反应或必要旁白。
 - 对高潮段落强化视觉冲击、声音冲击、情绪冲击和行动结果；对集末设计微彩蛋尾钩或最后可见/可听/可感受落点。
 
 Applies when:
 
 - 用户要求“4-编剧”“编剧”“小说改剧本”“小说 to 剧本”“单集剧本化”“短剧剧本”“竖屏短剧节奏”“高潮强化”“尾钩设计”。
-- 输入是 `1-分集/第N集.md`、单集小说文本、上游剧情梗概或用户指定的逐集 source。
+- 输入是 1-分集/第N集.md、单集小说文本、上游剧情梗概或用户指定的逐集 source。
 
 Does not apply when:
 
 - 用户要求生成分镜、镜头、摄影、图像 prompt、视频任务、演员表演细化或运动强化；应转交后续 owning stage。
-- 用户只要求拆分原小说为集；应转交 `1-分集`。
+- 用户只要求拆分原小说为集；应转交 1-分集。
 - 用户要求小说正文创作、章节润色或长篇故事规划；应转交 story 技能树。
 
 Hard prohibitions:
@@ -172,7 +177,7 @@ Hard prohibitions:
 Accepted input:
 
 - 项目名、项目路径、单个或多个 `projects/aigc/<项目名>/1-分集/第N集.md`。
-- 用户粘贴的单集小说正文、带场次的剧情梗概、或上游 `1-分集` 输出。
+- 用户粘贴的单集小说正文、带场次的剧情梗概、或上游 1-分集 输出。
 - 用户指定的题材、目标平台、短剧时长、竖屏/横屏倾向、参考风格、改写尺度、禁区、高潮和尾钩偏好。
 
 Required input:
@@ -183,7 +188,7 @@ Required input:
 
 Optional input:
 
-- 项目 `MEMORY.md`、`0-初始化/north_star.yaml`、`team.yaml.init_synthesis.stage_seed_summary."4-编剧"`、相关 `CONTEXT/`。
+- 项目 `MEMORY.md` 与由其构造的 `project_memory_init_context`、相关项目 `CONTEXT/`；`2-美学/类型风格.md` 与 `2-美学/画面基调/全局风格协议.md` 作为题材与视觉方向上下文。
 - 下游约束：AIGC 视频生成时长、场景数量预算、角色数量预算、可用地点、声音风格、平台节奏、审查禁区。
 
 Reject or clarify when:
@@ -201,8 +206,8 @@ Reject or clarify when:
 | `business_object` | 单集小说正文、剧情梗概、逐集上游 source 和项目约束 | `source_episode_path`、集号、文本摘要 | `FAIL-BUSINESS-OBJECT` |
 | `constraint_profile` | 保真边界、改写尺度、AIGC 不越权、声画同步、场景标题天气后缀、Hollywood 格式 | 用户限制、项目记忆、imported reference manifest | `FAIL-BUSINESS-CONSTRAINT` |
 | `success_criteria` | 输出含 `Upstream Creative Direction Matrix`、`Type Style Application Map`、`Subject Registry Application Map`、题材/叙事画像、剧本正文、声画同步、节奏方案、高潮/尾钩、证据报告并通过 review | 输出文件、执行报告、review verdict | `FAIL-BUSINESS-SUCCESS` |
-| `complexity_source` | 复杂度来自把 `1-分集` 故事真源、`类型风格.md` 题材方向、`主体注册表.md` 命名真源和项目长期约束统一成创作方向矩阵，再执行单集叙事校准、小说叙述到影视动作转译、短剧节奏、尾钩和下游字段汇流 | `upstream_creative_direction_matrix`、`type_style_application_map`、`subject_registry_application_map`、`genre_narrative_profile`、`rhythm_strategy_map` | `FAIL-BUSINESS-COMPLEXITY` |
-| `topology_fit` | 先建立上游创作方向矩阵，再继承题材风格上下文和主体命名真源，再做单集画像，先保真再增强、先候选再 review 的拓扑适配：1) 防止节奏套模板改坏事实；2) 让 `2-美学/类型风格.md` 和当前集叙事情节共同决定节奏机制；3) 让 `3-主体/主体注册表.md` 约束命名一致；4) 让声画字段提前服务 AIGC 下游；5) 让高潮/尾钩在证据门前收束 | Mermaid 图、节点表、reference load manifest、`upstream_creative_direction_matrix` | `FAIL-TOPOLOGY-FIT` |
+| `complexity_source` | 复杂度来自把 1-分集 故事真源、`类型风格.md` 题材方向、`主体注册表.md` 命名真源和项目长期约束统一成创作方向矩阵，再执行单集叙事校准、小说叙述到影视动作转译、短剧节奏、尾钩和下游字段汇流 | `upstream_creative_direction_matrix`、`type_style_application_map`、`subject_registry_application_map`、`genre_narrative_profile`、`rhythm_strategy_map` | `FAIL-BUSINESS-COMPLEXITY` |
+| `topology_fit` | 先建立上游创作方向矩阵，再继承题材风格上下文和主体命名真源，再做单集画像，先保真再增强、先候选再 review 的拓扑适配：1) 防止节奏套模板改坏事实；2) 让 2-美学/类型风格.md 和当前集叙事情节共同决定节奏机制；3) 让 3-主体/主体注册表.md 约束命名一致；4) 让声画字段提前服务 AIGC 下游；5) 让高潮/尾钩在证据门前收束 | Mermaid 图、节点表、reference load manifest、`upstream_creative_direction_matrix` | `FAIL-TOPOLOGY-FIT` |
 
 ## Upstream Creative Direction Contract
 
@@ -210,11 +215,13 @@ Reject or clarify when:
 
 | upstream_context | creative_direction_role | required_projection | prohibited_use | report_evidence |
 | --- | --- | --- | --- | --- |
-| `1-分集/第N集.md` 或用户指定单集 source | 剧情事实硬真源 | 保留事件顺序、因果、人物关系、既有对白和关键场景；投影为 `source_to_script_map`、场景划分、字段取舍、对白冻结和保真检查 | 无授权改因果、改结局、替换人物选择、添加 source 不支持的剧情 | `Upstream Context Application Map`、`Source To Script Map` |
-| `2-美学/类型风格.md` | 题材类型与表现方向真源 | 把主题材、标志性元素、题材专属表现技巧、禁区和下游 handoff 投影为 `genre_narrative_profile`、节奏策略、高潮处理、尾钩落点和声画字段策略 | 只复述类型标签；用题材套路覆盖 source 事实；无证据推翻主题材、标志性元素或表现技巧 | `Type Style Application Map`、`Upstream Creative Direction Matrix` |
-| `3-主体/主体注册表.md` / `subject-registry.yaml` | 角色、场景、道具命名真源 | 将 registered canonical name 投影到场景标题、对白主体、动作主体、道具字段和 AIGC handoff；同一主体只使用一个真源命名 | 静默新增主体、改名、把同一主体拆成多个称呼真源、在剧本阶段改写注册表设计字段 | `Subject Registry Application Map`、`AIGC Handoff Manifest` |
+| 1-分集/第N集.md 或用户指定单集 source | 剧情事实硬真源 | 保留事件顺序、因果、人物关系、既有对白和关键场景；投影为 `source_to_script_map`、场景划分、字段取舍、对白冻结和保真检查 | 无授权改因果、改结局、替换人物选择、添加 source 不支持的剧情 | `Upstream Context Application Map`、`Source To Script Map` |
+| 2-美学/类型风格.md | 题材类型与表现方向真源 | 把主题材、标志性元素、题材专属表现技巧、禁区和下游 handoff 投影为 `genre_narrative_profile`、节奏策略、高潮处理、尾钩落点和声画字段策略 | 只复述类型标签；用题材套路覆盖 source 事实；无证据推翻主题材、标志性元素或表现技巧 | `Type Style Application Map`、`Upstream Creative Direction Matrix` |
+| 3-主体/主体注册表.md / `subject-registry.yaml` | 角色、场景、道具命名真源 | 将 registered canonical name 投影到场景标题、对白主体、动作主体、道具字段和 AIGC handoff；同一主体只使用一个真源命名 | 静默新增主体、改名、把同一主体拆成多个称呼真源、在剧本阶段改写注册表设计字段 | `Subject Registry Application Map`、`AIGC Handoff Manifest` |
+| 3-主体/场景/2-设计/*.md / 场景/design-manifest.yaml | 场景空间与环境白描 side context | 将已设计场景的 canonical name、空间结构、关键可见物、时间/天气线索和设计边界投影为场景标题校准、环境描写、场景连续性和 handoff notes | 用场景设计覆盖 source 事件、静默新增场景、改写人物行动、替代 1-分集 或主体注册表真源 | `Scene Asset Integration Map`、`scene_heading_check`、`AIGC Handoff Manifest` |
+| 3-主体/场景/3-生成/* 场景主图、多视图、同名 JSON | 场景视觉一致性 side context | 只提取与已注册场景一致的可见锚点、材质/空间状态、色光/天气线索和下游图像一致性风险，投影为环境白描边界和 handoff notes | 把图片当剧情真源、复制 prompt 到剧本正文、写机位/景别/运镜/生成参数、反向修改场景设计 | `Scene Asset Integration Map`、`downstream_overreach_check` |
 | 项目 `MEMORY.md` / `CONTEXT/` | 长期偏好、禁区和制作约束 | 投影为 `constraint_profile`、改写尺度、禁区、语气偏好、平台限制和 followup，不覆盖当前集事实 | 用长期偏好覆盖本集 source；把一次性运行经验写入项目记忆；绕过本技能 gate | `business_profile`、`Upstream Creative Direction Matrix` |
-| `2-美学` 其他风格协议或参考 side context | 视觉语言边界参考 | 只投影为本阶段可拥有的环境、动作、道具、声音、心理反应和场面调度措辞边界；不生成镜头/分镜/摄影字段 | 越权写导演批注、机位、景别、运镜、分镜编号、图像 prompt 或视频参数 | `Rule Evidence Map`、`N/A Justification` |
+| 2-美学 其他风格协议或参考 side context | 视觉语言边界参考 | 只投影为本阶段可拥有的环境、动作、道具、声音、心理反应和场面调度措辞边界；不生成镜头/分镜/摄影字段 | 越权写导演批注、机位、景别、运镜、分镜编号、图像 prompt 或视频参数 | `Rule Evidence Map`、`N/A Justification` |
 
 `Upstream Creative Direction Matrix` 必须至少包含：
 
@@ -242,14 +249,14 @@ Reject or clarify when:
 
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| `N1-SCR-INTAKE` | 锁定项目、集号、source、类型风格上下文、主体注册表、项目长期约束、写回权限和业务画像 | 用户请求、项目根、source 文件、`2-美学/类型风格.md`、`3-主体/主体注册表.md`、项目 `MEMORY.md/CONTEXT/` | 读取 `SKILL.md + CONTEXT.md`，按项目加载 `MEMORY.md/CONTEXT`，加载 `2-美学/类型风格.md` 与 `3-主体/主体注册表.md`；建立 `business_profile`、`source_episode_path`、`type_style_context_path`、`subject_registry_context_path`、`episode_id`、`writeback_mode`；列出至少 8 个用户指定 imported references 的 load manifest；创建 `upstream_creative_direction_matrix` 骨架 | `business_profile`、`source_manifest`、`type_style_context_manifest`、`subject_registry_context_manifest`、`upstream_creative_direction_matrix`、`checkpoint_scope` | `N2` / `N9-SCR-BLOCKED` | source 不唯一或写回权限不明时不得继续；正式主链缺 `类型风格.md` 或 `主体注册表.md` 不得 pass；缺方向矩阵骨架不得进入创作 |
-| `N2-SCR-GENRE-NARRATIVE` | 继承类型风格和主体命名，明确上游如何引导创作方向，并解析单集叙事情节 | source、`2-美学/类型风格.md`、`3-主体/主体注册表.md`、项目约束、`types/type-map.md` | 先把 `1-分集`、`2-美学/类型风格.md`、`3-主体/主体注册表.md`、项目 `MEMORY.md/CONTEXT/` 分别投影为 `upstream_creative_direction_matrix`；继承主题材、标志性元素和题材专属表现技巧；按主体注册表锁定角色、场景、道具 canonical name；结合当前集识别情节推进类型、人物欲望/阻碍、信息差、单集核心选择、场景功能；每集至少输出 1 个主题材继承判断、0-2 个当前集副题材校准、3-7 个 narrative beats | `upstream_creative_direction_matrix`、`type_style_application_map`、`subject_registry_application_map`、`genre_narrative_profile`、`beat_inventory` | `N3` / `R1` | 画像必须能解释后续节奏选择，不能只写标签；不得无证据推翻 `类型风格.md` 或 `主体注册表.md`；每个关键方向判断必须有正文落点或 N/A |
-| `N3-SCR-FAITHFUL-PROJECTION` | 小说到剧本基础投影 | source、`upstream_creative_direction_matrix`、imported script/field/narration contracts | 按 Hollywood 格式和本技能场景标题规范建立场景；将叙述拆成画面、动作、对白、独白、内心独白、旁白、音效、道具证据；保留上游关键事实和既有对白；场景标题含天气后缀；检查剧本投影没有越过上游方向矩阵边界 | `source_to_script_map`、`dialogue_freeze_check`、`scene_heading_check`、`upstream_context_application_map` | `N4` / `R1` | 上游事实/顺序/对白无授权不得漂移；场景标题缺天气失败；方向矩阵不得覆盖 source 真源 |
+| `N1-SCR-INTAKE` | 锁定项目、集号、source、类型风格上下文、主体注册表、场景资产上下文、项目长期约束、写回权限和业务画像 | 用户请求、项目根、source 文件、2-美学/类型风格.md、3-主体/主体注册表.md、可选 3-主体/场景/2-设计、可选 3-主体/场景/3-生成、项目 `MEMORY.md/CONTEXT/` | 读取 `SKILL.md + CONTEXT.md`，按项目加载 `MEMORY.md/CONTEXT`，加载 2-美学/类型风格.md 与 3-主体/主体注册表.md；扫描已存在的场景设计稿、场景图、同名 JSON 和 design-manifest.yaml，建立 `scene_asset_context_manifest` 或 N/A；建立 `business_profile`、`source_episode_path`、`type_style_context_path`、`subject_registry_context_path`、`episode_id`、`writeback_mode`；列出至少 8 个用户指定 imported references 的 load manifest；创建 `upstream_creative_direction_matrix` 骨架 | `business_profile`、`source_manifest`、`type_style_context_manifest`、`subject_registry_context_manifest`、`scene_asset_context_manifest`、`upstream_creative_direction_matrix`、`checkpoint_scope` | `N2` / `N9-SCR-BLOCKED` | source 不唯一或写回权限不明时不得继续；正式主链缺 `类型风格.md` 或 `主体注册表.md` 不得 pass；已存在场景资产但无 manifest/N/A 记录不得进入创作；缺方向矩阵骨架不得进入创作 |
+| `N2-SCR-GENRE-NARRATIVE` | 继承类型风格、主体命名和场景资产边界，明确上游如何引导创作方向，并解析单集叙事情节 | source、2-美学/类型风格.md、3-主体/主体注册表.md、可选 `scene_asset_context_manifest`、项目约束、`types/type-map.md` | 先把 1-分集、2-美学/类型风格.md、3-主体/主体注册表.md、已有场景设计/场景图、项目 `MEMORY.md/CONTEXT/` 分别投影为 `upstream_creative_direction_matrix`；继承主题材、标志性元素和题材专属表现技巧；按主体注册表锁定角色、场景、道具 canonical name；若存在场景资产，生成 `scene_asset_integration_map`，把场景设计/图像锚点映射到本集场景功能、环境白描边界和 handoff，不允许新增剧情事实；结合当前集识别情节推进类型、人物欲望/阻碍、信息差、单集核心选择、场景功能；每集至少输出 1 个主题材继承判断、0-2 个当前集副题材校准、3-7 个 narrative beats | `upstream_creative_direction_matrix`、`type_style_application_map`、`subject_registry_application_map`、`scene_asset_integration_map`、`genre_narrative_profile`、`beat_inventory` | `N3` / `R1` | 画像必须能解释后续节奏选择，不能只写标签；不得无证据推翻 `类型风格.md` 或 `主体注册表.md`；场景资产不得覆盖 source 事实或注册表；每个关键方向判断必须有正文落点或 N/A |
+| `N3-SCR-FAITHFUL-PROJECTION` | 小说到剧本基础投影 | source、`upstream_creative_direction_matrix`、`scene_asset_integration_map`、imported script/field/narration contracts | 按 Hollywood 格式和本技能场景标题规范建立场景；将叙述拆成画面、动作、对白、独白、内心独白、旁白、音效、道具证据；保留上游关键事实和既有对白；用注册表和已存在场景资产校准场景标题地点、空间连续性、环境白描和天气/时间缺口；场景标题含天气后缀；检查剧本投影没有越过上游方向矩阵边界 | `source_to_script_map`、`dialogue_freeze_check`、`scene_heading_check`、`scene_asset_integration_map`、`upstream_context_application_map` | `N4` / `R1` | 上游事实/顺序/对白无授权不得漂移；场景标题缺天气失败；方向矩阵和场景资产不得覆盖 source 真源 |
 | `N4-SCR-RHYTHM-ENGINE` | 根据题材和情节设计短剧节奏 | `genre_narrative_profile`、`beat_inventory`、节奏 references | 匹配 1-2 个主节奏机制和 1 个辅助机制；标注开场 0-10 秒钩子、中段升级、反转或认知位移、集末尾钩；每个节奏点必须绑定场内承托 | `rhythm_strategy_map`、`rhythm_support_evidence` | `N5` / `R1` | 不允许只写“快节奏/强反转/爽感强”；必须有承托字段 |
 | `N5-SCR-CLIMAX-HOOK` | 强化高潮和尾钩 | 剧本候选、高潮/尾钩 references | 每集锁定 1 个主高潮或 micro-payoff，设计视觉冲击、声音冲击、情绪冲击、行动落点；集末设计最后可见/可听/可感受的尾钩或迷你彩蛋 | `climax_treatment_map`、`episode_final_image_map` | `N6` / `R1` | 高潮不得新增结果；尾钩必须让下一集问题未闭合 |
-| `N6-SCR-CANDIDATE-DRAFT` | 生成候选逐集剧本和 AIGC 下游交接证据 | N2-N5 evidence、templates | LLM 直接写 `candidate_screenplay`；正文只使用 `4-编剧` script layer 正式字段；对白、独白、内心独白、旁白、音效等声音字段必须就近配对对应画面字段，并检查相邻画面字段是否属于同一拍摄单位；必要细节补充必须回指 source 或连贯性需求；画面、动作、心理反应、高潮和尾钩必须白描式落到可见/可听/可演材料；AIGC 下游理解、声画同步、节奏、高潮和尾钩证据写入 frontmatter 摘要或执行报告，不作为正文标题；生成后必须做 `anti_scripted_draft_audit` 和 `plain_visualization_audit`，排除模板句式、锚点替换、批量插入、正则套句、映射投影、同义改写批量痕迹以及明喻/隐喻/象征/概念替代正文事实 | `candidate_screenplay`、`field_routing_map`、`audio_visual_pairing_map`、`same_frame_continuity_map`、`handoff_evidence`、`anti_scripted_draft_audit`、`plain_visualization_audit` | `N7` / `R1` | 候选稿必须白描式可拍、可听、可演、可被下游解析，且不会把同一画面误拆成多个拍摄单位；脚本化生成、批量插入、正则套句、映射投影、比喻化画面或概念化画面直接 fail |
+| `N6-SCR-CANDIDATE-DRAFT` | 生成候选逐集剧本和 AIGC 下游交接证据 | N2-N5 evidence、templates、`scene_asset_integration_map` | LLM 直接写 `candidate_screenplay`；正文只使用 `4-编剧` script layer 正式字段；对白、独白、内心独白、旁白、音效等声音字段必须就近配对对应画面字段，并检查相邻画面字段是否属于同一拍摄单位；必要细节补充必须回指 source、场景资产连续性或连贯性需求；已有场景设计/图像只转成环境白描边界、空间状态和 handoff notes，不写 prompt、构图或镜头；画面、动作、心理反应、高潮和尾钩必须白描式落到可见/可听/可演材料；AIGC 下游理解、声画同步、节奏、高潮和尾钩证据写入 frontmatter 摘要或执行报告，不作为正文标题；生成后必须做 `anti_scripted_draft_audit` 和 `plain_visualization_audit`，排除模板句式、锚点替换、批量插入、正则套句、映射投影、同义改写批量痕迹以及明喻/隐喻/象征/概念替代正文事实 | `candidate_screenplay`、`field_routing_map`、`audio_visual_pairing_map`、`same_frame_continuity_map`、`scene_asset_integration_map`、`handoff_evidence`、`anti_scripted_draft_audit`、`plain_visualization_audit` | `N7` / `R1` | 候选稿必须白描式可拍、可听、可演、可被下游解析，且不会把同一画面误拆成多个拍摄单位；场景资产不得变成剧情真源、prompt 或镜头；脚本化生成、批量插入、正则套句、映射投影、比喻化画面或概念化画面直接 fail |
 | `N7-SCR-REVIEW-REPAIR` | 审查并最小修复候选稿 | candidate、review contract、validation checklist | 执行 `GATE-SCR-01..23`；阻断项直接回对应节点最小修复，最多 3 轮；无法修复时 blocked 并报告最早 source owner | `review_verdict`、`repair_actions`、`validation_result` | `N8` / `R1` / `N9-SCR-BLOCKED` | review 未通过不得写回 canonical |
-| `N8-SCR-WRITEBACK-CLOSE` | 写回唯一输出并生成报告 | passed candidate、output contract、report evidence standard | 写 `projects/aigc/<项目名>/4-编剧/第N集.md` 和 `执行报告.md`；批量任务逐集追加报告；报告必须包含 `Execution Decision Trace`、`Reference Execution Matrix`、`Upstream Context Application Map`、`Upstream Creative Direction Matrix`、`Type Style Application Map`、`Subject Registry Application Map`、`Rule Evidence Map`、`N/A Justification`、`Repair Log`；不写 legacy 路径或下游真源 | `output_path_check`、`execution_report`、`reference_execution_matrix`、`upstream_creative_direction_matrix`、`type_style_application_map`、`subject_registry_application_map`、`rule_evidence_map`、`downstream_handoff_manifest` | done | 输出路径唯一且报告含必需证据索引；缺任一报告证据不得 pass |
+| `N8-SCR-WRITEBACK-CLOSE` | 写回唯一输出并生成报告 | passed candidate、output contract、report evidence standard | 写 `projects/aigc/<项目名>/4-编剧/第N集.md` 和 `执行报告.md`；批量任务逐集追加报告；报告必须包含 `Execution Decision Trace`、`Reference Execution Matrix`、`Upstream Context Application Map`、`Upstream Creative Direction Matrix`、`Type Style Application Map`、`Subject Registry Application Map`、`Scene Asset Integration Map`、`Rule Evidence Map`、`N/A Justification`、`Repair Log`；不写 legacy 路径或下游真源 | `output_path_check`、`execution_report`、`reference_execution_matrix`、`upstream_creative_direction_matrix`、`type_style_application_map`、`subject_registry_application_map`、`scene_asset_integration_map`、`rule_evidence_map`、`downstream_handoff_manifest` | done | 输出路径唯一且报告含必需证据索引；已有场景资产必须有整合或 N/A 证据；缺任一报告证据不得 pass |
 | `R1-SCR-REWORK` | 源层返工 | fail code、review evidence | 按失败码回到 N2-N7 或对应 reference；若发现 reference/模板/路由缺陷，进入技能维护任务而非运行中自改 | `root_cause_trace`、`rework_target` | `N2` / `N3` / `N4` / `N5` / `N6` / `N7` | 不得用局部润色掩盖保真、节奏、声画或输出路径失败 |
 | `N9-SCR-BLOCKED` | 阻断收束 | blocking evidence | 输出阻断原因、最早 source owner 和用户需补信息，不写回 canonical | `blocked_report` | done | 只在 source、权限或三轮返工仍失败时进入 |
 
@@ -277,9 +284,9 @@ flowchart TD
 | criteria_slot | required_content | landing_place | fail_code |
 | --- | --- | --- | --- |
 | `action_scope` | 单集任务处理 1 个 source；批量任务逐集独立执行 N2-N8；每集至少覆盖全部场景和全部 narrative beats | `Thinking-Action Node Map.actions` | `FAIL-QUANT-ACTION-SCOPE` |
-| `evidence_count` | 每集至少 1 个 `upstream_creative_direction_matrix`、1 个 `type_style_application_map`、1 个 `subject_registry_application_map`、1 个 `genre_narrative_profile`、3-7 个 `beat_inventory`、1 个 `rhythm_strategy_map`、1 个 `climax_treatment_map`、1 个 `episode_final_image_map`、3 组以上 `audio_visual_pairing_map`，并对全部相邻画面字段簇输出 `same_frame_continuity_map`；若场景不足则按实际场景并报告 | `Thinking-Action Node Map.evidence` | `FAIL-QUANT-EVIDENCE` |
+| `evidence_count` | 每集至少 1 个 `upstream_creative_direction_matrix`、1 个 `type_style_application_map`、1 个 `subject_registry_application_map`、1 个 `scene_asset_integration_map` 或明确 N/A、1 个 `genre_narrative_profile`、3-7 个 `beat_inventory`、1 个 `rhythm_strategy_map`、1 个 `climax_treatment_map`、1 个 `episode_final_image_map`、3 组以上 `audio_visual_pairing_map`，并对全部相邻画面字段簇输出 `same_frame_continuity_map`；若场景不足则按实际场景并报告 | `Thinking-Action Node Map.evidence` | `FAIL-QUANT-EVIDENCE` |
 | `pass_threshold` | `GATE-SCR-01..23` 阻断项为 0；非阻断 followup 不超过 3 项，且不得影响保真、声画同步、输出路径、下游 handoff、白描式可拍/可听/可演、anti-scripted authorship、上游创作方向矩阵或执行报告证据完整性 | `gate` / `Convergence Contract.pass_condition` | `FAIL-QUANT-THRESHOLD` |
-| `report_evidence_count` | 正式写回时每集至少包含 1 个 `Execution Decision Trace`、1 个 `Reference Execution Matrix`、1 个 `Upstream Context Application Map`、1 个 `Upstream Creative Direction Matrix`、1 个 `Type Style Application Map`、1 个 `Subject Registry Application Map`、1 个 `Rule Evidence Map`、1 个 `N/A Justification`、1 个 `Repair Log`、1 个 `AIGC Handoff Manifest`；没有返工时 `Repair Log` 写 `none` 并说明审查结果 | `Execution Report Evidence Standard` / `GATE-SCR-16` | `FAIL-QUANT-REPORT-EVIDENCE` |
+| `report_evidence_count` | 正式写回时每集至少包含 1 个 `Execution Decision Trace`、1 个 `Reference Execution Matrix`、1 个 `Upstream Context Application Map`、1 个 `Upstream Creative Direction Matrix`、1 个 `Type Style Application Map`、1 个 `Subject Registry Application Map`、1 个 `Scene Asset Integration Map` 或明确 N/A、1 个 `Rule Evidence Map`、1 个 `N/A Justification`、1 个 `Repair Log`、1 个 `AIGC Handoff Manifest`；没有返工时 `Repair Log` 写 `none` 并说明审查结果 | `Execution Report Evidence Standard` / `GATE-SCR-16` | `FAIL-QUANT-REPORT-EVIDENCE` |
 | `retry_limit` | 同一集同一 fail code 最多 3 轮最小修复；仍失败则 blocked，报告最早 source owner 和不可修原因 | `R1-SCR-REWORK` | `FAIL-QUANT-RETRY` |
 | `fallback_evidence` | 若缺少明确题材或项目上下文，保守按文本事实建立临时画像，不写入项目 `MEMORY.md`；若缺少天气信息，场景标题写 `天气待定` 并在报告列为 followup | `Review Gate Binding.report_evidence` | `FAIL-QUANT-FALLBACK` |
 
@@ -336,7 +343,7 @@ flowchart TD
 | `CONTEXT.md` | 每次调用 | 经验层、失败模式、修复打法 | 重定义核心合同、输出路径或 gate | `Learning / Context Writeback` |
 | `references/` | 任一 reference 触发时 | 授权细则目录 | 新增未被 `SKILL.md` 声明的入口、输出或 gate | `Module Loading Matrix` |
 | `../_shared/anti-abstract-language-contract.md` | 可拍/可听/可演、画面字段、心理反应、高潮/尾钩可感落点、AIGC handoff、抽象或比喻化画面修复 | 共享反抽象与白描式画面化合同，约束正文必须落到主体、动作、空间、道具、声音、光照、身体状态或时间变化 | 替代编剧主创、生成剧情正文、或越权写镜头/分镜/prompt | `N6-SCR-CANDIDATE-DRAFT` / `GATE-SCR-15` |
-| `../_shared/upstream-context-application-contract.md` | 任意正式生成、repair、review，或 `FAIL-SCR-UPSTREAM-CONTEXT` | 规定上游 source 如何被剧本化投影、保真和举证，要求 `Upstream Context Application Map` | 替代剧本改编主创、改写 `1-分集` 真源、把上游 source 机械复制成剧本正文 | `N1/N3/N8` |
+| `../_shared/upstream-context-application-contract.md` | 任意正式生成、repair、review，或 `FAIL-SCR-UPSTREAM-CONTEXT` | 规定上游 source 如何被剧本化投影、保真和举证，要求 `Upstream Context Application Map` | 替代剧本改编主创、改写 1-分集 真源、把上游 source 机械复制成剧本正文 | `N1/N3/N8` |
 | `scripts/` | 机械校验说明或后续 validator 触发时 | 机械辅助目录 | 生成创作正文或替代 LLM 判断 | `LLM-First Creative Authorship Contract` |
 | `templates/` | 输出样板或报告格式触发时 | 格式样板目录 | 偷渡执行规则或完成标准 | `Output Contract` |
 | `review/` | 候选稿审查、review_only 或 repair 触发时 | 审查细则目录 | 改写业务真源 | `Review Gate Binding` |
@@ -370,7 +377,7 @@ flowchart TD
 | `FAIL-SCR-SCREENPLAY-QUALITY` / `FAIL-SCR-PLAIN-VISUALIZATION` / `FAIL-SCR-AIGC-FIELDS` | `../_shared/anti-abstract-language-contract.md`, `references/script-adaptation-contract.md`, `references/field-routing-and-audio-visual-contract.md`, `review/review-contract.md` | `N6/N7` | `GATE-SCR-15`, `GATE-SCR-13` | `plain_visualization_audit`, `field_quality_check`, `aigc_handoff_manifest` |
 | `FAIL-SCR-CLIMAX` / `FAIL-SCR-HOOK` | `references/climax-visual-treatment-contract.md`, `references/episode-final-image-contract.md`, `references/directorial-authorship-contract.md`, `references/screenwriting-masters-and-shortdrama-rhythm-contract.md`, `review/review-contract.md` | `N5/N7` | `C4-CLIMAX-HOOK-READY` | climax/hook maps are present |
 | `FAIL-SCR-SCENE-HEADING` / `FAIL-SCR-FAITHFULNESS` / `FAIL-SCR-SCREENPLAY-QUALITY` | `references/hollywood-quality-spec.md`, `references/script-adaptation-contract.md`, `references/field-routing-and-audio-visual-contract.md`, `templates/output-template.md`, `review/review-contract.md` | `N3/N6/N8` | `C5-FINAL-OUTPUT` | scene headings include weather suffix |
-| `review_only` / `FAIL-TYPE-REVIEW` / `FAIL-SCR-REVIEW` / `FAIL-SCR-PATH` / `FAIL-SCR-LOAD` / `FAIL-SCR-DETAILS` / `FAIL-SCR-REWRITE-SCOPE` / `FAIL-SCR-AIGC-FIELDS` / `FAIL-SCR-DOWNSTREAM-OVERREACH` / `FAIL-SCR-REPORT` / `FAIL-SCR-LLM-FIRST` / `FAIL-SCR-SCRIPTED-DRAFT` / `FAIL-SCR-TYPE-STYLE-CONTEXT` / `FAIL-SCR-SUBJECT-REGISTRY-CONTEXT` / `FAIL-SCR-UPSTREAM-DIRECTION-MATRIX` | `../_shared/upstream-context-application-contract.md`, `review/review-contract.md`, `references/imported-reference-adaptation-map.md`, `templates/output-template.md`, `scripts/README.md` | `N7/R1` | `Review Gate Binding` | GATE-SCR rows mapped to fail codes |
+| `review_only` / `FAIL-TYPE-REVIEW` / `FAIL-SCR-REVIEW` / `FAIL-SCR-PATH` / `FAIL-SCR-LOAD` / `FAIL-SCR-DETAILS` / `FAIL-SCR-REWRITE-SCOPE` / `FAIL-SCR-AIGC-FIELDS` / `FAIL-SCR-DOWNSTREAM-OVERREACH` / `FAIL-SCR-REPORT` / `FAIL-SCR-LLM-FIRST` / `FAIL-SCR-SCRIPTED-DRAFT` / `FAIL-SCR-TYPE-STYLE-CONTEXT` / `FAIL-SCR-SUBJECT-REGISTRY-CONTEXT` / `FAIL-SCR-UPSTREAM-DIRECTION-MATRIX` / `FAIL-SCR-SCENE-ASSET-CONTEXT` | `../_shared/upstream-context-application-contract.md`, `review/review-contract.md`, `references/imported-reference-adaptation-map.md`, `templates/output-template.md`, `scripts/README.md` | `N7/R1` | `Review Gate Binding` | GATE-SCR rows mapped to fail codes |
 | `FAIL-MODULE-DRIFT` | `review/review-contract.md` | `R1` | `Module Loading Matrix` | no module carries second output truth |
 
 ## Thought Pass Map
@@ -387,9 +394,10 @@ flowchart TD
 | --- | --- | --- | --- | --- |
 | `C1-BUSINESS-LOCKED` | source、集号、目标路径、改写尺度、loaded references 明确 | source 不唯一、改写授权不清、导入合同缺失 | `business_profile`、`reference_load_manifest` | `N1-SCR-INTAKE` |
 | `C2-SCREENPLAY-FAITHFUL` | 剧情事实、顺序、已有对白、基础场景和字段路由成立 | 无授权新增/删除/重排事实，或声音字段无来源 | `source_to_script_map`、`dialogue_freeze_check` | `N3-SCR-FAITHFUL-PROJECTION` |
-| `C2A-UPSTREAM-CONTEXT-APPLIED` | `1-分集` 或用户指定 source 已拆分为 truth/constraint/handoff seed，并能证明每个关键剧本化决定的 source anchor、local decision 与 preservation check | 只说明已读取 source、无法解释剧本化改写依据、或保真检查缺失 | `upstream_context_application_map` | `N1/N3/N8` |
-| `C2B-TYPE-STYLE-APPLIED` | `2-美学/类型风格.md` 已拆分为题材类型、标志性元素、表现技巧和禁区，并能证明其如何影响单集节奏、高潮、尾钩和声画策略 | 缺少 `类型风格.md`、只机械复述类型标签、或无证据推翻题材风格真源 | `type_style_application_map` | `N1/N2/N8` |
-| `C2C-UPSTREAM-DIRECTION-LOCKED` | `1-分集`、`2-美学/类型风格.md`、`3-主体/主体注册表.md`、项目 `MEMORY.md/CONTEXT/` 的创作方向角色、使用方式、正文落点和边界检查均已明确 | 只列上游输入物、不说明怎样影响剧本；或用题材/主体/记忆越权覆盖 source 真源、注册表或后续阶段权限 | `upstream_creative_direction_matrix`、`subject_registry_application_map` | `N1/N2/N8` |
+| `C2A-UPSTREAM-CONTEXT-APPLIED` | 1-分集 或用户指定 source 已拆分为 truth/constraint/handoff seed，并能证明每个关键剧本化决定的 source anchor、local decision 与 preservation check | 只说明已读取 source、无法解释剧本化改写依据、或保真检查缺失 | `upstream_context_application_map` | `N1/N3/N8` |
+| `C2B-TYPE-STYLE-APPLIED` | 2-美学/类型风格.md 已拆分为题材类型、标志性元素、表现技巧和禁区，并能证明其如何影响单集节奏、高潮、尾钩和声画策略 | 缺少 `类型风格.md`、只机械复述类型标签、或无证据推翻题材风格真源 | `type_style_application_map` | `N1/N2/N8` |
+| `C2C-UPSTREAM-DIRECTION-LOCKED` | 1-分集、2-美学/类型风格.md、3-主体/主体注册表.md、项目 `MEMORY.md/CONTEXT/` 的创作方向角色、使用方式、正文落点和边界检查均已明确 | 只列上游输入物、不说明怎样影响剧本；或用题材/主体/记忆越权覆盖 source 真源、注册表或后续阶段权限 | `upstream_creative_direction_matrix`、`subject_registry_application_map` | `N1/N2/N8` |
+| `C2D-SCENE-ASSET-INTEGRATED` | 已存在的场景设计稿、场景图、JSON 或 manifest 已被记录为只读 `scene_asset_context`，并说明如何影响场景标题、环境白描、连续性或 handoff；无资产时有 N/A reason | 已存在场景资产但未加载、未映射、被当作剧情真源、被复制为 prompt 或镜头字段 | `scene_asset_context_manifest`、`scene_asset_integration_map` | `N1/N2/N3/N6/N8` |
 | `C3-RHYTHM-SUPPORTED` | 节奏机制匹配题材/叙事，且每个节奏点有承托 | 只写形容词、强行反转、节奏与题材不匹配 | `rhythm_strategy_map`、`rhythm_support_evidence` | `N4-SCR-RHYTHM-ENGINE` |
 | `C4-CLIMAX-HOOK-READY` | 主高潮或 micro-payoff、最终可感落点和下一集未闭合问题成立 | 高潮平铺、尾钩无画面/声音/感受落点、新增结果 | `climax_treatment_map`、`episode_final_image_map` | `N5-SCR-CLIMAX-HOOK` |
 | `C5-FINAL-OUTPUT` | 剧本和报告均符合 Output Contract，review 阻断项为 0，画面字段白描式可拍/可听/可演 | 输出路径分裂、报告缺证据、下游字段缺失、比喻/象征/概念替代画面事实 | `output_path_check`、`review_verdict`、`plain_visualization_audit` | `N8-SCR-WRITEBACK-CLOSE` |
@@ -409,20 +417,20 @@ flowchart TD
 
 1. 读取本 `SKILL.md + CONTEXT.md`；若绑定项目，加载项目 `MEMORY.md` 和相关 `CONTEXT/`。
 2. 锁定单集 source、集号、输出根 `projects/aigc/<项目名>/4-编剧/`、改写尺度和 reference load manifest。
-3. 读取并应用 `1-分集`、`2-美学/类型风格.md`、`3-主体/主体注册表.md` 与项目 `MEMORY.md/CONTEXT/`，先建立 `upstream_creative_direction_matrix`，再建立 `type_style_application_map` 和 `subject_registry_application_map`；随后执行单集叙事情节解析，建立 `genre_narrative_profile` 和 `beat_inventory`。
+3. 读取并应用 1-分集、2-美学/类型风格.md、3-主体/主体注册表.md 与项目 `MEMORY.md/CONTEXT/`；若已有 3-主体/场景/2-设计、3-主体/场景/3-生成 或 design-manifest.yaml，建立只读 `scene_asset_context_manifest` 和 `scene_asset_integration_map`；先建立 `upstream_creative_direction_matrix`，再建立 `type_style_application_map`、`subject_registry_application_map` 和必要的场景资产整合证据；随后执行单集叙事情节解析，建立 `genre_narrative_profile` 和 `beat_inventory`。
 4. 执行保真剧本投影：Hollywood 格式、场景标题、天气后缀、字段分流、声画同步、同画面连续性、对白冻结、陈述性信息受控转语音。
 5. 根据题材和情节匹配短剧节奏机制；每个机制必须有场内承托和下游字段。
 6. 强化高潮和集末尾钩；高潮强化不新增结果，尾钩必须有最后可见/可听/可感受落点。
 7. LLM 直接生成候选剧本；正文只写 `4-编剧` screenplay layer 允许字段，AIGC 下游理解、声画同步、同画面连续性、节奏承托、高潮强化和尾钩落点只写入 frontmatter 摘要或执行报告证据，不作为剧本正文标题。
 8. 按 `review/review-contract.md` 执行 `GATE-SCR-01..23`，阻断项直接回对应节点修复并复审。
 9. 通过后写回 `projects/aigc/<项目名>/4-编剧/第N集.md` 和 `projects/aigc/<项目名>/4-编剧/执行报告.md`。
-10. 报告必须包含 `Execution Decision Trace`、`Reference Execution Matrix`、`Upstream Context Application Map`、`Upstream Creative Direction Matrix`、`Type Style Application Map`、`Subject Registry Application Map`、`Rule Evidence Map`、`N/A Justification`、`Repair Log`、`source_to_script_map`、`genre_narrative_profile`、`rhythm_strategy_map`、`climax_treatment_map`、`episode_final_image_map`、`audio_visual_pairing_map`、`same_frame_continuity_map`、`narration_to_voice_adaptation_map`、review verdict 和 handoff。
+10. 报告必须包含 `Execution Decision Trace`、`Reference Execution Matrix`、`Upstream Context Application Map`、`Upstream Creative Direction Matrix`、`Type Style Application Map`、`Subject Registry Application Map`、`Scene Asset Integration Map` 或 N/A、`Rule Evidence Map`、`N/A Justification`、`Repair Log`、`source_to_script_map`、`genre_narrative_profile`、`rhythm_strategy_map`、`climax_treatment_map`、`episode_final_image_map`、`audio_visual_pairing_map`、`same_frame_continuity_map`、`narration_to_voice_adaptation_map`、review verdict 和 handoff。
 
 ## Review Gate Binding
 
 | review_question | review_gate | fail_code | rework_target | report_evidence |
 | --- | --- | --- | --- | --- |
-| 输出是否只写 `4-编剧` canonical 路径，且不改写上游 `1-分集`？ | `GATE-SCR-01` | `FAIL-SCR-PATH` | `N8-SCR-WRITEBACK-CLOSE` | `output_path_check` |
+| 输出是否只写 `4-编剧` canonical 路径，且不改写上游 1-分集？ | `GATE-SCR-01` | `FAIL-SCR-PATH` | `N8-SCR-WRITEBACK-CLOSE` | `output_path_check` |
 | 是否加载了本技能 `SKILL.md + CONTEXT.md`、项目记忆和 8 个 imported references？ | `GATE-SCR-02` | `FAIL-SCR-LOAD` | `N1-SCR-INTAKE` | `reference_load_manifest` |
 | 题材和叙事情节画像是否能解释节奏选择？ | `GATE-SCR-03` | `FAIL-SCR-GENRE-NARRATIVE` | `N2-SCR-GENRE-NARRATIVE` | `genre_narrative_profile` |
 | 上游剧情事实、顺序、人物关系和已有对白是否保真？ | `GATE-SCR-04` | `FAIL-SCR-FAITHFULNESS` | `N3-SCR-FAITHFUL-PROJECTION` | `source_to_script_map` |
@@ -441,10 +449,11 @@ flowchart TD
 | 是否遵守 LLM-first，脚本未替代主创？ | `GATE-SCR-17` | `FAIL-SCR-LLM-FIRST` | `LLM-First Creative Authorship Contract` | `authorship_check` |
 | 模块是否没有形成第二规则源或第二输出真源？ | `GATE-SCR-18` | `FAIL-MODULE-DRIFT` | `Module Loading Matrix` | `module_authorization_audit` |
 | 剧本正文、节奏方案、对白、高潮、尾钩和 handoff 是否由 LLM 从上到下逐条理解 source 后落盘，且无脚本化生成、批量插入、正则套句、映射投影、模板句式复用、关键词锚点替换、句式轮换或同义改写批量生成痕迹？ | `GATE-SCR-19` | `FAIL-SCR-SCRIPTED-DRAFT` | `N6-SCR-CANDIDATE-DRAFT` / `R1-SCR-REWORK` | `anti_scripted_draft_audit` |
-| 上游 `1-分集` 或指定 source 是否被明确投影为剧本层决策，并记录 source anchor、local decision 和 preservation check，而非只写“已读取/已参考”？ | `GATE-SCR-20` | `FAIL-SCR-UPSTREAM-CONTEXT` | `N1-SCR-INTAKE` / `N3-SCR-FAITHFUL-PROJECTION` / `N8-SCR-WRITEBACK-CLOSE` | `upstream_context_application_map` |
-| `2-美学/类型风格.md` 是否被明确投影为本集题材、节奏、高潮、尾钩和声画策略，而不是只作为标签复述？ | `GATE-SCR-21` | `FAIL-SCR-TYPE-STYLE-CONTEXT` | `N1-SCR-INTAKE` / `N2-SCR-GENRE-NARRATIVE` / `N8-SCR-WRITEBACK-CLOSE` | `type_style_application_map` |
-| `3-主体/主体注册表.md` 是否被明确投影为本集角色、场景、道具命名真源，且剧本中未静默新增或改名主体？ | `GATE-SCR-22` | `FAIL-SCR-SUBJECT-REGISTRY-CONTEXT` | `N1-SCR-INTAKE` / `N2-SCR-GENRE-NARRATIVE` / `N8-SCR-WRITEBACK-CLOSE` | `subject_registry_application_map` |
-| 是否明确说明 `1-分集`、`2-美学/类型风格.md`、`3-主体/主体注册表.md`、项目 `MEMORY.md/CONTEXT/` 分别如何引导本集编剧创作方向，并给出正文落点与禁止越权检查？ | `GATE-SCR-23` | `FAIL-SCR-UPSTREAM-DIRECTION-MATRIX` | `N1-SCR-INTAKE` / `N2-SCR-GENRE-NARRATIVE` / `N8-SCR-WRITEBACK-CLOSE` | `upstream_creative_direction_matrix` |
+| 上游 1-分集 或指定 source 是否被明确投影为剧本层决策，并记录 source anchor、local decision 和 preservation check，而非只写“已读取/已参考”？ | `GATE-SCR-20` | `FAIL-SCR-UPSTREAM-CONTEXT` | `N1-SCR-INTAKE` / `N3-SCR-FAITHFUL-PROJECTION` / `N8-SCR-WRITEBACK-CLOSE` | `upstream_context_application_map` |
+| 2-美学/类型风格.md 是否被明确投影为本集题材、节奏、高潮、尾钩和声画策略，而不是只作为标签复述？ | `GATE-SCR-21` | `FAIL-SCR-TYPE-STYLE-CONTEXT` | `N1-SCR-INTAKE` / `N2-SCR-GENRE-NARRATIVE` / `N8-SCR-WRITEBACK-CLOSE` | `type_style_application_map` |
+| 3-主体/主体注册表.md 是否被明确投影为本集角色、场景、道具命名真源，且剧本中未静默新增或改名主体？ | `GATE-SCR-22` | `FAIL-SCR-SUBJECT-REGISTRY-CONTEXT` | `N1-SCR-INTAKE` / `N2-SCR-GENRE-NARRATIVE` / `N8-SCR-WRITEBACK-CLOSE` | `subject_registry_application_map` |
+| 是否明确说明 1-分集、2-美学/类型风格.md、3-主体/主体注册表.md、项目 `MEMORY.md/CONTEXT/` 分别如何引导本集编剧创作方向，并给出正文落点与禁止越权检查？ | `GATE-SCR-23` | `FAIL-SCR-UPSTREAM-DIRECTION-MATRIX` | `N1-SCR-INTAKE` / `N2-SCR-GENRE-NARRATIVE` / `N8-SCR-WRITEBACK-CLOSE` | `upstream_creative_direction_matrix` |
+| 若已存在场景设计稿、场景图或场景 manifest，是否已作为只读 scene asset context 映射到场景标题、环境白描、连续性或 handoff，且没有覆盖 source、注册表或下游权限？ | `GATE-SCR-24` | `FAIL-SCR-SCENE-ASSET-CONTEXT` | `N1-SCR-INTAKE` / `N2-SCR-GENRE-NARRATIVE` / `N3-SCR-FAITHFUL-PROJECTION` / `N6-SCR-CANDIDATE-DRAFT` / `N8-SCR-WRITEBACK-CLOSE` | `scene_asset_context_manifest`、`scene_asset_integration_map`、`downstream_overreach_check` |
 
 ## Execution Report Evidence Standard
 
@@ -465,9 +474,10 @@ flowchart TD
 | `Execution Decision Trace` | `node_id`、`decision`、`source_anchor`、`reference_or_gate`、`reason`、`output_landing` | 关键题材、分场、转语音、节奏、高潮、尾钩和字段取舍均有摘要 | `FAIL-SCR-REPORT-TRACE` |
 | `Reference Execution Matrix` | `reference`、`load_status`、`trigger_reason`、`applied_to`、`evidence_in_output`、`verdict`、`n/a_reason` | 授权 references 全量审计；不适用项说明 N/A 原因 | `FAIL-SCR-REPORT-REFERENCE-MATRIX` |
 | `Upstream Context Application Map` | `upstream_source`、`preserved_truth`、`stage_projection`、`source_anchor`、`context_used`、`local_decision`、`preservation_check`、`conflict_or_na` | 上游 source 的关键事实、顺序、对白、剧情信息和下游 handoff 均能证明如何进入剧本层决策 | `FAIL-SCR-UPSTREAM-CONTEXT` |
-| `Upstream Creative Direction Matrix` | `upstream_context`、`direction_role`、`used_as`、`script_decision`、`script_landing`、`boundary_check`、`evidence_map` | `1-分集`、`2-美学/类型风格.md`、`3-主体/主体注册表.md`、项目 `MEMORY.md/CONTEXT/` 的创作方向角色、正文落点和越权边界均清楚 | `FAIL-SCR-UPSTREAM-DIRECTION-MATRIX` |
+| `Upstream Creative Direction Matrix` | `upstream_context`、`direction_role`、`used_as`、`script_decision`、`script_landing`、`boundary_check`、`evidence_map` | 1-分集、2-美学/类型风格.md、3-主体/主体注册表.md、项目 `MEMORY.md/CONTEXT/` 的创作方向角色、正文落点和越权边界均清楚 | `FAIL-SCR-UPSTREAM-DIRECTION-MATRIX` |
 | `Type Style Application Map` | `type_style_context_path`、`inherited_genre_rule`、`signature_element`、`expression_technique`、`local_script_decision`、`preservation_check` | `类型风格.md` 的关键题材规则能证明如何进入本集节奏、高潮、尾钩和声画策略 | `FAIL-SCR-TYPE-STYLE-CONTEXT` |
 | `Subject Registry Application Map` | `subject_registry_context_path`、`subject_type`、`registry_id_or_name`、`canonical_name_used`、`alias_or_source_name`、`script_landing`、`drift_check` | 注册表中的角色、场景、道具命名能证明如何进入剧本和 handoff，且无静默新增、改名或拆分同一主体 | `FAIL-SCR-SUBJECT-REGISTRY-CONTEXT` |
+| `Scene Asset Integration Map` | `scene_asset_context_path`、`asset_type`、`registry_scene_name_or_id`、`design_or_image_anchor`、`used_for`、`script_landing`、`boundary_check`、`n/a_reason` | 已有场景设计、场景图、JSON 或 manifest 能证明如何只读影响场景标题、环境白描、连续性和 handoff；无资产时有 N/A；不得覆盖 source 或生成 prompt | `FAIL-SCR-SCENE-ASSET-CONTEXT` |
 | `Rule Evidence Map` | `rule_or_gate`、`source_anchor`、`script_landing`、`report_evidence`、`verdict` | 保真、字段、声画配对、节奏、高潮、尾钩、handoff 均能回指证据 | `FAIL-SCR-REPORT-RULE-EVIDENCE` |
 | `Source To Script Map` | source 段落到场景/字段映射 | 关键事实、事件顺序、既有对白无漂移 | `FAIL-SCR-REPORT-SOURCE-MAP` |
 | `Narration To Voice Adaptation Map` | `source_anchor`、`voice_owner`、`derived_voice_line`、`paired_visual_field`、`risk_check` | 每条派生语音有来源、主体、知识依据和画面配对 | `FAIL-SCR-REPORT-VOICE-MAP` |
@@ -535,7 +545,7 @@ Completion gate:
 
 ### Permission Boundaries
 
-- **Read-only**: `1-分集/` 上游 source、`2-美学/类型风格.md`、`3-主体/主体注册表.md`、项目 `MEMORY.md`、项目 `CONTEXT/`、导入 references 原文。
+- **Read-only**: 1-分集/ 上游 source、2-美学/类型风格.md、3-主体/主体注册表.md、3-主体/场景/2-设计/、3-主体/场景/3-生成/、场景 design-manifest.yaml、项目 `MEMORY.md`、项目 `CONTEXT/`、导入 references 原文。
 - **Writable**: `projects/aigc/<项目名>/4-编剧/第N集.md`、`projects/aigc/<项目名>/4-编剧/执行报告.md`。
 - **Conditional**: registry、root `aigc/SKILL.md`、shared runtime layout 只在技能维护任务中同步；运行具体项目时不得自改技能包。
 
@@ -574,6 +584,7 @@ Completion gate:
 | `FIELD-SCR-02A` | `type_style_application_map` | `inherited_genre_rule`、`signature_element`、`expression_technique`、`local_script_decision`、`preservation_check` | `FAIL-SCR-TYPE-STYLE-CONTEXT` |
 | `FIELD-SCR-02B` | `subject_registry_application_map` | `subject_type`、`registry_id_or_name`、`canonical_name_used`、`script_landing`、`drift_check` | `FAIL-SCR-SUBJECT-REGISTRY-CONTEXT` |
 | `FIELD-SCR-02C` | `upstream_creative_direction_matrix` | `upstream_context`、`direction_role`、`used_as`、`script_decision`、`script_landing`、`boundary_check` | `FAIL-SCR-UPSTREAM-DIRECTION-MATRIX` |
+| `FIELD-SCR-02D` | `scene_asset_integration_map` | `scene_asset_context_path`、`asset_type`、`registry_scene_name_or_id`、`used_for`、`script_landing`、`boundary_check` 或 N/A | `FAIL-SCR-SCENE-ASSET-CONTEXT` |
 | `FIELD-SCR-03` | `【剧本正文】` | 与 `4-编剧` 一致的场景标题、天气后缀、正式字段化正文、白描式可拍/可听/可演、声音字段就近画面配对、同一画面不重复拆写 | `FAIL-SCR-SCREENPLAY-QUALITY` |
 | `FIELD-SCR-04` | `rhythm_strategy_map` | 节奏机制、匹配理由、场内承托、转场策略 | `FAIL-SCR-RHYTHM` |
 | `FIELD-SCR-05` | `climax_treatment_map` | 视觉、声音、情绪、行动落点 | `FAIL-SCR-CLIMAX` |

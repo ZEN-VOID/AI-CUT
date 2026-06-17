@@ -1,8 +1,15 @@
 # CHANGELOG
 
+## 2026-06-16
+
+- 将旧外置工作流节点迁入 `SKILL.md` 的 `Thinking-Action Node Map`，以 `SKILL.md` 作为章级规划 runtime spine 真源。
+- 补齐业务需求分析、类型路由、模块加载/触发、汇流、review gate、量化执行标准、注意力、checkpoint、evaluation prompt 与学习回写合同。
+- 新增 `test-prompts.json` 与 reference 级 review gate mapping，并同步 README/types/review/guardrails/scripts 引用到当前 `skill-2.0` delivery validator。
+- 在完整保留原节点语义后退役不再受支持的外置工作流目录。
+
 ## 2026-05-30
 
-- 对齐最新 `skill-工作车间` Skill 2.0 交付合同。
+- 对齐最新 `skill-2.0` 交付合同。
 - 新增 `guardrails/guardrails-contract.md`，并在 `SKILL.md` 注入 `Runtime Guardrails` 运行时边界。
 - 将 review 真源归一为 canonical `review/review-contract.md`，并同步更新原 `review/chapter-planning-review.md` 引用。
 - 重建 `types/type-map.md` 为可加载 Package Index，显式登记 `types/chapter-planning-type-map.md` 与 `types/payoff-genre-type-map.md`。
@@ -13,17 +20,17 @@
 - 新增显式启用 subagents 时的项目 `team.yaml` 顾问请教合同，覆盖章级规划的本章职责、时间推进、爽点变奏、悬念开关、任务汇聚和 drafting handoff。
 - 新增 `advisor_consultation_packet`、review gate、CONTEXT 经验与 LLM 主创前可执行指导汇流要求。
 - 新增章级悬念开关体系，接入共享 `../_shared/suspense-design-contract.md`。
-- 在 `SKILL.md`、`references/chapter-planning-contract.md`、`steps/chapter-planning-workflow.md`、`templates/chapter-planning.template.md`、`review/review-contract.md`、`types/chapter-planning-type-map.md`、README、CONTEXT 与 validator 字段中新增 `本章悬念开关`。
+- 在 `SKILL.md`、`references/chapter-planning-contract.md`、`templates/chapter-planning.template.md`、`review/review-contract.md`、`types/chapter-planning-type-map.md`、README、CONTEXT 与 validator 字段中新增 `本章悬念开关`。
 - 固定 `上承卷级悬念 / 本章读者可知 / 本章角色可知 / 本章悬念线程动作 / 本章需要隐藏的 / 本章误导/疑阵 / 本章揭秘的 / 本章只埋不揭的 / 章末悬念压力 / 本章悬念负载 / 正文禁止上帝视角说明`，要求章级规划约束线索、伏笔、节奏和正文禁区。
 - 扩展章级多重悬念执行机制，新增 `本章悬念线程动作` 与 `本章悬念负载`，用于追踪每条悬念的本章状态变更。
 
 ## 2026-04-28
 
 - 新增章级时间线体系，接入共享 `../_shared/timeline-design-contract.md`。
-- 在 `SKILL.md`、`references/chapter-planning-contract.md`、`steps/chapter-planning-workflow.md`、`templates/chapter-planning.template.md`、`review/review-contract.md` 与 validator 字段中新增 `本章时间推进`。
+- 在 `SKILL.md`、`references/chapter-planning-contract.md`、`templates/chapter-planning.template.md`、`review/review-contract.md` 与 validator 字段中新增 `本章时间推进`。
 - 固定 `chapter_start_state / visible_time_span / event_order / parallel_hidden_events / chapter_end_state / handoff_to_next_chapter`，要求章级继承卷级 `本卷时间线` 后再裁定冲突、爽点和节奏。
 - 新增 `references/chapter-payoff-rules.md`，将章级爽点设计升级为独立但与节奏 handoff 高度关联的系统。
-- 在模板、steps、types、review 与 Output Contract 中新增 `本章爽点设计`，固定 `reader_desire / promise_source / character_anchor / payoff_mode / build_up / delivery_action / satisfaction_delta / exaggeration_logic / cost_or_aftershock / aftertaste_hook`。
+- 在模板、`SKILL.md` 节点网络、types、review 与 Output Contract 中新增 `本章爽点设计`，固定 `reader_desire / promise_source / character_anchor / payoff_mode / build_up / delivery_action / satisfaction_delta / exaggeration_logic / cost_or_aftershock / aftertaste_hook`。
 - 将动能式、势能式、浪能式分别映射到外部化结果、精神/认知/压力变化、体验/关系/生活质感/状态修复等爽点形态，并要求 `payoff_type / micro_payoff` 消费爽点设计。
 - 补强角色一致性门禁：新增 `character_anchor` 与 `exaggeration_logic`，要求爽点与角色个性高度相关，夸张但合情理。
 - 补强类型机制：新增 `types/payoff-genre-type-map.md` 与 `genre_payoff_profile`，要求爽点按小说类型/子类型校准口味、禁忌和兑现尺度，避免所有项目同质化。
@@ -33,7 +40,7 @@
 
 ## 2026-04-26
 
-- 升级为完整 Skill 2.0 包结构，补齐 `steps/`、`review/`、`types/`、`knowledge-base/`、`scripts/`、`agents/`、`README.md` 与 `CHANGELOG.md`。
-- 将旧 `SKILL.md` 中的章级细则迁移到 `references/chapter-planning-contract.md`，将 Thinking-Action Network 迁移到 `steps/chapter-planning-workflow.md`。
+- 升级为完整 Skill 2.0 包结构，补齐 `review/`、`types/`、`knowledge-base/`、`scripts/`、`agents/`、`README.md` 与 `CHANGELOG.md`。
+- 将旧 `SKILL.md` 中的章级细则迁移到 `references/chapter-planning-contract.md`，并在 2026-06-16 回收 Thinking-Action Network 到 `SKILL.md`。
 - 新增 `review/review-contract.md`、`types/chapter-planning-type-map.md` 与 `templates/output-template.md`，让章级输出、类型画像和 review gate 与 Output Contract 对齐。
 - 修正 `references/chapter-rhythm-rules.md` 中 shared handoff 合同的相对路径。

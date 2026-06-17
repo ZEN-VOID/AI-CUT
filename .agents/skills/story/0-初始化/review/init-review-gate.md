@@ -38,7 +38,7 @@
 2. 对初始化语义执行本 checklist。
 3. 若涉及脚本变更，运行 `.agents/skills/story/scripts/init_project.py` dry run 或对应 pytest。
 4. 汇总为单一 verdict，不能让多个 reviewer sidecar 并列夺权。
-5. findings 必须回指 `SKILL.md`、`references/`、`steps/`、`types/`、`templates/`、`scripts/` 或 `CONTEXT.md` 的 owner。
+5. findings 必须回指 `SKILL.md`、`references/`、`types/`、`templates/`、`scripts/` 或 `CONTEXT.md` 的 owner。
 
 ## Minimal File Checks
 

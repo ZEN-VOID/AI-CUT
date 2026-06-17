@@ -1890,6 +1890,139 @@ def record_skill_completion(
     safe_append_task_log("direct_skill_completion_recorded", payload)
     print(json.dumps(payload, ensure_ascii=False, indent=2))
 
+    # Volume completion hook: check and trigger volume-level auto-aggregation
+    if (
+        profile["stage_id"] == "4-润色"
+        and status == TASK_STATUS_COMPLETED
+        and volume is not None
+    ):
+        _check_volume_completion_and_trigger_return(volume=volume)
+
+
+def _check_volume_completion_and_trigger_return(volume: int):
+    """Check if all chapters in a volume have completed polishing acceptance.
+    
+    When all chapters in the volume have PASS status in their final acceptance,
+    trigger the return satellite skill automatically.
+    
+    This implements the P1-4 optimization: automatic context return triggering
+    to eliminate manual return steps between volumes.
+    """
+    try:
+        project_root = resolve_project_root()
+        if not project_root:
+            logger.warning("Volume completion check skipped: no project root")
+            return
+
+        volume_dir = Path(project_root) / "4-润色" / f"第{volume}卷"
+        if not volume_dir.exists():
+            logger.info(f"Volume completion check skipped: directory not found {volume_dir}")
+            return
+
+        # Collect all chapter acceptance packets
+        acceptance_files = sorted(
+            volume_dir.glob("第*章.acceptance.json"),
+            key=lambda p: int(re.search(r'第(\d+)章', p.name).group(1))
+            if re.search(r'第(\d+)章', p.name) else 0
+        )
+
+        if not acceptance_files:
+            logger.info(f"Volume completion check: no acceptance files in {volume_dir}")
+            return
+
+        all_pass = True
+        chapter_statuses = {}
+        total_score = 0.0
+        score_count = 0
+
+        for af in acceptance_files:
+            try:
+                packet = json.loads(af.read_text(encoding="utf-8"))
+                status_val = packet.get("acceptance_status", "unknown")
+                chapter_ref = af.stem
+                chapter_statuses[chapter_ref] = {
+                    "acceptance_status": status_val,
+                    "accepted_manuscript_stage": packet.get("accepted_manuscript_stage", "unknown"),
+                    "path": str(af.relative_to(project_root)),
+                }
+                if status_val != "PASS" and status_val != "pass":
+                    all_pass = False
+                # Collect dimension scores for volume average
+                dim_scores = packet.get("dimension_scores", {})
+                for score in dim_scores.values():
+                    if isinstance(score, (int, float)):
+                        total_score += score
+                        score_count += 1
+            except (json.JSONDecodeError, OSError) as exc:
+                logger.warning(f"Failed to read acceptance file {af}: {exc}")
+                all_pass = False
+                chapter_statuses[af.stem] = {"acceptance_status": "error", "error": str(exc)}
+
+        # Generate volume-level acceptance aggregation
+        avg_score = total_score / score_count if score_count > 0 else None
+        volume_acceptance = {
+            "volume_ref": f"第{volume}卷",
+            "aggregation_status": "complete" if all_pass else "pending",
+            "chapter_statuses": chapter_statuses,
+            "volume_summary": {
+                "total_chapters": len(acceptance_files),
+                "pass_count": sum(1 for cs in chapter_statuses.values() 
+                                 if cs["acceptance_status"] in ("PASS", "pass")),
+                "avg_dimension_scores": round(avg_score, 2) if avg_score is not None else None,
+            },
+            "handoff_targets": ["return"] if all_pass else [],
+            "blockers": [] if all_pass else [
+                cs for cs in chapter_statuses.values() 
+                if cs["acceptance_status"] not in ("PASS", "pass")
+            ],
+            "generated_at": now_iso(),
+        }
+
+        # Write volume acceptance aggregation
+        vol_acceptance_path = volume_dir / "volume.acceptance.json"
+        try:
+            vol_acceptance_path.write_text(
+                json.dumps(volume_acceptance, ensure_ascii=False, indent=2),
+                encoding="utf-8"
+            )
+        except OSError as exc:
+            logger.warning(f"Failed to write volume acceptance: {exc}")
+
+        # Log volume completion status
+        payload = {
+            "volume": volume,
+            "all_chapters_pass": all_pass,
+            "chapter_count": len(acceptance_files),
+            "pass_count": volume_acceptance["volume_summary"]["pass_count"],
+            "avg_score": avg_score,
+            "volume_acceptance_path": str(vol_acceptance_path.relative_to(project_root)) 
+                if project_root else str(vol_acceptance_path),
+        }
+        safe_append_call_trace("volume_completion_checked", payload)
+        safe_append_task_log("volume_completion_checked", payload)
+
+        if all_pass:
+            print(json.dumps({
+                "volume_completion_status": "complete",
+                "volume": volume,
+                "message": f"第{volume}卷所有章节终稿验收通过，卷级验收包已生成，可触发 return actualization",
+                "volume_acceptance_path": str(vol_acceptance_path),
+                "return_ready": True,
+            }, ensure_ascii=False, indent=2))
+        else:
+            print(json.dumps({
+                "volume_completion_status": "pending",
+                "volume": volume,
+                "message": f"第{volume}卷尚有章节验收未通过，不触发 return",
+                "pending_chapters": [cs for cs in chapter_statuses 
+                                    if chapter_statuses[cs]["acceptance_status"] not in ("PASS", "pass")],
+            }, ensure_ascii=False, indent=2))
+
+    except Exception as exc:
+        logger.error(f"Volume completion check failed: {exc}")
+        # Non-blocking: volume completion check failure should not block chapter completion
+        safe_append_call_trace("volume_completion_check_error", {"volume": volume, "error": str(exc)})
+
 
 def fail_current_task(reason: str = "manual_fail"):
     state = load_state()

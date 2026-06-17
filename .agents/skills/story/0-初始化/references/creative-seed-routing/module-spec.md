@@ -52,7 +52,7 @@
   - `think-think/references/chain-optimization.md`
   - `think-think/templates/think-quadrant-template.md`
 - downstream_consumers:
-  - `0-初始化/SKILL.md` 的 `Execution Procedure`
+  - `0-初始化/SKILL.md` 的 `Thinking-Action Node Map`
   - `planning 固定题包直答` 生成的创意缺口 patch
   - `0-初始化/north_star.yaml.project_identity / story_kernel / reader_promise`
   - `0-初始化/init_handoff.yaml.project_contract / stage_entry_seeds.planning_seed / unknowns`
@@ -256,7 +256,7 @@
 
 | 裁决层 | 服务字段 / 决策槽 | 具体落盘位置 | 采用理由 | 被排除候选为何不成立 | 失败返工入口 |
 | --- | --- | --- | --- | --- | --- |
-| `粗裁决 / Base Range` | `creative_route_plan` / `loaded_references` | 当前模块执行记录、父 `SKILL.md` 的 `Reference Loading Guide` | 先决定是否命中本模块以及命中哪类子路由 | 非创意缺口、本不该进入本模块的问题不成立 | 回到 `Phase 1` |
+| `粗裁决 / Base Range` | `creative_route_plan` / `loaded_references` | 当前模块执行记录、父 `SKILL.md` 的 `Module Trigger Matrix` | 先决定是否命中本模块以及命中哪类子路由 | 非创意缺口、本不该进入本模块的问题不成立 | 回到 `Phase 1` |
 | `细裁决 / Range Narrowing` | `loaded_leaf_references` / `anti_trope_mapping` / `trend_gate` | 当前模块 `Phase 2`、`0-初始化` 的创意缺口路由合同 | 保证上层只看统一入口，但本模块内部能追踪最小读取 | 读取过多、映射错位、未授权趋势引用不成立 | 回到 `Phase 2` |
 | `离散裁决 / Final Selection` | `north_star_patch` / `project_contract_patch` / `planning_seed_update` / `unknowns_update` / `sources_breakdown` | `0-初始化/north_star.yaml`、`0-初始化/init_handoff.yaml` 的上游输入槽位 | 让创意参考真正进入 handoff，而不是停在解释层 | 仍是资料墙、来源不清或越权拍死 planning canonical 不成立 | 回到 `Phase 3` |
 
@@ -313,14 +313,14 @@
 ## Parent SKILL 回写检查
 
 - 父 `SKILL.md` 是否已写明当前模块触发机制：是
-- 若为多模块场景，是否已有统一路由段落：是，父技能新增 `Reference Loading Guide`
+- 若为多模块场景，是否已有统一路由段落：是，父技能新增 `Module Loading Matrix` 与 `Module Trigger Matrix`
 - 父 `SKILL.md` 中的模块关系：`team代入模式` 固定为单主路径；`creative-seed-routing` 与题材/worldbuilding 为按需串行
 
 ## Review Gate Mapping
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 创意缺口是否先经过本模块判型，而不是由父技能或 planning 直连 leaf references？ | `creative_seed` | `FAIL-INIT-CREATIVE-ROUTE` | 本文件 Phase 1、`SKILL.md` Reference Loading Guide | creative_route_plan、loaded_references |
+| 创意缺口是否先经过本模块判型，而不是由父技能或 planning 直连 leaf references？ | `creative_seed` | `FAIL-INIT-CREATIVE-ROUTE` | 本文件 Phase 1、`SKILL.md` Module Trigger Matrix | creative_route_plan、loaded_references |
 | leaf references 是否按最小读取原则加载，且趋势资料受用户显式请求与联网核验双闸门约束？ | `creative_seed` / `security` | `FAIL-INIT-CREATIVE-ROUTE` / `FAIL-INIT-SECURITY` | 本文件 Phase 2、`guardrails/guardrails-contract.md` | loaded_leaf_references、trend_gate evidence |
-| 创意资料是否转成 `north_star` / `init_handoff` 的结构化 patch，而不是资料墙或正文替代品？ | `handoff` | `FAIL-INIT-HANDOFF` | 本文件 Phase 3、`steps/init-workflow.md` N5-N6 | slot writeback patch、sources_breakdown |
+| 创意资料是否转成 `north_star` / `init_handoff` 的结构化 patch，而不是资料墙或正文替代品？ | `handoff` | `FAIL-INIT-HANDOFF` | 本文件 Phase 3、`SKILL.md` N6B-N7 | slot writeback patch、sources_breakdown |
 | 父入口、planning 固定题包直答和本模块是否形成单一真源链路？ | `integration` | `FAIL-INIT-INTEGRATION` | 本文件 Phase 4、`references/prompt-packet-contract.md` | routing_gate_summary、reference scan |

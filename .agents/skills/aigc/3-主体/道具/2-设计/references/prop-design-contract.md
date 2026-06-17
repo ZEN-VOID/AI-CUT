@@ -7,14 +7,13 @@
 必须消费：
 
 - `projects/aigc/<项目名>/3-主体/道具/1-清单/道具清单.md`
+- `projects/aigc/<项目名>/2-美学/类型风格.md`
 - `projects/aigc/<项目名>/2-美学/画面基调/全局风格协议.md`
 - 当前集优先的 `projects/aigc/<项目名>/2-美学/第N集/道具风格/道具风格协议.md`；缺失时回退 `projects/aigc/<项目名>/2-美学/道具风格/道具风格协议.md`
-- `projects/aigc/<项目名>/0-初始化/north_star.yaml`
-- `projects/aigc/<项目名>/team.yaml.init_synthesis`
+- `projects/aigc/<项目名>/MEMORY.md`
 
 可按需消费：
 
-- `projects/aigc/<项目名>/MEMORY.md`
 - `projects/aigc/<项目名>/CONTEXT/`
 - 上游首次登场对应的分组稿或分镜稿，仅用于回查原文证据，不用于新增清单外道具。
 
@@ -49,16 +48,14 @@
 ```mermaid
 flowchart TD
     A["道具清单项"] --> B["来源复述与单主体边界"]
+    C0["2-美学/类型风格"] --> D0["类型 / 媒介 / handoff"]
     C["2-美学/画面基调"] --> D["Global Style Prompt"]
     C2["2-美学/道具风格"] --> D2["Prop Style Prompt"]
-    C3["north_star.yaml"] --> D3["主题 / 北极星 / 禁区"]
-    E["team.yaml.init_synthesis"] --> F["冻结初始化综合"]
-    G["MEMORY.md / CONTEXT/"] --> H["项目长期偏好与共享事实"]
+    G["MEMORY.md / CONTEXT/"] --> H["项目长期偏好 / 禁区 / 初始化上下文"]
     B --> I["LLM-first 道具设计判断"]
+    D0 --> I
     D --> I
     D2 --> I
-    D3 --> I
-    F --> I
     H --> I
     I --> J["研究考据"]
     I --> K["物语"]
@@ -86,7 +83,7 @@ flowchart LR
 - 每条研究结论必须落到至少一个可见或可生成字段：形制、材料、工艺、设计细节、文化/身份/功能符号适用性、年代、使用状态/保存状态、功能逻辑、风险/不确定性、prompt evidence token。
 - 道具设计必须主动追求审美吸引力，但不能把“有设计感”机械等同于贴花、纹样或做旧。每个道具都要具备独特轮廓、材质记忆点、工艺/结构细节、条件性文化/身份/功能符号、使用状态/保存状态和功能结构中的有效组合；关键道具必须有可被一眼记住的 `signature detail`。
 - 使用/保存状态必须按证据选择：全新、未启封、洁净/无菌、高维护抛光、展陈级完好、仪式封存、轻度使用、重度磨损、修补、氧化、污染或损伤都可以成立。`wear_trace` 只是 `condition_state` 的条件子类，不是默认输出；不得为了“设计感”给所有道具添加划痕、污渍、包浆、锈蚀、破损或折旧感。
-- 文化元素、身份符号、机构标识、纹样、铭文、徽记和装饰不得随机堆砌，必须绑定项目时代、地域、阶层、职业、宗教/族群禁区、叙事功能和 `north_star`；无依据时使用克制、极简或功能主导细节，不得为了填字段错置现代奢侈品、街头潮牌、战术风、赛博朋克、哥特奇幻等脱离语境的装饰。
+- 文化元素、身份符号、机构标识、纹样、铭文、徽记和装饰不得随机堆砌，必须绑定项目时代、地域、阶层、职业、宗教/族群禁区、叙事功能、`2-美学` 输出和项目记忆；无依据时使用克制、极简或功能主导细节，不得为了填字段错置现代奢侈品、街头潮牌、战术风、赛博朋克、哥特奇幻等脱离语境的装饰。
 - 当任务进入单道具设计、批量设计、增量补缺或修复，并涉及审美、文化元素、工艺装饰、功能结构、使用/保存状态或 prompt 短语时，必须加载 `knowledge-base/prop-design-corpus.md`，只做原创转译，不照搬为第二规则源。
 - 研究证据链应区分 `source_fact`、`inference`、`inspired_by` 与 `unknown`：确定事实可直接锁定，推断和灵感只能作为设计方向，不得伪装成上游事实。
 - 研究输出优先使用短表格或短条目，避免长段抄写；每条最好能回答“它改变了哪个形状、材料、工艺、使用/保存状态、年代或 prompt token”。
@@ -105,7 +102,7 @@ source cue -> confidence -> visual translation -> design lock -> prompt evidence
 
 | chain slot | required decision |
 | --- | --- |
-| `source cue` | 来自清单、north_star、team、项目记忆、项目 CONTEXT、本地知识或网络来源的哪一类证据 |
+| `source cue` | 来自清单、`2-美学`、项目记忆、项目 CONTEXT、本地知识或网络来源的哪一类证据 |
 | `confidence` | `confirmed` / `probable` / `inferred` / `uncertain`，并说明不确定性 |
 | `visual translation` | 转成形制、材料、工艺、设计细节、文化元素、年代、使用状态/保存状态、功能逻辑或安全边界 |
 | `design lock` | 哪些特征必须固定，哪些允许生成时微变 |
@@ -133,21 +130,18 @@ source cue -> confidence -> visual translation -> design lock -> prompt evidence
 - 若某 token 只是画面基调 `Global Style Prompt` 的一部分，应标注 `visual_tone`；若来自道具风格 `Prop Style Prompt`，应标注 `prop_style`。
 - 不得为了塞入证据链而增加场景、人物、手持、桌面、房间或街景 token。
 
-## North Star And Team Consumption
+## Aesthetic And Project Memory Consumption
 
-`2-美学/画面基调/全局风格协议.md` 与当前集优先/项目级回退的 `2-美学/道具风格/道具风格协议.md` 应转译为：
+`2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md` 与当前集优先/项目级回退的 `2-美学/道具风格/道具风格协议.md` 应转译为：
 
+- 类型元素、媒介属性与下游 handoff 边界。
 - `Global Style Prompt + Prop Style Prompt`。
 - 视觉母题、材质倾向、工艺策略、道具层负向边界和图像执行偏好。
 
-`north_star.yaml` 应转译为：
+`MEMORY.md` / `CONTEXT/` 应转译为：
 
-- 主题、时代、材质、色彩、镜头、禁区。
-- 该道具在项目整体美术系统中的位置。
-
-`team.yaml.init_synthesis` 应转译为：
-
-- 与设计、摄影、美术、服装、动作、导演或审美有关的初始化设计种子、约束、启发和风险。
+- 项目长期偏好、禁区、时代/地域约束、初始化资料吸收摘要和阶段上下文读取指南。
+- 与设计、摄影、美术、动作、导演或审美有关的初始化设计种子、约束、启发和风险。
 - 至少一条可见的设计决策，例如材质克制、形制陌生化、手作痕迹、可拍摄反光、握持方式或留白。
 - 不把成员名字当装饰性标签，不补造顾问问答；必须说明它如何改变道具方案。
 
@@ -177,7 +171,7 @@ source cue -> confidence -> visual translation -> design lock -> prompt evidence
 - prompt 应聚焦单个道具，避免把角色、场景或完整剧情塞入主体。
 - prompt 必须包含 `full-view prop shot, 45-degree view, full prop in view, entire prop fully visible, uncropped full silhouette, prop only, solid color background, no people, no background elements, no scene environment` 或等价约束。
 - prompt 必须使用自然语言负向约束，例如 `avoid people, hands, character, model, body parts, tabletop scene, room set, street, landscape, props cluster, background elements, cropped prop, partial prop`，但不得压过主体设计；不得使用 Midjourney `--no` 参数。
-- 若画面基调或道具风格缺失，必须写明缺失路径与字段，例如 `Global Style Prompt: missing 2-美学/画面基调 source` 或 `Prop Style Prompt: missing 2-美学/道具风格 source`，不得从 `north_star.yaml` 补造最终风格提示词。
+- 若画面基调或道具风格缺失，必须写明缺失路径与字段，例如 `Global Style Prompt: missing 2-美学/画面基调 source` 或 `Prop Style Prompt: missing 2-美学/道具风格 source`，不得从项目记忆或旧初始化风格载体补造最终风格提示词。
 
 ## Non-Goals
 
@@ -190,7 +184,7 @@ source cue -> confidence -> visual translation -> design lock -> prompt evidence
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 设计稿是否消费 `道具清单.md`、`2-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `2-美学/道具风格/道具风格协议.md`、`north_star.yaml`、`team.yaml.init_synthesis`，并把项目 `MEMORY.md / CONTEXT/` 与首次登场分组稿只作为补充证据而非新增清单外道具？ | `GATE-PROP-DESIGN-01` / `GATE-PROP-DESIGN-04` | `FAIL-PROP-DESIGN-01` / `FAIL-PROP-DESIGN-04` | `N2-UPSTREAM` / `N3-SCOPE` | `upstream_manifest`、项目上下文清单、补充证据使用边界、episode override / fallback |
+| 设计稿是否消费 `道具清单.md`、`2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `2-美学/道具风格/道具风格协议.md`，并把项目 `MEMORY.md / CONTEXT/` 与首次登场分组稿只作为补充证据而非新增清单外道具？ | `GATE-PROP-DESIGN-01` / `GATE-PROP-DESIGN-04` | `FAIL-PROP-DESIGN-01` / `FAIL-PROP-DESIGN-04` | `N2-UPSTREAM` / `N3-SCOPE` | `upstream_manifest`、项目上下文清单、补充证据使用边界、episode override / fallback |
 | 每个 Markdown 是否只对应一个道具主体，没有并列多个道具、生成清单外主体或把上游冲突静默裁决为新 canonical 真源？ | `GATE-PROP-DESIGN-02` | `FAIL-PROP-DESIGN-02` | `N3-SCOPE` | `prop_worklist`、单主体边界说明、上游修复建议 |
 | 研究考据、物语、解构、道具风格和英文 prompt 是否由 LLM 直接创作与裁决，脚本只做读取、枚举、检查、统计、空目录或缺字段报告？ | `GATE-PROP-DESIGN-05` | `FAIL-SCRIPT-AUTHORSHIP` | `N6-DESIGN` | 脚本职责清单、LLM 主创声明、正文生成来源说明 |
 | 设计稿是否包含 `名称 / 首次登场 / 原文描述复述`、`研究考据`、`物语`、`解构`、`提示词设计` 五个必填章节，且复述未改写为新事实？ | `GATE-PROP-DESIGN-03` | `FAIL-PROP-DESIGN-03` | `N6-DESIGN` | 模板块覆盖检查、上游复述对照、缺块 finding |
@@ -201,7 +195,7 @@ source cue -> confidence -> visual translation -> design lock -> prompt evidence
 | 研究证据链是否区分 `source_fact / inference / inspired_by / unknown` 与 `confirmed / probable / inferred / uncertain`，没有把低证据推断写成确定事实？ | `GATE-PROP-DESIGN-09` | `FAIL-PROP-DESIGN-08` | `N5-RESEARCH-CHAIN` | 来源姿态、置信度/不确定性标注、待确认项 |
 | 冷门网络信息是否只在必要或用户许可时使用，并用可靠来源、简短来源说明或不确定性注记收束，避免长篇摘录或覆盖清单真源？ | `GATE-PROP-DESIGN-RESEARCH-SAFETY` | `FAIL-PROP-DESIGN-RESEARCH-SAFETY` | `N5-RESEARCH-CHAIN` | 搜索必要性、来源摘要、使用边界、不确定性注记 |
 | 危险物、医疗器械、武器或违法用途相关研究是否只转译为外观和叙事安全描述，没有提供制造、使用或伤害步骤？ | `GATE-PROP-DESIGN-RESEARCH-SAFETY` | `FAIL-PROP-DESIGN-RESEARCH-SAFETY` | `N5-RESEARCH-CHAIN` | 安全转译记录、删除的操作性信息、风险注记 |
-| `2-美学/画面基调` 是否转译为 `Global Style Prompt`，`2-美学/道具风格` 是否转译为 `Prop Style Prompt`，`north_star.yaml` 是否转译为主题、时代/材质/色彩/镜头禁区和项目美术位置；`team.yaml.init_synthesis` 是否转译为至少一条可见设计决策，而不是成员名字装饰或伪顾问问答？ | `GATE-PROP-DESIGN-04` | `FAIL-PROP-DESIGN-04` | `N2-UPSTREAM` / `N5-RESEARCH-CHAIN` | `project_design_context`、init synthesis source、设计决策证据 |
+| `2-美学/类型风格` 是否转译为类型/媒介/handoff 边界，`2-美学/画面基调` 是否转译为 `Global Style Prompt`，`2-美学/道具风格` 是否转译为 `Prop Style Prompt`，项目 `MEMORY.md` 是否转译为至少一条可见设计决策，而不是成员名字装饰或伪顾问问答？ | `GATE-PROP-DESIGN-04` | `FAIL-PROP-DESIGN-04` | `N2-UPSTREAM` / `N5-RESEARCH-CHAIN` | `project_design_context`、project memory source、设计决策证据 |
 | `Photography` 是否回答镜头距离、角度、焦段感、景深、光线、识别方式和默认固定画面；`Prop Design` 是否回答外形、材质、工艺、颜色、尺度、重量、使用/保存状态和锁定/可变项？ | `GATE-PROP-DESIGN-03` / `GATE-PROP-DESIGN-08` | `FAIL-PROP-DESIGN-03` / `FAIL-PROP-DESIGN-07` | `N6-DESIGN` | `Photography` / `Prop Design` 双字段证据、锁定/可变项 |
 | prompt 是否为英文、以 `<主体ID>: ...` 开头，并与 `## 4. 解构` 主体 ID、`提示词设计` 主体 ID 完全一致？ | `GATE-PROP-DESIGN-06` | `FAIL-PROP-DESIGN-05` | `N6-DESIGN` | 三处主体 ID 对照、prompt 开头检查 |
 | prompt 是否同时包含 `画面基调.Global Style Prompt + 道具风格.Prop Style Prompt`，并整合 `## 4. 解构` 全部有效 Photography 与 Prop Design 信息，而不是前缀/后缀拼接？ | `GATE-PROP-DESIGN-06` / `GATE-PROP-DESIGN-10` | `FAIL-PROP-DESIGN-05` / `FAIL-PROP-DESIGN-09` | `N6-DESIGN` | prompt 字符数、解构槽位覆盖、`deconstruction_coverage` |

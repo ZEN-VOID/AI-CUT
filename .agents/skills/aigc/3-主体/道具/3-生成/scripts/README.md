@@ -14,4 +14,4 @@ Forbidden:
 - 用脚本生成、扩写或重写道具主体设计。
 - 用脚本替代 LLM 抽象审美判断或提示词主创。
 - 自动修改 `2-设计`、registry、父级技能或其他 worker 文件。
-- 未经用户显式选择直接切换 `$imagegen` CLI/API fallback。
+- 未经用户显式选择直接切换 `$libTV` CLI/API fallback。

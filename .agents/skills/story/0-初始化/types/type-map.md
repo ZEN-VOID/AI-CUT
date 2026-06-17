@@ -20,7 +20,7 @@
 1. 读取 `SKILL.md + CONTEXT.md` 后立即读取本文件。
 2. 根据用户请求、项目根和已有 runtime 形成 `type_profile`。
 3. 加载 `types/init-type-map.md` 作为固定上下文。
-4. 将 `type_profile` 传入 `steps/init-workflow.md` 的 `N0 -> N7` 节点。
+4. 将 `type_profile` 传入 `SKILL.md` 的 `Thinking-Action Node Map`，覆盖 `N1 -> N8` 节点。
 5. 在 `review/review-contract.md` 与 `review/init-review-gate.md` 中检查类型判定是否造成媒介路由、team 编组或 handoff 写回漂移。
 
 ## Review Gate Mapping

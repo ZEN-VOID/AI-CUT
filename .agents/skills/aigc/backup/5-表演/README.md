@@ -1,5 +1,7 @@
 # aigc 5-表演
 
+> 退役备份：本目录仅保留旧 AIGC 表演链路的审计和追溯价值，不再作为正式 `projects/aigc/<项目名>/5-表演/` 生成阶段。小说语境中的人物在场与反应强化已迁入 `.agents/skills/story/3-初稿/references/character-presence-contract.md` 和 `.agents/skills/story/4-润色/types/character-reaction-repair.md`。
+
 `5-表演` 将 `projects/aigc/<项目名>/5-导演/第N集.md` 的导演批注稿，结合 `2-美学` 的画面基调、角色风格和场景风格，融合改写为无导演批注残留的演员可执行表演稿。
 
 ## 目录树

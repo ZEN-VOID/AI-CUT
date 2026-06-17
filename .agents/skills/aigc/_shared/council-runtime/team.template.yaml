@@ -68,7 +68,7 @@ roles:
     owner_phase: "0-初始化"
     members_ref: "roles.planning.members"
     members: []
-    boundary: "只复核 legacy/explicit 初始化综合是否足以支撑 stage seed summary；当前 scaffold-only 初始化不要求生成本文件。"
+    boundary: "只复核 legacy/explicit 初始化综合是否足以支撑 stage seed summary；当前 scaffold-plus-memory 初始化不要求生成本文件。"
 
 init_synthesis:
   direct_answer_summary:
@@ -120,7 +120,7 @@ init_synthesis:
     "8-分组":
       grouping_rhythm: []
       bridge_policy: []
-      north_star_projection_notes: []
+      visual_tone_projection_notes: []
     "3-主体":
       scene_design_invariants: []
       character_design_invariants: []
@@ -147,7 +147,7 @@ legacy_compat:
     - "team_setup.shared_agents"
     - "dispatch_policy: stage-front-advisor"
     - "dispatch_policy: leaf-advisor"
-  handling: "Legacy fields are read-only migration evidence. New scaffold-only initialization must not create or require this carrier for creative-stage advisor dispatch."
+  handling: "Legacy fields are read-only migration evidence. New scaffold-plus-memory initialization must not create or require this carrier for creative-stage advisor dispatch."
   migration_note: ""
 
 provenance:

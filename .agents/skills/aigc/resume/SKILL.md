@@ -102,7 +102,7 @@ Reject or reroute:
 
 ## Branch Rules
 
-- `lightweight_init_continue`: current scaffold、`MEMORY.md`、`CONTEXT/` 与可选 `STATE.json` 足以证明项目具备低风险恢复证据；legacy `team.yaml / north_star / init_handoff / story-source-manifest` 只在存在时作为只读补充，不作为必需条件。
+- `lightweight_init_continue`: current scaffold、`MEMORY.md`、`CONTEXT/` 与可选 `STATE.json` 足以证明项目具备低风险恢复证据；旧初始化 carrier 只在存在时作为历史存在性证据，不作为上下文内容入口或必需条件。
 - `governance_rebuild`: live route truth 缺失、初始化核心工件缺失、高风险 gate 所需 sidecar 缺失；回根 `aigc` 或 `0-初始化` 补治理工件。
 - `stage_continue`: 目标阶段 scope 与产物证据清楚，且 gate 没有阻断；阶段目录必须包含真实产物，空目录不算。
 - `gate_reentry`: 内容产物存在，但缺 preflight、validation 或 release gate；输出只给一个 gate owner。

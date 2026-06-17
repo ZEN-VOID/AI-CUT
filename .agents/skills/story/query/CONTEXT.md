@@ -32,7 +32,8 @@
 | 节奏、评分、风险查询仍停留在老式“Strand/紧急度”两类 | review data-flow | 补读 `review_metrics / reading_power / review_checkpoints` | 固定质量查询入口包含 `status + index review metrics` 双层 | 能回答“最近质量趋势”和“风险项” |
 | 任务进度、恢复点、最近 run 查询仍只读旧独立状态文件或完全无入口 | execution truth contract | 把执行态问题切到 `STATE.json.workflow_runtime.{execution_state,task_log}` | 在共享 data-flow 文档明确 `STATE.json` 内联执行态分工 | 能回答“当前跑到哪了 / 最近哪个 stage 卡住了 / 最新恢复点在哪” |
 | query 数据流文档仍把 drafting 真源写成 `Drafting/chNNNN/chapter-root.md` | drafting data-flow drift | 改回 `3-初稿/第N卷/第N章.md + 第V卷.写作日志.yaml` | 在 `system-data-flow.md` 固定新 drafting 根文件与卷级批次日志规则 | 查询解释 drafting 时不再混用旧路径 |
-| Skill 2.0 升级后又把步骤、判型、输出模板塞回 `SKILL.md` | package owner drift | 把执行网络放到 `steps/`、truth-role 矩阵放到 `types/`、输出样板放到 `templates/`、门禁放到 `review/` | `SKILL.md` 只保留输入/输出合同、动态引用、关键门禁和 Root-Cause 合同 | `validate_skill_2_0.py` 通过，且入口文件不再复制完整步骤正文 |
+| 旧版 Skill 2.0 分区把 `steps/` 当第二执行主链 | runtime spine drift | 将执行节点、路由、gate 和 Mermaid 拓扑收回 `SKILL.md`，只把命令细节迁入 `references/query-command-catalog.md` | validator delivery 阻断 `steps/`，README/legacy matrix/knowledge-base 同步去除当前路径引用 | `validate_skill_2_0.py` 与 smoke test 均通过，目录扫描无 unsupported module |
+| Skill 2.0 升级后缺 `test-prompts.json` 或 `types/type-map.md` | evaluation/type entry gap | 补 `test-prompts.json` 与 `types/type-map.md`，并让 `SKILL.md` 的 Evaluation Prompt Contract 与 Module Trigger Matrix 回指 | 后续新增查询类型时同步 `Type Routing Matrix`、`types/type-map.md` 和 prompts | validator delivery 检查 prompt schema、Package Index、Default Package Rule、Loading Flow |
 
 ## Repair Playbook
 
@@ -44,7 +45,7 @@
 6. 若涉及“跑到哪了 / 最近哪个 run 卡住 / 能否恢复”，先看 `workflow status/list-runs`，再把 `workflow_state` 作为兼容断点补充。
 7. 若发现来源冲突，明确写出各来源说了什么、当前谁优先、谁可能过期。
 8. 只有在真源合同确认无误后，才修本次具体回答。
-9. 若维护 `query/` 结构本身，先看 `references/legacy-migration-matrix.md`，再决定具体 owner；不要把迁移后的细则重新集中回入口文件。
+9. 若维护 `query/` 结构本身，先看 `references/legacy-migration-matrix.md`，再决定具体 owner；执行节点必须留在 `SKILL.md`，不得恢复 `steps/`。
 
 ## Reusable Heuristics
 
@@ -61,4 +62,4 @@
 - 卫星拓扑发生增删时，`query/` 的 stage-position 文案与 data-flow 图也要同步缩表，不能继续挂着已下线的 peer。
 - 如果 `3-初稿` 改成了新的正文根文件路径，query 的 truth-layer 和 data-flow 文档要一起改，不然查询会默认读错 drafting 真源。
 - 目录树示例只能展示当前 canonical runtime；旧路径若仍需保留，只能放在 fallback 注释里，不能和现行目录并列成双真源。
-- Skill 2.0 结构升级后的新增规则要按 owner 落点写：查询流程进 `steps/`，判型进 `types/`，门禁进 `review/`，输出形状进 `templates/`，经验才进 `CONTEXT.md`。
+- Skill 2.0 runtime-spine 升级后的新增规则要按 owner 落点写：执行节点和路由进 `SKILL.md`，判型展开进 `types/`，命令目录和长数据流细则进 `references/`，门禁进 `review/`，输出形状进 `templates/`，经验才进 `CONTEXT.md`。

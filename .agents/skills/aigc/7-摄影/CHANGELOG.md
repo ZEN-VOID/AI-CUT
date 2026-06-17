@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-16
+
+- 从 backup `9-光影` 提取布光类型、阴影组织、叙事美学功能、主体可读性和光影连续性的核心判断，收束为 `references/cinematic-light-in-camera-contract.md`；光源可信降级为 source motivation boundary。
+- 更新 `SKILL.md`、`CONTEXT.md`、`README.md`、agent prompt 与回归提示：光影只能作为摄影观看纪律进入 `camera_light_plan`、`lighting_design_type_map`、`shadow_design_map`、`narrative_light_function_map`、`camera_light_alignment_map` 和 `light_continuity_map`，不得恢复独立 `9-光影` 阶段、灯位图、光效清单、发光物观察清单或视频 prompt。
+- 同步 `shot-planning-integration-contract.md` 与 `ai-video-prompt-execution-contract.md`，要求光线结果必须能转译为布光类型、阴影设计、叙事烘托和主体可读性，而不是 source-backed 光源考据。
+- 收紧正文投影边界：`narrative_aesthetic_function` 只保留在内部 plan / 报告证据，正式摄影正文必须输出可见投影，不输出“阴谋感由...完成”“危险感来自...”等解释性抽象结论；新增 `canonical_output_projection_audit` 和回归提示。
+
 ## 2026-06-11
 
 - 同步 `2-美学` 输出 scope：摄影阶段读取 `画面基调` 全局 singleton；摄影风格按当前 `第N集` 优先读取 `2-美学/第N集/摄影风格/`，缺失时回退项目级基线。

@@ -1,5 +1,11 @@
 # Changelog: aigc 3-主体/角色/3-生成
 
+## 2026-06-17
+
+- 强化 libTV 画布到项目目录的本地确认/补齐合同：任一集画布上生成、复用或上传的角色主体图，必须确保 `projects/aigc/<项目名>/3-主体/角色/3-生成/` 有同 stem 本地资产；本地缺失时才通过 `libtv download` 回存。
+- 同步更新 review、types、templates、references 与 CONTEXT，新增 `local_sync_status`、`local_asset_path`、`download_command` 等证据字段和 `FAIL-CHAR-GEN-LOCAL-SYNC` 门禁。
+- 修正本地同步口径：本地 canonical 已有同 stem 资产时应跳过下载/复制并记录 `already_present`；仅本地缺失时才执行 `libtv download` 或复制补齐。
+
 ## 2026-06-16
 
 - 升级为 runtime-spine Skill 2.0 口径，补齐业务分析、类型路由、思行节点、模块触发、汇流门、review gate、量化标准、注意力协议、检查点和测试 prompts。
@@ -9,11 +15,11 @@
 ## 2026-05-01
 
 - 将生成资产命名合同调整为 `<主体ID>-<主体名称>-主图/多视图`，并要求 JSON 记录 `subject_id` 与 `subject_id_source`。
-- 强化主图到多视图的本地参照图规则：Step2 使用本地主图作为 reference image 时，必须先 `view_image` 进入对话上下文，并在 JSON / 报告记录 `reference_context_status`。
+- 强化主图到多视图的本地参照图规则：Step2 使用本地主图作为 reference image 时，必须先 `同画布主图节点` 进入对话上下文，并在 JSON / 报告记录 `reference_context_status`。
 
 ## 2026-04-30
 
-- 调整主图与多视图 prompt 模板：导入给 gpt-image-2 的源引用统一改为上游设计文档 `4. 解构`，不再以旧英文整合 prompt 为主源。
+- 调整主图与多视图 prompt 模板：导入给 Midjourney V8.1 的源引用统一改为上游设计文档 `4. 解构`，不再以旧英文整合 prompt 为主源。
 
 ## 2026-04-26
 

@@ -27,6 +27,7 @@ metadata:
 - 每次调用 `$aigc-director-annotation` 或命中 `5-导演` 时，必须同时加载本目录 `SKILL.md + CONTEXT.md`。
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与导演、审美、题材、角色、禁区、长期偏好或制作限制相关的文件。
+- 项目任务必须从 `projects/aigc/<项目名>/MEMORY.md` 构造 `project_memory_init_context`，消费初始化用户要求、团队配置与协作偏好、资料吸收摘要和阶段上下文读取指南；该上下文只作为导演理解、表演交接和制作约束，不触发 team 身份、顾问问答或 `team.yaml` 生成。
 - 默认剧本真源为 `projects/aigc/<项目名>/4-编剧/第N集.md`；用户显式指定剧本时，以用户指定文件为本轮 source，并在报告标记 `source_override=true`。
 - 默认美学上下文为 `projects/aigc/<项目名>/2-美学/画面基调/全局风格协议.md`；若该文件缺失，按用户指定的 `2-美学` 产物或相关风格文本处理，并在报告标记降级来源。
 - 正式生成、repair 或 review 时，必须加载 `../_shared/upstream-context-application-contract.md`，并在执行报告中记录 `Upstream Context Application Map`：说明 `4-编剧` 画面点、对白/动作/心理字段和 `2-美学` 画面基调如何被投影为导演意图、信息差、节奏和表演交接。

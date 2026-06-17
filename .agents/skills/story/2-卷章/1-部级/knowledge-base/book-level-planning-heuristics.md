@@ -1,6 +1,6 @@
 # Book-Level Planning Heuristics
 
-本文件保存部级规划的稳定经验。强制执行规则仍以 `SKILL.md`、`references/`、`steps/` 和 `review/` 为准。
+本文件保存部级规划的稳定经验。强制执行规则仍以 `SKILL.md`、`references/` 和 `review/` 为准。
 
 ## Success Patterns
 

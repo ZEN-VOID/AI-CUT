@@ -8,7 +8,7 @@ Allowed script responsibilities:
 - Sanitize filenames.
 - Count prompt characters.
 - Check that images and same-name JSON records are paired.
-- Copy or move selected generated image files into the project output directory when required by `$imagegen` persistence rules.
+- Copy or move selected generated image files into the project output directory when required by `$libTV` persistence rules.
 
 Forbidden script responsibilities:
 

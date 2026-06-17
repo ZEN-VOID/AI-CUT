@@ -43,5 +43,25 @@
     "id": "reject-scripted-repair-body-edit",
     "prompt": "把这些高度相似的焦点变化用脚本批量替换一下，同义改写成不同说法，然后直接写回正文。",
     "expected": "拒绝脚本改正文；触发 FAIL-CAM-REPAIR-SCRIPTED。脚本最多输出失败画面点清单、source diff 和风险统计；正文修复必须由 LLM 按每个画面点重新判断观看决策后改写，并在报告中写入 Repair Authorship Note 与 Mechanical Assist Log。"
+  },
+  {
+    "id": "camera-light-integration-from-backup-9",
+    "prompt": "把 backup/9-光影 的精华合并到 $aigc-camera-movement-injection：逐分镜摄影稿里需要恰当强化布光类型、阴影组织和叙事光影烘托，例如低位上打的白色伦勃朗光保留人物半张脸阴影来体现阴谋，但不要单独生成 9-光影稿。",
+    "expected": "进入 7-摄影 的 camera_light_integration 路径；只把布光类型/光型、阴影组织、叙事美学功能、主体可读性控制和必要 source motivation boundary 压入 camera_light_plan，并服务机位、运动、焦点和主体可读性；报告包含 Camera Light Integration Map、lighting_design_type_map、shadow_design_map、narrative_light_function_map、camera_light_alignment_map 和 light_continuity_map；不得恢复独立 9-光影 层、灯位图、光效清单、发光物观察清单或视频 prompt。"
+  },
+  {
+    "id": "reject-independent-lighting-stage-drift",
+    "prompt": "候选 7-摄影稿每条分镜后又单独追加了“光影强化：电影感逆光、宿命感阴影、高级雾气、压迫性冷光”，还新增了窗光和烟尘，请验收。",
+    "expected": "不得 pass；触发 FAIL-CAM-LIGHT-STAGE-DRIFT、FAIL-CAM-LIGHT-INTEGRATION 或 FAIL-CAM-LIGHT-CONTINUITY。删除独立光影追加层和无源光源，把可用部分重裁为布光类型、阴影组织、叙事美学功能和主体可读性控制，并整合进同一句摄影观看结果。"
+  },
+  {
+    "id": "reject-scientific-light-source-list",
+    "prompt": "候选 7-摄影稿把每条光影都写成窗户发白光、桌面反光、屏幕冷光、墙面反射、空气中尘埃显形、色温偏冷的观察清单，请审查。",
+    "expected": "不得 pass；触发 FAIL-CAM-LIGHT-INTEGRATION。光影不得退化为发光物或反光物观察清单；必须回到 camera_light_plan，重裁 lighting_design_type_map、shadow_design_map、narrative_light_function_map 和 subject_readability_control，只把光源可信作为 source_motivation_boundary。"
+  },
+  {
+    "id": "reject-abstract-light-interpretation-in-output",
+    "prompt": "候选 7-摄影稿的光影句写成“阴谋感由面部阴影遮蔽完成”“危险感来自被照亮的信息和被遮住的人脸之间的反差”“形成动作可见、意图不可见的收束”，请审查。",
+    "expected": "不得 pass；触发 FAIL-CAM-LIGHT-INTEGRATION 或 FAIL-CAM-PLAIN-VISUALIZATION。narrative_aesthetic_function 只能进入内部 plan 或报告证据，正文必须投影为可见结果：光位、光型、亮面、暗面、阴影边界、遮挡区域、清晰主体和焦点/运动交接；报告包含 canonical_output_projection_audit。"
   }
 ]

@@ -44,3 +44,10 @@
 12. `整体节奏曲线` 必须显式回答：长线 promise 如何分配到各卷、哪段卷级走廊承担改规、哪段卷级走廊承担见底与终局收束。
 13. `整体节奏曲线` 必须包含 `book_wave_map`，并写清 `volume_intensity_map / volume_role_map / respite_corridor / payoff_distribution`。
 14. `规避` 必须是创作层禁飞区，而不是空泛提醒。
+
+## Review Gate Mapping
+
+| review_question | review_gate | fail_code | rework_target | report_evidence |
+| --- | --- | --- | --- | --- |
+| 部级输出是否具备全部必填标题和字段？ | 缺 `书名 / 整体故事大纲 / 故事编年史 / 卷划分 / 整部任务关系 / 整体冲突 / 整部悬念总设计 / 整体节奏曲线 / 规避` 任一标题或硬字段即失败 | `FAIL-BOOK-OUTPUT` | `SKILL.md#Thinking-Action Node Map` | 缺失标题、缺失字段和对应节点 |
+| 输出是否仍停留在 planning 层并可交给卷级？ | 出现正文段落、卡册复制、只写口号或无法供卷级继承即失败 | `FAIL-BOOK-OUTPUT` | `SKILL.md#Review Gate Binding` | planning-only 检查和卷级 handoff 证据 |

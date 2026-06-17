@@ -1,5 +1,9 @@
 # aigc 9-光影
 
+> 退役备份：本目录仅保留旧 AIGC 独立光影链路的审计和追溯价值，不再作为正式 `projects/aigc/<项目名>/9-光影/` 生成阶段。可复用核心已收束到 `.agents/skills/aigc/7-摄影/references/cinematic-light-in-camera-contract.md`，作为摄影观看纪律进入 `camera_light_plan`、`lighting_design_type_map`、`shadow_design_map`、`narrative_light_function_map`、`camera_light_alignment_map` 和 `light_continuity_map`。
+
+正式光影强化不再以光源、受光、色温和介质观察为主轴；应优先落到布光类型/光型、阴影组织、叙事美学功能和主体可读性控制，光源可信只作为 source motivation boundary。
+
 `9-光影` 将 `projects/aigc/<项目名>/7-摄影/第N集.md` 或用户指定分镜/摄影稿升级为逐分镜电影光影美学稿。
 
 ## Directory Tree

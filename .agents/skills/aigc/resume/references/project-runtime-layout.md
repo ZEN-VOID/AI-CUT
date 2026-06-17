@@ -42,7 +42,7 @@ projects/aigc/<项目名>/
 └── governance-state.yaml
 ```
 
-`governance-state.yaml`、`STATE.json`、根治理载体、legacy `team.yaml` 和 legacy `north_star/init_handoff` 都不是 scaffold-only 初始化的必出项。恢复时只能按实际存在性读取，不得把缺失直接判为初始化失败。
+`governance-state.yaml`、`STATE.json`、根治理载体和旧初始化 carrier 都不是 scaffold-plus-memory 初始化的必出项。恢复时只能把旧 carrier 作为历史存在性证据，不得把缺失直接判为初始化失败，也不得把旧 carrier 当作当前上下文真源。
 
 ## Governance Carriers
 
@@ -109,7 +109,7 @@ projects/aigc/<项目名>/
 - `projects/` 根层不是 AIGC 项目根。
 - `projects/aigc/<项目名>/CONTEXT/` 是项目级共享上下文根；恢复时按需读取相关文件，不得整目录灌入上下文。
 - 空阶段目录不是完成证据。
-- 缺 legacy `team.yaml / north_star / init_handoff / story-source-manifest` 不等于初始化失败。
+- 缺旧初始化 carrier 不等于初始化失败。
 - provider 生成缓存、临时下载、外部二进制不能单独决定恢复模式。
 
 ## Review Gate Mapping

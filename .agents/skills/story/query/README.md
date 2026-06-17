@@ -9,6 +9,7 @@ query/
 ├── references/
 │   ├── advanced/foreshadowing.md
 │   ├── legacy-migration-matrix.md
+│   ├── query-command-catalog.md
 │   ├── system-data-flow.md
 │   └── tag-specification.md
 ├── scripts/
@@ -17,28 +18,29 @@ query/
 │   └── output-template.md
 ├── review/
 │   └── review-contract.md
-├── steps/
-│   └── query-workflow.md
 ├── knowledge-base/
 │   └── query-heuristics.md
 ├── types/
+│   ├── type-map.md
 │   └── query-type-map.md
 ├── agents/
 │   └── openai.yaml
 ├── CHANGELOG.md
 ├── CONTEXT.md
 ├── README.md
-└── SKILL.md
+├── SKILL.md
+└── test-prompts.json
 ```
 
 ## Quick Entry
 
 1. Load `SKILL.md + CONTEXT.md`.
 2. Resolve `PROJECT_ROOT` with `.agents/skills/story/scripts/story.py`.
-3. Classify the request via `types/query-type-map.md`.
-4. Execute the node network in `steps/query-workflow.md`.
-5. Check the answer with `review/review-contract.md`.
-6. Render with `templates/output-template.md`.
+3. Classify the request via `SKILL.md` `Type Routing Matrix` and `types/query-type-map.md`.
+4. Execute the node network in `SKILL.md` `Thinking-Action Node Map`.
+5. Use `references/query-command-catalog.md` only for read-only command details.
+6. Check the answer with `review/review-contract.md`.
+7. Render with `templates/output-template.md`.
 
 ## Non-Goals
 

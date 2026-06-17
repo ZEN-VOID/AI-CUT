@@ -1,0 +1,17 @@
+[
+  {
+    "id": "generate-scene-cards",
+    "prompt": "Use $story-cards-scene to create reusable scene cards for a story project after character interfaces are available.",
+    "expected": "Routes to scene cards, loads CONTEXT and type packages, writes narrative_functions, rule_and_risk, compatible_roles, scene_links, and repeat_use_strategy."
+  },
+  {
+    "id": "repair-scene-rules",
+    "prompt": "Use $story-cards-scene to repair a beautiful location that has atmosphere but no rules, danger, cost, or role pressure.",
+    "expected": "Routes to N2-FUNCTION and N3-RULE, converts atmosphere into scene function and rule/risk evidence, and keeps world rules owned by north_star."
+  },
+  {
+    "id": "audit-scene-reuse",
+    "prompt": "Use $story-cards-scene to audit whether scene cards can support long-form return use instead of constantly creating new locations.",
+    "expected": "Checks scene_links and repeat_use_strategy, reports blocking findings for vague reuse, and maps repair to N4-REUSE when needed."
+  }
+]

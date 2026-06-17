@@ -2,7 +2,7 @@ schema_version: 1
 interface:
   display_name: "AIGC 道具细目设计"
   short_description: "从道具清单生成单道具细目设计稿并校验 prompt 证据链"
-  default_prompt: "使用 $aigc-prop-design 为指定 projects/aigc/<项目名>/ 的道具清单生成 3-主体/道具/2-设计/PROP-###-<安全文件名>.md 单道具细目设计文件；先建立业务画像、单主体 worklist 和设计上下文包，只读消费 north_star.yaml 与 team.yaml.init_synthesis 的冻结初始化综合，不调用 team 身份、解析旧 stage profile 或补造顾问问答；道具必须有可见设计价值，不只是简单功能还原或平凡物件；触发审美、文化/身份符号、工艺/结构细节、功能结构、使用/保存状态或 prompt 短语时加载 knowledge-base/prop-design-corpus.md，并做符合项目时代、地域、阶层、职业和禁区的原创转译；文化符号、纹样、铭文、徽记和装饰只在有依据、有语境或有功能必要时写入；使用/保存状态必须按证据选择，磨损、污渍、包浆、锈蚀、破损不能默认添加；## 4. 解构 下方直接写 主体ID号，并与文件名前缀、## 5. 提示词设计 主体 ID 和英文 prompt 开头一致；英文 prompt 以主体 ID 号开头，整合 ## 4. 解构 全部有效 Photography 与 Prop Design 信息，控制在 1300 characters 内，使用自然语言负向约束，不使用 --no，固定为纯色背景完整全貌展示、45 度视角，完整展示道具全貌、完整轮廓和主要结构，仅展示道具，不做局部特写、裁切特写或半截道具画面，不出现人物或背景元素。脚本只能机械读取、枚举、格式检查和 dry-run，不得批量生成、批量插入、正则套句或映射投影任何创作正文。"
+  default_prompt: "使用 $aigc-prop-design 为指定 projects/aigc/<项目名>/ 的道具清单生成 3-主体/道具/2-设计/PROP-###-<安全文件名>.md 单道具细目设计文件；先建立业务画像、单主体 worklist 和设计上下文包，只读消费 2-美学/类型风格.md、2-美学/画面基调/全局风格协议.md、当前集优先/项目级回退的 2-美学/道具风格/道具风格协议.md 与项目 MEMORY.md，不调用 team 身份、解析旧 stage profile 或补造顾问问答；道具必须有可见设计价值，不只是简单功能还原或平凡物件；触发审美、文化/身份符号、工艺/结构细节、功能结构、使用/保存状态或 prompt 短语时加载 knowledge-base/prop-design-corpus.md，并做符合项目时代、地域、阶层、职业和禁区的原创转译；文化符号、纹样、铭文、徽记和装饰只在有依据、有语境或有功能必要时写入；使用/保存状态必须按证据选择，磨损、污渍、包浆、锈蚀、破损不能默认添加；## 4. 解构 下方直接写 主体ID号，并与文件名前缀、## 5. 提示词设计 主体 ID 和英文 prompt 开头一致；英文 prompt 以主体 ID 号开头，整合 ## 4. 解构 全部有效 Photography 与 Prop Design 信息，控制在 1300 characters 内，使用自然语言负向约束，不使用 --no，固定为纯色背景完整全貌展示、45 度视角，完整展示道具全貌、完整轮廓和主要结构，仅展示道具，不做局部特写、裁切特写或半截道具画面，不出现人物或背景元素。脚本只能机械读取、枚举、格式检查和 dry-run，不得批量生成、批量插入、正则套句或映射投影任何创作正文。"
 metadata:
   skill_id: "aigc-prop-design"
   governance_tier: "full"

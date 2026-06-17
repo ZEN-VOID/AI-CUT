@@ -9,13 +9,13 @@
 | 卷级像缩写版总纲 | volume-level thinness | 补卷职责、章功能和卷末达成 | 在模板固定卷级六拍和章功能 | `第N卷/卷规划.md` 具备中观密度 |
 | 卷级任务线没有主支区分 | mission folding drift | 补 `主线 / 支线` | 在模板写死段落名 | 章级能承接任务线 |
 | 卷级没有本卷时间线 | volume chronology gap | 补 `本卷时间线` 的起止状态、章节事件顺序、并行/幕后事件、时间跳跃或压缩和卷末状态 | 在模板和 review gate 固定时间线槽位 | 章级能继承每章事件顺序与状态变化 |
-| 本卷时间线漂离部级编年史 | chronology inheritance drift | 回读 `整体规划.md` 的 `故事编年史` 后重写本卷时间线 | 在 steps 固定上游时间线回读 | 卷级不改写整部关键因果 |
-| 本卷把部级核心谜底提前下放给章级正文 | volume suspense leak | 补 `本卷悬念开关`，区分本卷需要隐藏、允许露出、误导/疑阵、揭秘和延后项 | 模板、steps、review 固定悬念开关与章级约束 | 章级能知道本卷哪些信息可写、哪些必须继续扣住 |
+| 本卷时间线漂离部级编年史 | chronology inheritance drift | 回读 `整体规划.md` 的 `故事编年史` 后重写本卷时间线 | 在 `SKILL.md` 节点表固定上游时间线回读 | 卷级不改写整部关键因果 |
+| 本卷把部级核心谜底提前下放给章级正文 | volume suspense leak | 补 `本卷悬念开关`，区分本卷需要隐藏、允许露出、误导/疑阵、揭秘和延后项 | 模板、`SKILL.md` 节点表、review 固定悬念开关与章级约束 | 章级能知道本卷哪些信息可写、哪些必须继续扣住 |
 | 本卷同时推进多条悬念但没有线程状态 | volume suspense thread gap | 补 `本卷悬念线程表` 与 `本卷悬念负载` | 线程表固定 ID、优先级、状态、依赖和 next_action | 章级能按线程执行开启、加压、误导、局部揭秘或延后 |
 | 卷级支线没有回主线方案 | task aggregation drift | 补 `汇聚回主线` 与 `下钻章级任务分配` | 把汇聚槽位固定进模板 | 章级不会把支流写成游离副本 |
 | 卷级只给六拍不给章级配器 | orchestration gap | 补 `volume_orchestration_map`，写清每章 payoff、强度、respite/pressure 与章级 handoff | 在模板和 review gate 固定中波配器槽位 | 章级不必重新猜每章强度和读者满足 |
 | 卷级只管剧情，不管资源 | planning resource gap | 补人物/场景/道具 | 在模板固定三组资源段落 | 章级不再临时发明 |
-| 卷级技能包结构不完整 | Skill 2.0 layout drift | 补 `review/steps/types/knowledge-base/agents/scripts` 与根文件 | 用工作车间 validator 作为结构门 | validator 返回 `[OK]` |
+| 卷级技能包结构不完整 | Skill 2.0 layout drift | 补齐 `review`、`types`、`knowledge-base`、`agents`、`scripts`、`test-prompts.json` 与根文件 | 用 `skill-2.0` validator 作为结构门 | validator 返回 `[OK]` |
 | 启用 subagents 后没有按项目顾问请教卷级执行问题 | advisor consultation gap | 按 `team.yaml` 的 `roles.planning.members` 追问本卷职责、章划分、六拍配器、悬念负载、资源和卷末兑现 | 显式启用 subagents 时先生成 `advisor_consultation_packet`，再进入卷级规划创作 | `卷规划.md` 能说明顾问建议如何转成六拍、章职责、资源投影或悬念开关指导 |
 
 ## Repair Playbook

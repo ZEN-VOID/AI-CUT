@@ -63,3 +63,10 @@
 - 哪些章节建议承担 respite / pressure。
 - 主线与支线在章级的分配建议。
 - 未汇聚任务的去向和回主线要求。
+
+## Review Gate Mapping
+
+| review_question | review_gate | fail_code | rework_target | report_evidence |
+| --- | --- | --- | --- | --- |
+| 卷级规划是否具备全部必填标题和字段？ | 缺 `卷标题 / 本卷故事大纲 / 本卷时间线 / 章划分 / 本卷冲突 / 本卷悬念开关 / 本卷节奏曲线 / 资源段落 / 本卷任务线 / 卷末达成 / 规避` 任一项即失败 | `FAIL-VOL-OUTPUT` | `SKILL.md#Thinking-Action Node Map` | 缺失标题、缺失字段和对应节点 |
+| 本卷时间线、悬念和任务线是否可供章级继承？ | 时间线漂离部级、悬念提前泄露、任务线无下钻或汇聚即失败 | `FAIL-VOL-SUSPENSE` | `SKILL.md#Review Gate Binding` | 时间线锚点、悬念线程表、任务汇聚证据 |

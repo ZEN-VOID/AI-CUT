@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-06-16
+
+- 标记为退役备份入口：不再作为正式 AIGC `5-表演` canonical 阶段执行。
+- 将可复用的“表演”能力收束为小说语境的人物在场与反应强化：`.agents/skills/story/3-初稿/references/character-presence-contract.md` 与 `.agents/skills/story/4-润色/types/character-reaction-repair.md`。
+- 同步 `SKILL.md`、`README.md` 与 agent prompt，阻断后续误生成 `projects/aigc/<项目名>/5-表演/` 正式产物。
+
 ## 2026-06-11
 
 - 同步 `2-美学` 输出 scope：表演阶段读取 `画面基调` 全局 singleton；角色风格和场景风格按当前 `第N集` 优先读取 `2-美学/第N集/<风格>/`，缺失时回退项目级基线。

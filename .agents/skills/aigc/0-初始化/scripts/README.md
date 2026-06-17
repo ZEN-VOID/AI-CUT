@@ -7,13 +7,14 @@ Allowed script responsibilities:
 - validate paths and required files
 - project skeleton dry-runs
 - template projection checks
-- `MEMORY.md` template projection checks
+- `MEMORY.md` template projection and memory-strength checks
 - `CONTEXT/README.md` template projection checks
 - reference synchronization audits
 
 Scripts must not:
 
 - generate creative story, design, prompt, or aesthetic decisions
+- replace LLM absorption of user-specified initialization material into `MEMORY.md`
 - create former initialization artifacts such as `north_star`, `init_handoff`, `story-source-manifest`, `team.yaml`, `STATE.json`, `CHANGELOG.md`, or `源/`
 - silently delete or purge project assets
 

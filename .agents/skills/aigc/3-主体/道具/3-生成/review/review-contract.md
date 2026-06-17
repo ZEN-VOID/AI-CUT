@@ -15,15 +15,18 @@
 | --- | --- | --- | --- |
 | `REV-PROP-GEN-01` | 每个目标道具都有 canonical 上游 `2-设计` 文档、可用 `4. 解构`、可追溯 `subject_id` 与处理范围证据 | `FAIL-PROP-GEN-SOURCE` | `N1-INTAKE` |
 | `REV-PROP-GEN-02` | 主图 prompt / JSON 忠实消费上游 `4. 解构`，未重新设计主体，未回退旧英文整合 prompt | `FAIL-PROP-GEN-PROMPT-DRIFT` | `N3-MAIN-PROMPT` |
-| `REV-PROP-GEN-03` | 多视图 JSON 和图片使用对应主图作为参照，保持同一道具主体，不跨主体复用或混合多个道具 | `FAIL-PROP-GEN-REFERENCE` | `N5-MULTIVIEW-PROMPT` |
+| `REV-PROP-GEN-03` | 多视图 JSON 和图片使用对应同画布主图节点作为参照，保持同一道具主体，不跨主体复用或混合多个道具 | `FAIL-PROP-GEN-REFERENCE` | `N5-MULTIVIEW-PROMPT` |
 | `REV-PROP-GEN-04` | 图像与 JSON 同 stem，文件名包含主体 ID，并包含 `-主图` 或 `-多视图` | `FAIL-PROP-GEN-NAMING` | `N7-REVIEW` |
 | `REV-PROP-GEN-05` | 项目资产、JSON 证据链和持久化路径完整，所有最终输出位于项目 `3-主体/道具/3-生成/` | `FAIL-PROP-GEN-PERSISTENCE` | `N4-MAIN-IMAGE` |
 | `REV-PROP-GEN-06` | 未修改 `2-设计`、父级 registry / routes / runbook、角色/场景生成目录或其他 worker 文件 | `FAIL-PROP-GEN-WRITE-BOUNDARY` | `N7-REVIEW` |
-| `REV-PROP-GEN-07` | 真实生成模式下，多视图参照主图已通过 `view_image` 进入对话上下文，并记录 `reference_context_status` | `FAIL-PROP-GEN-REFERENCE-CONTEXT` | `N5-MULTIVIEW-PROMPT` |
-| `REV-PROP-GEN-08` | 未获用户显式授权时只通过 `.agents/skills/cli/imagegen` 默认入口执行，不漂移到其他 provider / API / model | `FAIL-PROP-GEN-EXECUTOR-DRIFT` | `N2-TYPE` |
-| `REV-PROP-GEN-09` | `prompt_only` 模式没有伪造图片生成事实，阻断原因、planned path 与 `pending_view_image` 状态清楚 | `FAIL-PROP-GEN-PROMPT-ONLY-CLAIM` | `N7-REVIEW` |
+| `REV-PROP-GEN-07` | 真实生成模式下，多视图参照主图节点已在同一 libTV 画布中可引用，并记录 `reference_context_status` | `FAIL-PROP-GEN-REFERENCE-CONTEXT` | `N5-MULTIVIEW-PROMPT` |
+| `REV-PROP-GEN-08` | 未获用户显式授权时只通过 `.agents/skills/cli/libTV` 画布 `image` 节点执行，不漂移到其他 provider / API / model | `FAIL-PROP-GEN-EXECUTOR-DRIFT` | `N2-TYPE` |
+| `REV-PROP-GEN-09` | `prompt_only` 模式没有伪造图片生成事实，阻断原因、planned path 与 `pending_libtv_node_reference` 状态清楚 | `FAIL-PROP-GEN-PROMPT-ONLY-CLAIM` | `N7-REVIEW` |
 | `REV-PROP-GEN-10` | 真实生成模式下，多视图图片和同名 JSON 已产出，且套用道具多视图模板保持同一主体 | `FAIL-PROP-GEN-MULTIVIEW` | `N6-MULTIVIEW-IMAGE` |
-| `REV-PROP-GEN-11` | 主图与多视图 JSON 都有来源、主体 ID、输出路径、参考图和可复跑证据链 | `FAIL-PROP-GEN-JSON` | `N3-MAIN-PROMPT` |
+| `REV-PROP-GEN-11` | 主图与多视图 JSON 都有来源、主体 ID、输出路径、libTV 画布 UUID、节点名、Midjourney V8.1 modelKey、后缀、参考节点和可复跑证据链 | `FAIL-PROP-GEN-JSON` | `N3-MAIN-PROMPT` |
+| `REV-PROP-GEN-12` | 已扫描 `projects/aigc/<项目名>/3-主体`；同主体同状态已有图时跳过生成，并复用或上传同名画布节点 | `FAIL-PROP-GEN-ASSET-REUSE` | `P2-SCOPE` |
+| `REV-PROP-GEN-13` | 同主体新状态使用 `Lib Image`、既有参考图和状态后缀命名，未用 Midjourney V8.1 重生变体 | `FAIL-PROP-GEN-STATE-VARIANT` | `P2-SCOPE` / `P4-MAIN-IMAGE` |
+| `REV-PROP-GEN-14` | 道具主体图已确保存在于 `projects/aigc/<项目名>/3-主体/道具/3-生成/`；本地 canonical 已有时可跳过下载并记录 `already_present`，本地缺失时需下载或复制补齐 | `FAIL-PROP-GEN-LOCAL-SYNC` | `P4-MAIN-IMAGE` / `P6-MULTIVIEW-IMAGE` |
 
 ## Review Checklist
 
@@ -31,15 +34,18 @@
 | --- | --- | --- | --- |
 | `REV-PROP-GEN-01` | 上游取证 | 每组资产回指一个 `2-设计` Markdown | `references/prop-generation-contract.md` |
 | `REV-PROP-GEN-02` | 主图忠实度 | 主图 JSON 直接引用设计文档 `4. 解构`，未重新设计主体，未回退引用旧英文整合 prompt | `templates/single-subject-prompt.json` |
-| `REV-PROP-GEN-03` | 多视图参照 | 多视图 JSON 使用对应 `主体ID-主体名称-主图` 作为 `reference_image`，真实生成模式下该主图已 `view_image` 进入对话上下文 | `templates/prop-multiview-prompt.json` |
+| `REV-PROP-GEN-03` | 多视图参照 | 多视图 JSON 使用对应 `主体ID-主体名称-主图` 作为 `reference_node_name`，真实生成模式下该主图节点已在同一 libTV 画布中可引用 | `templates/prop-multiview-prompt.json` |
 | `REV-PROP-GEN-04` | 命名 | 图像与 JSON 同 stem，文件名包含主体 ID，且包含 `-主图` 或 `-多视图` | `SKILL.md Output Contract` |
-| `REV-PROP-GEN-05` | 路径 | 所有项目资产落入 `projects/aigc/<项目名>/3-主体/道具/3-生成/` | `$imagegen` persistence gate |
+| `REV-PROP-GEN-05` | 路径 | 所有项目资产落入 `projects/aigc/<项目名>/3-主体/道具/3-生成/`，且 libTV 节点名与文件 stem 一致 | libTV canvas persistence gate |
 | `REV-PROP-GEN-06` | 非越界 | 未修改 `2-设计`、父级 registry、角色/场景生成目录或其他 worker 文件 | 根写入边界 |
-| `REV-PROP-GEN-07` | 参照上下文 | 多视图 JSON / 报告记录 `reference_context_status: visible_in_conversation_context`；prompt-only 可为 `pending_view_image` | `SKILL.md 的 Thinking-Action Node Map` |
-| `REV-PROP-GEN-08` | 执行入口 | 未获用户显式授权时只通过 `.agents/skills/cli/imagegen` 默认入口执行 | `SKILL.md 的 Thinking-Action Node Map` |
+| `REV-PROP-GEN-07` | 参照上下文 | 多视图 JSON / 报告记录 `reference_context_status: linked_in_libtv_canvas`；prompt-only 可为 `pending_libtv_node_reference` | `SKILL.md 的 Thinking-Action Node Map` |
+| `REV-PROP-GEN-08` | 执行入口 | 未获用户显式授权时只通过 `.agents/skills/cli/libTV` 默认入口执行 | `SKILL.md 的 Thinking-Action Node Map` |
 | `REV-PROP-GEN-09` | prompt-only 声明 | prompt-only 模式只落盘 JSON / planned path，不声称图片已生成 | `SKILL.md 的 Thinking-Action Node Map` |
 | `REV-PROP-GEN-10` | 多视图产物 | 真实生成模式下多视图图片和同名 JSON 存在，且保持同一道具主体 | `templates/prop-multiview-prompt.json` |
-| `REV-PROP-GEN-11` | JSON 证据链 | 主图与多视图 JSON 均记录来源、主体 ID、输出路径、参考图和可复跑证据 | `templates/single-subject-prompt.json` / `templates/prop-multiview-prompt.json` |
+| `REV-PROP-GEN-11` | JSON 证据链 | 主图与多视图 JSON 均记录来源、主体 ID、输出路径、画布 UUID、节点名、模型 key、Midjourney 后缀、参考节点和可复跑证据 | `templates/single-subject-prompt.json` / `templates/prop-multiview-prompt.json` |
+| `REV-PROP-GEN-12` | 既有资产复用 | 同主体同状态未重复生成；当前画布缺同名节点且只有本地图时，已上传到当前画布同名节点 | `../../_shared/主体图复用与状态变体规则.md` |
+| `REV-PROP-GEN-13` | 状态变体 | 状态变体 JSON 记录 `generation_model_policy: lib_image_state_variant`、`variant_model_key`、`state_variant_suffix` 和 `base_reference_node_name` | `../../_shared/主体图复用与状态变体规则.md` |
+| `REV-PROP-GEN-14` | 本地 canonical 确认/补齐 | 生成、复用或上传后项目 `道具/3-生成` 目录已有同 stem 本地资产，且 JSON / 报告记录 `local_asset_path`、`local_sync_action` 与 `local_sync_status`；只有下载分支才要求 `download_command` | `.agents/skills/cli/libTV/commands/download.md` |
 
 ## Review Flow
 
@@ -50,7 +56,8 @@ flowchart TD
     C --> D["检查多视图 reference_image"]
     D --> E["检查命名与同 stem"]
     E --> F["检查 canonical 输出路径"]
-    F --> G["检查非越界写入"]
+    F --> F2["检查 libTV download 本地同步证据"]
+    F2 --> G["检查非越界写入"]
     G --> H{"review 路径"}
     H -->|"reviewer provider"| I["记录 review_status=external_reviewer"]
     H -->|"local checklist"| J["记录 review_status=local_checklist"]
@@ -74,6 +81,27 @@ checked_outputs:
     main_prompt_json: ""
     multiview_image: ""
     multiview_prompt_json: ""
+    libtv_canvas_uuid: ""
+    libtv_node_name: ""
+    asset_reuse_decision: "generate_new_subject | reuse_existing_asset | upload_existing_asset | generate_state_variant"
+    generation_skipped: false
+    canvas_action: "create_new_node | node_already_present | uploaded_existing_image_to_canvas"
+    local_sync_required: true
+    local_sync_action: "confirm_local_canonical_present | download_generated_canvas_node | download_existing_canvas_node | copy_existing_local_to_canonical | prompt_only_pending"
+    local_sync_status: "already_present | synced | copied | pending | failed"
+    local_asset_path: ""
+    download_command: ""
+    download_stdout_path: ""
+    model_display_name: "Midjourney V8.1"
+    model_key: ""
+    generation_model_policy: "new_subject_midjourney_default | lib_image_state_variant"
+    variant_model_display_name: "Lib Image"
+    variant_model_key: ""
+    state_variant_label: ""
+    state_variant_suffix: ""
+    base_reference_node_name: ""
+    midjourney_suffix: "--ar 3:2 --hd --style raw"
+    reference_node_name: ""
     reference_context_status: ""
 findings: []
 next_action: ""

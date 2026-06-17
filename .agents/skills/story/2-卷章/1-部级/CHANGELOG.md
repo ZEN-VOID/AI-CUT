@@ -1,8 +1,15 @@
 # Changelog
 
+## 2026-06-16
+
+- Migrated the former external workflow nodes into `SKILL.md` `Thinking-Action Node Map` as the canonical runtime spine.
+- Added runtime-spine contracts for business requirement analysis, type routing, module loading/triggering, convergence, review gates, quantifiable execution criteria, attention, checkpoints, evaluation prompts, and learning writeback.
+- Added `test-prompts.json`, reference-level review gate mappings, and synchronized README/types/review/guardrails/knowledge references to the current `skill-2.0` delivery validator.
+- Retired the unsupported external workflow directory after preserving its node semantics in `SKILL.md`.
+
 ## 2026-05-30
 
-- Synced with latest `skill-工作车间` Skill 2.0 delivery contract.
+- Synced with latest `skill-2.0` delivery contract.
 - Added `guardrails/guardrails-contract.md` and `Runtime Guardrails` markers in `SKILL.md`.
 - Renamed the review truth to canonical `review/review-contract.md` and updated path references.
 - Rebuilt `types/type-map.md` as a loadable Package Index that points to `types/book-level-type-map.md`.
@@ -26,7 +33,7 @@
 ## 2026-04-26
 
 - Upgraded `story-plan-book-level` to the Skill 2.0 workshop layout.
-- Added canonical sections: `steps/`, `review/`, `types/`, `knowledge-base/`, `scripts/`, `agents/`, `README.md`, and `CHANGELOG.md`.
+- Added canonical sections: `review/`, `types/`, `knowledge-base/`, `scripts/`, `agents/`, `README.md`, and `CHANGELOG.md`; legacy workflow nodes now live in `SKILL.md`.
 - Rewrote `SKILL.md` as an input/output anchored dynamic reference entry.
 - Preserved existing `references/book-rhythm-save-the-cat.md` and `templates/overall-planning.template.md`.
 - Added `templates/output-template.md` with Output Contract Alignment for validator compatibility.

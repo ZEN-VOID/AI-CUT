@@ -349,38 +349,38 @@ REQUIRED_STAGE_AGENT_DOCS = {
 AGENT_REFERENCE_PATTERN = re.compile(r"\.codex/agents/aigc/[^\s`)\]>\"']+\.md")
 INIT_ONLY_TEAM_STAGE_MARKERS = {
     "2-美学": (
-        'team.yaml.init_synthesis.stage_seed_summary."2-美学"',
-        "init_team_synthesis_context",
+        "projects/aigc/<项目名>/MEMORY.md",
+        "project_memory_init_context",
     ),
     "4-编剧": (
-        'team.yaml.init_synthesis.stage_seed_summary."4-编剧"',
-        "init_team_synthesis_context",
+        "projects/aigc/<项目名>/MEMORY.md",
+        "project_memory_init_context",
     ),
     "5-导演": (
-        'team.yaml.init_synthesis.stage_seed_summary."5-导演"',
-        "init_team_synthesis_context",
+        "projects/aigc/<项目名>/MEMORY.md",
+        "project_memory_init_context",
     ),
     "6-分镜": (
-        'team.yaml.init_synthesis.stage_seed_summary."6-分镜"',
-        "init_team_synthesis_context",
+        "projects/aigc/<项目名>/MEMORY.md",
+        "project_memory_init_context",
     ),
     "7-摄影": (
-        'team.yaml.init_synthesis.stage_seed_summary."7-摄影"',
-        "init_team_synthesis_context",
+        "projects/aigc/<项目名>/MEMORY.md",
+        "project_memory_init_context",
     ),
     "8-分组": (
-        'team.yaml.init_synthesis.stage_seed_summary."8-分组"',
-        "init_team_synthesis_context",
+        "projects/aigc/<项目名>/MEMORY.md",
+        "project_memory_init_context",
     ),
     "3-主体": (
-        'team.yaml.init_synthesis.stage_seed_summary."3-主体"',
-        "init_team_synthesis_context",
+        "projects/aigc/<项目名>/MEMORY.md",
+        "project_memory_init_context",
     ),
 }
 INIT_ONLY_TEAM_LEAF_MARKERS = {
-    ROOT / "3-主体" / "角色" / "2-设计" / "SKILL.md": 'team.yaml.init_synthesis.stage_seed_summary."3-主体"',
-    ROOT / "3-主体" / "道具" / "2-设计" / "SKILL.md": 'team.yaml.init_synthesis.stage_seed_summary."3-主体"',
-    ROOT / "3-主体" / "场景" / "2-设计" / "SKILL.md": 'team.yaml.init_synthesis.stage_seed_summary."3-主体"',
+    ROOT / "3-主体" / "角色" / "2-设计" / "SKILL.md": "project_memory_init_context",
+    ROOT / "3-主体" / "道具" / "2-设计" / "SKILL.md": "project_memory_init_context",
+    ROOT / "3-主体" / "场景" / "2-设计" / "SKILL.md": "project_memory_init_context",
 }
 BOOTSTRAP_COMPAT_MODE = "bootstrap_compat"
 BOOTSTRAP_COMPAT_ROUTE_POLICIES = {
@@ -425,7 +425,7 @@ CREATIVE_AUTHORSHIP_GUARDS = {
 }
 BOOTSTRAP_COMPAT_RUNTIME_EXPECTATIONS = {
     ROOT / "_shared" / "project-runtime-layout.md": (
-        "Scaffold-Only Initialization Rule",
+        "Scaffold Plus Memory Initialization Rule",
         "projects/aigc/<项目名>/2-美学/",
         "projects/aigc/<项目名>/4-编剧/",
         "projects/aigc/<项目名>/5-导演/",
@@ -1097,7 +1097,7 @@ def audit_screenwriting_reference_integrity(failures: list[str]) -> None:
     if template_path.exists():
         template_content = template_path.read_text(encoding="utf-8")
         for required_marker in (
-            "GATE-SCR-01..23",
+            "GATE-SCR-01..24",
             "## Upstream Creative Direction Matrix",
             "## Subject Registry Application Map",
         ):
@@ -1156,9 +1156,11 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
             f"{init_skill}: 0-初始化 must internalize init routing/mode/audit capabilities into the parent SKILL instead of referencing `.codex/agents/aigc/初始组/`"
         )
     for required_marker in (
-        "scaffold-only project kickoff skill",
+        "scaffold-plus-memory project kickoff skill",
         "0-初始化/` through `10-画布/` directories",
         "projects/aigc/<项目名>/MEMORY.md",
+        "team configuration",
+        "supplied-reference absorption summaries",
         "Do not create these former initialization outputs",
         "north_star.yaml",
         "init_handoff.yaml",
@@ -1170,7 +1172,7 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
         "源/",
     ):
         if required_marker not in init_content:
-            failures.append(f"{init_skill}: missing scaffold-only init marker `{required_marker}`")
+            failures.append(f"{init_skill}: missing scaffold-plus-memory init marker `{required_marker}`")
     for current_stage in (
         "0-初始化",
         "1-分集",
@@ -1245,80 +1247,11 @@ def audit_episode_split_skill_contract(failures: list[str]) -> None:
 def audit_global_single_skill_contract(failures: list[str]) -> None:
     global_root = ROOT / "2-全局"
     global_skill = global_root / "SKILL.md"
-    if not global_skill.exists():
+    if not global_root.exists():
         return
-
-    forbidden_marker = ".codex/agents/aigc/导演组/"
-    targets = (
-        global_skill,
-        global_root / "references" / "io-contract.md",
-        global_root / "references" / "writeback-contract.md",
-        global_root / "agents" / "openai.yaml",
-        global_root / "templates" / "README.md",
+    failures.append(
+        f"{global_root}: retired `2-全局` workflow should not be restored; use `2-美学` outputs as downstream aesthetic truth"
     )
-
-    skill_content = global_skill.read_text(encoding="utf-8")
-    if "## Internal Capability Fusion Contract (Mandatory)" not in skill_content:
-        failures.append(f"{global_skill}: missing `Internal Capability Fusion Contract (Mandatory)`")
-    if forbidden_marker in skill_content:
-        failures.append(
-            f"{global_skill}: 2-全局 must internalize global style, type elements, and worldview capabilities into the parent SKILL instead of referencing `.codex/agents/aigc/导演组/`"
-        )
-
-    required_root_outputs = (
-        "projects/aigc/<项目名>/0-初始化/north_star.yaml",
-        "projects/aigc/<项目名>/4-编剧/validation-report.md",
-    )
-    io_contract = global_root / "references" / "io-contract.md"
-    if io_contract.exists():
-        io_content = io_contract.read_text(encoding="utf-8")
-        for output_path in required_root_outputs:
-            if output_path not in io_content:
-                failures.append(f"{io_contract}: missing canonical output `{output_path}`")
-        if "唯一创作业务真源" not in io_content or "north_star.yaml" not in io_content:
-            failures.append(f"{io_contract}: must declare `north_star.yaml` global blocks as the single creative business truth")
-        for required_context in (
-            "projects/aigc/<项目名>/0-初始化/north_star.yaml",
-            "projects/aigc/<项目名>/1-分集/",
-            "projects/aigc/<项目名>/team.yaml",
-        ):
-            if f"| 必需 | `{required_context}`" not in io_content:
-                failures.append(f"{io_contract}: must declare required context `{required_context}`")
-        if "分组正文当作必需输入" not in io_content:
-            failures.append(f"{io_contract}: must prohibit grouped prose as a required input")
-
-    branch_output = global_root / "references" / "writeback-contract.md"
-    if branch_output.exists():
-        branch_content = branch_output.read_text(encoding="utf-8")
-        if "projects/aigc/<项目名>/0-初始化/north_star.yaml" not in branch_content:
-            failures.append(f"{branch_output}: missing canonical north star writeback path")
-        if "所有 pass 都直接写向 `north_star.yaml`" not in branch_content:
-            failures.append(f"{branch_output}: must declare direct writeback into north star global blocks")
-
-    if (global_root / "templates" / "类型元素.template.md").exists():
-        failures.append(f"{global_root / 'templates' / '类型元素.template.md'}: old combined type template should be removed; type fields now write directly into `north_star.yaml`")
-    if (global_root / "templates" / "分组类型元素.template.md").exists():
-        failures.append(f"{global_root / 'templates' / '分组类型元素.template.md'}: group type projection template should be removed; 2-全局 no longer writes group-level type fields")
-    for stale_template in (
-        global_root / "templates" / "episode-root.template.json",
-        global_root / "templates" / "全局风格.template.md",
-        global_root / "templates" / "类型元素.template.md",
-        global_root / "templates" / "导演意图.template.md",
-        global_root / "templates" / "参照桥段.template.md",
-    ):
-        if stale_template.exists():
-            failures.append(f"{stale_template}: legacy output template should be removed; use `templates/global-design.template.json` and `north_star.yaml`")
-
-    global_template = global_root / "templates" / "global-design.template.json"
-    if not global_template.exists():
-        failures.append(f"{global_template}: missing global design template")
-
-    for path in targets[1:]:
-        if not path.exists():
-            continue
-        content = path.read_text(encoding="utf-8")
-        if forbidden_marker in content:
-            failures.append(f"{path}: should not reference deleted director-group contracts")
 
 
 def audit_detail_single_skill_contract(failures: list[str]) -> None:
@@ -1420,13 +1353,13 @@ def audit_stage_advisor_review_contracts(stage_index: list[dict], contract_mode:
 
 
 def audit_init_only_team_runtime_contracts(stage_index: list[dict], failures: list[str]) -> None:
-    """Ensure team role identities are initialization-only and later stages read frozen synthesis."""
+    """Ensure team role identities stay inactive and later stages read project memory."""
     init_skill = ROOT / "0-初始化" / "SKILL.md"
-    if init_skill.exists() and "scaffold-only project kickoff skill" in init_skill.read_text(encoding="utf-8"):
-        return
+    init_content = init_skill.read_text(encoding="utf-8") if init_skill.exists() else ""
+    memory_centralized = "scaffold-plus-memory project kickoff skill" in init_content
 
     team_template = ROOT / "_shared" / "council-runtime" / "team.template.yaml"
-    if team_template.exists():
+    if team_template.exists() and not memory_centralized:
         content = team_template.read_text(encoding="utf-8")
         required_markers = (
             'schema_version: "aigc-team/v2"',
@@ -1450,12 +1383,11 @@ def audit_init_only_team_runtime_contracts(stage_index: list[dict], failures: li
             if marker not in content:
                 failures.append(f"{team_template}: missing init-only team marker `{marker}`")
 
-    north_star_template = ROOT / "0-初始化" / "templates" / "north-star.template.yaml"
-    if north_star_template.exists():
-        content = north_star_template.read_text(encoding="utf-8")
-        for marker in ("创作阶段不变量", "编剧:", "导演:", "表演:", "分镜:", "摄影:", "光影:", "分组:", "设计:"):
-            if marker not in content:
-                failures.append(f"{north_star_template}: missing north-star creative-stage invariant `{marker}`")
+    retired_north_star_template = ROOT / "0-初始化" / "templates" / "north-star.template.yaml"
+    if retired_north_star_template.exists():
+        failures.append(
+            f"{retired_north_star_template}: retired template should be removed; downstream aesthetic truth is owned by `2-美学`"
+        )
 
     init_handoff_template = ROOT / "0-初始化" / "templates" / "init-handoff.template.yaml"
     if init_handoff_template.exists():
@@ -1478,12 +1410,12 @@ def audit_init_only_team_runtime_contracts(stage_index: list[dict], failures: li
     if shared_contract.exists():
         content = shared_contract.read_text(encoding="utf-8")
         for marker in (
-            "创作阶段不得调用 team 成员身份技能",
-            "init_team_synthesis_context",
-            "team.yaml.init_synthesis.stage_seed_summary.<stage>",
+            "project_memory_init_context",
+            "projects/aigc/<项目名>/MEMORY.md",
+            "不得调用 team 成员身份技能",
         ):
             if marker not in content:
-                failures.append(f"{shared_contract}: missing init-only consumption marker `{marker}`")
+                failures.append(f"{shared_contract}: missing project memory init context marker `{marker}`")
 
     active_stage_roots = {
         Path(stage["path"]).name: Path(stage["path"])
@@ -1499,7 +1431,7 @@ def audit_init_only_team_runtime_contracts(stage_index: list[dict], failures: li
         content = skill_path.read_text(encoding="utf-8")
         for marker in markers:
             if marker not in content:
-                failures.append(f"{skill_path}: missing frozen init synthesis consumption marker `{marker}`")
+                failures.append(f"{skill_path}: missing project memory init context marker `{marker}`")
         if "advisor_consultation_packet" in content:
             failures.append(f"{skill_path}: must not use active creative-stage advisor consultation packets")
         if "roles.supervision.stage_profiles" in content:
@@ -1510,9 +1442,9 @@ def audit_init_only_team_runtime_contracts(stage_index: list[dict], failures: li
             failures.append(f"{leaf_skill}: missing design leaf SKILL.md")
             continue
         content = leaf_skill.read_text(encoding="utf-8")
-        for required in (marker, "init_team_synthesis_context"):
+        for required in (marker, "projects/aigc/<项目名>/MEMORY.md"):
             if required not in content:
-                failures.append(f"{leaf_skill}: missing design leaf init synthesis marker `{required}`")
+                failures.append(f"{leaf_skill}: missing design leaf project memory init context marker `{required}`")
         if "advisor_consultation_packet" in content:
             failures.append(f"{leaf_skill}: must not use active creative-stage advisor consultation packets")
         if "roles.supervision.stage_profiles" in content:

@@ -16,6 +16,7 @@
 | upstream_context_direction | `1-分集`、`2-美学/类型风格.md`、`3-主体/主体注册表.md`、项目记忆/上下文如何引导本集创作方向、正文落点和边界检查清楚 |
 | type_style_context | `类型风格.md` 的题材类型、标志性元素和题材专属表现技巧被投影到节奏、高潮、尾钩和声画策略 |
 | subject_registry_context | `主体注册表.md` 的角色、场景、道具 canonical name 被用于剧本和 handoff，没有静默新增、改名或拆分同一主体 |
+| scene_asset_context | 已存在的 `3-主体/场景/2-设计`、`3-主体/场景/3-生成` 或 `design-manifest.yaml` 被只读映射到场景标题、环境白描、连续性或 handoff；无资产时有 N/A |
 | genre_narrative | 题材类型、叙事 beats、人物欲望/阻碍、信息差、观众契约完整 |
 | faithfulness | 剧情事实、事件顺序、人物关系和已有对白不漂移 |
 | hollywood_format | 场景标题与 `4-编剧` 保持一致并追加天气后缀，字段顺序和剧本可读性 |
@@ -47,7 +48,7 @@
 | `GATE-SCR-13` | AIGC 下游 handoff 完整，且只在 frontmatter 或执行报告中承载，不污染剧本正文正式字段 | `FAIL-SCR-AIGC-FIELDS` | `N6/N8` | `aigc_handoff_manifest` |
 | `GATE-SCR-14` | 无机位、景别、运镜、分镜编号、图像 prompt、视频参数越权 | `FAIL-SCR-DOWNSTREAM-OVERREACH` | `N6-SCR-CANDIDATE-DRAFT` | `downstream_overreach_check` |
 | `GATE-SCR-15` | 剧本可拍、可听、可演、可读，字段纯度足够 | `FAIL-SCR-SCREENPLAY-QUALITY` | `N6-SCR-CANDIDATE-DRAFT` | `field_quality_check` |
-| `GATE-SCR-16` | 执行报告含 `Execution Decision Trace`、`Reference Execution Matrix`、`Upstream Context Application Map`、`Upstream Creative Direction Matrix`、`Type Style Application Map`、`Subject Registry Application Map`、`Rule Evidence Map`、`N/A Justification`、`Repair Log`、required evidence maps、review verdict、repair actions、handoff | `FAIL-SCR-REPORT` | `N8-SCR-WRITEBACK-CLOSE` | `execution_report`、`execution_decision_trace`、`reference_execution_matrix`、`upstream_context_application_map`、`upstream_creative_direction_matrix`、`type_style_application_map`、`subject_registry_application_map`、`rule_evidence_map`、`na_justification`、`repair_log` |
+| `GATE-SCR-16` | 执行报告含 `Execution Decision Trace`、`Reference Execution Matrix`、`Upstream Context Application Map`、`Upstream Creative Direction Matrix`、`Type Style Application Map`、`Subject Registry Application Map`、`Scene Asset Integration Map` 或 N/A、`Rule Evidence Map`、`N/A Justification`、`Repair Log`、required evidence maps、review verdict、repair actions、handoff | `FAIL-SCR-REPORT` | `N8-SCR-WRITEBACK-CLOSE` | `execution_report`、`execution_decision_trace`、`reference_execution_matrix`、`upstream_context_application_map`、`upstream_creative_direction_matrix`、`type_style_application_map`、`subject_registry_application_map`、`scene_asset_integration_map`、`rule_evidence_map`、`na_justification`、`repair_log` |
 | `GATE-SCR-17` | 核心创作由 LLM 完成，脚本只做机械辅助 | `FAIL-SCR-LLM-FIRST` | `LLM-First Creative Authorship Contract` | `authorship_check` |
 | `GATE-SCR-18` | 模块没有成为第二规则源或第二输出真源 | `FAIL-MODULE-DRIFT` | `Module Loading Matrix` | `module_authorization_audit` |
 | `GATE-SCR-19` | 剧本正文、节奏方案、对白、高潮、尾钩和 handoff 无脚本化生成、批量插入、正则套句、映射投影、模板句式复用、关键词锚点替换、句式轮换或同义改写批量生成痕迹 | `FAIL-SCR-SCRIPTED-DRAFT` | `N6-SCR-CANDIDATE-DRAFT` / `R1-SCR-REWORK` | `anti_scripted_draft_audit` |
@@ -55,6 +56,7 @@
 | `GATE-SCR-21` | `2-美学/类型风格.md` 被明确投影为本集题材、节奏、高潮、尾钩和声画策略，而不是只作为标签复述 | `FAIL-SCR-TYPE-STYLE-CONTEXT` | `N1-SCR-INTAKE` / `N2-SCR-GENRE-NARRATIVE` / `N8-SCR-WRITEBACK-CLOSE` | `type_style_application_map` |
 | `GATE-SCR-22` | `3-主体/主体注册表.md` 被明确投影为本集角色、场景、道具命名真源，且剧本中未静默新增或改名主体 | `FAIL-SCR-SUBJECT-REGISTRY-CONTEXT` | `N1-SCR-INTAKE` / `N2-SCR-GENRE-NARRATIVE` / `N8-SCR-WRITEBACK-CLOSE` | `subject_registry_application_map` |
 | `GATE-SCR-23` | `1-分集`、`2-美学/类型风格.md`、`3-主体/主体注册表.md`、项目 `MEMORY.md/CONTEXT/` 分别如何引导本集编剧创作方向、正文落点和禁止越权检查清楚 | `FAIL-SCR-UPSTREAM-DIRECTION-MATRIX` | `N1-SCR-INTAKE` / `N2-SCR-GENRE-NARRATIVE` / `N8-SCR-WRITEBACK-CLOSE` | `upstream_creative_direction_matrix` |
+| `GATE-SCR-24` | 已存在的场景设计稿、场景图、JSON 或 manifest 被作为只读场景资产上下文整合；剧本没有把它们当剧情真源、prompt、镜头或生成参数 | `FAIL-SCR-SCENE-ASSET-CONTEXT` | `N1-SCR-INTAKE` / `N2-SCR-GENRE-NARRATIVE` / `N3-SCR-FAITHFUL-PROJECTION` / `N6-SCR-CANDIDATE-DRAFT` / `N8-SCR-WRITEBACK-CLOSE` | `scene_asset_context_manifest`、`scene_asset_integration_map`、`downstream_overreach_check` |
 
 ## Reference Gate Coverage
 
@@ -71,7 +73,7 @@
 | copied `script-adaptation-contract.md` | `GATE-SCR-04`, `GATE-SCR-05` | `FAIL-SCR-FAITHFULNESS`, `FAIL-SCR-SCENE-HEADING` | `N3` | `source_to_script_map`, `scene_heading_check` |
 | copied `field-routing-and-audio-visual-contract.md` | `GATE-SCR-07`, `GATE-SCR-13` | `FAIL-SCR-AUDIO-VISUAL`, `FAIL-SCR-AIGC-FIELDS` | `N6` | `audio_visual_pairing_map`, `same_frame_continuity_map`, `aigc_handoff_manifest` |
 | `../_shared/upstream-context-application-contract.md` | `GATE-SCR-20`, `GATE-SCR-23` | `FAIL-SCR-UPSTREAM-CONTEXT`, `FAIL-SCR-UPSTREAM-DIRECTION-MATRIX` | `N1/N2/N3/N8` | `upstream_context_application_map`, `upstream_creative_direction_matrix` |
-| `templates/output-template.md` | `GATE-SCR-16`, `GATE-SCR-21`, `GATE-SCR-22`, `GATE-SCR-23` | `FAIL-SCR-REPORT`, `FAIL-SCR-TYPE-STYLE-CONTEXT`, `FAIL-SCR-SUBJECT-REGISTRY-CONTEXT`, `FAIL-SCR-UPSTREAM-DIRECTION-MATRIX` | `N8` | `execution_report`, `type_style_application_map`, `subject_registry_application_map`, `upstream_creative_direction_matrix` |
+| `templates/output-template.md` | `GATE-SCR-16`, `GATE-SCR-21`, `GATE-SCR-22`, `GATE-SCR-23`, `GATE-SCR-24` | `FAIL-SCR-REPORT`, `FAIL-SCR-TYPE-STYLE-CONTEXT`, `FAIL-SCR-SUBJECT-REGISTRY-CONTEXT`, `FAIL-SCR-UPSTREAM-DIRECTION-MATRIX`, `FAIL-SCR-SCENE-ASSET-CONTEXT` | `N8` | `execution_report`, `type_style_application_map`, `subject_registry_application_map`, `upstream_creative_direction_matrix`, `scene_asset_integration_map` |
 
 ## Verdict
 

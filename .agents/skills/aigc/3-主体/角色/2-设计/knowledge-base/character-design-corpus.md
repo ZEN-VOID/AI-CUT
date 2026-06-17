@@ -23,9 +23,11 @@ source_urls:
   - "https://arxiv.org/abs/1608.07444"
 usage_boundary:
   - "语料用于启发和转译，不逐字套用。"
-  - "服装风格化必须受项目时代、地域、阶层、职业和 north_star.yaml 约束。"
+  - "服装风格化必须受项目时代、地域、阶层、职业、2-美学输出和项目 MEMORY.md 约束。"
   - "真实人物灵感默认不用或泛化处理；只有用户/项目允许且有必要时，才抽象为骨相、眼神、妆发和镜头魅力，不生成可识别现实人物。"
   - "服装磨损、污渍、补丁和做旧只在清单证据、职业逻辑或项目风格支持时使用。"
+  - "多服装、战斗、战损、受伤、少年、老年等必须作为同一 base character 的变体处理；语料库只能帮助写状态 delta，不能把变体写成新的脸、新的身形或新的角色身份。"
+  - "眼尾压暗、低调反差和危险感只允许作为局部气质修饰；不得扩写成重面部阴影、暗脸、遮眼阴影、半脸阴影或低调剪影。角色定妆照必须保留清晰五官、骨相、肤色层次和表情意图。"
 ```
 
 ## Universal Aesthetic Rules
@@ -35,10 +37,13 @@ usage_boundary:
 | 不做平淡还原 | 清单关键词先转为来源匹配审美目标，再转为脸、妆、身形、服装 | 使用可见名词和材质词，不只写 beautiful / handsome |
 | 美丽动人路线 | 仅当年龄、身份、项目调性和角色功能支持时，明确眼神、眉形、唇色、肤质、发型、身形比例和服装曲线 | `delicate yet striking beauty`, `luminous eyes`, `soft sculpted makeup` |
 | 英俊不凡路线 | 仅当年龄、身份、项目调性和角色功能支持时，明确眉骨、鼻梁、颌线、肩颈、站姿、服装线条 | `sharp brows`, `clear jawline`, `commanding posture` |
-| 主角更强 | 主角必须有高记忆点脸部、妆发和服装 signature，并达到 `charisma_floor=high`；路线必须来源匹配，不机械美/帅化 | `lead-character presence`, `cinematic leading-face quality` |
+| 主角必须帅/美 | 主角、核心情感线角色和长期复用角色必须达到 `lead_beauty_handsomeness_floor=required`；男主通常要有英俊/清峻/锋利/贵气等来源匹配吸引力，女主通常要有美丽/清透/明艳/清冷等来源匹配吸引力，其他性别表达、年龄或物种用主角级好看等价策略 | `lead-character beauty`, `heroic handsomeness`, `cinematic lead attractiveness` |
+| 主角必须有整体气质 | 主角、核心情感线角色和长期复用角色必须达到 `lead_presence_temperament_floor=required`；整体气质要从身份压力、精神状态、眼神意图、头颈肩背、重心姿态、动作节奏和服装承托中形成，不能只写漂亮脸、好身材或“有气质” | `lead-character presence`, `heroic temperament`, `magnetic protagonist aura` |
+| 主角更强 | 主角必须有高记忆点脸部、妆发、服装 signature 和整体镜头存在感，并达到 `charisma_floor=high`；路线必须来源匹配，不做模板脸、网红脸、成人化、性化或空泛气场 | `lead-character presence`, `cinematic leading-face quality` |
 | 大反派必须有魅力 | 大反派、主要对抗者、长线威胁和终局 Boss 必须达到 `charisma_floor=high`；危险、阴郁、病态、锋利、怪诞都要转成可控的镜头吸引力和压迫性，不只写丑、脏、乱或恐怖 | `charismatic menace`, `controlled dark elegance`, `magnetic villain presence` |
 | 普通反派也要可识别 | 短登场或功能性反派可以不做高魅力，但至少要有脸部/妆发/姿态/服装钩子 | `distinctive antagonist silhouette`, `sharp readable visual hook` |
 | 服装不脱离时代语境 | 先锁定时代/地域/阶层，再做廓形、色彩、材质风格化 | 避免现代高定词硬塞古代制度服饰 |
+| 脸部先可读再氛围化 | 阴郁、危险、压迫感优先落在眉眼、骨相、姿态、服装材质和受控边缘光；重阴影不能遮住五官 | `clear readable facial features`, `soft frontal fill light`, `subtle rim light` |
 
 ## Role Type Corpus
 
@@ -147,6 +152,7 @@ usage_boundary:
 | --- | --- | --- |
 | 男主很帅 | 剑眉上扬、眼神如寒星，鼻梁挺直，颌线干净，肩背有压迫性的挺拔 | sharp upward brows, bright star-like eyes, straight nose bridge, clean jawline, commanding shoulders |
 | 女主很漂亮 | 眉眼含雾、肤质清透，花瓣唇带一点血色，发丝贴颊形成柔软轮廓 | misty eyes, translucent skin, petal-tinted lips, soft face-framing hair |
+| 主角有气质 | 先定身份压力和精神状态，再落到稳定眼神、头颈肩背、重心姿态、动作节奏和服装承托，形成能撑住镜头的主角感 | focused gaze, composed neck and shoulders, grounded stance, restrained movement rhythm, protagonist presence |
 | 反派很邪 | 眉峰锋利、眼尾压暗，薄唇收紧，暗纹服装带冷金属细节 | sharp brow peaks, shadowed outer eyes, narrow lips, dark patterned costume with cold metallic accents |
 | 书生温柔 | 平直细眉、眼神温润，衣料素雅但袖口整洁，整体清贵 | refined straight brows, gentle eyes, plain elegant robe fabric, neat cuffs, restrained nobility |
 | 女将很飒 | 上扬眉眼、干净修容，束发利落，护甲与裙袍层次适合行动 | lifted brows and eyes, clean contouring, tied-back hair, action-ready armor and robe layers |
@@ -154,7 +160,8 @@ usage_boundary:
 
 ## Prompt Assembly Rules
 
-1. 先写主体 ID，再写角色核心审美：`C001: cinematic full-body costume fitting photo of ...`
+1. 先写 asset ID，再写角色核心审美；默认稿使用 `base_subject_id`：`C001: cinematic full-body costume fitting photo of ...`
+   - 变体稿先写变体资产 ID：`C001-V02: ...`，并保留 base character 的核心脸部骨相、眼神、身形比例和气质。
 2. 容貌写到眉、眼、鼻、唇、骨相、肤质或妆面中的至少三项。
 3. 服装写到廓形、材质、色彩、时代母体、配件或服装状态/维护状态中的至少四项；磨损只在证据支持时使用。
 4. 妆容化处理必须可见：眉形、眼妆、唇色、修容、肤质、发型或头饰至少两项。

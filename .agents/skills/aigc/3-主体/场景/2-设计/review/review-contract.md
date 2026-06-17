@@ -6,7 +6,7 @@
 
 在当前上层策略允许外部 provider 调度，且用户显式要求或仓库治理合同视为已授权时，默认 reviewer 路径如下：
 
-初始化综合消费按 `../../../_shared/team-advisor-consultation-contract.md` 执行：只读消费项目 `team.yaml.init_synthesis.stage_seed_summary."3-主体"`、`init_handoff.design_seed` 或 `north_star.yaml.创作阶段不变量.设计`，形成 `init_team_synthesis_context` 后再进入单场景设计与 reviewer 汇流；不得在本阶段解析监制 roster、请教顾问、调用 team 身份或补造顾问问答。
+初始化上下文消费按 `../../../_shared/team-advisor-consultation-contract.md` 执行：只读消费项目 `MEMORY.md` 中的 `project_memory_init_context`、团队配置与协作偏好、资料吸收摘要和阶段上下文读取指南，再进入单场景设计与 reviewer 汇流；不得在本阶段解析监制 roster、请教顾问、调用 team 身份或补造顾问问答。
 
 默认 review 必须同时读取 `references/design-output-contract.md`、`references/design-slot-review-contract.md` 与 `references/workflow-supervision-contract.md`；`SCENE-BUNDLE-01` 必须被解析为非空 slot bundle 记录。
 
@@ -34,7 +34,7 @@ flowchart TD
     B -->|"yes"| E["cinematography-reviewer"]
     B -->|"yes"| F["prompt-reviewer"]
     B -->|"blocked"| G["local review checklist"]
-    A --> A1["init team synthesis packet"]
+    A --> A1["project memory init context packet"]
     A1 --> H["merged review_verdict"]
     C --> H["merged review_verdict"]
     D --> H
@@ -51,7 +51,7 @@ flowchart TD
 
 | dimension | checks |
 | --- | --- |
-| source | 每个设计稿可回指上游清单行、north star 和 team |
+| source | 每个设计稿可回指上游清单行、`2-美学` 输出和项目记忆 |
 | structure | 模板板块齐全，`## 4. 解构` 下方先写 `主体ID号：<主体ID>`，`Scene Design` / `Cinematography` 分开 |
 | research | 研究与场景类型相关，包含 `research_brief`、来源姿态、证据矩阵和不确定性处理 |
 | visual_translation | 研究判断能翻译为空间结构、材料、光线、陈设、构图或 prompt token |
@@ -63,7 +63,7 @@ flowchart TD
 | slot_bundle_review | 是否按 `references/design-slot-review-contract.md` 解析 `SCENE-BUNDLE-01`，并对 `required_slots` 逐项给出证据位置或缺槽 finding |
 | prompt_evidence_chain | 关键 prompt token 能回指 `research_brief`、`visual_translation`、Scene Design 或 Cinematography，并包含 `deconstruction_coverage` 来说明解构槽位如何进入、合并或被剔除 |
 | fixed_visual | 是否为纯空镜；无人物、人体局部、剪影、倒影或人群 |
-| init_team_synthesis | 是否按 `team.yaml.init_synthesis.stage_seed_summary."3-主体"`、`init_handoff.design_seed` 或 `north_star.yaml.创作阶段不变量.设计` 形成 `init_team_synthesis_context`；采纳内容是否绑定当前思维·执行节点；是否禁止 team 身份调用、旧 stage profile 和伪顾问问答 |
+| project_memory_init_context | 是否按项目 `MEMORY.md` 形成 `project_memory_init_context`；采纳内容是否绑定当前思维·执行节点；是否禁止 team 身份调用、旧 stage profile 和伪顾问问答 |
 | workflow_supervision | 是否按 `references/workflow-supervision-contract.md` 记录外部 provider 或本地 checklist 路径、本地 reviewer checklist 和汇流裁决 |
 | boundary | 不改 `1-清单`、不生成图像、不改 registry、不触碰其他 worker 包 |
 | llm_first | 核心正文不是脚本生成 |
@@ -72,7 +72,7 @@ flowchart TD
 
 | gate_id | dimension | blocking rule | fail_code | default_rework_target | report_evidence |
 | --- | --- | --- | --- | --- | --- |
-| `GATE-SCENE-DESIGN-01` | `source` | 每个设计稿必须能回指项目根、`north_star.yaml`、`team.yaml.init_synthesis` 与上游 `场景清单.md` 行；缺核心来源时必须报告降级，不得静默设计 | `FAIL-SCENE-DESIGN-01` | `N2-SOURCES` | `input_manifest`、核心来源路径、目标清单行、降级说明 |
+| `GATE-SCENE-DESIGN-01` | `source` | 每个设计稿必须能回指项目根、`2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `2-美学/场景风格/场景风格协议.md`、项目 `MEMORY.md` 与上游 `场景清单.md` 行；缺核心来源时必须报告降级，不得静默设计 | `FAIL-SCENE-DESIGN-01` | `N2-SOURCES` | `input_manifest`、核心来源路径、目标清单行、降级说明 |
 | `GATE-SCENE-DESIGN-02` | `source` / `boundary` | 场景主体必须来自上游清单或用户指定的清单主体，不得新增清单外主体或改写 `1-清单` 真源 | `FAIL-SCENE-DESIGN-02` | `N3-SELECT` | 目标主体列表、上游清单行号、跳过/新增判定 |
 | `GATE-SCENE-DESIGN-03` | `research` / `visual_translation` | 研究层必须包含 `research_brief`、`source_posture`、`evidence_matrix`、`uncertainty_register` 与 `visual_translation`；冷门或高风险信息必须有来源姿态或保守处理 | `FAIL-SCENE-DESIGN-03` | `N5-RESEARCH` | 研究五件套位置、来源姿态表、不确定性处理、视觉翻译证据 |
 | `GATE-SCENE-DESIGN-04` | `story` | `物语` 必须解释空间叙事功能和主题承载，不得新增剧情事件、替代剧本或安排人物入画 | `FAIL-SCENE-DESIGN-04` | `N6-DESIGN` | `物语` 段落、空间功能摘要、新增剧情/人物风险记录 |
@@ -81,7 +81,7 @@ flowchart TD
 | `GATE-SCENE-DESIGN-07` | `llm_first` | 场景设计正文、研究判断、解构和英文 prompt 必须由 LLM 主创；脚本只能做机械解析、格式检查、字符计数或校验，不得批量生成、批量插入、正则套句或映射投影 | `FAIL-SCENE-DESIGN-07` | `N6-DESIGN` | 生成路径说明、脚本角色说明、无脚本主创证据 |
 | `GATE-SCENE-DESIGN-09` | `fixed_visual` | 场景设计默认为纯空镜；摄影字段与英文 prompt 不得出现人物、人体局部、剪影、倒影、人群、背影或可识别人类存在，并必须包含等价 `empty shot / no people / no human figures` 约束 | `FAIL-SCENE-DESIGN-09` | `N6-DESIGN` | 纯空镜约束位置、禁用人类存在词检查、prompt negative token |
 | `GATE-SCENE-DESIGN-10` | `prompt_evidence_chain` | 关键 prompt token 必须能回指研究、视觉翻译、Scene Design 或 Cinematography；被压缩、合并或剔除的解构槽位必须进入 `deconstruction_coverage` | `FAIL-SCENE-DESIGN-10` | `N6-DESIGN` | prompt token evidence、`deconstruction_coverage`、缺槽 finding |
-| `GATE-SCENE-DESIGN-11` | `init_team_synthesis` | 初始化综合存在时，必须按 `team.yaml.init_synthesis.stage_seed_summary."3-主体"`、`init_handoff.design_seed` 或 `north_star.yaml.创作阶段不变量.设计` 形成 `init_team_synthesis_context`；采纳内容必须绑定当前 `node_id / pass_id / gate_id`，并转成节点级判断、执行取舍、局部 patch 或风险提示；不得触发 team 身份、旧 stage profile 或伪顾问问答 | `FAIL-SCENE-DESIGN-11` | `N5-RESEARCH` | `init_team_synthesis_context`、`init_synthesis_node_coverage`、初始化综合如何影响节点 |
+| `GATE-SCENE-DESIGN-11` | `project_memory_init_context` | 项目记忆初始化上下文存在时，必须按项目 `MEMORY.md` 形成 `project_memory_init_context`；采纳内容必须绑定当前 `node_id / pass_id / gate_id`，并转成节点级判断、执行取舍、局部 patch 或风险提示；不得触发 team 身份、旧 stage profile 或伪顾问问答 | `FAIL-SCENE-DESIGN-11` | `N5-RESEARCH` | `project_memory_init_context`、`init_synthesis_node_coverage`、初始化上下文如何影响节点 |
 | `GATE-SCENE-DESIGN-12` | `workflow_supervision` | 每个场景主体必须留下非空 `workflow_supervision` 记录；provider 不可用或用户禁用时必须记录阻断层级、本地 checklist、未启动 reviewer、slot bundle findings 与主 agent 汇流裁决 | `FAIL-SCENE-DESIGN-WORKFLOW` | `N7-REVIEW` | `workflow_supervision` packet、dispatch mode、unlaunched reviewers、local checklist、merge decision |
 | `GATE-SCENE-DESIGN-SLOT-01` | `slot_bundle_review` | 必须解析非空 `SCENE-BUNDLE-01`，并为每个 required slot 给出证据位置；缺槽时必须形成 blocking finding 和返工入口 | `FAIL-SCENE-DESIGN-SLOT-01` | `N7-REVIEW` | slot bundle review 表、required slot evidence、缺槽 finding |
 
@@ -99,7 +99,7 @@ flowchart TD
 ```yaml
 finding:
   severity: critical | high | medium | low
-  dimension: source | structure | research | visual_translation | story | design | cinematography | prompt | design_output_contract | slot_bundle_review | prompt_evidence_chain | fixed_visual | init_team_synthesis | workflow_supervision | boundary | llm_first
+  dimension: source | structure | research | visual_translation | story | design | cinematography | prompt | design_output_contract | slot_bundle_review | prompt_evidence_chain | fixed_visual | project_memory_init_context | workflow_supervision | boundary | llm_first
   symptom: ""
   direct_cause: ""
   source_contract: ""
@@ -110,7 +110,7 @@ finding:
 
 不得在以下情况宣布完成：
 
-- 缺少 `north_star.yaml`、`team.yaml.init_synthesis` 或上游 `场景清单.md`，且未报告降级。
+- 缺少 `2-美学` 输出、项目 `MEMORY.md` 或上游 `场景清单.md`，且未报告降级。
 - 输出文件缺少 required sections。
 - 研究层缺少 `research_brief`、`source_posture`、`uncertainty_register` 或 `visual_translation`。
 - 冷门、具体或高风险事实没有来源姿态，或把 `scene_inference` / `unresolved` 写成确定事实。
@@ -126,6 +126,6 @@ finding:
 - `references/workflow-supervision-contract.md` 要求的 provider/local checklist/merge 记录为空。
 - `prompt_evidence_chain` 缺失，或关键 prompt token 无法回指研究、视觉翻译或设计依据。
 - 摄影字段或英文提示词出现人物、人体局部、剪影、倒影、人群，或未明确 `no people / no human figures`。
-- 初始化综合存在时，缺少 `init_team_synthesis_context`，或采纳内容没有绑定当前 `node_id / pass_id / gate_id`，或误触发 team 身份、旧 stage profile、伪顾问问答。
+- 项目记忆初始化上下文存在时，缺少 `project_memory_init_context`，或采纳内容没有绑定当前 `node_id / pass_id / gate_id`，或误触发 team 身份、旧 stage profile、伪顾问问答。
 - 由脚本生成核心创作正文或提示词。
 - 写入范围越过 `projects/aigc/<项目名>/3-主体/场景/2-设计`。

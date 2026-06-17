@@ -19,9 +19,10 @@ metadata:
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`；每次调用 `$aigc-grouping` 时也必须加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须按 `Type Routing Matrix` 和 `Module Trigger Matrix` 加载被授权模块；不得因为目录存在而自动全量读取。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与角色、场景、道具、风格和制作约束相关的上下文文件。
+- 项目任务必须从 `projects/aigc/<项目名>/MEMORY.md` 构造 `project_memory_init_context`，消费初始化用户要求、团队配置与协作偏好、资料吸收摘要和阶段上下文读取指南；该上下文只作为组边界、首帧衔接、风格整理和制作限制的约束，不触发 team 身份、顾问问答或 `team.yaml` 生成。
 - 若正式写回 `projects/aigc/<项目名>/8-分组/`，必须只读加载 `projects/aigc/<项目名>/3-主体/subject-registry.yaml`；缺失时不得判定 canonical pass，除非用户明确授权输出候选稿并记录 `registry_missing=true`。
-- 项目任务中还必须只读消费 `projects/aigc/<项目名>/0-初始化/north_star.yaml`；若存在 `team.yaml.init_synthesis.stage_seed_summary."8-分组"`、`0-初始化/init_handoff.yaml.stage_entry_seeds.grouping_seed` 或 `north_star.yaml.创作阶段不变量.分组`，只转成 `init_team_synthesis_context`，不得触发 team 身份、旧 stage profile 或补造顾问问答。
-- 正式生成、repair 或 review 时，必须加载 `../_shared/upstream-context-application-contract.md`，并在执行报告中记录 `Upstream Context Application Map` 与 `Upstream Grouping Direction Matrix`：说明 `2-美学`、`3-主体/subject-registry.yaml`、`7-摄影` / 用户指定 source、north_star 和项目上下文如何导向组边界、全局风格单行整理、首帧衔接、YAML 主体统计和下游 handoff；分组阶段不得新增主体信息。
+- 项目任务不得把旧初始化风格载体当作风格或分组上下文；若旧项目存在相关字段，只能在迁移报告中标记为 obsolete，并优先以 `2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md` 和项目 `MEMORY.md` 中已确认的信息为准。
+- 正式生成、repair 或 review 时，必须加载 `../_shared/upstream-context-application-contract.md`，并在执行报告中记录 `Upstream Context Application Map` 与 `Upstream Grouping Direction Matrix`：说明 `2-美学`、`3-主体/subject-registry.yaml`、`7-摄影` / 用户指定 source、2-美学输出和项目上下文如何导向组边界、全局风格单行整理、首帧衔接、YAML 主体统计和下游 handoff；分组阶段不得新增主体信息。
 - 核心分组边界、首帧衔接、`全局风格：` 单行整理和 YAML 语义统计必须由 LLM 直接完成；`scripts/` 只能做读取、格式扫描、时间码连续性、ID、旧字段、YAML 与机械统计校验。
 - 脚本、映射表、规则模板、关键词锚点替换、句式轮换、同义改写、批量插入、正则套句、映射投影或固定分组模板不得生成或裁决分组正文、组边界、首帧衔接、`全局风格：` 单行整理或 YAML 语义统计；发现即触发 `FAIL-GROUP-SCRIPTED-PROJECTION`。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > 本 `Module Loading Matrix` 授权模块 > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
@@ -30,8 +31,8 @@ metadata:
 
 | processing_slot | requirement | evidence | fail_code |
 | --- | --- | --- | --- |
-| `context_snapshot` | 记录本轮已加载的 skill/context、项目 MEMORY、项目 CONTEXT、north_star、visual tone、subject registry 和 source bundle | `loaded_context_manifest` | `FAIL-GROUP-CONTEXT-PROCESSING` |
-| `missing_context_policy` | 对缺失 `north_star.yaml`、`Global Style Prompt`、`subject-registry.yaml`、默认摄影稿或项目上下文分别给出阻断、source override、candidate-only 或 N/A 策略 | `context_conflict_map`, `n/a_reason` | `FAIL-GROUP-CONTEXT-MISSING` |
+| `context_snapshot` | 记录本轮已加载的 skill/context、项目 MEMORY、`project_memory_init_context`、项目 CONTEXT、`2-美学` 输出、subject registry 和 source bundle；不加载旧初始化风格载体作为上下文来源 | `loaded_context_manifest` | `FAIL-GROUP-CONTEXT-PROCESSING` |
+| `missing_context_policy` | 对缺失项目 `MEMORY.md` / `project_memory_init_context`、`Global Style Prompt`、`subject-registry.yaml`、默认摄影稿或项目上下文分别给出阻断、source override、candidate-only 或 N/A 策略 | `context_conflict_map`, `n/a_reason` | `FAIL-GROUP-CONTEXT-MISSING` |
 | `context_application` | 只把上下文转成组边界、全局风格、首帧衔接、YAML 主体统计和下游 handoff 的证据，不把上下文复述成正文 | `Upstream Context Application Map` | `FAIL-GROUP-UPSTREAM-CONTEXT` |
 | `context_writeback_decision` | 本轮新经验写入本 `CONTEXT.md`；项目偏好写入项目 `MEMORY.md`；不得写入 `knowledge-base/` | `Learning / Context Writeback` | `FAIL-GROUP-CONTEXT-WRITEBACK` |
 
@@ -71,7 +72,7 @@ metadata:
 | `constraint_profile` | 保留上游事实与顺序；脚本不主创；默认 source 为 `7-摄影`，指定 source 优先；YAML 主体只读引用 `3-主体/subject-registry.yaml`，不新增主体信息 | 本合同、source diff、用户指定 source、subject registry | `FAIL-GROUP-CONSTRAINT` |
 | `success_criteria` | 输出 `8-分组/第N集.md` 与执行报告；组 ID、风格、边界、回龙帧、YAML、保真和报告证据通过 | output manifest、review verdict、validator 输出 | `FAIL-GROUP-SUCCESS` |
 | `complexity_source` | 复杂度来自 source 格式分型、14.5 秒组边界、摄影稿保真、声画连续、`全局风格：` 单行整理和 YAML 统计汇流 | Type Routing、Node Map、Review Gate | `FAIL-GROUP-COMPLEXITY` |
-| `topology_fit` | 先锁 source 与 north_star，再建场景/分镜清单，再裁边界，再写 `全局风格：` 单行整理和回龙帧，再统计和审查：1) 防止误改上游；2) 保证组边界可追踪；3) 保证下游生成可消费；4) 支持用户指定 source 跳过摄影稿专属检查 | Visual Maps、Node Map、报告证据 | `FAIL-GROUP-TOPOLOGY-FIT` |
+| `topology_fit` | 先锁 source、项目 `MEMORY.md` / `project_memory_init_context` 与 visual tone，再建场景/分镜清单，再裁边界，再写 `全局风格：` 单行整理和回龙帧，再统计和审查：1) 防止误改上游；2) 保证组边界可追踪；3) 保证下游生成可消费；4) 支持用户指定 source 跳过摄影稿专属检查 | Visual Maps、Node Map、报告证据 | `FAIL-GROUP-TOPOLOGY-FIT` |
 
 ## Input Contract
 
@@ -84,7 +85,7 @@ Accepted input:
 Required input:
 
 - 可定位、可读取的单集 source；默认路径为 `projects/aigc/<项目名>/7-摄影/第N集.md`。
-- 可定位、可读取的 `projects/aigc/<项目名>/0-初始化/north_star.yaml`；用户提供等价风格文本时可作为 source override 证据记录。
+- 可定位、可读取的项目 `MEMORY.md`，并能构造 `project_memory_init_context`；用户提供等价项目上下文时可作为 source override 证据记录。旧初始化风格载体不作为本阶段上下文来源。
 - 可定位、可读取的 `projects/aigc/<项目名>/3-主体/subject-registry.yaml`；正式 pass 需要使用其中的 `id` 与 `canonical_name` 对齐 YAML `角色`、`场景`、`道具`。
 - 至少一个目标集号，或允许默认处理 `7-摄影/` / 用户指定源目录中全部 `第N集.md`。
 - 标准摄影路径：source 中至少有一条可识别 `分镜N（起始秒-结束秒）：...` 行，且能定位场景标题或等价场景锚点。
@@ -98,7 +99,7 @@ Optional input:
 
 Reject or clarify when:
 
-- `north_star.yaml` 或等价风格文本不可用，且用户要求正式 canonical pass。
+- 项目 `MEMORY.md` / `project_memory_init_context` 不可用，且用户要求正式 canonical pass。
 - `subject-registry.yaml` 不存在、不可读，且用户要求正式 canonical pass。
 - 默认 `7-摄影/第N集.md` 不存在、不可读，用户也未提供替代 source，且无法在项目上游阶段定位可读逐集文稿。
 - 用户要求脚本自动生成分组正文、首帧衔接正文或统计结论。
@@ -121,11 +122,11 @@ Reject or clarify when:
 
 | input_type | signal | route_to | required_nodes | module_load | fail_code |
 | --- | --- | --- | --- | --- | --- |
-| `single_episode_camera_source` | 默认 `7-摄影/第N集.md` 或单集摄影稿 | `Camera Source Path` | `N1,N2,N3,N4,N6,N7,N8,N9` | `CONTEXT.md`, `types/grouping-type-map.md`, `references/group-boundary-contract.md`, `references/north-star-projection-contract.md`, `references/statistics-yaml-contract.md`, `review/review-contract.md` | `FAIL-GROUP-TYPE-CAMERA` |
-| `specified_source_override` | 用户指定非默认 source | `Override Source Path` | `N1,N2,N3,N4,N6,N7,N8,N9` | `CONTEXT.md`, `types/grouping-type-map.md`, `references/group-boundary-contract.md`, `references/north-star-projection-contract.md`, `references/statistics-yaml-contract.md`, `review/review-contract.md` | `FAIL-GROUP-TYPE-OVERRIDE` |
-| `direct_screenplay` | 剧本/编导稿直入或无分镜时长 | `Direct Screenplay Path` | `N1,N2,N3,N4,N6,N7,N8,N9` | `CONTEXT.md`, `types/grouping-type-map.md`, `references/group-boundary-contract.md`, `references/north-star-projection-contract.md`, `references/statistics-yaml-contract.md`, `review/review-contract.md` | `FAIL-GROUP-DIRECT-SCREENPLAY` |
-| `episode_range` | 用户指定多个集号或集号范围 | `Episode Range Path` | `N1,N2,N3,N4,N6,N7,N8,N9` | `CONTEXT.md`, `types/grouping-type-map.md`, `references/group-boundary-contract.md`, `references/north-star-projection-contract.md`, `references/statistics-yaml-contract.md`, `review/review-contract.md` | `FAIL-GROUP-TYPE-RANGE` |
-| `all_ready_episodes` | 未指定集号但可枚举全部 ready source | `All Ready Episodes Path` | `N1,N2,N3,N4,N6,N7,N8,N9` | `CONTEXT.md`, `types/grouping-type-map.md`, `references/group-boundary-contract.md`, `references/north-star-projection-contract.md`, `references/statistics-yaml-contract.md`, `review/review-contract.md` | `FAIL-GROUP-TYPE-ALL-READY` |
+| `single_episode_camera_source` | 默认 `7-摄影/第N集.md` 或单集摄影稿 | `Camera Source Path` | `N1,N2,N3,N4,N6,N7,N8,N9` | `CONTEXT.md`, `types/grouping-type-map.md`, `references/group-boundary-contract.md`, `references/visual-tone-projection-contract.md`, `references/statistics-yaml-contract.md`, `review/review-contract.md` | `FAIL-GROUP-TYPE-CAMERA` |
+| `specified_source_override` | 用户指定非默认 source | `Override Source Path` | `N1,N2,N3,N4,N6,N7,N8,N9` | `CONTEXT.md`, `types/grouping-type-map.md`, `references/group-boundary-contract.md`, `references/visual-tone-projection-contract.md`, `references/statistics-yaml-contract.md`, `review/review-contract.md` | `FAIL-GROUP-TYPE-OVERRIDE` |
+| `direct_screenplay` | 剧本/编导稿直入或无分镜时长 | `Direct Screenplay Path` | `N1,N2,N3,N4,N6,N7,N8,N9` | `CONTEXT.md`, `types/grouping-type-map.md`, `references/group-boundary-contract.md`, `references/visual-tone-projection-contract.md`, `references/statistics-yaml-contract.md`, `review/review-contract.md` | `FAIL-GROUP-DIRECT-SCREENPLAY` |
+| `episode_range` | 用户指定多个集号或集号范围 | `Episode Range Path` | `N1,N2,N3,N4,N6,N7,N8,N9` | `CONTEXT.md`, `types/grouping-type-map.md`, `references/group-boundary-contract.md`, `references/visual-tone-projection-contract.md`, `references/statistics-yaml-contract.md`, `review/review-contract.md` | `FAIL-GROUP-TYPE-RANGE` |
+| `all_ready_episodes` | 未指定集号但可枚举全部 ready source | `All Ready Episodes Path` | `N1,N2,N3,N4,N6,N7,N8,N9` | `CONTEXT.md`, `types/grouping-type-map.md`, `references/group-boundary-contract.md`, `references/visual-tone-projection-contract.md`, `references/statistics-yaml-contract.md`, `review/review-contract.md` | `FAIL-GROUP-TYPE-ALL-READY` |
 | `repair` | 既有稿需修复 | `Repair Path` | `N1,R1,R2,N8,N9` | `CONTEXT.md`, `types/grouping-type-map.md`, `review/review-contract.md`, `scripts/` | `FAIL-GROUP-TYPE-REPAIR` |
 | `review_only` | 只审查 | `Review Path` | `N1,V1,N9` | `CONTEXT.md`, `review/review-contract.md`, `scripts/` | `FAIL-GROUP-TYPE-REVIEW` |
 
@@ -139,10 +140,10 @@ Reject or clarify when:
 | `scene_map` | source 场景标题 | 分镜组 ID 第二段和场景标题重复输出 | `N2-SOURCE-INVENTORY` | `GATE-GROUP-01A` / `GATE-GROUP-05` |
 | `shot_line_inventory` | `分镜N（起始秒-结束秒）：` 或兼容 `[起始秒-结束秒]` 行 | atomic unit、时长累计、落盘时间码改写 | `N2-SOURCE-INVENTORY` / `N3-GROUP-BOUNDARY` | `GATE-GROUP-06` / `GATE-GROUP-08` |
 | `group_boundary_plan` | source 分镜行、声画承托、场景边界 | `## x-y-z` 分镜组边界 | `N3-GROUP-BOUNDARY` | `GATE-GROUP-05` / `GATE-GROUP-06` |
-| `global_style_projection_map` | `2-美学/画面基调/全局风格协议.md` 的 `Global Style Prompt`，以及必要的 `north_star.yaml` 项目禁区/不变量 | 每组 `全局风格：` 单行整理句 | `N4-GLOBAL-STYLE` | `GATE-GROUP-02` |
+| `global_style_projection_map` | `2-美学/画面基调/全局风格协议.md` 的 `Global Style Prompt`，以及项目 `MEMORY.md` / `project_memory_init_context` 中的禁区、不变量和生产限制 | 每组 `全局风格：` 单行整理句 | `N4-GLOBAL-STYLE` | `GATE-GROUP-02` |
 | `first_line_continuity_map` | 当前组首分镜、上一组尾分镜及尾帧状态锚点 | 每组第一个普通时间码分镜行 | `N6-FIRST-LINE-CONTINUITY` | `GATE-GROUP-14` |
 | `subject_registry_map` | 项目 `3-主体` subject registry | 组底 YAML `角色`、`场景`、`道具` 的 id/name 对齐表 | `N1-INTAKE` / `N7-ASSEMBLE-STATS` | `GATE-GROUP-SUBJECT-REGISTRY` |
-| `upstream_context_application_map` | `2-美学`、`3-主体`、`7-摄影` / override source、north_star、项目上下文 | 上游证据到分组决策的应用说明 | `N1-INTAKE` / `N3-GROUP-BOUNDARY` / `N4-GLOBAL-STYLE` / `N6-FIRST-LINE-CONTINUITY` / `N7-ASSEMBLE-STATS` | `GATE-GROUP-UPSTREAM-CONTEXT` |
+| `upstream_context_application_map` | `2-美学`、`3-主体`、`7-摄影` / override source、项目 `MEMORY.md` / `project_memory_init_context` 和项目上下文 | 上游证据到分组决策的应用说明 | `N1-INTAKE` / `N3-GROUP-BOUNDARY` / `N4-GLOBAL-STYLE` / `N6-FIRST-LINE-CONTINUITY` / `N7-ASSEMBLE-STATS` | `GATE-GROUP-UPSTREAM-CONTEXT` |
 | `upstream_grouping_direction_matrix` | 上游应用说明与分组输出 | 上游信号如何导向边界、风格、首帧衔接、YAML 主体统计和下游 handoff | `N8-REVIEW-REPAIR` / `N9-WRITEBACK-CLOSE` | `GATE-GROUP-UPSTREAM-DIRECTION` |
 | `stats_yaml` | 分组正文、主体注册表、角色/场景/道具证据 | 组底 YAML `字数统计`、`时长估算`、`角色`、`场景`、`道具`；主体项只允许来自 registry | `N7-ASSEMBLE-STATS` | `GATE-GROUP-11` / `GATE-GROUP-SUBJECT-REGISTRY` |
 | `execution_report` | N1-N8 决策证据 | `执行报告.md` | `N9-WRITEBACK-CLOSE` | `GATE-GROUP-REPORT` |
@@ -151,10 +152,10 @@ Reject or clarify when:
 
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| `N1-INTAKE` | 锁定项目、集号、source、模式、写回权限、主体注册表和注意力锚点 | 用户请求、项目根、source 文件、`3-主体/subject-registry.yaml` | 加载 skill/context；识别 `source_camera_path`、`source_override`、`source_state`、`episode_id`、`2-美学/画面基调`、north_star 项目禁区、subject registry、写回路径 | `source_manifest`, `visual_tone_manifest`, `north_star_manifest`, `subject_registry_manifest`, `business_profile`, `attention_anchor` | `N2` / `V1` / `N9` | source 不唯一、正式写回路径不明、画面基调或 subject registry 不可用时不得继续 |
+| `N1-INTAKE` | 锁定项目、集号、source、模式、写回权限、主体注册表和注意力锚点 | 用户请求、项目根、source 文件、`3-主体/subject-registry.yaml`、项目 `MEMORY.md` | 加载 skill/context；识别 `source_camera_path`、`source_override`、`source_state`、`episode_id`、`2-美学/画面基调`、`project_memory_init_context` 项目禁区、subject registry、写回路径 | `source_manifest`, `visual_tone_manifest`, `project_memory_manifest`, `subject_registry_manifest`, `business_profile`, `attention_anchor` | `N2` / `V1` / `N9` | source 不唯一、正式写回路径不明、项目记忆、画面基调或 subject registry 不可用时不得继续 |
 | `N2-SOURCE-INVENTORY` | 建立场景、分镜行和保真锚点 | source、types | 扫描场景标题、`分镜N（N-N秒）：` 行、兼容 `[N-N秒]` 行、对白/音效承托、现有摄影/光影信息 | `scene_map`, `shot_line_inventory`, `source_anchor_map`, `skipped_camera_checks` | `N3` / `R1` | 默认光影路径漏分镜行 0；override 路径必须记录不适用检查 |
 | `N3-GROUP-BOUNDARY` | 裁决约 14.5 秒分镜组边界 | N2 清单、boundary reference | 按完整 shot line / 声画 atomic unit 累计时长；通常 10-11.5 秒；不得超过 14.5 秒；每组最终累计结束秒必须以 `.5` 结尾，若自然相加不是 `.5` 结尾则在组尾上调 0.5 秒；跨场景重置组序 | `group_boundary_plan`, `duration_table`, `scene_group_index` | `N4` / `R1` | 不拆 atomic unit；超 14.5 秒必须重裁或回退 source owner |
-| `N4-GLOBAL-STYLE` | 写每组 `全局风格：` | `2-美学/画面基调/全局风格协议.md`、north_star 项目禁区、当前组证据 | 按 `north-star-projection-contract.md` 的当前画面基调投影口径写单行风格：固定前置词 + 300 字以内当前组 `Global Style Prompt` 整理句 | `global_style_projection_map` | `N6` / `R1` | 每组均有单行内容；不能完整照抄母稿 |
+| `N4-GLOBAL-STYLE` | 写每组 `全局风格：` | `2-美学/画面基调/全局风格协议.md`、`project_memory_init_context` 项目禁区、当前组证据 | 按当前画面基调投影口径写单行风格：固定前置词 + 300 字以内当前组 `Global Style Prompt` 整理句，并纳入项目记忆中的禁区和生产限制 | `global_style_projection_map` | `N6` / `R1` | 每组均有单行内容；不能完整照抄母稿 |
 | `N6-FIRST-LINE-CONTINUITY` | 内化首帧衔接 / 回龙帧 | 当前组首分镜、上一组尾分镜 | 首组自然整理开始画面；第二组起先提取上一组尾帧状态锚点的五类元素，再把主体、动作余势、关键道具/介质、光声残留、空间关系和必要声音承托写入首个普通时间码行 | `first_line_continuity_map`, `tail_state_anchor_map`, `sound_support_map` | `N7` / `R1` | 首行必须能看见上一组尾帧状态锚点；不输出特殊字段、规则说明、连接件；不新增剧情或改对白 |
 | `N7-ASSEMBLE-STATS` | 组装正文和 YAML | N3-N6 输出、subject registry | 写 `## x-y-z`、场景标题、风格、分镜正文、YAML；统计角色/场景/道具并归一到 registry `id` 与 `canonical_name`；未登记主体不得写入 YAML | `candidate_groups`, `stats_yaml`, `subject_registry_alignment`, `source_preservation_diff` | `N8` / `R1` | 输出结构唯一；正文保真；YAML 字段完整；主体项全部命中 registry |
 | `N8-REVIEW-REPAIR` | 审查并最小修复候选稿 | candidate、review gates、validator | 执行 gate；可运行 validator；阻断项回到 N2-N7 或 R2，最多 3 轮 | `review_verdict`, `repair_log`, `reference_execution_matrix`, `upstream_context_application_map`, `upstream_grouping_direction_matrix`, `rule_evidence_map` | `N9` / `R1` | review 未通过不得写回 canonical |
@@ -179,7 +180,7 @@ Reject or clarify when:
 ```mermaid
 flowchart TD
     A["7-摄影/第N集.md 或用户指定 source"] --> B["N1-INTAKE"]
-    C["0-初始化/north_star.yaml"] --> B
+    C["MEMORY.md / project_memory_init_context"] --> B
     B --> D["N2-SOURCE-INVENTORY"]
     D --> E["N3-GROUP-BOUNDARY"]
     E --> F["N4-GLOBAL-STYLE"]
@@ -209,7 +210,7 @@ flowchart TD
 | `types/grouping-type-map.md` | N1 source 分型、override、repair | 输入状态、风险画像、策略选择 | 新增主入口或覆盖 Type Routing | `N1-INTAKE` |
 | `references/` | 任意正式生成、repair、review 或对应 fail code 返工 | 规则细则目录，展开边界、风格、统计和上游应用合同 | 承载第二执行主链、第二输出路径或无 gate 阻断源 | `Module Loading Matrix` / 对应 reference |
 | `references/group-boundary-contract.md` | 任意正式生成、repair、review | 边界、ID、时长、atomic unit、回龙帧规则 | 替代主节点或改写输出路径 | `N3-GROUP-BOUNDARY` / `N6-FIRST-LINE-CONTINUITY` |
-| `references/north-star-projection-contract.md` | 任意正式生成、repair、review | `全局风格：` 单行投影 | 完整照抄全局母稿或新增风格真源 | `N4-GLOBAL-STYLE` |
+| `references/visual-tone-projection-contract.md` | 任意正式生成、repair、review | `全局风格：` 单行投影 | 完整照抄全局母稿或新增风格真源 | `N4-GLOBAL-STYLE` |
 | `references/statistics-yaml-contract.md` | 任意正式生成、repair、review | YAML 字段、统计口径、同物归并 | 直接生成角色/场景/道具设计稿 | `N7-ASSEMBLE-STATS` |
 | `../_shared/upstream-context-application-contract.md` | 任意正式生成、repair、review，或 `FAIL-GROUP-UPSTREAM-CONTEXT` / `FAIL-GROUP-UPSTREAM-DIRECTION-MATRIX` | 规定上游上下文如何导向分组边界、风格、首帧衔接、主体 YAML 和下游交接，要求 `Upstream Context Application Map` 与 `Upstream Grouping Direction Matrix` | 替代分组主创、补造主体、改写上游 source、把上游风格机械套入每组 | `N1-INTAKE` / `N3-GROUP-BOUNDARY` / `N8-REVIEW-REPAIR` |
 | `review/` | N8/V1 或任意 fail code 返工审查 | 审查规则目录，只展开验收问题、失败码和报告证据 | 代替业务真源或跳过返工 | `Review Gate Binding` |
@@ -223,19 +224,19 @@ flowchart TD
 
 | trigger_signal | required_modules | load_phase | return_gate | mechanical_check |
 | --- | --- | --- | --- | --- |
-| `default_lighting_grouping / FAIL-GROUP-TYPE-CAMERA` | `types/grouping-type-map.md`, `references/group-boundary-contract.md`, `references/north-star-projection-contract.md`, `references/statistics-yaml-contract.md`, `../_shared/upstream-context-application-contract.md`, `review/review-contract.md` | `N1-N8` | `GATE-GROUP-01` 到 `GATE-GROUP-16`、`GATE-GROUP-SUBJECT-REGISTRY` | source line coverage、time ranges、YAML、主体注册表、旧字段 |
-| `specified_source_override / FAIL-GROUP-TYPE-OVERRIDE` | `types/grouping-type-map.md`, `references/group-boundary-contract.md`, `references/north-star-projection-contract.md`, `references/statistics-yaml-contract.md`, `../_shared/upstream-context-application-contract.md`, `review/review-contract.md` | `N1-N8` | `GATE-GROUP-SOURCE-OVERRIDE` | skipped checks 记录 |
-| `direct_screenplay / FAIL-GROUP-DIRECT-SCREENPLAY` | `types/grouping-type-map.md`, `references/group-boundary-contract.md`, `references/north-star-projection-contract.md`, `references/statistics-yaml-contract.md`, `review/review-contract.md` | `N1-N7` | `GATE-GROUP-DIRECT-SCREENPLAY` | source_state 与 timecode source |
-| `episode_range / FAIL-GROUP-TYPE-RANGE` | `types/grouping-type-map.md`, `references/group-boundary-contract.md`, `references/north-star-projection-contract.md`, `references/statistics-yaml-contract.md`, `review/review-contract.md` | `N1-N9 per episode` | `C5-final` | per-episode manifest and validator summary |
-| `all_ready_episodes / FAIL-GROUP-TYPE-ALL-READY` | `types/grouping-type-map.md`, `references/group-boundary-contract.md`, `references/north-star-projection-contract.md`, `references/statistics-yaml-contract.md`, `review/review-contract.md` | `N1-N9 per discovered episode` | `C5-final` | ready source inventory and per-episode output manifest |
+| `default_lighting_grouping / FAIL-GROUP-TYPE-CAMERA` | `types/grouping-type-map.md`, `references/group-boundary-contract.md`, `references/visual-tone-projection-contract.md`, `references/statistics-yaml-contract.md`, `../_shared/upstream-context-application-contract.md`, `review/review-contract.md` | `N1-N8` | `GATE-GROUP-01` 到 `GATE-GROUP-16`、`GATE-GROUP-SUBJECT-REGISTRY` | source line coverage、time ranges、YAML、主体注册表、旧字段 |
+| `specified_source_override / FAIL-GROUP-TYPE-OVERRIDE` | `types/grouping-type-map.md`, `references/group-boundary-contract.md`, `references/visual-tone-projection-contract.md`, `references/statistics-yaml-contract.md`, `../_shared/upstream-context-application-contract.md`, `review/review-contract.md` | `N1-N8` | `GATE-GROUP-SOURCE-OVERRIDE` | skipped checks 记录 |
+| `direct_screenplay / FAIL-GROUP-DIRECT-SCREENPLAY` | `types/grouping-type-map.md`, `references/group-boundary-contract.md`, `references/visual-tone-projection-contract.md`, `references/statistics-yaml-contract.md`, `review/review-contract.md` | `N1-N7` | `GATE-GROUP-DIRECT-SCREENPLAY` | source_state 与 timecode source |
+| `episode_range / FAIL-GROUP-TYPE-RANGE` | `types/grouping-type-map.md`, `references/group-boundary-contract.md`, `references/visual-tone-projection-contract.md`, `references/statistics-yaml-contract.md`, `review/review-contract.md` | `N1-N9 per episode` | `C5-final` | per-episode manifest and validator summary |
+| `all_ready_episodes / FAIL-GROUP-TYPE-ALL-READY` | `types/grouping-type-map.md`, `references/group-boundary-contract.md`, `references/visual-tone-projection-contract.md`, `references/statistics-yaml-contract.md`, `review/review-contract.md` | `N1-N9 per discovered episode` | `C5-final` | ready source inventory and per-episode output manifest |
 | `repair / FAIL-GROUP-TYPE-REPAIR` | `types/grouping-type-map.md`, `review/review-contract.md`, `scripts/` | `R1/R2` | `N8-REVIEW-REPAIR` | fail-code trace, sync patch and validator rerun |
 | `review_only / FAIL-GROUP-TYPE-REVIEW` | `review/review-contract.md`, `scripts/` | `V1` | `N9-WRITEBACK-CLOSE` | findings with fail code and rework target |
-| `FAIL-GROUP-01` | `types/grouping-type-map.md`, `../_shared/upstream-context-application-contract.md`, `review/review-contract.md` | `R1/R2` | `GATE-GROUP-01` | source manifest、north_star manifest、skipped checks |
+| `FAIL-GROUP-01` | `types/grouping-type-map.md`, `../_shared/upstream-context-application-contract.md`, `review/review-contract.md` | `R1/R2` | `GATE-GROUP-01` | source manifest、visual tone manifest、skipped checks |
 | `FAIL-GROUP-04, FAIL-GROUP-05, FAIL-GROUP-06, FAIL-GROUP-12` | `references/group-boundary-contract.md`, `review/review-contract.md`, `scripts/` | `R1/R2` | boundary / continuity gates | duration table、atomic unit table、first line scan |
-| `FAIL-GROUP-02, FAIL-GROUP-07, FAIL-GROUP-11` | `references/north-star-projection-contract.md`, `review/review-contract.md`, `scripts/` | `R1/R2` | style / legacy-field gates | style order scan、legacy field scan |
+| `FAIL-GROUP-02, FAIL-GROUP-07, FAIL-GROUP-11` | `references/visual-tone-projection-contract.md`, `review/review-contract.md`, `scripts/` | `R1/R2` | style / legacy-field gates | style order scan、legacy field scan |
 | `FAIL-GROUP-08, FAIL-GROUP-09, FAIL-SUBJECT-REGISTRY-UNREGISTERED` | `references/statistics-yaml-contract.md`, `review/review-contract.md`, `scripts/` | `R1/R2` | stats / faithfulness / subject registry gates | YAML parse、subject registry match、source diff |
 | `FAIL-GROUP-REPORT-EVIDENCE` | `review/review-contract.md`, `templates/` | `N8/N9` | `GATE-GROUP-REPORT` | required report section checklist |
-| `upstream_grouping_direction / FAIL-GROUP-UPSTREAM-CONTEXT / FAIL-GROUP-UPSTREAM-DIRECTION-MATRIX` | `../_shared/upstream-context-application-contract.md`, `review/review-contract.md` | `N1-N8` / `R1/R2` | `GATE-GROUP-UPSTREAM-CONTEXT` / `GATE-GROUP-UPSTREAM-DIRECTION` | direction matrix links style, subject registry, source, north_star and project constraints to grouping decisions |
+| `upstream_grouping_direction / FAIL-GROUP-UPSTREAM-CONTEXT / FAIL-GROUP-UPSTREAM-DIRECTION-MATRIX` | `../_shared/upstream-context-application-contract.md`, `review/review-contract.md` | `N1-N8` / `R1/R2` | `GATE-GROUP-UPSTREAM-CONTEXT` / `GATE-GROUP-UPSTREAM-DIRECTION` | direction matrix links `2-美学` style outputs, subject registry, source and project constraints to grouping decisions |
 | `FAIL-GROUP-SCRIPTED-PROJECTION` | `review/review-contract.md`, `templates/`, `scripts/` | `R1 -> N3/N6/N7` | `GATE-GROUP-AUTHORSHIP` | authorship integrity audit and discarded candidate log |
 
 ## Quantifiable Execution Criteria Contract
@@ -246,13 +247,13 @@ flowchart TD
 | `evidence_count` | 每集至少 1 个 `source_manifest`、`subject_registry_manifest`、`scene_map`、`shot_line_inventory`、`group_boundary_plan`、`global_style_projection_map`、`upstream_context_application_map`、`upstream_grouping_direction_matrix`、`legacy_field_scan`、`stats_yaml`、`review_verdict` | `Thinking-Action Node Map.evidence` | `FAIL-GROUP-QUANT-EVIDENCE` |
 | `pass_threshold` | 阻断 gate 为 0；组内时长 `<=14.5s`；最终累计结束秒不以 `.5` 结尾的组数 0；ID 错误 0；旧连接件 0；旧字段 0；YAML 缺字段 0；YAML 未登记主体 0；source 无授权改写 0；脚本化生成、批量插入、正则套句、映射投影或固定分组模板伪差异 0 | `N8.gate` / `Convergence Contract` | `FAIL-GROUP-QUANT-THRESHOLD` |
 | `retry_limit` | 同一集同一 fail code 最多 3 轮最小修复；仍失败则 blocked 并报告 source owner | `R1/R2.route_out` | `FAIL-GROUP-QUANT-RETRY` |
-| `fallback_evidence` | source override、缺摄影稿、无显式时长、north_star 等价文本、不可判定场景号均需报告 N/A 或降级原因 | `Review Gate Binding.report_evidence` | `FAIL-GROUP-QUANT-FALLBACK` |
+| `fallback_evidence` | source override、缺摄影稿、无显式时长、2-美学等价风格文本、不可判定场景号均需报告 N/A 或降级原因 | `Review Gate Binding.report_evidence` | `FAIL-GROUP-QUANT-FALLBACK` |
 
 ## Convergence Contract
 
 | convergence_point | pass_condition | fail_condition | evidence | rework_target |
 | --- | --- | --- | --- | --- |
-| `C1-source-and-style` | source 可读，north_star 或等价文本可用，subject registry 可读，模式明确 | source 缺失、集号不唯一、风格不可用、subject registry 缺失 | `source_manifest`, `north_star_manifest`, `subject_registry_manifest` | `N1-INTAKE` |
+| `C1-source-and-style` | source 可读，2-美学/画面基调或等价风格文本可用，subject registry 可读，模式明确 | source 缺失、集号不唯一、风格不可用、subject registry 缺失 | `source_manifest`, `visual_tone_manifest`, `subject_registry_manifest` | `N1-INTAKE` |
 | `C2-inventory` | 场景与分镜/atomic unit 可追踪 | 场景号无法定位且无报告策略；默认摄影稿漏分镜行 | `scene_map`, `shot_line_inventory` | `N2-SOURCE-INVENTORY` |
 | `C3-boundary` | 每组边界完整，通常 10-11.5 秒，硬上限 14.5 秒，最终累计结束秒以 `.5` 结尾 | 拆断 atomic unit、超时、跨场景混组、最终累计结束秒未以 `.5` 结尾 | `group_boundary_plan`, `duration_table` | `N3-GROUP-BOUNDARY` |
 | `C4-assembly` | 组头、`全局风格：` 单行、回龙帧、YAML、主体注册表对齐、保真和作者性完整性均可检查 | 旧字段、连接件、风格缺失、YAML 缺失、YAML 未登记主体、source 改写、脚本化生成、批量插入、正则套句、映射投影或固定模板伪差异 | `candidate_groups`, `subject_registry_alignment`, `source_preservation_diff`, `authorship_integrity_audit` | `N4-N7` |
@@ -262,7 +263,7 @@ flowchart TD
 
 | review_question | review_gate | fail_code | rework_target | report_evidence |
 | --- | --- | --- | --- | --- |
-| source、north_star、source override 和 skipped checks 是否声明清楚？ | `GATE-GROUP-01` | `FAIL-GROUP-01` | `N1-INTAKE` | `source_manifest`, `north_star_manifest`, `skipped_camera_checks` |
+| source、2-美学上下文、source override 和 skipped checks 是否声明清楚？ | `GATE-GROUP-01` | `FAIL-GROUP-01` | `N1-INTAKE` | `source_manifest`, `visual_tone_manifest`, `skipped_camera_checks` |
 | 每组是否有场景标题行和单行 `全局风格：` 内容？ | `GATE-GROUP-02` | `FAIL-GROUP-02` | `N4-GLOBAL-STYLE` | `global_style_projection_map` |
 | 分镜组 ID 是否为 `x-y-z` 且跨场景重置？ | `GATE-GROUP-05` | `FAIL-GROUP-04` | `N3-GROUP-BOUNDARY` | `scene_group_index` |
 | 边界是否以完整 shot line / atomic unit 和约 14.5 秒为主，任一组不超过 14.5 秒，且最终累计结束秒以 `.5` 结尾？ | `GATE-GROUP-06` | `FAIL-GROUP-05` | `N3-GROUP-BOUNDARY` | `duration_table`, `boundary_reason` |
@@ -273,9 +274,9 @@ flowchart TD
 | 首帧衔接/回龙帧是否内化到普通首行，且第二组起首行能明确复现上一组尾帧状态锚点的主体、动作余势、关键道具/介质、光声残留和空间关系，并同步声音承托？ | `GATE-GROUP-14` / `GATE-GROUP-15` | `FAIL-GROUP-12` | `N6-FIRST-LINE-CONTINUITY` | `first_line_continuity_map`, `tail_state_anchor_map`, `sound_support_map` |
 | direct screenplay 或无时长 source 是否声明时间码由本阶段规划？ | `GATE-GROUP-DIRECT-SCREENPLAY` | `FAIL-GROUP-DIRECT-SCREENPLAY` | `N1` / `N3` | `timecode_source_note`, `source_state` |
 | 报告是否包含 Reference Execution Matrix、Rule Evidence Map、N/A、Repair Log？ | `GATE-GROUP-REPORT` | `FAIL-GROUP-REPORT-EVIDENCE` | `N8-REVIEW-REPAIR` | `execution_report_sections` |
-| 上游美学、主体注册表、摄影/指定 source、north_star 和项目上下文是否被明确应用到分组决策，而不是只写“已读取”？ | `GATE-GROUP-UPSTREAM-CONTEXT` | `FAIL-GROUP-UPSTREAM-CONTEXT` | `N1-INTAKE` / `N3-GROUP-BOUNDARY` / `N4-GLOBAL-STYLE` / `N6-FIRST-LINE-CONTINUITY` / `N7-ASSEMBLE-STATS` | `upstream_context_application_map` |
+| 上游美学、主体注册表、摄影/指定 source、2-美学输出和项目上下文是否被明确应用到分组决策，而不是只写“已读取”？ | `GATE-GROUP-UPSTREAM-CONTEXT` | `FAIL-GROUP-UPSTREAM-CONTEXT` | `N1-INTAKE` / `N3-GROUP-BOUNDARY` / `N4-GLOBAL-STYLE` / `N6-FIRST-LINE-CONTINUITY` / `N7-ASSEMBLE-STATS` | `upstream_context_application_map` |
 | 上游信号是否形成 `Upstream Grouping Direction Matrix`，说明如何导向组边界、全局风格、首帧衔接、YAML 主体统计和下游 handoff，且没有新增主体？ | `GATE-GROUP-UPSTREAM-DIRECTION` | `FAIL-GROUP-UPSTREAM-DIRECTION-MATRIX` | `N8-REVIEW-REPAIR` / owning node | `upstream_grouping_direction_matrix`, `subject_registry_alignment` |
-| 分组边界、首帧衔接、组级风格和 YAML 语义统计是否由 LLM 基于 source atomic unit、north_star、组内声画连续和下游生产目标裁决，而非脚本、映射表、规则模板、关键词锚点替换、句式轮换、同义改写或固定分组模板批量生成？ | `GATE-GROUP-AUTHORSHIP` | `FAIL-GROUP-SCRIPTED-PROJECTION` | `R1-ROOT-CAUSE` -> `N3-GROUP-BOUNDARY` -> `N6-FIRST-LINE-CONTINUITY` | `authorship_integrity_audit`, `boundary_reason`, `discarded_candidate_log` |
+| 分组边界、首帧衔接、组级风格和 YAML 语义统计是否由 LLM 基于 source atomic unit、2-美学视觉基调、组内声画连续和下游生产目标裁决，而非脚本、映射表、规则模板、关键词锚点替换、句式轮换、同义改写或固定分组模板批量生成？ | `GATE-GROUP-AUTHORSHIP` | `FAIL-GROUP-SCRIPTED-PROJECTION` | `R1-ROOT-CAUSE` -> `N3-GROUP-BOUNDARY` -> `N6-FIRST-LINE-CONTINUITY` | `authorship_integrity_audit`, `boundary_reason`, `discarded_candidate_log` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -285,7 +286,7 @@ flowchart TD
 | --- | --- | --- | --- | --- |
 | `source_layer` | 默认摄影稿缺失、场景标题缺失、分镜行时长缺失、source override 未声明 | `source -> source_state -> skipped checks -> owner` | `N1-INTAKE` / source owner | source 不唯一或默认 source 缺 canonical 时间段且无 override 时停止 |
 | `boundary_layer` | 拆断 atomic unit、跨场景混组、单组超过 14.5 秒、最终累计结束秒未以 `.5` 结尾 | `shot_line_inventory -> group_boundary_plan -> duration_table` | `N3-GROUP-BOUNDARY` | 同一 atomic unit 自身超过 14.5 秒时回退 source owner |
-| `style_layer` | `全局风格：` 缺失、位置错误或证据不明 | `north_star/source evidence -> style map -> output position` | `N4-GLOBAL-STYLE` | 缺 north_star 或等价风格文本时停止 |
+| `style_layer` | `全局风格：` 缺失、位置错误或证据不明 | `2-美学视觉基调/source evidence -> style map -> output position` | `N4-GLOBAL-STYLE` | 缺 `2-美学/画面基调/全局风格协议.md` 或等价风格文本时停止 |
 | `continuity_layer` | 首帧衔接缺失、尾帧状态锚点未复现、回龙帧写成字段、声音承托断裂 | `previous tail -> tail_state_anchor -> first line -> sound support` | `N6-FIRST-LINE-CONTINUITY` | 无上一组时只允许首组自然开始，不补伪回龙 |
 | `assembly_layer` | YAML 缺字段、旧字段残留、正文被改写、时间码不连续 | `candidate -> validator/review -> sync_patch` | `N7-ASSEMBLE-STATS` / `R2-SYNC-REPAIR` | 修复只动失败组和失败字段 |
 | `subject_registry_layer` | YAML 中出现未登记角色、场景或道具，或 id/name 不匹配 | `stats_yaml -> subject_registry_alignment -> 3-主体 owner` | `N7-ASSEMBLE-STATS` / `3-主体` registry repair | 分组不得在本阶段新增主体，只能归一、删除或回到 `3-主体` 补证 |
@@ -309,7 +310,7 @@ flowchart TD
 | `FIELD-GROUP-04` | `SKILL.md.Module Loading Matrix` | `types/`、`references/`、`review/`、`templates/`、`scripts/`、`knowledge-base/` 的授权与禁止用途 | `FAIL-GROUP-MODULE-MATRIX` |
 | `FIELD-GROUP-05` | `SKILL.md.Module Trigger Matrix` | 任务信号和所有 Review Gate `FAIL-*` 到模块组合、加载阶段、回流门和机械检查 | `FAIL-GROUP-MODULE-TRIGGER` |
 | `FIELD-GROUP-06` | `references/group-boundary-contract.md` | x-y-z ID、14.5 秒硬上限、atomic unit、`.5` 收束、回龙帧尾帧状态锚点 | `FAIL-GROUP-05` |
-| `FIELD-GROUP-07` | `references/north-star-projection-contract.md` | `2-美学/画面基调.Global Style Prompt` 到当前组 `全局风格：` 单行整理 | `FAIL-GROUP-02` |
+| `FIELD-GROUP-07` | `references/visual-tone-projection-contract.md` | `2-美学/画面基调.Global Style Prompt` 到当前组 `全局风格：` 单行整理 | `FAIL-GROUP-02` |
 | `FIELD-GROUP-08` | `references/statistics-yaml-contract.md` | YAML 五字段、id/name registry 对齐、同物归并、统计排除项 | `FAIL-GROUP-08` |
 | `FIELD-GROUP-09` | `review/review-contract.md` | review modes、acceptance checklist、failure routing、Review Verdict 和 report output | `FAIL-GROUP-REPORT-EVIDENCE` |
 | `FIELD-GROUP-10` | `templates/output-template.md` / `templates/episode-groups.template.md` | Output Contract Alignment、report matrices、id/name YAML 示例、无旧字段 | `FAIL-GROUP-TEMPLATE-SYNC` |
@@ -333,7 +334,7 @@ flowchart TD
 
 - `Execution Decision Trace`：关键判断、适用规则、输入证据、取舍理由和输出落点。
 - `Reference Execution Matrix`：逐条记录授权模块的 `reference`、`load_status`、`trigger_reason`、`applied_to`、`evidence_in_output`、`verdict`、`n/a_reason`。
-- `Upstream Context Application Map`：说明上游美学、主体注册表、摄影/指定 source、north_star 和项目上下文如何进入分组节点。
+- `Upstream Context Application Map`：说明上游美学、主体注册表、摄影/指定 source、2-美学输出和项目上下文如何进入分组节点。
 - `Upstream Grouping Direction Matrix`：说明每类上游信号的 `direction_role`、`used_as`、`stage_decision`、`stage_landing`、`boundary_check` 与 `evidence_map`。
 - `Rule Evidence Map`：把 source、边界、`全局风格：`、回龙帧/尾帧状态锚点、subject registry 对齐、YAML、保真、下游 handoff 等规则映射到输出位置或报告证据。
 - `N/A Justification`：source override、缺摄影稿、无显式时长、无需某模块等不适用理由。
@@ -371,7 +372,7 @@ flowchart TD
 ### Permission Boundaries
 
 - 可写范围限定为本技能包的 `SKILL.md`、`CONTEXT.md`、授权模块、模板、脚本、README、CHANGELOG、`agents/openai.yaml` 与 `test-prompts.json`，以及用户明确要求的项目 `8-分组` 输出。
-- 项目任务中 `7-摄影`、`2-美学`、`3-主体/subject-registry.yaml`、`north_star.yaml` 和项目 `MEMORY.md/CONTEXT/` 默认只读；只有用户明确要求对应上游阶段 repair 时才转交 owning stage。
+- 项目任务中 `7-摄影`、`2-美学`、`3-主体/subject-registry.yaml` 和项目 `MEMORY.md/CONTEXT/` 默认只读；只有用户明确要求对应上游阶段 repair 时才转交 owning stage。
 - `knowledge-base/` 只接收人工或维护者加入的外部资料；执行经验写入 `CONTEXT.md`。
 
 ### Self-Modification Prohibitions

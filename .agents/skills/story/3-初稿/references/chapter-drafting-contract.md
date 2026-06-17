@@ -44,6 +44,7 @@
 12. 输出路径固定为 canonical path，不得写到旧分支子目录或临时 sibling 文件。
 13. 目标章已存在时，必须明确 `chapter_continue / chapter_rewrite / local_repair` 和覆盖授权。
 14. 脚本、模板、正则和映射表不得生成正文；正文必须来自 LLM-first 主创。
+15. 命中类型化场面时，必须先按 `genre_scene_route` 建立项目题材轴和场景功能轴；不得把武侠动作、言情拉扯、玄幻能力、恐怖遮蔽、悬疑线索或现实压力任一类型写成通用默认模板。
 
 ## Frontmatter Contract
 
@@ -61,7 +62,7 @@
 - 本章 planning 负责“要推进到哪里”，同卷前文负责“从哪里入场”和“哪些事实已经成立”。
 - planning 与前文冲突时，先保留前文已成立事实，再让本章完成推进；若冲突无法调和，阻断并路由 `repair`。
 
-## Built-in Acceptance Gate Mapping
+## Review Gate Mapping
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
@@ -70,6 +71,7 @@
 | 同卷前文是否完整加载并形成连续性桥？ | `continuity` | `FAIL-DRAFT-CONTINUITY` | `N3-CONTINUITY` | previous chapter refs |
 | 因果、人物、时间线和章级/卷级任务汇聚是否成立？ | `logic_character_timeline_task` | `FAIL-DRAFT-LOGIC` / `FAIL-DRAFT-CHARACTER` / `FAIL-DRAFT-TIMELINE` / `FAIL-DRAFT-TASK` | `N2-SOURCE-LOCK` / `N5-CREATIVE-DRAFT` | issue map |
 | 正文是否完成 prose 转换，有现场感、读者牵引和章末钩子，没有 planning 标题或执行标签？ | `prose_reader_pull` | `FAIL-DRAFT-PROSE-PULL` | `N5-CREATIVE-DRAFT` | offending excerpt |
+| 命中类型化场面时是否按项目题材轴、场景功能轴和必要 subtype package 写进 prose，且没有机械题材套用、无源加料或第三正文真源？ | `genre_scene_fit` | `FAIL-DRAFT-GENRE-SCENE` | `N2-SOURCE-LOCK` / `N5-CREATIVE-DRAFT` | `type_package_manifest`、`genre_scene_route`、`genre_scene_profile` |
 | 是否遵守 LLM-first 作者性，脚本没有生成正文？ | `creative_authorship` | `FAIL-DRAFT-AUTHORSHIP` | `N5-CREATIVE-DRAFT` | script audit |
 | 输出是否只写入 canonical path，并同步生成 `第N章.acceptance.json`？ | `output_state` | `FAIL-DRAFT-WRITEBACK` | `N7-WRITEBACK-STATE` | expected vs actual path |
 

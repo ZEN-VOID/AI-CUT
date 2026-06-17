@@ -14,18 +14,58 @@
     "source_design_path": "projects/aigc/<项目名>/3-主体/角色/2-设计/<角色名>.md",
     "source_deconstruction_section": "4. 解构"
   },
-  "imagegen": {
-    "mode": "built_in_generate",
-    "resolution_target": "2K",
+  "asset_preflight": {
+    "subject_asset_root": "projects/aigc/<项目名>/3-主体",
+    "lookup_keys": [
+      "subject_id",
+      "subject_name_safe",
+      "<主体ID>-<主体名称>-主图",
+      "design-manifest.yaml:generation_assets"
+    ],
+    "asset_reuse_decision": "generate_new_subject | reuse_existing_asset | upload_existing_asset | generate_state_variant",
+    "generation_skipped": false,
+    "existing_asset_path": "",
+    "canvas_action": "create_new_node | node_already_present | uploaded_existing_image_to_canvas",
+    "local_sync": {
+      "local_sync_required": true,
+      "local_sync_action": "confirm_local_canonical_present | download_generated_canvas_node | download_existing_canvas_node | copy_existing_local_to_canonical | prompt_only_pending",
+      "local_sync_status": "pending | already_present | synced | copied | blocked",
+      "local_asset_path": "projects/aigc/<项目名>/3-主体/角色/3-生成/<主体ID>-<主体名称>-主图.<ext>",
+      "download_command": "libtv download -p <LIBTV_CANVAS_UUID> -n <LIBTV_NODE_ID_OR_NAME> -o projects/aigc/<项目名>/3-主体/角色/3-生成 | not_applicable_when_already_present_or_copied",
+      "download_stdout_path": ""
+    },
+    "state_variant_label": "",
+    "state_variant_suffix": "",
+    "base_reference_node_name": "",
+    "base_reference_asset_path": ""
+  },
+  "libTV": {
+    "mode": "libtv_canvas_generate",
+    "canvas_name_hint": "<PROJECT_NAME>-第<EPISODE_NUMBER>集",
+    "canvas_uuid": "<LIBTV_CANVAS_UUID>",
+    "node_type": "image",
+    "node_name": "<主体ID>-<主体名称>-主图",
+    "model_policy": "new_subject_midjourney_default | state_variant_lib_image",
+    "model_display_name": "Midjourney V8.1",
+    "model_key": "<RESOLVED_LIBTV_MODEL_KEY>",
+    "variant_model_display_name": "Lib Image",
+    "variant_model_key": "<RESOLVED_LIB_IMAGE_MODEL_KEY_WHEN_STATE_VARIANT>",
+    "aspect_ratio": "--ar 9:16",
+    "aspect_ratio_lock": "character_default_9:16 | inherit_from_base_asset",
+    "fixed_suffix": "--hd --style raw",
+    "style_preset_name": "<STYLE_PRESET_OR_EMPTY>",
+    "style_preset_params": "<MIDJOURNEY_STYLE_PARAMS_OR_EMPTY>",
+    "midjourney_suffix": "<STYLE_PRESET_PARAMS + ' --ar 9:16 --hd --style raw'>",
     "output_image_path": "projects/aigc/<项目名>/3-主体/角色/3-生成/<主体ID>-<主体名称>-主图.<ext>",
     "output_prompt_path": "projects/aigc/<项目名>/3-主体/角色/3-生成/<主体ID>-<主体名称>-主图.json"
   },
   "prompt_payload": {
     "purpose": "single-subject character main image",
-    "prompt_source_policy": "Use the upstream character design document's section `4. 解构` as the character source of truth. Do not use the former English integrated prompt from `提示词设计` as the imported source for gpt-image-2. Do not redesign identity, costume, era, style, narrative pressure, or body details.",
+    "prompt_source_policy": "Use the upstream character design document's section `4. 解构` as the character source of truth. Do not use the former English integrated prompt from `提示词设计` as the imported source for Midjourney V8.1. Do not redesign identity, costume, era, style, narrative pressure, or body details.",
     "source_deconstruction_quote": "<DIRECTLY_FROM_CHARACTER_DESIGN_SECTION_4_DECONSTRUCTION>",
     "prompt_text": "<LLM_AUTHORED_FROM_SOURCE_DECONSTRUCTION_SECTION_4; no script concatenation, regex phrasing, synonym rotation, batch insertion, or mapping projection>",
-    "execution_wrap": "LLM may add only imagegen execution framing that preserves the upstream deconstruction; framing must not invent identity, costume, era, narrative pressure, or scene facts.",
+    "execution_wrap": "LLM may add only libTV canvas-node execution framing and the required Midjourney suffix; framing must not invent identity, costume, era, narrative pressure, or scene facts.",
+    "state_variant_policy": "When asset_preflight.asset_reuse_decision is generate_state_variant, use Lib Image with the base reference node and describe only the state delta while preserving identity, costume system, render style, and 9:16 aspect.",
     "negative_prompt": "no extra characters, no unrelated props as main subject, no redesign, no generic fashion editorial drift, no scene-dominant composition, no mixed identity, no inconsistent costume, no text blocks unless requested"
   },
   "review": {

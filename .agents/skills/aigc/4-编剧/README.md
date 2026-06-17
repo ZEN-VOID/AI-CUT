@@ -27,7 +27,7 @@
 
 - 输入：`projects/aigc/<项目名>/1-分集/第N集.md` 或用户粘贴的单集小说正文。
 - 输出：`projects/aigc/<项目名>/4-编剧/第N集.md`。
-- 报告：`projects/aigc/<项目名>/4-编剧/执行报告.md`，正式写回时必须包含 `Execution Decision Trace`、`Reference Execution Matrix`、`Rule Evidence Map`、`N/A Justification`、`Repair Log`、`Audio Visual Pairing Map` 和 `Same Frame Continuity Map`。
+- 报告：`projects/aigc/<项目名>/4-编剧/执行报告.md`，正式写回时必须包含 `Execution Decision Trace`、`Reference Execution Matrix`、`Upstream Creative Direction Matrix`、`Type Style Application Map`、`Subject Registry Application Map`、`Scene Asset Integration Map` 或 N/A、`Rule Evidence Map`、`N/A Justification`、`Repair Log`、`Audio Visual Pairing Map` 和 `Same Frame Continuity Map`。
 - 下游：`5-导演`、`6-分镜`、`7-摄影`、`8-分组` 等阶段可消费剧本层输出；这些下游真源不得被本技能提前越权写入。`backup/5-表演`、`backup/6-氛围`、`backup/9-光影` 仅作显式 legacy 回读。
 
 ## Runtime Spine

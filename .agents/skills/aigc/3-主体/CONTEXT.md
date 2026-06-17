@@ -29,6 +29,7 @@ last_checked_at: 2026-06-16
 | `TM-SUBJ-10` | 父级 runtime spine 更新了路由或 gate，但没有同步 agent metadata、test prompts 或 README | Skill 2.0 核心布局同步缺口 | 同轮补齐 `agents/openai.yaml`、`test-prompts.json`、`README.md`，并在 `CHANGELOG.md` 记录 | 父级结构变更默认检查 core layout 与 prompts 覆盖 | delivery validator、JSON/YAML 解析和 prompt ids 检查通过 |
 | `TM-SUBJ-11` | router root smoke 报大量子目录 `review/`、`templates/`、`references/` broken refs，但对应叶子单独 smoke 为 ACCEPT | 递归扫描把叶子相对路径按父级 root 解析 | 不在父级批量改写叶子本地引用；先跑叶子目录独立 smoke 区分真实断链与递归误判 | 父级 final 报告标注 root 为 conditional、叶子为 accept，并保留 `.smoke-test-report.json` | 4 个 router root 允许 conditional，9 个叶子 smoke 均 ACCEPT |
 | `TM-SUBJ-12` | `Type Routing Matrix.module_load` 或 `Module Trigger Matrix.required_modules` 使用多模块逗号列表后，smoke 报 `-> ,` missing module | validator 的矩阵 token 解析把逗号视作模块项 | root/domain 级矩阵优先使用一个已授权模块 token；多叶子分发写在节点 actions 或 mechanical_check | 模块矩阵使用可解析 token：`CONTEXT.md`、`1-清单/`、`2-设计/`、`3-生成/`、`SA-*` | smoke 不再出现 `MISSING MODULE LOAD/TRIGGER -> ,` |
+| `TM-SUBJ-13` | 跨集执行主体生成时，父级未把既有主体图复用规则传给叶子，导致同主体同状态重复生成、本地 canonical 已有仍重复下载，或画布/本地缺口未互补 | 共享生成合同未回指 | 在父级 task packet 中提示叶子加载 `_shared/主体图复用与状态变体规则.md` | `3-生成` 叶子固定 asset preflight 和 local canonical ensure gate：本地已有跳过下载，画布缺上传，本地缺下载 | 叶子报告有 `asset_reuse_decision`、`canvas_action`、`local_sync_status`、状态变体 `Lib Image` 证据 |
 
 ## Repair Playbook
 
@@ -46,6 +47,7 @@ last_checked_at: 2026-06-16
 12. 修改父级路由、汇流 gate、上下文处理或 anti-scripted gate 时，同步检查 `test-prompts.json` 是否覆盖整体并发、单域路由和修复审查三类路径。
 13. 处理 router root smoke 时，先看 Phase E/F 是否有硬拒绝；若只剩子目录相对路径 broken refs，必须用叶子独立 smoke 复核真实可运行性。
 14. 编写矩阵单元格时避免逗号分隔多模块；需要表达多文件加载时，用一个授权模块 token 承载触发，细节写入节点 action、mechanical_check 或对应叶子合同。
+15. 若任务进入任一 `3-生成` 叶子，父级不直接生图，但必须保留共享生成规则回指：Midjourney V8.1 默认后缀来自 `_shared/midjourney风格参数.yaml`，跨集复用、本地 canonical 已有跳过、画布缺失时上传、本地缺失时下载补齐和状态变体来自 `_shared/主体图复用与状态变体规则.md`。
 
 ## Reusable Heuristics
 

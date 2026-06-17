@@ -7,16 +7,16 @@
 | scope | canonical path | owner |
 | --- | --- | --- |
 | project root | `projects/aigc/<项目名>/` | root `aigc` skill |
-| memory | `projects/aigc/<项目名>/MEMORY.md` | project memory |
+| memory | `projects/aigc/<项目名>/MEMORY.md` | project memory hub for initialization user requirements, team configuration, reference absorption summaries, stable constraints, and downstream context guidance |
 | project state | `projects/aigc/<项目名>/STATE.json` | root / resume, created only when the owning workflow needs live route truth |
 | governance state | `projects/aigc/<项目名>/governance-state.yaml` | root / resume / review, created only when governance state is needed |
 | changelog | `projects/aigc/<项目名>/CHANGELOG.md` | project timeline, created only when a workflow needs chronological logging |
-| context | `projects/aigc/<项目名>/CONTEXT/` | project context root, created by `0-初始化`; populated by later owning workflows when supplemental context is needed |
+| context | `projects/aigc/<项目名>/CONTEXT/` | project context sidecar root, created by `0-初始化`; populated by later owning workflows when supplemental context is needed and summarized back into `MEMORY.md` when durable |
 | source | `projects/aigc/<项目名>/源/` | source material landing, created only when source intake is needed |
 
 ## Bootstrap Scaffold Rows
 
-`0-初始化` creates only the current active stage roots, project `MEMORY.md`, and project `CONTEXT/`.
+`0-初始化` creates only the current active stage roots, project `MEMORY.md`, and project `CONTEXT/`. Initialization-time user-specified team information, reference material summaries, and context guidance are written into `MEMORY.md`, not into former initialization carriers.
 
 | stage | runtime root | note |
 | --- | --- | --- |
@@ -32,7 +32,7 @@
 | `9-图像` | `projects/aigc/<项目名>/9-图像/` | current Chinese image runtime |
 | `10-画布` | `projects/aigc/<项目名>/10-画布/` | current Chinese video/canvas runtime |
 
-## Scaffold-Only Initialization Rule
+## Scaffold Plus Memory Initialization Rule
 
 Current `0-初始化` does not create former initialization carriers:
 
@@ -43,9 +43,11 @@ Current `0-初始化` does not create former initialization carriers:
 - `projects/aigc/<项目名>/STATE.json`
 - `projects/aigc/<项目名>/CHANGELOG.md`
 - `projects/aigc/<项目名>/源/`
+
+Downstream aesthetic context is not initialized here. It is owned by `2-美学`: `类型风格.md`, `画面基调/全局风格协议.md`, and current-episode or baseline style protocol outputs.
 - governance sidecars
 
-Except for project `CONTEXT/`, these carriers may be created later only by an owning workflow that explicitly needs them.
+Except for project `CONTEXT/`, these carriers may be created later only by an owning workflow that explicitly needs them. User-specified team configuration and reference absorption from initialization must remain readable from `MEMORY.md` even if a later workflow creates a specialized carrier.
 
 ## Bootstrap Compatibility
 

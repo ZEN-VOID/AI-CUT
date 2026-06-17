@@ -34,6 +34,7 @@
 - 上游真源：`projects/aigc/<项目名>/3-主体/subject-registry.yaml` 的 `subjects.characters` 条目。
 - Canonical 输出：`projects/aigc/<项目名>/3-主体/角色/1-清单/角色清单.md`。
 - 固定表头：`名称`、`首次登场`、`原文描述（关键词式）`。
+- 多状态策略：同一角色的多服装、战斗、战损、受伤、少年、老年等作为同一 base character 的变体，不拆成新角色；必要时用 `变体：...` 短标签或 manifest sidecar 交接。
 
 ## Visual Overview
 
@@ -52,3 +53,4 @@ flowchart TD
 - 角色归并、别名判断、代称裁决由 LLM 完成。
 - 脚本只能读取、抽取、校验和提示风险，不能生成 canonical 清单正文。
 - 正文回查只允许用于解释 registry 条目的 source anchors，不得绕过 registry 另造候选。
+- 状态变体不得污染角色清单主体数量；清单仍保持三列。

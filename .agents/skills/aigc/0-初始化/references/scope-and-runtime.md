@@ -6,7 +6,7 @@ This file owns the scaffold path allowlist for `$aigc-init`. It expands the acti
 
 - Create or repair the project root under `projects/aigc/<项目名>/`.
 - Create the current 0-10 AIGC stage directory structure using the latest skill package names.
-- Create or update project `MEMORY.md` with initialization-time user requirements and stable long-term inclinations.
+- Create or update project `MEMORY.md` as the centralized project context hub for initialization-time user requirements, team configuration, supplied-reference absorption summaries, stable long-term inclinations, production constraints, exclusions, and downstream context-reading guidance.
 - Create project `CONTEXT/` with a minimal `README.md` so downstream project-context loading has a stable root.
 - Preserve existing files and avoid deleting, overwriting, or creating former multi-file initialization outputs.
 
@@ -94,8 +94,8 @@ Existing historical projects may keep legacy paths as compatibility inputs, but 
 - `0-初始化/` is only an empty initialization stage container after scaffold creation.
 - `2-美学/`, `3-主体/`, `4-编剧/`, `5-导演/`, `6-分镜/`, `7-摄影/`, and `8-分组/` replace the older `2-编导/`, `3-运动/`, and `4-摄影/` bootstrap naming; `backup/5-表演`, `backup/6-氛围`, and `backup/9-光影` are not scaffolded as active project directories.
 - `3-主体/` is created only as the stage root. Its scene, role, and prop subdirectories are created by the owning `3-主体` workflow when needed.
-- `MEMORY.md` records project-level long-term preferences, constraints, exclusions, special elements, and user initialization requirements.
-- `CONTEXT/README.md` is a neutral project-context root marker; later workflows may add relevant context files under `CONTEXT/`.
+- `MEMORY.md` records project-level long-term preferences, constraints, exclusions, special elements, user initialization requirements, team configuration, supplied-reference absorption summaries, and stage context-reading guidance.
+- `CONTEXT/README.md` is a neutral project-context root marker; later workflows may add source indexes, large reference sidecars, model notes, or other supplemental context files under `CONTEXT/`, but those sidecars must not replace `MEMORY.md` as the project memory hub.
 
 ## Truth Ownership
 
@@ -106,13 +106,15 @@ Existing historical projects may keep legacy paths as compatibility inputs, but 
 - project `CONTEXT/` creation
 - scaffold readback and drift reporting
 
-`0-初始化` does not own canonical truth for later stage deliverables, route state, source readiness, team lineup, governance state, or north-star creative design.
+`0-初始化` does not own canonical truth for later stage deliverables, route state, source readiness, governance state, or north-star creative design. It does own the initialization memory writeback for user-specified team configuration and collaboration preferences, but only as project context inside `MEMORY.md`, not as an executable team roster or advisor runtime.
 
 ## Project Memory Rules
 
-1. `MEMORY.md` records only stable project preferences, tastes, special elements, exclusions, long-term requirements, and initialization-time requirements that should persist.
+1. `MEMORY.md` records stable project preferences, tastes, special elements, exclusions, long-term requirements, initialization-time requirements that should persist, user-specified team configuration, collaboration/reviewer preferences, supplied-reference absorption summaries, production constraints, and context-reading guidance.
 2. If `MEMORY.md` already exists, merge or append relevant new memory items; do not overwrite existing memory silently.
-3. One-off task instructions, execution logs, script failures, and cross-project heuristics do not belong in project `MEMORY.md`.
+3. Supplied reference materials should be summarized into durable memory items; large raw materials or volatile indexes may live in `CONTEXT/`, with a short absorbed summary and pointer in `MEMORY.md`.
+4. Team configuration in `MEMORY.md` is context, not a permission to call team member personas, create `team.yaml`, or fabricate advisor Q&A.
+5. One-off task instructions, execution logs, script failures, and cross-project heuristics do not belong in project `MEMORY.md`.
 
 ## Review Gate Mapping
 
@@ -122,4 +124,4 @@ Existing historical projects may keep legacy paths as compatibility inputs, but 
 | Does initialization create or verify the current 0-10 scaffold directories using latest skill package names? | `FIELD-INIT-05` | `FAIL-INIT-05` | `SKILL.md` `N2-scaffold` | Directory readback or dry-run manifest. |
 | Does project `CONTEXT/` exist without becoming a second rules source? | `FIELD-INIT-05` | `FAIL-INIT-05` | `SKILL.md` `N2-scaffold`; `templates/project-context-readme.template.md` | `CONTEXT/README.md` path plus neutral boundary text. |
 | Does initialization avoid former multi-file outputs and forbidden legacy paths? | `FIELD-INIT-05` | `FAIL-INIT-05` | `SKILL.md` `Forbidden Bootstrap Outputs` | Absence check for removed artifacts and legacy aliases. |
-| Does project `MEMORY.md` exist and preserve user initialization requirements or stable inclinations? | `FIELD-INIT-09` | `FAIL-INIT-09` | `SKILL.md` `N3-memory`; `templates/project-memory.template.md` | Memory file path plus summarized captured items. |
+| Does project `MEMORY.md` exist and preserve user initialization requirements, team configuration, supplied-reference absorption summaries, stable inclinations, and downstream context guidance? | `FIELD-INIT-09` | `FAIL-INIT-09` | `SKILL.md` `N3-memory`; `templates/project-memory.template.md` | Memory file path plus summarized captured items and any deferred raw material pointers. |

@@ -1,6 +1,6 @@
 # Resume Heuristics
 
-本文件保存 `$story-resume` 可复用经验。它不是入口合同；稳定到必须执行的规则应晋升到 `SKILL.md`、`references/`、`steps/`、`types/` 或 `review/`。
+本文件保存 `$story-resume` 可复用经验。它不是入口合同；稳定到必须执行的规则应晋升到 `SKILL.md`、`references/`、`types/`、`review/`、`templates/` 或 `scripts/`。
 
 ## Heuristics
 

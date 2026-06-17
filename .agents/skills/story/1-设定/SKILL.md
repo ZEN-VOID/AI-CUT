@@ -1,8 +1,8 @@
 ---
 name: story-cards
-governance_tier: lite
+governance_tier: router
 skill_role: parent_guide
-description: "Use when routing story card generation for characters, scenes, items, or skills."
+description: "Use when routing story card generation, repair, coverage, writeback, and validation across character, scene, item, and skill card child skills."
 tools: [Read, Write, Edit, Grep, Bash]
 color: amber
 ---
@@ -35,6 +35,27 @@ color: amber
 - 进入任一子技能前，必须加载该子技能自己的 `SKILL.md + CONTEXT.md`。
 - 根级 `CONTEXT.md` 只提供 cards 技能组经验与返工启发，不得覆盖本文件的路由、所有权与 gate。
 
+## Context Processing Contract
+
+| processing_slot | required_action | evidence | fail_code |
+| --- | --- | --- | --- |
+| `context_snapshot` | 记录父层、项目层和命中子技能上下文是否加载 | `loaded_context_manifest` | `FAIL-CARDS-CONTEXT` |
+| `missing_context_policy` | 项目 `MEMORY.md` 或必要 card 输入缺失时先报告缺口，不伪造设定 | `missing_context_report` | `FAIL-CARDS-CONTEXT` |
+| `context_conflict_map` | 用户请求、项目记忆、north_star 与既有 cards 冲突时标注 owner | `conflict_owner_map` | `FAIL-CARDS-ROUTE` |
+| `context_application` | 只把上下文转成子技能输入、顾问问题或 validator finding，不直接替子技能创作 | `child_input_packet` | `FAIL-CARDS-CREATIVE-AUTHORSHIP` |
+| `context_writeback_decision` | 新长期偏好写项目 `MEMORY.md`，跨项目经验写本 `CONTEXT.md` | `writeback_decision` | `FAIL-CARDS-WRITEBACK` |
+
+## Business Requirement Analysis Contract
+
+| field | requirement | evidence | fail_code |
+| --- | --- | --- | --- |
+| `business_goal` | 把 story 设定对象路由到角色、场景、物品、技能四个 child owner，并完成写回与 gate 闭环 | 用户请求、项目 `1-设定/` 目录、child skill 合同 | `FAIL-CARDS-BUSINESS-GOAL` |
+| `business_object` | `projects/story/<项目名>/1-设定/2-角色卡/`、`3-场景卡/`、`4-物品卡/`、`5-技能卡/` 及关系图谱 side output | Canonical Output Root、child Output Contract | `FAIL-CARDS-BUSINESS-OBJECT` |
+| `constraint_profile` | 父层不创作对象正文，不复制 `north_star.yaml`，不为未调度子技能补空 payload | Skill Group Members、Shared Runtime Contract | `FAIL-CARDS-BUSINESS-CONSTRAINT` |
+| `success_criteria` | 路由正确、上下文加载完整、实际调度 child 完成写回、coverage/review 无 blocking finding、状态回写成功 | Quality Gates、Completion Contract | `FAIL-CARDS-BUSINESS-SUCCESS` |
+| `complexity_source` | 复杂度来自多对象依赖链、项目上下文、顾问请教、writer/validator parity 和选择性聚合 | Mode Selection、Operating Flow | `FAIL-CARDS-BUSINESS-COMPLEXITY` |
+| `topology_fit` | router 拓扑适配：父层保 owner 裁决；child 保创作判断；writer/validator 保机械一致；依赖链阻止物品/技能绕过上游接口 | Skill Group Members、Visual Maps、Quality Gates | `FAIL-CARDS-TOPOLOGY-FIT` |
+
 ## Skill Group Members
 
 | 子技能 | 负责对象 | 正式输出根 |
@@ -62,6 +83,38 @@ color: amber
 | `full-build` | 全量建卡并完成 gate | 固定按 mixed 顺序串行推进 |
 | coverage repair | 先读 validator finding，再进入相关子技能 | 只修 blocking finding 指向的对象 |
 | source-contract-fix | 修父子合同、模板、writer、validator、tests 的一致性 | 先修真源层，再跑局部 gate |
+
+## Type Routing Matrix
+
+| input_type | signal | route_to | required_nodes | module_load | fail_code |
+| --- | --- | --- | --- | --- | --- |
+| `single` | 只命中角色、场景、物品或技能之一 | `Single Child Path` | `N1,N2,N3,N5,N6` | `CONTEXT.md` | `FAIL-CARDS-TYPE-SINGLE` |
+| `mixed` | 同时命中多个对象或用户要求成套建卡 | `Dependency Chain Path` | `N1,N2,N3,N4,N5,N6` | `CONTEXT.md` | `FAIL-CARDS-TYPE-MIXED` |
+| `full-build` | 用户要求全量设定卡闭环 | `Full Build Path` | `N1,N2,N3,N4,N5,N6` | `CONTEXT.md` | `FAIL-CARDS-TYPE-FULL` |
+| `coverage-repair` | validator finding 指向 cards 覆盖率、route parity 或 schema | `Finding Repair Path` | `N1,N2,N3,N5,N6` | `CONTEXT.md` | `FAIL-CARDS-TYPE-REPAIR` |
+| `source-contract-fix` | 父子合同、writer、validator、模板或测试漂移 | `Source Contract Path` | `N1,R1,R2,N5,N6` | `CONTEXT.md` | `FAIL-CARDS-TYPE-SOURCE` |
+
+## Thinking-Action Node Map
+
+| node_id | objective | inputs | actions | evidence | route_out | gate |
+| --- | --- | --- | --- | --- | --- | --- |
+| `N1-INTAKE` | 锁定项目、请求类型和非目标 | 用户请求、项目路径、north_star 信号 | 判定是否属于 `1-设定`，全局/风格/题材请求转回 `0-初始化/north_star.yaml` | `task_profile`、`reroute_decision` | `N2-LOAD` / `R1-ROOT-CAUSE` | 项目根或 child finding 不可定位时停止 |
+| `N2-LOAD` | 加载上下文并形成 child 输入包 | 本 `SKILL.md + CONTEXT.md`、项目 `MEMORY.md`、项目 `CONTEXT/` | 形成 `loaded_context_manifest`、冲突 owner 和缺失上下文报告 | `loaded_context_manifest`、`context_conflict_map` | `N3-ROUTE` | 上下文缺失不得伪造对象事实 |
+| `N3-ROUTE` | 选择实际调度的 child skills | Type Routing、Routing Guide、validator finding | 生成命中 child 列表和执行顺序；未调度 child 不补占位 | `child_dispatch_plan` | `N4-ADVISOR` / `N5-WRITEBACK` | route 必须与对象 owner 一致 |
+| `N4-ADVISOR` | 显式启用 subagents 时形成顾问请教包 | 项目 `team.yaml`、共享顾问合同、child 输入 | 面向角色/场景/物品/技能提出具体问题并收束为 `advisor_consultation_packet` | `advisor_consultation_packet` 或降级报告 | `N5-WRITEBACK` | 未启用 subagents 时记录 N/A；启用但阻断时必须说明降级 |
+| `N5-WRITEBACK` | 聚合实际 child 产物并执行机械写回/校验 | child payload、shared writer、coverage validator | 调用 writer/validator；记录 route parity、schema、coverage 与状态回写 | `writeback_report`、`validation_report`、`state_update_report` | `N6-CLOSE` / `R1-ROOT-CAUSE` | blocking finding 必须回源层或 child owner 修复 |
+| `N6-CLOSE` | 收束唯一交付口径 | validation 结果、未处理对象边界 | 输出调度摘要、写回路径、验证状态、未处理边界、源层同步结果 | `final_cards_report` | `done` | 最终只交付实际调度对象和 gate 结论 |
+| `R1-ROOT-CAUSE` | 非平凡失败追因 | validator finding、路径漂移、合同冲突 | 上溯父层路由、child 合同、模板、writer、validator 或 card 内容 | `root_cause_trace` | `R2-SYNC` | 不得只修单张 card 掩盖源层漂移 |
+| `R2-SYNC` | 修复源层并回归验证 | `root_cause_trace` | 同步父子合同、模板、writer/validator/test 引用和上下文经验 | `sync_patch`、`reference_scan` | `N5-WRITEBACK` | 受影响引用必须扫描或说明残留 |
+
+## Multi-Subskill Continuous Workflow
+
+- 主技能包被整体调用时，在满足必要输入、显式选择和安全门后，不再为“是否继续下一步”额外确认。
+- 无序号同级子技能包默认由父级根据用户请求选择性调度；只有 `mixed/full-build` 或依赖门需要时才进入依赖链。
+- 数字序号阶段按 `角色卡 -> 场景卡 -> 物品卡 -> 技能卡` 串行执行，前一对象接口自动作为后一对象输入。
+- 英文序号路线按用户意图、父级路由或输入类型单选分流；只有用户明确要求对比或并跑时才多选。
+- 卫星技能、query/resume/review 旁路入口不默认纳入本技能主链；只有 gate、用户请求或父级合同显式需要时才回接。
+- 每个被调度的技能仍必须加载自身 `SKILL.md + CONTEXT.md`，并由子技能完成 LLM 主创判断。
 
 ## Routing Guide
 
@@ -102,6 +155,26 @@ color: amber
 
 脚本不得生成核心创作正文、审美判断、故事判断或对象成立理由。
 
+## Module Loading Matrix
+
+| module | load_when | authority | forbidden_use | rework_target |
+| --- | --- | --- | --- | --- |
+| `CONTEXT.md` | 每次调用本 router | cards 技能组经验、失败模式、路由启发 | 重定义父层路由、child owner 或输出根 | `Context Processing Contract` |
+| `子技能/SKILL.md + CONTEXT.md` | `N3-ROUTE` 命中对应对象时 | child 创作合同、字段 owner、局部 gate | 未命中时补空 payload；覆盖父层依赖链 | `N3-ROUTE` / 命中子技能 |
+| `../_shared/team-advisor-consultation-contract.md` | 显式启用 subagents / team advisor 时 | 顾问请教、汇流、降级报告格式 | 替代 child LLM 主创或 reviewer gate | `N4-ADVISOR` |
+| `.agents/skills/story/scripts/cards_writer.py` | child payload 已通过局部门禁后 | 机械投影、原子写回 | 生成创作正文、补字段、裁决对象质量 | `N5-WRITEBACK` |
+| `.agents/skills/story/scripts/cards_coverage_validator.py` | 写回后或 coverage repair 时 | schema、route parity、数量/密度/依赖检查 | 替代 child 语义审查 | `N5-WRITEBACK` / `R1-ROOT-CAUSE` |
+
+## Module Trigger Matrix
+
+| trigger_signal | required_modules | load_phase | return_gate | rework_target | mechanical_check |
+| --- | --- | --- | --- | --- | --- |
+| `single / FAIL-CARDS-TYPE-SINGLE / FAIL-CARDS-ROUTE` | `CONTEXT.md`, `子技能/SKILL.md + CONTEXT.md` | `N1-INTAKE -> N3-ROUTE` | `N3-ROUTE` | `N3-ROUTE` | child route list has exactly the matched owner |
+| `mixed / full-build / FAIL-CARDS-TYPE-MIXED / FAIL-CARDS-TYPE-FULL` | `CONTEXT.md`, `子技能/SKILL.md + CONTEXT.md` | `N1-INTAKE -> N3-ROUTE` | `N5-WRITEBACK` | `N3-ROUTE` | dependency order is character, scene, item, skill |
+| `coverage-repair / FAIL-CARDS-TYPE-REPAIR / FAIL-CARDS-GATE` | `CONTEXT.md`, `.agents/skills/story/scripts/cards_coverage_validator.py` | `N1-INTAKE -> R1-ROOT-CAUSE` | `N5-WRITEBACK` | `R1-ROOT-CAUSE` | finding maps to one child owner or parent parity |
+| `source-contract-fix / FAIL-CARDS-TYPE-SOURCE / FAIL-CARDS-WRITEBACK` | `CONTEXT.md`, `.agents/skills/story/scripts/cards_writer.py`, `.agents/skills/story/scripts/cards_coverage_validator.py` | `R1-ROOT-CAUSE -> R2-SYNC` | `N5-WRITEBACK` | `R2-SYNC` | `rg` scan shows no stale child route references |
+| `subagents / FAIL-CARDS-ADVISOR` | `../_shared/team-advisor-consultation-contract.md` | `N4-ADVISOR` | `N4-ADVISOR` | `N4-ADVISOR` | packet or downgrade report is present |
+
 ## Reference Loading Guide
 
 | 场景 | 读取文件 |
@@ -140,7 +213,7 @@ projects/story/<项目名>/1-设定/
 1. 锁定项目根、任务模式与输入范围。
 2. 加载本 `SKILL.md + CONTEXT.md`、项目 `MEMORY.md` 与相关项目 `CONTEXT/`。
 3. 根据请求路由到一个或多个子技能。
-4. 对每个命中子技能加载其 `SKILL.md + CONTEXT.md`，再按其合同读取本地模板、references、steps、review 或 types。
+4. 对每个命中子技能加载其 `SKILL.md + CONTEXT.md`，再按其合同读取本地模板、references、review、types 或 guardrails。
 5. 当启用 subagents 时，按共享团队顾问合同解析 `team.yaml` planning roster，针对命中对象域请教顾问并形成 `advisor_consultation_packet`；若真实 dispatch 被上层阻断，记录阻断层级、原计划路径、实际降级路径和未启动成员。
 6. 由 LLM 完成对象判断与 payload 创作，并消费已裁决的 `advisor_consultation_packet`；脚本只负责投影、落盘或校验。
 7. 经 shared writer 写回正式输出根。

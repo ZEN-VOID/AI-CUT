@@ -25,6 +25,8 @@ last_checked_at: 2026-04-25
 | 表格增加额外主体列 | 模板漂移层 | 恢复三列表格，把归并说明移入 `名称` 或执行报告 | 模板固定三列，review gate 检查列名 | 表头精确为 `名称`、`首次登场`、`原文描述（关键词式）` |
 | 脚本生成归并结果 | LLM-first 层 | 停用生成逻辑，保留只读抽取或校验 | scripts README 固定机械辅助边界 | 脚本不输出 canonical markdown 清单正文 |
 | 锚点替换伪角色差异 | 反模板伪差异层 | 废弃该批候选清单，回到 YAML 候选和 LLM 身份归并节点逐角色裁决 | `SKILL.md` 固定 `FAIL-CHAR-LIST-PSEUDO-DIFF`，字段完整不得放行 | 每条保留/合并/待核都有主体级裁决证据 |
+| 状态变体被拆成多角色 | 变体归属层 | 把少年期、老年期、战斗态、战损态、受伤态、多套服装等合回同一 base character，并记录 `variant_state_map` | `SKILL.md` / review 固定 `FAIL-CHAR-LIST-VARIANT-SPLIT`；清单三列不新增变体列，必要时写 `变体：...` 或 manifest sidecar | 清单无重复主体；设计阶段可从描述或 `design-manifest.yaml.character_variants` 识别多状态资产 |
+| 状态变体被吞掉 | 设计交接层 | 在 `原文描述（关键词式）` 补紧凑变体标签，或在 manifest sidecar 补 `character_variants` | 清单阶段审查 `variant_state_evidence -> variant_state_map -> description_keyword_evidence` | 显著服装/战斗/伤势/年龄阶段不会在设计阶段丢失 |
 | runtime spine 缺业务画像或模块触发 | Skill 2.0 主脊柱层 | 把业务目标、类型路由、节点、模块触发、汇流和 review gate 写回 `SKILL.md` | `test-prompts.json` 覆盖 project_all、incremental_merge、repair/review | validator 能发现缺控制块，dry-run 能解释 source -> merge -> render -> review |
 
 ## Repair Playbook
@@ -38,8 +40,9 @@ last_checked_at: 2026-04-25
 7. `名称` 单元可承载别名：`主名（别名：旧称、代称）`；不要新增独立别名列。
 8. 首次登场总是取归并后 canonical 角色的最早分镜组 ID，而不是主名第一次出现的位置。
 9. 描述关键词优先来自 registry 原词，其次来自 source anchor 中与识别身份直接相关的短语。
-10. 完成后人工审查三件事：是否全来自 YAML、是否三列固定、是否有可疑错误合并。
-11. 若发现清单像模板换角色名、关键词锚点替换、句式轮换或同义改写批量产物，不做表层润色；废弃候选稿并回到 LLM 身份归并裁决。
+10. 多服装、战斗、战损、受伤、少年、老年等状态先判定是否同一叙事主体；默认作为同一角色变体，不拆行。
+11. 完成后人工审查四件事：是否全来自 YAML、是否三列固定、是否有可疑错误合并、是否把状态变体误拆或吞掉。
+12. 若发现清单像模板换角色名、关键词锚点替换、句式轮换或同义改写批量产物，不做表层润色；废弃候选稿并回到 LLM 身份归并裁决。
 
 ## Reusable Heuristics
 
@@ -48,5 +51,6 @@ last_checked_at: 2026-04-25
 - 一个群体称呼如果代表可设计的群像主体，可以保留为群体角色；如果只是背景人群，应在报告中说明未纳入。
 - 最早分镜组 ID 是后续设计资产的锚点，优先级高于清单阅读美观。
 - 关键词式描述要保留上游的辨识词，例如身份、关系、状态、动作钩子；不要补心理动机。
+- 状态证据是资产变体，不是角色身份；“同一个人不同年龄/服装/战斗损伤”应被设计阶段消费为多版本设计稿，而不是清单阶段拆成多个角色。
 - 当 YAML 与正文冲突时，不直接改写 YAML 结论；先在执行报告记录冲突，再由上游修复或人工裁决。
 - 角色清单的新版 spine 应围绕 registry 证据和 LLM 身份归并构建；legacy workflow 可以保留为 reference，但不能重新成为执行节点真源。

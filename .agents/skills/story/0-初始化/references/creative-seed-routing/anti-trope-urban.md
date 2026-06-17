@@ -173,5 +173,5 @@
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
 | 都市反套路约束是否只在 `module-spec.md` 判定命中都市/重生/现实压力缺口时加载？ | `creative_seed` | `FAIL-INIT-CREATIVE-ROUTE` | `references/creative-seed-routing/module-spec.md` Phase 1-2 | anti_trope_mapping、loaded_leaf_references |
-| 选中的约束是否贯穿长期规则，不被万能金手指或后期失效稀释？ | `creative_seed` / `handoff` | `FAIL-INIT-HANDOFF` | 本文件约束条目、`steps/init-workflow.md` N5 | hard_constraints、risk_notes |
+| 选中的约束是否贯穿长期规则，不被万能金手指或后期失效稀释？ | `creative_seed` / `handoff` | `FAIL-INIT-HANDOFF` | 本文件约束条目、`SKILL.md` N6B-N7 | hard_constraints、risk_notes |
 | 约束是否只写入初始化 seed 和 unknowns，不替代后续角色卡、世界规则或卷章规划？ | `convergence` | `FAIL-INIT-CONVERGENCE` | `review/review-contract.md` Verdict Rules | cards_seed、planning_seed、deferred unknowns |

@@ -1,12 +1,14 @@
 ---
 name: aigc-performance-rewrite
-description: "Use when rewriting director-annotated AIGC episode scripts into actor-centered, visualized performance drafts using 2-美学 context."
+description: "Retired backup skill. Use only when auditing or redirecting the old AIGC performance rewrite stage; do not execute as a canonical AIGC stage."
 governance_tier: full
 metadata:
-  short-description: AIGC 逐集表演融合收束改写
+  short-description: 退役备份：旧 AIGC 逐集表演融合改写
 ---
 
 # aigc 5-表演
+
+> 退役兼容入口：本技能已从正式 AIGC 主链移出，不再作为 `projects/aigc/<项目名>/` 的 canonical 生成阶段执行。后续若需要“表演”能力，应在小说语境中使用 `.agents/skills/story/3-初稿/references/character-presence-contract.md` 的人物在场反应纪律，或在润色时使用 `.agents/skills/story/4-润色/types/character-reaction-repair.md` 做局部修复。若用户只要求审计旧稿，可只读本技能；不得写回新的 `5-表演` 正式产物。
 
 `5-表演` 负责把上游 `5-导演` 的逐集导演批注稿，结合 `2-美学` 的画面基调、角色风格和场景风格，改写为演员可执行、观众可感知、细节画面化的逐集表演稿。
 

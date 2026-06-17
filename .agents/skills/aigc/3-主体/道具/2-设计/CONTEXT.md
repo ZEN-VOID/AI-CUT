@@ -25,7 +25,7 @@ last_checked_at: 2026-04-25
 | `TM-PROP-DESIGN-05A` | 解构区或文件名缺少主体 ID，或与 prompt 前缀不一致 | 结构投影层 | 在 `## 4. 解构` 下方补 `主体ID号：<主体ID>`，并同步文件名前缀、`## 5. 提示词设计` 与英文 prompt 前缀 | 模板和 review gate 固定四处 ID 一致性 | 文件名前缀、解构 ID、提示词字段 ID、prompt 开头完全一致 |
 | `TM-PROP-DESIGN-05B` | 英文提示词只补前缀后缀，未整合解构主体 | Prompt 整合层 | 回到 `## 4. 解构`，逐项压缩 Photography 与 Prop Design 的镜头、形制、材料、工艺、年代、使用/保存状态、功能和尺度槽位进英文 prompt，并在 `deconstruction_coverage` 说明合并或剔除理由 | 模板和 review gate 固定“整合对象是解构全部有效信息” | final English prompt 可反查到镜头、形制、材质、工艺、状态证据、功能和固定画面槽位 |
 | `TM-PROP-DESIGN-06` | 初始化综合只被点名，未影响设计 | 初始化综合消费层 | 把冻结综合中的设计约束、启发和风险转译为材质、构图、年代感、动作性或留白策略 | steps 固定“初始化综合 -> 设计决策”证据 | 文件中能看到至少一条对应设计选择 |
-| `TM-PROP-DESIGN-06A` | 初始化综合存在但仍触发顾问代入 | 初始化综合边界层 | 只读消费 `team.yaml.init_synthesis.stage_seed_summary."3-主体"`、`init_handoff.design_seed` 与 `north_star.yaml.创作阶段不变量.设计`，提炼当前道具节点可执行的约束、启发和风险 | `init_team_synthesis_context` 固定在 LLM 道具设计前消费，并记录 `node_ref / pass_ref / gate_ref`；禁止 team 身份调用、旧 stage profile 和伪顾问问答 | 可见指导改变当前节点的判断、执行取舍、局部 patch 或风险提示，且没有新增创作阶段顾问身份 |
+| `TM-PROP-DESIGN-06A` | 初始化综合存在但仍触发顾问代入 | 初始化综合边界层 | 只读消费项目 `MEMORY.md` 的 `project_memory_init_context`、团队配置与协作偏好、资料吸收摘要和阶段上下文读取指南，提炼当前道具节点可执行的约束、启发和风险；legacy team/style evidence 只作 provenance note | `project_memory_init_context` 固定在 LLM 道具设计前消费，并记录 `node_ref / pass_ref / gate_ref`；禁止 team 身份调用、旧 stage profile 和伪顾问问答 | 可见指导改变当前节点的判断、执行取舍、局部 patch 或风险提示，且没有新增创作阶段顾问身份 |
 | `TM-PROP-DESIGN-06B` | references 细则存在但未进入执行/验收 | 合同汇流层 | 把 reference 同步接入 Reference Loading Guide、steps 节点、review gate 和必要的机械 resolver | 新增硬规则 reference 时必须同时声明加载场景、消费节点和阻断门禁 | `rg` 能在 SKILL、steps、review、scripts/README 中找到该 reference 的消费点 |
 | `TM-PROP-DESIGN-07` | 批量生成的 Skill 2.0 包只有文字合同，缺关键 Mermaid 拓扑 | 包治理层 | 在根 `SKILL.md` 补 `Visual Maps`，在 `references/`、`types/`、`review/` 补来源、分流和汇流图 | README 固定可视化入口索引，后续维护先检查图谱再改流程 | `rg '```mermaid'` 能看到根图、steps 图和关键分区图 |
 | `TM-PROP-DESIGN-08` | 研究写了很多，但 prompt 看不出研究贡献 | 证据链层 | 把研究拆成 source cue、confidence、visual translation、prompt token | 模板固定研究证据链和 Prompt Evidence Chain | prompt 核心 token 能回指研究、物语或解构字段 |
@@ -43,7 +43,7 @@ last_checked_at: 2026-04-25
 
 1. 先确认问题属于输入取证、单主体边界、研究转译、物语、解构、提示词、初始化综合消费还是输出落盘。
 2. 若缺上游清单，回到 `道具/1-清单`；不要从分镜正文自行扩充完整道具表。
-3. 若缺 `2-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `2-美学/道具风格/道具风格协议.md`、`north_star.yaml` 或 `team.yaml.init_synthesis`，保留道具设计可执行部分，但在文件或报告中标注画面基调、道具风格、fallback 状态或初始化综合缺口。
+3. 若缺 `2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `2-美学/道具风格/道具风格协议.md` 或项目 `MEMORY.md`，保留道具设计可执行部分，但在文件或报告中标注类型风格、画面基调、道具风格、fallback 状态或项目记忆上下文缺口。
 4. 若 prompt 超过 1300 characters，优先删解释性短语，保留主体、材质、使用/保存状态、构图、光线、风格锚点和自然语言禁止项；无证据的旧化词优先删除。
 5. 生成或修复英文 prompt 前，先确认 `## 4. 解构` 下方已有 `主体ID号：<主体ID>`，且与文件名前缀、提示词字段和 prompt 前缀一致。
 6. 若研究过多，删掉不能改变造型、材质、工艺、年代、使用/保存状态或拍摄方式的事实。

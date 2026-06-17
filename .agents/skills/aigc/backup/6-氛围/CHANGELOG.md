@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-06-16
+
+- 标记为退役备份入口：不再作为正式 AIGC `6-氛围` canonical 阶段执行。
+- 将可复用的“氛围”能力收束为小说语境的场景压力、感官承托和视觉可读性强化：`.agents/skills/story/3-初稿/references/scene-pressure-texture-contract.md`、`.agents/skills/story/4-润色/types/prose-texture-repair.md` 与 `.agents/skills/story/4-润色/types/visual-readability-repair.md`。
+- 同步 `SKILL.md`、`README.md` 与 agent prompt，阻断后续误生成 `projects/aigc/<项目名>/6-氛围/` 正式产物。
+
 ## 2026-06-11
 
 - 同步 `2-美学` 输出 scope：氛围阶段读取 `画面基调` 全局 singleton；角色风格和场景风格按当前 `第N集` 优先读取 `2-美学/第N集/<风格>/`，缺失时回退项目级基线。

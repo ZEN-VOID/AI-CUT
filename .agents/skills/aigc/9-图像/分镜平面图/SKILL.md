@@ -19,7 +19,7 @@ metadata:
 - 每次调用 `$分镜平面图` 时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 先读取本 `SKILL.md` 的 runtime spine，再按 `Module Loading Matrix` 加载必要模块；不得因为目录存在而自动全量读取。
-- 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中和图像阶段、空间设定、角色站位相关的上下文；legacy `0-初始化/north_star.yaml` 仅在旧项目已存在且本轮需要回读空间边界时加载。
+- 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中和图像阶段、空间设定、角色站位相关的上下文；需要空间或风格边界时读取 `2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md` 以及当前集优先/项目级回退的场景/分镜相关风格协议。
 - `8-分组` 是本技能的主要信息来源；不得回到 `7-摄影`、archived `backup/9-光影` 或更早阶段重写分镜组内容，除非用户显式要求修复上游。
 - 正式生成、repair 或 review 时，必须加载 `../../_shared/upstream-context-application-contract.md`，并在执行报告中记录 `Image Upstream Visual Direction Matrix`：说明 `2-美学`、`3-主体`、`8-分组`、前一个 accepted 平面图和项目上下文如何导向 source spatial comprehension、floor plan panels、角色图例、动线/机位、连续性和 imagegen prompt；上游视觉风格不得覆盖本技能的顶视图黑白建筑平面图标准。
 - 平面图的空间裁决、panel 站位、动线、机位、连续性判断和图面指令必须由 LLM 逐组理解源文本后完成。脚本只能做读取、校验、路径、manifest、尺寸和报告辅助，不能生成、插入、改写、修复或裁决创作正文。
@@ -253,7 +253,7 @@ flowchart LR
 
 ## Execution Contract
 
-1. 加载本 `SKILL.md + CONTEXT.md`；项目任务中加载 `MEMORY.md` 与相关项目 `CONTEXT/`，legacy `north_star.yaml` 仅在已存在且需要回读空间边界时加载。
+1. 加载本 `SKILL.md + CONTEXT.md`；项目任务中加载 `MEMORY.md`、相关项目 `CONTEXT/`、`2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md` 以及当前集优先/项目级回退的场景/分镜相关风格协议。
 2. 按 `types/type-map.md` 锁定 mode、集号范围、目标分镜组集合和 imagegen 路由；本技能不得以 prompt-only、review-only、manifest-only 或等待确认作为 pass 完成态。
 3. 执行 `N2-SOURCE-LOCK`：以 `projects/aigc/<项目名>/8-分组` 为主要信息来源，解析每个 `## x-y-z` 分镜组，完整提取组正文和底部 YAML；`## x-y-z~x-y-z` 组间连接件默认忽略，不进入目标组集合、panel count、YAML 主体基准或生图任务。
 4. 执行 `N3-PANEL-PLAN`：先建立 `source_spatial_comprehension`，记录叙事功能、角色动作链、空间锚点、入出场、角色/道具状态和禁止补写项；再裁决 `floor_plan_panels`。panel 的边界来自空间/运动/机位变化，而不是机械等同原文 `分镜N` 标签。

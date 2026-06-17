@@ -8,7 +8,7 @@ metadata:
 
 # aigc 道具 2-设计
 
-`道具/2-设计` 负责消费上游 `道具/1-清单/道具清单.md`，并结合 `2-美学/画面基调`、当前集优先/项目级回退的 `2-美学/道具风格`、项目 `north_star.yaml` 与 `team.yaml.init_synthesis`，为每个需要进入生成锁定的单个道具主体输出细目设计 Markdown。它不重新抽取清单，不批量改写父级 registry，也不代替 `3-生成` 产出图像。
+`道具/2-设计` 负责消费上游 `道具/1-清单/道具清单.md`，并结合 `2-美学/画面基调`、当前集优先/项目级回退的 `2-美学/道具风格`、项目 `MEMORY.md` / `CONTEXT/` 中的初始化上下文，为每个需要进入生成锁定的单个道具主体输出细目设计 Markdown。它不重新抽取清单，不批量改写父级 registry，也不代替 `3-生成` 产出图像。
 
 ## Core Task Contract
 
@@ -16,7 +16,7 @@ metadata:
 | --- | --- |
 | 核心任务 | 为被调度道具主体逐个生成或修复 `PROP-###-<安全文件名>.md` 单道具细目设计稿。 |
 | 适用场景 | 单道具设计、从清单批量补齐设计、增量补缺、repair、review only。 |
-| 非目标 | 不生成道具清单、不调用 imagegen、不写 `3-生成` JSON、不修改角色/场景目录、父级 registry 或其他 worker 文件。 |
+| 非目标 | 不生成道具清单、不调用任何图像生成执行器、不写 `3-生成` JSON、不修改角色/场景目录、父级 registry 或其他 worker 文件。 |
 | 禁止项 | 不得用脚本批量生成、批量插入、正则套句或映射投影研究、物语、Photography、Prop Design、prompt evidence chain 或英文提示词。 |
 
 硬性要求：不能用脚本做批量生成、批量插入、正则套句或映射投影。从上到下逐条理解目标对象，并只把 LLM 判断后的结果按照指定要求落盘。
@@ -33,19 +33,21 @@ metadata:
 - 每次调用 `$aigc-prop-design` 或本文件时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须按 `Type Routing Matrix.module_load` 和 `Module Trigger Matrix` 加载已授权模块；不得因目录存在全量读取。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与道具、世界观、视觉规则、风格提示词或制作约束相关的上下文文件。
+- 项目任务必须从 `projects/aigc/<项目名>/MEMORY.md` 构造 `project_memory_init_context`，消费初始化用户要求、团队配置与协作偏好、资料吸收摘要和阶段上下文读取指南；该上下文只作为道具设计约束、审查视角和风险提示，不触发 team 身份、顾问问答或 `team.yaml` 生成。
 - 必须读取上游 `projects/aigc/<项目名>/3-主体/道具/1-清单/道具清单.md`；缺失时不得凭空生成完整道具设计，应回到 `1-清单` 或请求用户提供替代清单。
 - 必须读取 `projects/aigc/<项目名>/2-美学/画面基调/全局风格协议.md`，抽取 `Global Style Prompt`、`Visual Gene Profile`、`Negative Traits` 等画面基调最终内容。
+- 必须读取 `projects/aigc/<项目名>/2-美学/类型风格.md`，抽取类型元素、媒介属性和下游 handoff 指引；它是道具设计的类型边界索引，不替代细目风格协议。
 - 必须解析目标道具的 `首次登场`、用户指定集号或清单中的 `episode_id`；若能推断 `第N集`，优先读取 `projects/aigc/<项目名>/2-美学/第N集/道具风格/道具风格协议.md`，缺失时回退 `projects/aigc/<项目名>/2-美学/道具风格/道具风格协议.md`。
-- 必须读取 `projects/aigc/<项目名>/0-初始化/north_star.yaml` 与 `projects/aigc/<项目名>/team.yaml.init_synthesis`，抽取项目北极星、主题、媒介、禁区、创作阶段不变量和设计相关初始化约束、启发、风险；不得再把 `north_star.yaml` 当作道具最终风格提示词真源。
-- 初始化综合存在时，必须读取 `../../../_shared/team-advisor-consultation-contract.md`，优先消费 `team.yaml.init_synthesis.stage_seed_summary."3-主体"`、`init_handoff.design_seed` 与 `north_star.yaml.创作阶段不变量.设计`；不得在本阶段调用项目监制成员、解析叶子专属 profile、派生新顾问问题或代入顾问角色意识，只能在 LLM 道具设计前形成 `init_team_synthesis_context`。
+- 旧初始化风格载体或旧团队综合文件若存在，只能作为只读迁移证据；可把仍有效且未被项目记忆覆盖的设计种子、约束、启发和风险压入 `project_memory_init_context.provenance_notes`，不得替代 `2-美学` 输出。
+- 初始化上下文消费必须读取 `../../../_shared/team-advisor-consultation-contract.md`；不得在本阶段调用项目监制成员、解析叶子专属 profile、派生新顾问问题或代入顾问角色意识，只能在 LLM 道具设计前形成 `project_memory_init_context`。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 父级 `道具/SKILL.md` > 本 `SKILL.md` > 授权模块 > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 
 ## Context Processing Contract
 
 | context_step | required_action | output |
 | --- | --- | --- |
-| `context_snapshot` | 记录清单、画面基调、道具风格、north_star、team synthesis、项目记忆和模块加载状态 | `loaded_context_manifest` |
-| `missing_context_policy` | 清单缺失阻断；风格/north_star/team 缺失可继续但必须在输出标注缺口，不伪造 | `input_gap_report` |
+| `context_snapshot` | 记录清单、画面基调、道具风格、项目记忆、project memory init context 和模块加载状态 | `loaded_context_manifest` |
+| `missing_context_policy` | 清单缺失阻断；风格或项目记忆缺失可继续但必须在输出标注缺口，不伪造 | `input_gap_report` |
 | `context_conflict_map` | 用户审美要求与项目禁区、时代语境或道具功能冲突时按优先级裁决 | `conflict_resolution` |
 | `context_application` | 将上下文转成设计约束、风险、不确定性和 prompt evidence，不生成套句 | `design_context_packet` |
 | `context_writeback_decision` | 可复用设计失败模式写 `CONTEXT.md`；长期项目偏好写项目 `MEMORY.md` | `writeback_plan` |
@@ -56,7 +58,7 @@ metadata:
 | --- | --- | --- | --- |
 | `business_goal` | 明确本轮是单道具设计、批量补齐、增量补缺、repair 还是 review | 用户请求、manifest、既有设计稿 | `FAIL-PROP-DESIGN-BUSINESS-GOAL` |
 | `business_object` | 锁定每个被调度道具主体、上游清单行、主体 ID、输出文件 | 清单 row、文件名、manifest | `FAIL-PROP-DESIGN-BUSINESS-OBJECT` |
-| `constraint_profile` | 单主体一文件；只读消费清单/风格/north_star/team；不覆盖既有设计稿；不越权到生成 | 输入/输出合同 | `FAIL-PROP-DESIGN-BUSINESS-CONSTRAINT` |
+| `constraint_profile` | 单主体一文件；只读消费清单/风格/项目记忆初始化上下文；不覆盖既有设计稿；不越权到生成 | 输入/输出合同 | `FAIL-PROP-DESIGN-BUSINESS-CONSTRAINT` |
 | `success_criteria` | 设计稿章节齐全，研究转译链、物语、解构、prompt evidence、ID 一致、review verdict 均通过 | Markdown、review result | `FAIL-PROP-DESIGN-BUSINESS-SUCCESS` |
 | `complexity_source` | 复杂度来自单主体边界、风格/初始化综合消费、研究转译、审美细节、状态/文化语境或 prompt 门禁 | type profile | `FAIL-PROP-DESIGN-BUSINESS-COMPLEXITY` |
 | `topology_fit` | 至少说明 3 个理由：上游清单限定主体；LLM 逐道具设计保证不可互换性；review gate 和 prompt 门禁保护下游生成稳定 | node map、review gate | `FAIL-PROP-DESIGN-TOPOLOGY-FIT` |
@@ -73,7 +75,7 @@ Required input:
 
 - 可定位的 `projects/aigc/<项目名>/3-主体/道具/1-清单/道具清单.md`。
 - 清单中每项至少包含 `名称`、`首次登场`、`原文描述（关键词式）`。
-- 可读取的 `2-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `2-美学/道具风格/道具风格协议.md`、`0-初始化/north_star.yaml` 与 `team.yaml.init_synthesis`；若缺失，必须在输出中标注缺口，不得伪造。
+- 可读取的 `2-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `2-美学/道具风格/道具风格协议.md` 与项目 `MEMORY.md` 初始化上下文；若缺失，必须在输出中标注缺口，不得伪造。
 
 Optional input:
 
@@ -114,7 +116,7 @@ Reject or clarify when:
 | --- | --- | --- | --- | --- | --- | --- |
 | `D1-INTAKE` | 锁定业务画像、项目和处理范围 | 用户请求、项目路径 | 建立 `business_profile`、`context_snapshot`、scope checkpoint | mode、project root、target props | `D2-WORKLIST` | 缺清单则阻断；写入范围限 `2-设计` 和 manifest sidecar |
 | `D2-WORKLIST` | 锁定单主体 worklist | 清单、manifest、既有设计稿 | 为指定或缺设计稿主体建立 worklist；既有设计默认跳过 | worklist、skip list、subject IDs | `D3-CONTEXT` / `D7-REVIEW` | 每个输出只对应一个清单项；不得补空占位 |
-| `D3-CONTEXT` | 形成设计上下文包 | 清单行、画面基调、道具风格、north_star、team synthesis、项目记忆 | 生成 `init_team_synthesis_context`、style prompt refs、禁区与缺口报告 | design_context_packet | `D4-TYPE` | 缺上下文必须显式标注；不得伪造 team 顾问问答 |
+| `D3-CONTEXT` | 形成设计上下文包 | 清单行、画面基调、道具风格、项目记忆、project_memory_init_context | 生成 `project_memory_init_context`、style prompt refs、禁区与缺口报告 | design_context_packet | `D4-TYPE` | 缺上下文必须显式标注；不得伪造 team 顾问问答 |
 | `D4-TYPE` | 判型并决定语料/考据路线 | design context、types | 形成 `type_profile`，判断是否需要语料库、冷门搜索、多状态、规则道具 | type_profile、module triggers | `D5-LLM-DESIGN` | `module_load` 必须可解析；语料库只启发不套句 |
 | `D5-LLM-DESIGN` | LLM-first 逐道具设计 | 清单锚点、设计上下文、type profile | 完成研究证据链、物语、Photography、Prop Design、状态/文化策略、signature detail | design draft、decision evidence | `D6-PROMPT` | 每个道具有不可互换的形制/材质/状态/功能/文化语境裁决 |
 | `D6-PROMPT` | 生成可投喂英文 prompt | `## 4. 解构` 全部有效信息 | 蒸馏英文 prompt，以主体 ID 开头，<=1300 chars，自然语言负向约束，无 `--no` | prompt evidence chain、char count | `D7-REVIEW` | prompt 必须整合解构信息并锁定完整全貌 45 度纯色背景 |
@@ -132,7 +134,7 @@ Reject or clarify when:
 | `types/` | 任务分型、类型变量或外置判型包 | 类型展开层 | 替代 `Type Routing Matrix` | `Type Routing Matrix` |
 | `knowledge-base/` | 外部资料、语料和人工维护启发 | 外部资料层 | 自动沉淀经验或替代项目上下文 | `CONTEXT.md` |
 | `CONTEXT.md` | 每次调用 | 经验层、失败模式、设计启发 | 重定义主合同 | `Learning / Context Writeback` |
-| `../../../_shared/team-advisor-consultation-contract.md` | `team.yaml.init_synthesis` 存在 | 初始化综合只读消费边界 | 调用 team 身份、补造顾问问答 | `D3-CONTEXT` |
+| `../../../_shared/team-advisor-consultation-contract.md` | 项目任务存在初始化上下文或 legacy team evidence | 项目记忆初始化上下文只读消费边界 | 调用 team 身份、补造顾问问答 | `D3-CONTEXT` |
 | `../../../_shared/anti-abstract-language-contract.md` | 任意创作/repair | 抽象词转具体视觉证据 | 替代当前道具设计裁决 | `D5-LLM-DESIGN` |
 | `references/prop-design-contract.md` | 任意设计/repair | 道具设计细则 | 新增第二输出标准 | `D5-LLM-DESIGN` |
 | `references/design-output-contract.md` | 输出结构、主体 ID、prompt 硬规则 | 输出结构展开 | 覆盖 `Output Contract` | `D6-PROMPT` / `D8-WRITE` |
@@ -208,7 +210,7 @@ Reject or clarify when:
 | --- | --- | --- | --- | --- |
 | `PASS-PROP-DESIGN-BUSINESS` | `business_profile` 六字段完整 | 目标、对象或约束不清 | business profile | `Business Requirement Analysis Contract` |
 | `PASS-PROP-DESIGN-WORKLIST` | 每个主体来自清单，既有设计稿被保护 | 多道具混稿或覆盖既有稿 | worklist / skip list | `D2-WORKLIST` |
-| `PASS-PROP-DESIGN-INIT` | 初始化综合已转为节点级约束，缺失已标注 | 伪造顾问问答或静默跳过 | `init_team_synthesis_context` | `D3-CONTEXT` |
+| `PASS-PROP-DESIGN-INIT` | project memory init context 已转为节点级约束，缺失已标注 | 伪造顾问问答或静默跳过 | `project_memory_init_context` | `D3-CONTEXT` |
 | `PASS-PROP-DESIGN-CORPUS` | 语料库触发时已原创转译且不逐字套用 | 缺语料库或随机贴花/默认旧化 | corpus usage trace | `D4-TYPE` / `D5-LLM-DESIGN` |
 | `PASS-PROP-DESIGN-VISUALIZED` | 抽象审美词转成形制、材料、工艺、状态、功能和 prompt token | 百科摘抄或抽象标签 | research chain | `D5-LLM-DESIGN` |
 | `PASS-PROP-DESIGN-PROMPT` | prompt ID 一致、<=1300 chars、无 `--no`、完整全貌 45 度纯色背景 | prompt 只拼前后缀或缺约束 | prompt evidence, char count | `D6-PROMPT` |
@@ -221,7 +223,7 @@ Reject or clarify when:
 | review_question | review_gate | fail_code | rework_target | report_evidence |
 | --- | --- | --- | --- | --- |
 | 每个文件是否只设计一个清单道具？ | 多主体混稿或无清单锚点即失败 | `FAIL-PROP-DESIGN-02` | `D2-WORKLIST` | source row / subject ID |
-| 画面基调、道具风格、north_star、team synthesis 是否真实消费？ | 只贴名或伪造顾问问答即失败 | `FAIL-PROP-DESIGN-04` / `FAIL-PROP-DESIGN-10` | `D3-CONTEXT` | context packet |
+| 类型风格、画面基调、道具风格和 project memory init context 是否真实消费？ | 只贴名或伪造顾问问答即失败 | `FAIL-PROP-DESIGN-04` / `FAIL-PROP-DESIGN-10` | `D3-CONTEXT` | context packet |
 | 研究是否转成具体视觉证据？ | 停留百科摘抄或抽象标签即失败 | `FAIL-PROP-DESIGN-08` / `FAIL-ANTI-ABSTRACT-DESIGN` | `D5-LLM-DESIGN` | research chain |
 | 道具是否有可见设计价值且不过度装饰/默认旧化？ | 平凡功能还原、随机贴花、无证据旧化即失败 | `FAIL-PROP-DESIGN-DETAIL-CULTURE` | `D5-LLM-DESIGN` | design appeal evidence |
 | 语料库触发是否原创转译？ | 缺 `prop-design-corpus` 或逐字套用即失败 | `FAIL-PROP-DESIGN-CORPUS-MISSING` | `D4-TYPE` / `D5-LLM-DESIGN` | corpus usage trace |
@@ -235,7 +237,7 @@ Reject or clarify when:
 ```mermaid
 flowchart TD
     A["Trigger: $aigc-prop-design"] --> B["Load SKILL.md + CONTEXT.md"]
-    B --> C["Load project MEMORY.md / CONTEXT / inventory / style / north_star / team synthesis"]
+    B --> C["Load project MEMORY.md / CONTEXT / inventory / 2-美学 style outputs"]
     C --> D["Build single-prop worklist"]
     D --> E["Build design_context_packet"]
     E --> F["Type profile + module triggers"]
@@ -267,8 +269,8 @@ flowchart LR
 2. 形成 `business_profile`、`context_snapshot`、`attention_anchor` 与 scope checkpoint。
 3. 锁定上游 `1-清单/道具清单.md` 的道具主体，并读取可选 `projects/aigc/<项目名>/3-主体/道具/design-manifest.yaml`；只对被指定、被调度或 manifest 标记为 `design_gaps` 的主体生成细目，不为空置主体补占位文件。
 4. 已有设计稿默认跳过，除非用户明确要求 repair / regenerate；清单主体被归并到已有主体时，只记录 alias merge，不新建设计稿。
-5. 读取 `2-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `2-美学/道具风格/道具风格协议.md`、`north_star.yaml` 与 `team.yaml.init_synthesis`，提取 `画面基调.Global Style Prompt + 道具风格.Prop Style Prompt` 作为道具设计风格词。
-6. 按共享初始化综合消费合同优先消费 `team.yaml.init_synthesis.stage_seed_summary."3-主体"`、`init_handoff.design_seed` 或 `north_star.yaml.创作阶段不变量.设计`，形成 `init_team_synthesis_context`；不得请教项目监制顾问或派生新 team 问答。
+5. 读取 `2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `2-美学/道具风格/道具风格协议.md` 与项目 `MEMORY.md` 初始化上下文，提取 `画面基调.Global Style Prompt + 道具风格.Prop Style Prompt` 作为道具设计风格词，并把 `project_memory_init_context` 转成道具级约束、启发和风险提示。
+6. 按共享项目记忆初始化上下文消费合同形成 `project_memory_init_context`；legacy `team.yaml` / `init_handoff` / 旧初始化风格载体只可作为 provenance notes，不得请教项目监制顾问或派生新 team 问答。
 7. 按 `types/prop-design-type-map.md` 判型，形成 `type_profile`。命中审美、文化/身份符号、工艺/结构细节、功能结构、使用/保存状态或 prompt 设计短语时，必须加载 `knowledge-base/prop-design-corpus.md` 并留下原创转译证据。
 8. 由 LLM 从上到下逐个道具理解清单锚点、功能逻辑、项目风格和初始化综合后，完成研究考据、物语、Photography + Prop Design 解构与英文提示词设计。研究必须转译为形制、材料、工艺、年代、使用状态/保存状态、功能逻辑、设计细节、文化/身份符号适用性、风险/不确定性和 prompt evidence chain。
 9. 设计吸引力与克制度：每个被设计道具至少要有独特轮廓、材质记忆点、工艺/结构细节、文化/身份/机构/功能符号、使用状态/保存状态和功能结构中的有效组合；文化符号、纹样、铭文、徽记、装饰件仅在上游证据、时代语境、身份功能或项目风格支持时写入。
@@ -287,7 +289,7 @@ flowchart LR
 - 道具细目没有从 `1-清单` 取证，或擅自新增上游不存在的道具主体。
 - 道具设计把“好看/有设计感”机械理解为每个道具都要有文化纹样、铭文、徽记、贴花或装饰件。
 - 上游清单增量更新后，没有识别缺设计稿主体，或覆盖了已有道具设计稿。
-- 未读取画面基调、当前集优先/项目级回退的道具风格、`north_star.yaml` / `team.yaml.init_synthesis` 却声称已经使用。
+- 未读取画面基调、当前集优先/项目级回退的道具风格或项目 `MEMORY.md` 初始化上下文，却声称已经使用。
 - 提示词没有英文输出、没有以主体 ID 号开头、超过 1300 characters、包含 `--no` 参数，或只是拼接前缀后缀而未整合 `## 4. 解构` 全部有效信息。
 - 道具 prompt 或摄影字段把道具放入剧情场景、桌面环境、室内陈设、街景、人物手持情境或背景元素中，或写成局部特写、裁切特写、半截道具画面。
 - 研究层停留在百科信息或气氛形容词，没有转成形制、材料、工艺、年代、使用/保存状态、功能逻辑和可追溯 prompt token。
@@ -302,11 +304,11 @@ flowchart LR
 
 | field_id | 输出/证据 | 内容要求 | 失败码 |
 | --- | --- | --- | --- |
-| `FIELD-PROP-DESIGN-01` | 输入取证 | 上游清单、项目记忆、north_star、team 和处理范围明确 | `FAIL-PROP-DESIGN-01` |
+| `FIELD-PROP-DESIGN-01` | 输入取证 | 上游清单、项目记忆、`2-美学` 输出和处理范围明确 | `FAIL-PROP-DESIGN-01` |
 | `FIELD-PROP-DESIGN-02` | 单主体边界 | 每个文件只设计一个道具主体 | `FAIL-PROP-DESIGN-02` |
 | `FIELD-PROP-DESIGN-02A` | 增量补缺 | 只处理缺设计稿或用户指定 repair 的主体，未静默覆盖既有设计稿 | `FAIL-PROP-DESIGN-02A` |
 | `FIELD-PROP-DESIGN-03` | 必填章节 | 名称/首次登场/原文描述复述、研究考据、物语、解构、提示词设计齐全 | `FAIL-PROP-DESIGN-03` |
-| `FIELD-PROP-DESIGN-04` | 初始化综合与北极星消费 | 冻结初始化综合、画面基调、道具风格和项目北极星被实际消费 | `FAIL-PROP-DESIGN-04` |
+| `FIELD-PROP-DESIGN-04` | 项目记忆与美学上下文消费 | `2-美学/类型风格.md`、画面基调、道具风格和 project memory init context 被实际消费 | `FAIL-PROP-DESIGN-04` |
 | `FIELD-PROP-DESIGN-05` | 提示词约束 | 英文 prompt 以主体 ID 开头，引用风格，<=1300 chars，无 `--no`，整合解构 | `FAIL-PROP-DESIGN-05` |
 | `FIELD-PROP-DESIGN-07` | 全貌展示约束 | 纯色背景单道具完整全貌展示、45 度视角、无人物/背景/场景化 | `FAIL-PROP-DESIGN-07` |
 | `FIELD-PROP-DESIGN-08` | 研究转译链 | 来源判断转成形制、材料、工艺、年代、使用/保存状态、功能逻辑、风险 | `FAIL-PROP-DESIGN-08` |

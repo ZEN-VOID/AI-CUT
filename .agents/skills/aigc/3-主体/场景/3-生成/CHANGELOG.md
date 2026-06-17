@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-06-17
+
+- Strengthened the libTV canvas-to-project local canonical ensure contract: every scene subject image generated, reused, or uploaded on any episode canvas must have a same-stem local asset in `projects/aigc/<项目名>/3-主体/场景/3-生成/`; use `libtv download` only when the local asset is missing.
+- Updated review, types, templates, references and CONTEXT with `local_sync_status`, `local_asset_path`, `download_command` evidence fields and the `FAIL-SCENE-GEN-LOCAL-SYNC` gate.
+- Refined the local sync wording: when the local canonical same-stem asset already exists, skip download/copy and record `already_present`; run `libtv download` or copy only when the local asset is missing.
+
 ## 2026-06-16
 
 - 升级 `$aigc-scene-generation` 到 runtime-spine Skill 2.0 口径，在旧正文末尾追加 `Skill 2.0 Runtime-Spine Upgrade` 控制块。
@@ -9,11 +15,11 @@
 ## 2026-05-01
 
 - 将生成资产命名合同调整为 `<主体ID>-<主体名称>-主图/多视图`，并要求 JSON 记录 `subject_id` 与 `subject_id_source`。
-- 强化主图到多视图的本地参照图规则：Step2 使用本地主图作为 reference image 时，必须先 `view_image` 进入对话上下文，并在 JSON / 报告记录 `reference_context_status`。
+- 强化主图到多视图的本地参照图规则：Step2 使用本地主图作为 reference image 时，必须先 `同画布主图节点` 进入对话上下文，并在 JSON / 报告记录 `reference_context_status`。
 
 ## 2026-04-30
 
-- Updated main-image and multi-view prompt templates so the source imported into gpt-image-2 is upstream `4. 解构`, not the former English integrated prompt.
+- Updated main-image and multi-view prompt templates so the source imported into Midjourney V8.1 is upstream `4. 解构`, not the former English integrated prompt.
 
 ## 2026-04-26
 

@@ -1,4 +1,4 @@
 interface:
-  display_name: "AIGC 表演"
-  short_description: "将导演批注稿融合改写为保留原字段标题、删除批注、动作/微表情/台词/心理外显更具体的逐集表演稿。"
-  default_prompt: "使用 $aigc-performance-rewrite，读取 projects/aigc/<项目名>/5-导演/第N集.md，并结合 projects/aigc/<项目名>/2-美学/画面基调/全局风格协议.md、当前集优先的 2-美学/第N集/角色风格/角色风格协议.md 与 2-美学/第N集/场景风格/场景风格协议.md，缺失时回退项目级角色/场景风格，把导演批注融合进原剧本字段正文。保留原场景顺序和字段标题，删除所有（导演批注：...），对画面、动作画面、对白画面、旁白画面、系统画面、心理反应、表演提示等角色相关画面点进行演员角色意识代入式改写，补足动作方向、路径、幅度、微表情、语气、断句、呼吸、停顿、内心外显、自然反应、生理残留和环境时间响应，不新增剧情事实、不改变对白原意、不写摄影分镜、prompt 或视频参数，输出到 projects/aigc/<项目名>/5-表演/第N集.md，并生成执行报告。"
+  display_name: "AIGC 表演（退役备份）"
+  short_description: "退役旧链路；仅用于审计或重定向，不再生成 AIGC 5-表演 canonical 产物。"
+  default_prompt: "本技能已退役并迁入 backup。不要按旧 AIGC 5-表演 链路生成 projects/aigc/<项目名>/5-表演/第N集.md。若用户需要小说正文中的人物在场与反应强化，改用 story/3-初稿 的 character-presence-contract 或 story/4-润色 的 character-reaction-repair；若用户只要求审计旧表演稿，则只读旧稿并报告可迁移到 story 的人物反应问题。"

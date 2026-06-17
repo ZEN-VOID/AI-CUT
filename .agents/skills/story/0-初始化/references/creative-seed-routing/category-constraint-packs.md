@@ -380,5 +380,5 @@
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
 | 类别约束包是否只在 `module-spec.md` 判定需要题材约束时加载？ | `creative_seed` | `FAIL-INIT-CREATIVE-ROUTE` | `references/creative-seed-routing/module-spec.md` Phase 1-2 | selected pack、loaded_leaf_references |
-| 选中的约束包是否至少给出规则限制、角色矛盾、钩子和爽点四类初始化 patch？ | `creative_seed` / `handoff` | `FAIL-INIT-HANDOFF` | 本文件 pack 条目、`steps/init-workflow.md` N5 | hard_constraints、character_pressure、opening_hook |
+| 选中的约束包是否至少给出规则限制、角色矛盾、钩子和爽点四类初始化 patch？ | `creative_seed` / `handoff` | `FAIL-INIT-HANDOFF` | 本文件 pack 条目、`SKILL.md` N6B-N7 | hard_constraints、character_pressure、opening_hook |
 | 约束包是否不覆盖后续 `1-设定 / 2-卷章` 的对象卡和卷章 canonical truth？ | `convergence` | `FAIL-INIT-CONVERGENCE` | `review/review-contract.md` Verdict Rules | deferred_to_cards、deferred_to_planning |

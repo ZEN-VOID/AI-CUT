@@ -29,15 +29,14 @@
 | 旧文档仍把 `Step 1.5` 当当前正式 tracked step | drafting contract drift | 改成 legacy compatibility note | 在 `resume` 文档中区分“当前 tracked step”与“旧状态兼容” | 当前 step 表以 `workflow_manager.get_pending_steps()` 为准 |
 | `resume` 仍按旧独立文件找断点，看不到内联全阶段 run / stage_progress / task log | execution-state contract | 为 `resume` 增加 `STATE.json.workflow_runtime` 读取语义，并把 registry 扩到全阶段 commands | 在脚本与参考文档同步固定内联三件套分工 | `resume/status` 可判断 init/cards/plan/validate/上下文回流/query 等非 drafting run |
 | `resume` / `workflow_manager` 仍按 `Step 2A/2B + 正文发布稿` 恢复 `story-write` | drafting runtime drift | 把 `story-write` tracked steps 改成 1-8 工序，并把 cleanup 目标切到 `3-初稿/第N卷/第N章.md` | 在 `resume` 合同、恢复 runbook、workflow manager 与测试里同步固定新 drafting runtime | 恢复建议会围绕 `第N章.md` 与对应工序，而不是旧发布稿 |
-| `workflow detect` 一旦看不到 `current_task` 就直接输出“无中断任务”，忽略 acceptance/context-return/写作日志等业务产物链 | no-interrupt artifact fallback contract | 为 `resume` 增加 artifact fallback：按 `上下文回流 -> 4-润色 acceptance -> 3-初稿 acceptance -> writing_log` 顺序继续判定唯一下一入口 | 在 `workflow_manager.py`、`resume/SKILL.md` 与 `workflow-resume.md` 同步写死 fallback 证据顺序与解释规则，并补回归测试 | 无 tracked 中断但有稳定业务证据时，`detect` 返回 `artifact_fallback` 而不是“无中断任务” |
-| `resume/SKILL.md` 承载过多 Step 细节，难以维护 Skill 2.0 owner 边界 | package structure drift | 将流程节点拆到 `steps/resume-workflow.md`，类型策略拆到 `types/resume-type-map.md`，安全门禁拆到 `review/resume-review-gate.md` | `SKILL.md` 固定为入口、路由、动态引用、门禁和输出合同 | validator 通过，且 `SKILL.md` 不再复制完整恢复 SOP |
+| `workflow detect` 一旦看不到 `current_task` 就直接输出“无中断任务”，忽略 acceptance/context-return/写作日志等业务产物链 | no-interrupt artifact fallback contract | 为 `resume` 增加 artifact fallback：按 `上下文回流 -> 4-润色 acceptance -> 3-初稿 acceptance -> writing_log` 顺序继续判定唯一下一入口 | 在 workflow manager、`resume/SKILL.md` 与 `workflow-resume.md` 同步写死 fallback 证据顺序与解释规则，并补回归测试 | 无 tracked 中断但有稳定业务证据时，`detect` 返回 `artifact_fallback` 而不是“无中断任务” |
+| `steps/` 分区继续保存思行节点，导致新版 Skill 2.0 validator 判定第二节点真源 | runtime-spine drift | 将 Business Requirement、Node Network、Failure Loops 和 Evidence Packet 收回 `SKILL.md`，删除 `steps/` 模块 | `SKILL.md` 固定为入口、类型路由、节点、模块触发、门禁和输出合同；`references/` 只展开细则 | validator 与 smoke test 通过，且包内无 `steps/` 目录 |
 
 ## Repair Playbook
 
 1. 先确认问题是“文档说错了”、还是“脚本真的给错了恢复建议”。
 2. 层层上溯：`Symptom -> Direct Cause -> resume 合同/参考文档/脚本 -> AGENTS.md`。
 3. 优先修高杠杆源头：
-   - `scripts/workflow_manager.py`
    - `resume/SKILL.md`
    - `resume/references/workflow-resume.md`
    - 若涉及“无 tracked 中断但业务已推进”，补 `artifact_fallback` 检测链与测试
@@ -61,4 +60,4 @@
 - `query` 这种轻量 tracked run 要和 `write/acceptance` 这种重型恢复对象分开写；前者可以有 run 记录，但不能套章节 cleanup 模板。
 - 只要 `3-初稿` 的正文真源换了路径，恢复链路里所有“删除半成品/继续加工”的目标文件都要一起换，否则用户会清理错对象。
 - 恢复文档里的目录树和快速参考必须只呈现当前 canonical runtime；legacy 路径只能作为兼容说明，不能伪装成现行结构。
-- `resume/` 升级到 Skill 2.0 后，新增经验优先写入最窄 owner：执行拓扑进 `steps/`，分型进 `types/`，危险动作门禁进 `review/`，可复用经验才留在 `CONTEXT.md` 或 `knowledge-base/`。
+- `resume/` 升级到新版 Skill 2.0 后，执行拓扑、路由、gate 和 Mermaid 图必须留在 `SKILL.md`；分型细则进 `types/`，危险动作门禁进 `review/`，可复用经验才留在 `CONTEXT.md` 或 `knowledge-base/`。

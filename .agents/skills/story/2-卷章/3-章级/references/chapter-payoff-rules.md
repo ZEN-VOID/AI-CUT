@@ -226,3 +226,10 @@
 - 可以写爽点机制、兑现动作、状态差、余味和牵引。
 - 不得写可直接进入正文的暴力、情色、对白、描写段落或句段级桥接。
 - 涉及情色、暴力或精神极端感时，只能作为叙事功能和类型信号描述，不输出露骨正文。
+
+## Review Gate Mapping
+
+| review_question | review_gate | fail_code | rework_target | report_evidence |
+| --- | --- | --- | --- | --- |
+| 本章爽点设计是否具备全部 required payoff slots？ | 缺 `reader_desire / promise_source / genre_payoff_profile / character_anchor / payoff_mode / payoff_variation_axis / delivery_action / satisfaction_delta / exaggeration_logic / cost_or_aftershock / aftertaste_hook` 任一关键槽即失败 | `FAIL-CH-PAYOFF` | `SKILL.md#N5-CHAPTER-PAYOFF` | 爽点字段清单 |
+| 爽点是否绑定类型画像、角色依据和差异轴？ | 爽点像外部插件、无角色依据、近邻高潮重复或高超对决缺 `duel_variation_axis` 即失败 | `FAIL-CH-PAYOFF` | `SKILL.md#Review Gate Binding` | 类型画像、角色锚点、差异轴 |

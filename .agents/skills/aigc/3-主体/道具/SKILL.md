@@ -16,7 +16,7 @@ metadata:
 | --- | --- |
 | 核心任务 | 将用户的道具域请求路由到 `1-清单`、`2-设计`、`3-生成`、`domain_reconcile`、`domain_repair` 或 `domain_closeout`，并确保上游缺口先被处理。 |
 | 适用场景 | 道具清单、道具设计、道具生成、道具面板、prop panel、道具增量对账、道具域验收、道具域修复。 |
-| 非目标 | 组根不写清单正文、不设计材质/结构/文化元素、不写 prompt、不调用 imagegen、不创建角色/场景产物。 |
+| 非目标 | 组根不写清单正文、不设计材质/结构/文化元素、不写 prompt、不调用 libTV、不创建角色/场景产物。 |
 | 禁止项 | 不得补空道具、把背景杂物批量升格为 canonical 道具、生成默认设计稿、批量插入叶子输出或绕过叶子 review gate。 |
 
 ## Runtime Spine Contract
@@ -102,7 +102,7 @@ metadata:
 | `CONTEXT.md` | 每次调用本组根 | 路由经验、失败模式、跨叶子交接启发 | 重定义入口、叶子顺序或输出合同 | `Learning / Context Writeback` |
 | `1-清单/` | `prop_list` 或最早缺口为清单 | 清单叶子执行合同，运行时成对加载 `SKILL.md + CONTEXT.md` | 由组根替代清单正文创作 | `G4-HANDOFF` |
 | `2-设计/` | `prop_detail` 或清单存在但缺设计 | 设计叶子执行合同，运行时成对加载 `SKILL.md + CONTEXT.md` | 由组根补材质、纹样、prompt | `G4-HANDOFF` |
-| `3-生成/` | `prop_generation` 或设计存在但缺生成资产 | 生成叶子执行合同，运行时成对加载 `SKILL.md + CONTEXT.md` | 由组根写 JSON prompt 或调用 imagegen | `G4-HANDOFF` |
+| `3-生成/` | `prop_generation` 或设计存在但缺生成资产 | 生成叶子执行合同，运行时成对加载 `SKILL.md + CONTEXT.md` | 由组根写 JSON prompt 或调用 libTV | `G4-HANDOFF` |
 | `references/` | 域级长细则 | 细则展开 | 新增第二入口、第二完成门或叶子主创 | `Module Loading Matrix` |
 | `references/incremental-reconciliation-contract.md` | 分批上游、既有产物、manifest 或命名漂移 | 增量对账细则 | 替代叶子主创或静默重命名 | `G5-RECONCILE` |
 | leaf `review/` | `domain_closeout`、`domain_repair` 或叶子输出验收 | 叶子验收展开 | 新增组根未声明的完成标准 | `Review Gate Binding` |

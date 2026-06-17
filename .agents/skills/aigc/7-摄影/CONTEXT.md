@@ -9,7 +9,7 @@ monitor_version: 1
 soft_limit_chars: 24000
 hard_limit_chars: 48000
 status: ok
-last_checked_at: 2026-06-05
+last_checked_at: 2026-06-16
 recommended_action: keep-heuristics-focused
 ```
 
@@ -33,6 +33,11 @@ recommended_action: keep-heuristics-focused
 | 一镜到底仍逐条硬切 | 一镜到底链路层 | 以画面点为单位写 `one_take_chain_plan`，合并为一段连续组合运镜；模板必须包含既有起始状态帧、具体机位/角度、既有构图轴线或空间层次、前中后景或遮挡、速度曲线与停点、景深策略与对焦/拉焦/转焦接力、跨分镜交出点 | `one_take_chain_plan` 可覆盖分镜 A-B，且 `spatial_movement_action_map` / `focus_transition_map` 有证据 |
 | 原分镜内容被改写 | 保真层 | 回到 source diff，只允许追加运镜或修旧矛盾运镜 | `source_preservation_diff` 无剧情/秒数变化 |
 | 美学协议只变成口号 | 美学继承层 | 抽取画面基调和摄影风格中的可执行镜头语法 | `aesthetic_context_map` 有具体构图/运动/连续性约束 |
+| 光影被恢复成独立旧阶段 | 阶段边界层 | 废弃独立光影句、灯位图、光效清单或 prompt；回到 `camera_light_integration`，只保留能进入机位、运动、焦点和主体可读性的可见光线结果 | `GATE-CAM-08-LIGHT-STAGE-BOUNDARY` 通过；无旧 `9-光影` 追加层 |
+| 无源新增光源或光色跳变 | 连续性/保真层 | 回到 `light_continuity_map`、`lighting_scheme_continuity_map` 和 source anchor；只允许来自 source、场景风格或摄影风格的 source motivation boundary，正文主轴仍是布光类型、阴影组织和主体可读性 | `GATE-CAM-08-LIGHT-CONTINUITY` 通过；`source_motivation_boundary` 无新增实体光源 |
+| 抽象光影词替代可见结果 | AI 视频执行层 | 把“电影感光影/高级光影/宿命感逆光/压迫感阴影”等改为布光类型/光型、阴影保留位置、主体可读性控制和叙事美学功能；没有具体光型和阴影结果则删除 | `visible_light_result` 抽样通过；删除抽象词后仍可拍 |
+| 光影退化为发光物观察清单 | 摄影光影设计层 | 停止罗列窗、火、屏幕、车灯、反光、色温和介质；先决定 `lighting_design_type`、`shadow_design`、`narrative_aesthetic_function`，再用 source boundary 防止无源新增 | `camera_light_plan` 含 `lighting_design_type_map`、`shadow_design_map`、`narrative_light_function_map`；正文不呈现科学实验式观察 |
+| 光影正文输出解释性抽象结论 | 正文投影层 | 把“阴谋感由...完成”“危险感来自...”“形成某种意图/收束”等解释句移回内部 plan 或报告；正文只保留光位、光型、亮面、暗面、阴影边界、遮挡区域、清晰主体和焦点/运动交接 | `canonical_output_projection_audit` 通过；正文删除解释性结论后仍可拍 |
 | 上游上下文只被列入报告但没有导向运镜 | 上游方向继承层 | 补 `Upstream Camera Direction Matrix`：把 `6-分镜` 空间/功能、`2-美学` 摄影语法、主体约束和项目禁区逐项落到机位、运动路径、速度曲线、焦点和连续性取舍 | `GATE-CAM-08-UPSTREAM-DIRECTION` 通过；矩阵每行有 source anchor、stage decision 和 preservation check |
 | 抽象情绪直接进入运镜句 | AI 视频执行层 | 转译为眼神、呼吸、咬肌、手指、肩线、站姿、视线停顿 | 抽象词扫描和微动态抽样通过 |
 | 运镜画面化被误写成比喻或概念 | 白描式可拍层 | 加载 `../_shared/anti-abstract-language-contract.md`，把明喻、隐喻、象征和概念判断转成机位、角度、运动路径、速度、焦点和空间承托 | 删除“像/仿佛/宿命感/压迫感”等词后，镜头站位、路径、焦点、速度仍可拍 |
@@ -58,6 +63,10 @@ recommended_action: keep-heuristics-focused
 15. 若用户指出“焦点像关注点”，优先判为术语语义失败，不做表层同义改写；先把每条问题句拆成“叙事关注点”和“摄影焦点行为”，再只把后者写入运镜正文。
 16. 白描式运镜先写摄影机站在哪里、朝哪里看、如何移动、焦点从哪到哪、速度怎么变；不要写“像命运压近”“仿佛权力扑面”这类不可拍比喻。
 17. 若报告只有 `Upstream Context Application Map` 而没有 `Upstream Camera Direction Matrix`，先不要判定 pass；必须补清楚每类上游信号在摄影阶段具体改变了什么决策，以及哪些上游信息只作保真边界而不进入运镜正文。
+18. 处理光影时先问“这一镜该用什么布光类型/光型，给人物脸部、身体或空间保留什么阴影”，再问它是否改变主体可读性、焦点层次、运动交接或场景连续性；只为美感添加的逆光、烟雾、霓虹、月光、窗光默认删除。
+19. 旧 `9-光影` 可继承的不是阶段位置，而是判断纪律：布光类型明确、阴影组织服务叙事、主体可读性被保护、source motivation boundary 不新增实体光源。光源可信是边界，不是主轴；这些必须落入 `camera_light_plan`，不能另起光影正文。
+20. 一镜到底的光影重点是布光与阴影交接，不是每段都换光效；主光方向、阴影方向、光比和主体可读性若随运动变化，必须说明运动如何穿过既有空间而不是新增灯位或新增发光物。
+21. `narrative_aesthetic_function` 只负责内部决策和报告说明，不直接进入 `candidate_camera_episode`。写正文前做一次投影：抽象功能 -> 可见明暗结构；例如“危险感来自反差”应改为“白纸边缘被硬侧光切亮，人物侧脸仍停在分割阴影里”。
 
 ## Reusable Heuristics
 
@@ -70,6 +79,10 @@ recommended_action: keep-heuristics-focused
 - 一镜到底的关键不是不中断，而是入口、路径、绕行、焦点接力和落点都有动机。
 - 大师/作品参照只提供摄影原则，不提供当前剧情镜头模板。
 - 下游 AI 视频更容易消费“摄影机站在哪里、朝哪看、如何移动、焦点落在哪”，而不是抽象审美词。
+- 下游 AI 视频同样更容易消费“用什么光型、留什么阴影、主体哪里必须可读、阴影如何烘托叙事”，而不是“电影感光影”“氛围高级”或发光物清单。
+- 光影不是第九阶段的残留资产，而是第七阶段摄影观看的一部分；它只在改变机位选择、运动路径、焦点层次、主体可读性或连续性交接时进入正文。
+- 光源可信只做边界校验：不要把窗、火、屏幕、车灯、月光、霓虹、烟雾、雨雪反复写成观察记录；能用“低位上打白色伦勃朗光，保留鼻梁一侧和眼窝阴影，让人物像在隐藏真实意图”解决时，不要改写成一串可能光源和反射物。
+- 正文要比内部 plan 更“冷”：内部可以知道阴谋、危险、意图，正文只写半张脸留暗、纸边切亮、掌心压住纸面、焦点从哪里转到哪里。
 - 白描式运镜不是少用摄影术语，而是每个技术词都附着到可见摄影行为；删掉概念词后，路径、焦点、速度和空间关系仍然成立。
 - “有锚点”不等于“有思考”：把 `红布/刀线/树根/浅沟` 等词塞进固定句式，只是更隐蔽的模板化。
 - 真正的逐分镜差异化至少要改变一种观看决策：观众站位、主体/威胁优先级、速度停点、焦点权力、空间轴线或交出对象。只换名词不算差异化。

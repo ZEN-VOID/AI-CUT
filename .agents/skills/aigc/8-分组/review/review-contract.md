@@ -18,9 +18,9 @@
 
 | gate_id | check | pass criteria |
 | --- | --- | --- |
-| `GATE-GROUP-01` | 输入回指 | frontmatter 或报告记录 `source_camera_path`、`visual_tone_path`，必要时记录 `north_star_path` 的项目禁区/不变量消费 |
+| `GATE-GROUP-01` | 输入回指 | frontmatter 或报告记录 `source_camera_path`、`visual_tone_path`、`type_style_path` 和必要的项目 `MEMORY.md` 上下文 |
 | `GATE-GROUP-01D` | 剧本直入声明 | `direct_screenplay` 路径记录 `source_state=direct_screenplay`、剧本/编导稿源路径、时间码由本阶段 LLM 规划、`7-摄影` 字段级 diff 不适用 |
-| `GATE-GROUP-01S` | 初始化综合消费 | 项目存在初始化综合时，已形成 `init_team_synthesis_context`，并记录如何影响分组节奏、桥接策略或 north_star 投影；不得触发 team 身份、旧 stage profile 或伪顾问问答 |
+| `GATE-GROUP-01S` | 项目记忆消费 | 已形成 `project_memory_init_context`，并记录如何影响分组节奏、桥接策略或制作限制；不得触发 team 身份、旧 stage profile、旧初始化风格载体或伪顾问问答 |
 | `GATE-GROUP-01A` | 场景标题行 | 每个分镜组标题后先写当前场景标题行，未切换场景的新分镜组也重复同一场景标题 |
 | `GATE-GROUP-02` | `全局风格` 整理 | 每组在场景标题行下方立即输出 `全局风格：`；字段内只有一行纯内容；该行以固定前置词开头，后接当前组全局风格整理句；整理句依据 `画面基调.Global Style Prompt` 和当前证据抽取匹配部分，保持自然单段且 300 字以内；不得输出 `Visual Slogan`、`Design Principle`、`Visual Gene Profile` 或 `Negative Traits` 独立行 |
 | `GATE-GROUP-05` | ID 真实 | 每组 ID 为 `x-y-z`，匹配真实集、场、场内序号 |
@@ -36,7 +36,7 @@
 | `GATE-GROUP-15` | 禁用旧字段 | 新产物不得输出 `分镜画面：`、`增补首帧：`、`回龙帧：`、`入场镜头：`、`出场画面：`、`画面属性：`、旧版 `入场画面：`、`画面构图：` 或六类位置细节字段 |
 | `GATE-GROUP-16` | 原文保真 | 标准摄影路径同步 `7-摄影` 划定正文；`direct_screenplay` 路径保留剧本事实、场景顺序、英文对白原文和声画承托关系，未把 LLM 规划时间码伪称为 `7-摄影` 真源 |
 | `GATE-GROUP-17` | 输出路径 | 写入 `projects/aigc/<项目名>/8-分组/第N集.md` 和 `执行报告.md` |
-| `GATE-GROUP-UPSTREAM-CONTEXT` | 上游应用 | 执行报告说明 `2-美学`、`3-主体`、`7-摄影` / source override、north_star 与项目上下文如何进入分组节点；不得只列文件清单 |
+| `GATE-GROUP-UPSTREAM-CONTEXT` | 上游应用 | 执行报告说明 `2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md`、对应风格协议、`3-主体`、`7-摄影` / source override 与项目上下文如何进入分组节点；不得只列文件清单 |
 | `GATE-GROUP-UPSTREAM-DIRECTION` | 上游导向矩阵 | 执行报告包含 `Upstream Grouping Direction Matrix`，逐项说明上游信号如何导向组边界、全局风格、首帧衔接、YAML 主体统计和下游 handoff；确认分组不新增主体 |
 
 ## Semantic Pass Gate
@@ -46,15 +46,15 @@
 - `mechanical_check` 已运行且 error 为 0；warning 必须在语义 review 中处理。
 - `boundary_review`、`global_style_review`、`first_storyboard_continuity_review`、`connector_removal_review`、`faithfulness_review`、`statistics_evidence_review` 均记录 LLM 或人工结论。
 - `Upstream Context Application Map` 与 `Upstream Grouping Direction Matrix` 均记录 source anchor、stage decision、stage landing 和 boundary check；缺失任一项不得 pass。
-- 初始化综合存在时，`init_team_synthesis_context` 已记录消费来源和采纳点，且没有 creative-stage team persona dispatch。
+- `project_memory_init_context` 已记录消费来源和采纳点，且没有 creative-stage team persona dispatch 或旧初始化风格载体回退。
 - 语义结论只能为 `pass` 或 `pass_with_declared_exception`；任何 `fail` 都必须按 Failure Routing 返回源层修复。`>14.5s` 单组超时或最终累计结束秒未以 `.5` 结尾不得作为 `pass_with_declared_exception`。
 
 ## Failure Routing
 
 | fail_code | symptom | rework target |
 | --- | --- | --- |
-| `FAIL-GROUP-02` | `全局风格：` 缺失、位置错误、单行内容缺失、固定前置词缺失、整理句超过 300 字、完整照抄全局母稿、未匹配当前组证据、错误输出 `Visual Slogan` / `Design Principle` / `Visual Gene Profile` / `Negative Traits` 独立行，或 `Global Style Prompt` 缺失 | `references/north-star-projection-contract.md` |
-| `FAIL-GROUP-INIT-SYNTHESIS` | 初始化综合存在但未形成 `init_team_synthesis_context`，或误触发 team 身份 / 旧 stage profile / 伪顾问问答 | `SKILL.md#N1-INTAKE` |
+| `FAIL-GROUP-02` | `全局风格：` 缺失、位置错误、单行内容缺失、固定前置词缺失、整理句超过 300 字、完整照抄全局母稿、未匹配当前组证据、错误输出 `Visual Slogan` / `Design Principle` / `Visual Gene Profile` / `Negative Traits` 独立行，或 `Global Style Prompt` 缺失 | `references/visual-tone-projection-contract.md` |
+| `FAIL-GROUP-INIT-SYNTHESIS` | 项目记忆上下文缺失、未形成 `project_memory_init_context`，或误触发 team 身份 / 旧 stage profile / 旧初始化风格载体 / 伪顾问问答 | `SKILL.md#N1-INTAKE` |
 | `FAIL-GROUP-04` | ID 不匹配或不连续 | `references/group-boundary-contract.md` |
 | `FAIL-GROUP-05` | 组内分镜总时长明显偏离 14.5 秒且未复核、低于约 10 秒未回填、超过 14.5 秒、最终累计结束秒未以 `.5` 结尾、单个 atomic unit 超 14.5 秒但未回退 `7-摄影` 修复，或字数/对白风险失控 | `references/group-boundary-contract.md` |
 | `FAIL-GROUP-DIRECT-SCREENPLAY` | 直接接手剧本时仍要求用户补 `7-摄影`、未自动按约 14.5 秒/组拆组、最终累计结束秒未以 `.5` 结尾、未声明 direct screenplay 源路径与时间码来源、或把本阶段规划时间码伪称为 `7-摄影` 真源 | `references/group-boundary-contract.md#direct-screenplay-intake-rule` |
@@ -71,9 +71,9 @@
 
 执行报告至少记录：
 
-- 输入文件、north_star 文件与输出文件。
+- 输入文件、`2-美学` 上下文文件与输出文件。
 - `direct_screenplay` 路径的触发原因、剧本/编导稿源路径、时间码来源声明和 `7-摄影` 字段级 diff 不适用说明。
-- 初始化综合消费来源、采纳点和 persona dispatch 禁用确认。
+- 项目记忆上下文消费来源、采纳点、persona dispatch 和旧初始化风格载体回退禁用确认。
 - 处理集号和场景数量。
 - 分镜组数量与每场组号范围。
 - 每组时长估算、字数、`全局风格：` 摘要、首帧衔接/回龙帧检查、尾帧状态锚点五项元素复现检查、声音承托同步检查、YAML 角色/场景/道具短名单概览。
@@ -89,4 +89,4 @@
 | --- | --- | --- |
 | `pass` | 所有阻断 gate 为 0，mechanical check error 为 0，warning 已语义处理，执行报告证据完整 | `review_verdict`, `execution_report_sections`, `validator_summary` |
 | `fail` | 任一阻断 gate 失败、`>14.5s`、最终累计结束秒未以 `.5` 结尾、YAML 未登记主体、报告证据缺失或脚本化投影成立 | fail code、分镜组 ID、source anchor、rework target |
-| `candidate_only` | 用户明确授权在 source、north_star、subject registry 或默认摄影稿缺失时输出候选稿 | 缺失项、N/A reason、不能判定 canonical pass 的声明 |
+| `candidate_only` | 用户明确授权在 source、`2-美学` 上下文、subject registry 或默认摄影稿缺失时输出候选稿 | 缺失项、N/A reason、不能判定 canonical pass 的声明 |

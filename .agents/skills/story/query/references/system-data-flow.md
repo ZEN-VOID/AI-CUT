@@ -487,3 +487,11 @@ python "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" migrate -- --bac
 ❌ 仍写入 `STATE.json` 大数据 → ✅ 改用 SQLite 增量写入
 ❌ 让 `STATE.json` 持续膨胀 → ✅ 运行迁移脚本: `python "${SCRIPTS_DIR}/story.py" migrate`
 </errors>
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 查询是否按 story 当前 truth layers 选择 canonical carrier？ | 只读 `STATE.json`、旧 `正文/` 或 compat MAP 作为主真源即失败 | `FAIL-QRY-SOURCE` | `SKILL.md` `N5-CARRIER-READ` / 本文件 Query Truth Layers | carrier path list |
+| 是否区分 planning truth、object truth、runtime snapshot、execution truth、indexed evidence、validated actualization 与 quality truth？ | 任意两层混答且未标注边界即失败 | `FAIL-QRY-LAYER-MIX` | `SKILL.md` `N6-CROSS-CHECK` | truth_distinction |
+| validated actual 查询是否检查 actualization、context-return 和 PASS/validation 证据？ | 用计划、正文或文件存在冒充已兑现即失败 | `FAIL-QRY-ACTUALIZATION` | 本文件 stage bus / Query Truth Layers | actualization/context-return/PASS evidence or gap |

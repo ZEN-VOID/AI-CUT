@@ -8,7 +8,7 @@
 
 1. `projects/aigc/<项目名>/governance-state.yaml`，若存在，优先读取 `last_stable_checkpoint`、`resume_contract`、`review_bridge`、`artifact_status`。
 2. `projects/aigc/<项目名>/STATE.json`，读取 `current_stage`、`current_stage_path`、`recommended_next_stage`、`recommended_entry_path`、`recommended_next_step`。
-3. 初始化核心证据：`0-初始化/`、项目根 `MEMORY.md`、项目根 `CONTEXT/`。legacy `north_star / init_handoff / story-source-manifest / team.yaml` 只在实际存在时作为只读历史证据。
+3. 初始化核心证据：`0-初始化/`、项目根 `MEMORY.md`、项目根 `CONTEXT/`。旧初始化 carrier 只在实际存在时作为历史存在性证据，不作为当前上下文真源。
 4. 根治理工件：`mission-brief.yaml`、`route-plan.yaml`、`preflight-verdict.yaml`、`validation-report.md`、`learning-record.md`。
 5. 阶段 runtime 真实产物：例如 `1-分集/第N集.md`、`2-美学/**`、`4-编剧/第N集.md`、`5-导演/第N集.md`、`6-分镜/第N集.md`、`7-摄影/第N集.md`、`8-分组/第N集.md`、`3-主体/**`、`9-图像/**`、`10-画布/**`；审片结论来自 review evidence、治理桥或用户给定 packet。旧 `5-表演/`、`6-氛围/`、`9-光影/` 只作为 archived readback。
 6. Git 工作区状态与最近修改文件，只能作为辅助证据，不能单独决定断点。
@@ -54,7 +54,7 @@ git status --short
 - 不得伪造不存在的 workflow state。
 - 不得只凭目录名、空目录或最近修改时间判断阶段完成。
 - 不得把旧英文 runtime 或旧 `2-编导 / 3-运动 / 4-摄影` 当作新项目默认落点。
-- 不得把缺 legacy `team.yaml / north_star / init_handoff / story-source-manifest` 直接判为初始化失败。
+- 不得把缺旧初始化 carrier 直接判为初始化失败。
 - 不得在缺高风险 gate 时直接建议继续生产。
 - 不得默认建议 destructive Git 动作。
 - 不得把主动 rebootstrap 伪装为 `stage_continue` 或 `governance_rebuild`。

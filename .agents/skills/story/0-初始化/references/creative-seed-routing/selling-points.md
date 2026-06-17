@@ -691,5 +691,5 @@ Lv4: 能创造新规则
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
 | 本 leaf 是否只在 `module-spec.md` 判定需要卖点提炼时加载，而非被父技能直连？ | `creative_seed` | `FAIL-INIT-CREATIVE-ROUTE` | `references/creative-seed-routing/module-spec.md` Phase 1-2 | creative_route_plan、loaded_leaf_references |
-| 卖点是否与目标读者、主角身份、金手指/规则和世界观放大机制形成一致链路？ | `creative_seed` / `handoff` | `FAIL-INIT-HANDOFF` | 本文件卖点匹配原则、`steps/init-workflow.md` N5 | reader_promise、story_kernel、risk_notes |
+| 卖点是否与目标读者、主角身份、金手指/规则和世界观放大机制形成一致链路？ | `creative_seed` / `handoff` | `FAIL-INIT-HANDOFF` | 本文件卖点匹配原则、`SKILL.md` N6B-N7 | reader_promise、story_kernel、risk_notes |
 | 卖点是否落到 `north_star.reader_promise` 与 `init_handoff.project_contract`，而不是替代后续大纲？ | `handoff` | `FAIL-INIT-HANDOFF` | `references/creative-seed-routing/module-spec.md` Phase 3 | promise_surface patch、deferred unknowns |

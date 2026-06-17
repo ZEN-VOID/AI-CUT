@@ -118,3 +118,11 @@ purpose: 伏笔紧急度分析和管理时加载
 ❌ 同时 10+ 条伏笔 → ✅ 同时进行不超过 5 条
 ❌ 核心伏笔 >50 章不回收 → ✅ 检查紧急度，及时回收
 </errors>
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 伏笔查询是否只在 `quality` 或明确伏笔问题中加载？ | 普通规划/当前态查询无信号加载本 reference 即失败 | `FAIL-QRY-QUALITY` | `SKILL.md` Module Trigger Matrix | loaded_context_manifest |
+| 伏笔紧急度是否有章节、目标、层级或 metrics 证据？ | 只凭主观判断给紧急度即失败 | `FAIL-QRY-EVIDENCE` | `SKILL.md` `N5-CARRIER-READ` | urgency evidence path |
+| 核心/支线/装饰周期是否作为质量参考而非业务真源？ | 用本参考覆盖项目 actualization 或 planning 即失败 | `FAIL-QRY-SOURCE` | `references/system-data-flow.md` | carrier priority note |

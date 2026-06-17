@@ -22,7 +22,7 @@
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 物品是否有剧情杠杆，而不是命名设定？ | `function` | `FAIL-CD-ITEM-FUNC` | `steps/item-card-workflow.md` 的 `I2` | `narrative_functions`、`function_note` |
-| 归属链、启用规则和代价是否闭合？ | `cost` | `FAIL-CD-ITEM-OWN` | `steps/item-card-workflow.md` 的 `I3` | `ownership_links`、`usage_rules`、`costs` |
-| 专属适配是否吸收角色和场景上游接口？ | `fit` | `FAIL-CD-ITEM-EXCLUSIVE` | `steps/item-card-workflow.md` 的 `I4` | `exclusive_fit`、`upstream_trace` |
-| 显式启用 subagents 时，顾问建议是否被转成可执行物品指导？ | `advisor_consultation` | `FAIL-CD-ITEM-ADVISOR` | `SKILL.md` 的 `I1A` | `advisor_consultation_packet.execution_brief` |
+| 物品是否有剧情杠杆，而不是命名设定？ | `function` | `FAIL-CD-ITEM-FUNC` | `SKILL.md` 的 `N2-FUNCTION` | `narrative_functions`、`function_note` |
+| 归属链、启用规则和代价是否闭合？ | `cost` | `FAIL-CD-ITEM-OWN` | `SKILL.md` 的 `N3-COST` | `ownership_links`、`usage_rules`、`costs` |
+| 专属适配是否吸收角色和场景上游接口？ | `fit` | `FAIL-CD-ITEM-EXCLUSIVE` | `SKILL.md` 的 `N4-FIT` | `exclusive_fit`、`upstream_trace` |
+| 显式启用 subagents 时，顾问建议是否被转成可执行物品指导？ | `advisor_consultation` | `FAIL-CD-ITEM-ADVISOR` | `SKILL.md` 的 `N1-INTAKE` / `N2-FUNCTION` | `advisor_consultation_packet.execution_brief` |

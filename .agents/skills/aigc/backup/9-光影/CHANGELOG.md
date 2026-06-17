@@ -1,5 +1,12 @@
 # Changelog: aigc 9-光影
 
+## 2026-06-16
+
+- 标记为退役备份入口：不再作为正式 AIGC `9-光影` canonical 阶段执行。
+- 将可复用光影核心收束到 `.agents/skills/aigc/7-摄影/references/cinematic-light-in-camera-contract.md`：布光类型/光型、阴影组织、叙事美学功能、主体可读性和光影连续性必须作为摄影观看纪律进入 `camera_light_plan`；光源可信只作为 source motivation boundary。
+- 明确旧链路中的“光源、受光、色温、材质/空气介质”观察口径不再作为正式主轴，防止光影强化退化为发光物观察清单。
+- 同步 `SKILL.md`、`README.md` 与 agent prompt，阻断后续误生成 `projects/aigc/<项目名>/9-光影/` 正式产物或恢复独立光影追加层。
+
 ## 2026-06-11
 
 - 同步 `2-美学` 输出 scope：光影阶段读取 `画面基调` 全局 singleton；场景风格和摄影风格按当前 `第N集` 优先读取 `2-美学/第N集/<风格>/`，缺失时回退项目级基线。

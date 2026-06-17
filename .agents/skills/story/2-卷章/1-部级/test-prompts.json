@@ -1,0 +1,17 @@
+[
+  {
+    "id": "create-book-plan",
+    "prompt": "使用 $story-plan-book-level 为 projects/story/demo 生成 2-卷章/整体规划.md；项目已有 north_star.yaml、init_handoff.yaml 和基础设定卡。",
+    "expected": "加载 SKILL.md + CONTEXT.md，回读父层与项目输入，按 N1-N11 生成含书名、整体故事大纲、故事编年史、卷划分、整部任务关系、整体冲突、整部悬念总设计、整体节奏曲线和规避的 Markdown 部级规划，并通过 review gate。"
+  },
+  {
+    "id": "revise-book-rhythm",
+    "prompt": "使用 $story-plan-book-level 修订既有整体规划，只补强整体节奏曲线和 book_wave_map，不要改写卷划分。",
+    "expected": "完整回读旧整体规划和上游输入，限定字段 patch 范围，只修订整体节奏曲线及必要联动说明，保留未命中段落，并给出 review verdict。"
+  },
+  {
+    "id": "audit-book-plan",
+    "prompt": "使用 $story-plan-book-level 审查整体规划是否可以交给卷级规划，不直接修改文件。",
+    "expected": "执行 audit_book_plan 路由，加载输出合同、Save the Cat 参考和 review contract，返回 findings、fail_code、rework_target 与 verdict，不写回业务真源。"
+  }
+]

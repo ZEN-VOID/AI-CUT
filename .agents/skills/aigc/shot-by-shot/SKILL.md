@@ -16,7 +16,7 @@ metadata:
 
 - 每次调用 `$aigc-shot-by-shot` 时，必须同时加载本目录 `SKILL.md + CONTEXT.md`。
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目 `CONTEXT/` 中与参考片、美学、编剧、导演、分镜、摄影、分组、主体设计或制作限制相关的文件；archived 表演/光影上下文只在显式 legacy 目标中读取；`0-初始化/north_star.yaml`、`team.yaml` 仅在旧项目已存在且本轮需要回读时按 legacy supporting context 加载。
+- 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目 `CONTEXT/` 中与参考片、美学、编剧、导演、分镜、摄影、分组、主体设计或制作限制相关的文件；archived 表演/光影上下文只在显式 legacy 目标中读取；需要美学方向时加载 `2-美学` 正式输出，不回读旧初始化 carrier。
 - 若本轮输出服务 `2-美学`，必须按任务目标加载 `.agents/skills/aigc/2-美学/SKILL.md + CONTEXT.md`，并按需加载六个子技能的 `SKILL.md + CONTEXT.md`：`画面基调`、`角色风格`、`场景风格`、`道具风格`、`摄影风格`、`分镜风格`。
 - 若本轮输出服务 `4-编剧`、`5-导演`、`6-分镜`、`7-摄影`、`8-分组` 或 `3-主体`，必须按需加载对应 owning stage 的 `SKILL.md + CONTEXT.md` 并遵守字段边界；`backup/5-表演`、`backup/9-光影` 只在显式 legacy 桥接中加载。
 - 所有拉片输出统一落点为 `projects/aigc/<项目名>/shot-by-shot/<reference_slug>/`；不写入 `CONTEXT/shot-by-shot/<reference_slug>/`。

@@ -17,8 +17,6 @@ repair/
 │   └── output-template.md
 ├── review/
 │   └── review-contract.md
-├── steps/
-│   └── repair-workflow.md
 ├── knowledge-base/
 │   └── repair-heuristics.md
 ├── types/
@@ -40,6 +38,7 @@ repair/
 ├── CHANGELOG.md
 ├── SKILL.md
 ├── CONTEXT.md
+├── test-prompts.json
 └── README.md
 ```
 
@@ -50,3 +49,5 @@ Use `$story-repair` for story project repair requests that require typed impact 
 The universal "when X, check X" matrix lives in `references/impact-scope-contract.md`; project-specific additions belong in `projects/story/<项目名>/CONTEXT/` or `MEMORY.md` only when they are stable project memory.
 
 Runtime safety boundaries live in `guardrails/guardrails-contract.md`; the short execution copy is embedded in `SKILL.md#Runtime Guardrails`.
+
+Runtime nodes, routes, gates, Mermaid topology, module authorization, and fail-code convergence now live in `SKILL.md`; `steps/` is intentionally absent in the runtime-spine layout.

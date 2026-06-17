@@ -29,6 +29,7 @@
 | `AIGC-TM-12` | 下游阶段读取了多个上游输入物，但没有说明各自如何引导当前阶段方向 | upstream direction matrix gap | 对 `4-编剧` 输出 `Upstream Creative Direction Matrix`；对 `5-导演` 到 `9-图像` 输出对应创作/制作方向矩阵；对 `10-画布` 输出 `LibTV Upstream Video Direction Matrix` | 阶段执行报告包含 owning stage 方向矩阵，且每行都有 `direction_role`、`used_as`、`stage_decision`、`stage_landing`、`boundary_check` |
 | `AIGC-TM-13` | 维护者把“上游上下文”误解成“上一序号阶段产物”，导致用户指定文稿、非相邻真源、主体注册表、画布证据或真实视频证据被忽略 | source bundle narrowing | 回到 `_shared/upstream-context-application-contract.md`，把上下文锁定为授权 source bundle；默认上一阶段只是候选之一，非默认来源必须记录 source override、来源类型、保真边界和缺失项降级 | `Upstream Context Application Map` 的 `upstream_source` 标出 default / non-adjacent / user_override / evidence_only / side_context；方向矩阵能说明每类来源如何导向当前阶段决策 |
 | `AIGC-TM-14` | 用户要求对 `2-10` 已有阶段产物多轮调优，却被直接当作 repair 或重新生成主稿 | fine-tuning satellite routing gap | 进入 `fine-tuning/`，先识别调优对象和 owning stage，匹配阶段方案，执行多轮 LLM-first 调优和 comparison gate，再回交 owner-safe patch | 调优报告包含 `target_stage_map`、`scheme_selection_matrix`、`iteration_ledger`、`comparison_acceptance_matrix`、`owner_handoff_patch` |
+| `AIGC-TM-15` | 用户显式点名 backup `5-表演`、`6-氛围` 或 `9-光影` 后，系统又准备恢复旧阶段生成 | retired backup execution drift | 只读进入 backup skill 做历史回读、迁移对照或退役状态说明；把可用能力重定向到 story 人物/场景质感模块或 `7-摄影` 光影观看纪律 | 根 `SKILL.md` 标明 backup 只读；backup 入口含退役说明；审计不把 5/6/9 纳入 active 主链 |
 
 ## Repair Playbook
 
@@ -45,6 +46,7 @@
 11. 若用户追问“这些上下文如何引导创作方向”，不要只解释输入物清单；判定 `AIGC-TM-12`。`4-编剧` 使用 `Upstream Creative Direction Matrix`；`5-导演` 使用 `Director Direction Inheritance Matrix`；`6-分镜` 使用 `Storyboard Direction Inheritance Matrix`；`7-摄影` 使用 `Upstream Camera Direction Matrix`；`8-分组` 使用 `Upstream Grouping Direction Matrix`；`9-图像` 使用 `Image Upstream Visual Direction Matrix`；`10-画布` 使用 `LibTV Upstream Video Direction Matrix`。矩阵必须明确每个上游上下文的 direction_role、used_as、stage_decision、stage_landing 和 boundary_check。
 12. 若用户提醒“上下文不一定来自上一序号”，不要把阶段链改回线性依赖；判定 `AIGC-TM-13`。先锁定本轮授权 source bundle，再检查默认来源、非相邻来源、用户 override、evidence-only 来源和 side context 各自是否被记录、应用或明确 N/A。
 13. 若用户要求“迭代调优 / fine-tuning / 多轮优化 / 比对验收”且目标是 `2-美学` 到 `10-画布` 已有或待验收产物，判定 `AIGC-TM-14`，优先进入 `fine-tuning/`；不要直接改阶段 canonical 主稿，也不要把调优简化成一次润色。
+14. 若用户点名 backup `5-表演`、`6-氛围` 或 `9-光影`，先判定 `AIGC-TM-15`。默认只做历史回读、迁移对照或退役状态说明；不得因“显式点名”恢复旧阶段写回。可用能力应重定向：表演 -> story 人物在场反应；氛围 -> story 场景压力/感官承托；光影 -> `7-摄影` 的 camera light integration。
 
 ## Reusable Heuristics
 
@@ -59,13 +61,14 @@
 - `learn/` 是 source-first 学习入口；它吸收外部知识前先判媒介证据、事实冲突、目标 owner 和同步消费者，避免局部改进制造全局矛盾。
 - `fine-tuning/` 是输出物迭代调优卫星入口；它不生成首版主稿，不直接写阶段 canonical，只产出多轮调优报告、comparison gate 和 owner-safe patch。
 - `flash/` 是 chat-only mini prompt 入口；它压缩串联 2-8 的判断，并在聊天内锁定 mini subject map，但不写任何 stage canonical 文件，也不生成执行报告。
+- backup `5-表演`、`6-氛围`、`9-光影` 是退役兼容入口，不是可试用阶段；显式点名只提高可读回看和迁移说明优先级，不恢复 canonical 写回权限。
 - 创作型阶段的最低源层验收不是“字段都在”，而是“字段背后有不可模板化的观看/叙事/设计判断”。覆盖率、四要素、动机证据和报告章节可以被脚本伪造，必须另设反形式化硬门。
 - 上游上下文不是背景资料；它必须被转译为当前阶段的约束、裁决和证据。没有 `source_anchor -> local_decision -> preservation_check` 的链路，就只能说明读取发生过，不能说明上下文被应用。
 - `2-美学/画面基调/全局风格协议.md` 是全局 singleton；`2-美学/类型风格.md` 是分集后供 `3-主体`、`4-编剧` 与后续阶段继承的题材类型真源；场景/角色/道具/分镜/摄影风格在逐集任务中优先使用 `2-美学/第N集/<风格>/...`，缺失时才用项目级 `<风格>/...` 作为 fallback。
 
 ## Stage Pipeline — 从原小说到最终视频的完整链路
 
-当前 AIGC 影视流水线以根 `SKILL.md` 的 Stage Status Table 为真源。分集后必须先进入 `2-美学` 做题材类型与视觉风格研究配置，再进入 `3-主体` 建立主体注册表和角色/场景/道具清单、设计、生成，然后进入 `4-编剧`；新增文本分镜主链默认走 `2-美学 -> 3-主体 -> 4-编剧 -> 5-导演 -> 6-分镜 -> 7-摄影 -> 8-分组`。`8-分组` 理论上不新增主体，只读引用 `3-主体/subject-registry.yaml`。用户显式指定其他文稿时，各阶段按自身 source override 合同处理。`backup/5-表演`、`backup/6-氛围`、`backup/9-光影` 只用于显式点名、历史回读或恢复计划。
+当前 AIGC 影视流水线以根 `SKILL.md` 的 Stage Status Table 为真源。分集后必须先进入 `2-美学` 做题材类型与视觉风格研究配置，再进入 `3-主体` 建立主体注册表和角色/场景/道具清单、设计、生成，然后进入 `4-编剧`；新增文本分镜主链默认走 `2-美学 -> 3-主体 -> 4-编剧 -> 5-导演 -> 6-分镜 -> 7-摄影 -> 8-分组`。`8-分组` 理论上不新增主体，只读引用 `3-主体/subject-registry.yaml`。用户显式指定其他文稿时，各阶段按自身 source override 合同处理。`backup/5-表演`、`backup/6-氛围`、`backup/9-光影` 只用于显式点名后的只读历史回读、迁移对照或退役状态说明。
 
 ```text
 0-初始化 → 1-分集 → 2-美学 → 3-主体 → 4-编剧 → 5-导演 → 6-分镜 → 7-摄影 → 8-分组 → 9-图像 → 10-画布
@@ -73,7 +76,7 @@
 
 | 阶段 | 一句话定义 | 输入 | 叠加什么 | 输出 |
 | --- | --- | --- | --- | --- |
-| `0-初始化` | 锁定项目、风格、制作约束 | 用户请求 | north_star.yaml、team.yaml、项目 MEMORY | 项目骨架 |
+| `0-初始化` | 锁定项目、制作约束、初始化记忆 | 用户请求 | 项目 `MEMORY.md`、项目 `CONTEXT/` | 项目骨架 |
 | `1-分集` | 把长篇小说切成逐集原文 | 小说全文 | 集边界、字数、frontmatter | `1-分集/第N集.md`（原文，零改写） |
 | `2-美学` | 从全量分集故事源先建立题材类型、标志性元素、题材专属表现技巧和视觉风格协议 | `1-分集` 全部故事源 + 项目设定 | `类型风格.md`、`画面基调/全局风格协议.md`、逐集或项目级细目风格协议、分镜节奏、美学参照边界 | `2-美学/类型风格.md` + `2-美学/画面基调/全局风格协议.md` + `2-美学/第N集/<风格>/风格协议.md` 或项目级 `<风格>/风格协议.md` |
 | `3-主体` | 建立角色/场景/道具命名与资产设计真源 | `1-分集` 全部故事源 + `2-美学/类型风格.md` + 角色/场景/道具风格协议 | `主体注册表.md`、`subject-registry.yaml`、三域清单、设计规格、生成请求 JSON | `3-主体/主体注册表.md` + `3-主体/subject-registry.yaml` + 三域资产 |

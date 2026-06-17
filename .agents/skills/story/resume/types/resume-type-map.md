@@ -2,11 +2,11 @@
 
 ## 类型包加载边界
 
-- 每次调用本技能时，必须依据本文件识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
+- 本文件只在 `SKILL.md` 的 `Type Routing Matrix` 或 `Module Trigger Matrix` 命中 `types/resume-type-map.md` 时加载。
 - `types/` 中命中的类型包作为固定上下文加载；`knowledge-base/` 只作为按需检索、切片或向量召回的知识库，不替代类型包。
 
 
-`types/` 是 `$story-resume` 的恢复分型真源。执行时先形成 `resume_type_profile`，再让 `steps/resume-workflow.md` 消费它。
+`SKILL.md` 的 `Type Routing Matrix` 是 `$story-resume` 的恢复分型真源。本文件只展开命令映射、fallback 映射和风险矩阵；执行时先形成 `resume_type_profile`，再回到 `SKILL.md` 的 `Thinking-Action Node Map` 消费它。
 
 ## Type Profile
 

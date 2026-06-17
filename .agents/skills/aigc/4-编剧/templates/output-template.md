@@ -6,9 +6,9 @@
 - Output format: Markdown screenplay plus Markdown execution report.
 - Output path: canonical `4-编剧/` project runtime only.
 - Naming convention: `第N集.md`; report is `执行报告.md`.
-- Completion gate: `GATE-SCR-01..23` blocking failures are zero, including `GATE-SCR-19` anti-scripted draft audit, `GATE-SCR-21` type style context application, `GATE-SCR-22` subject registry application, and `GATE-SCR-23` upstream creative direction matrix.
+- Completion gate: `GATE-SCR-01..24` blocking failures are zero, including `GATE-SCR-19` anti-scripted draft audit, `GATE-SCR-21` type style context application, `GATE-SCR-22` subject registry application, `GATE-SCR-23` upstream creative direction matrix, and `GATE-SCR-24` scene asset context integration.
 - Module trigger evidence: cite `reference_load_manifest` and the matching `Module Trigger Matrix` row.
-- Business analysis evidence: include `business_profile`, `upstream_creative_direction_matrix`, `type_style_application_map`, `subject_registry_application_map`, and `genre_narrative_profile`.
+- Business analysis evidence: include `business_profile`, `upstream_creative_direction_matrix`, `type_style_application_map`, `subject_registry_application_map`, `scene_asset_integration_map` or N/A, and `genre_narrative_profile`.
 - Quant criteria evidence: include source count, beat count, rhythm maps, climax/hook maps, A/V pair count, and same-frame continuity checks.
 - Attention evidence: include drift signals and re-center actions if any.
 - Checkpoint evidence: include `CHK-SCOPE`, `CHK-SEMANTIC`, `CHK-VALIDATION`, `CHK-DARWIN` status.
@@ -23,6 +23,7 @@ episode_id: 第N集
 source_episode_path: projects/aigc/<项目名>/1-分集/第N集.md
 type_style_context_path: projects/aigc/<项目名>/2-美学/类型风格.md
 subject_registry_context_path: projects/aigc/<项目名>/3-主体/主体注册表.md
+scene_asset_context_policy: optional_read_only_with_required_map_when_present
 output_path: projects/aigc/<项目名>/4-编剧/第N集.md
 upstream_direction_policy: required
 genre_profile:
@@ -113,6 +114,11 @@ review_verdict:
 
 | subject_registry_context_path | subject_type | registry_id_or_name | canonical_name_used | alias_or_source_name | script_landing | drift_check |
 | --- | --- | --- | --- | --- | --- | --- |
+
+## Scene Asset Integration Map
+
+| scene_asset_context_path | asset_type | registry_scene_name_or_id | design_or_image_anchor | used_for | script_landing | boundary_check | n/a_reason |
+| --- | --- | --- | --- | --- | --- | --- | --- |
 
 ## Rule Evidence Map
 

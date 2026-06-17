@@ -55,3 +55,10 @@
 - `payoff_distribution`：说明各卷主要读者满足的分布，可使用 `认知 / 行动 / 情绪 / 关系 / 世界感 / 软线索 / 状态修复`。
 
 好长篇像交响乐：高点需要低谷和换气衬托。若所有卷都标高强度，等同于没有真正高点。
+
+## Review Gate Mapping
+
+| review_question | review_gate | fail_code | rework_target | report_evidence |
+| --- | --- | --- | --- | --- |
+| 整部节奏是否按长篇拍点走廊使用 Save the Cat？ | 只照搬银幕百分比、只列 15 步名词或无跨卷承诺分配即失败 | `FAIL-BOOK-RHYTHM` | `SKILL.md#N9-RHYTHM-CURVE` | 15 步走廊、卷职责分配和 `book_wave_map` |
+| `book_wave_map` 是否能给卷级继承力度和换气？ | 缺 `volume_intensity_map / volume_role_map / respite_corridor / payoff_distribution` 或无 Mermaid 图即失败 | `FAIL-BOOK-RHYTHM` | `SKILL.md#Review Gate Binding` | `book_wave_map` 字段和 Mermaid 图 |

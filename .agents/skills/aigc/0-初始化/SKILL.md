@@ -8,7 +8,7 @@ metadata:
 
 # aigc 0-初始化
 
-`aigc-init` is now a scaffold-only project kickoff skill. It creates the current AIGC 0-10 runtime directory structure under `projects/aigc/<项目名>/`, project `MEMORY.md`, and project `CONTEXT/`. It no longer creates the former initialization artifact set such as `north_star.yaml`, `init_handoff.yaml`, `story-source-manifest.yaml`, `team.yaml`, `STATE.json`, project `CHANGELOG.md`, or source folders.
+`aigc-init` is now a scaffold-plus-memory project kickoff skill. It creates the current AIGC 0-10 runtime directory structure under `projects/aigc/<项目名>/`, project `MEMORY.md`, and project `CONTEXT/`. It no longer creates the former initialization artifact set such as `north_star.yaml`, `init_handoff.yaml`, `story-source-manifest.yaml`, `team.yaml`, `STATE.json`, project `CHANGELOG.md`, or source folders. Initialization-time user-specified information, including team configuration, supplied reference material summaries, long-term constraints, and downstream context guidance, is centralized in project `MEMORY.md`.
 
 ## Context Loading Contract
 
@@ -24,7 +24,7 @@ Initialization has one runtime path:
 
 `N0-intake -> N1-project-root -> N2-scaffold -> N3-memory -> N4-readback`
 
-The skill performs filesystem scaffolding only. It does not run smart-advisor lineup selection, planning direct-answer packets, north-star synthesis, story-source readiness checks, state routing, governance sidecar generation, or next-stage recommendation.
+The skill performs filesystem scaffolding plus project-memory consolidation. It does not run smart-advisor lineup selection, planning direct-answer packets, north-star synthesis, story-source readiness checks, state routing, governance sidecar generation, or next-stage recommendation. If the user specifies team preferences, reviewer expectations, collaborators, reference packets, style anchors, exclusions, production constraints, or "以后都按这个来" requirements during initialization, the LLM must absorb and structure them into `MEMORY.md` instead of creating parallel carriers.
 
 ## Multi-Subskill Continuous Workflow
 
@@ -35,7 +35,7 @@ When `$aigc-init` is called, this skill may complete all scaffold nodes in one p
 - 用户要求初始化影片、电影、影视、视频、AIGC 短剧项目。
 - Create a new project scaffold under `projects/aigc/<项目名>/`.
 - Recreate missing scaffold directories for an existing AIGC project without rewriting business artifacts.
-- Create or update project `MEMORY.md` with initialization-time user requirements or stable long-term project inclinations, and create project `CONTEXT/` as the shared context root.
+- Create or update project `MEMORY.md` with initialization-time user requirements, team configuration, supplied-reference absorption summaries, stable long-term inclinations, and downstream context-reading guidance; create project `CONTEXT/` as the shared context root for optional sidecar materials.
 
 ## When Not to Use
 
@@ -43,7 +43,7 @@ When `$aigc-init` is called, this skill may complete all scaffold nodes in one p
 - 用户要求初始化漫画；route to comic initialization.
 - 用户要求生成剧本、分镜、设计、图像、视频、审片报告或其他阶段 canonical outputs；route to the owning stage.
 - 用户要求恢复、查询、审查或修复已有项目状态；route to `resume/`, `query/`, `review/`, or `repair/`.
-- 用户要求删除既有产物；destructive cleanup requires an explicit deletion task outside this scaffold-only contract.
+- 用户要求删除既有产物；destructive cleanup requires an explicit deletion task outside this scaffold-plus-memory contract.
 
 ## Input Contract
 
@@ -51,7 +51,7 @@ When `$aigc-init` is called, this skill may complete all scaffold nodes in one p
 | --- | --- | --- |
 | `task_intent` | first scaffold initialization, scaffold repair, or rebootstrap-to-scaffold | Must be clear enough to stay in `projects/aigc/`. |
 | `project_identity` | project name, working title, or explicit path under `projects/aigc/<项目名>/` | Required before writing. |
-| `memory_requirements` | user-stated preferences, constraints, exclusions, special elements, or "remember this" instructions | Write to `MEMORY.md`; if absent, create a clean placeholder memory file. |
+| `memory_requirements` | user-stated preferences, constraints, exclusions, special elements, team configuration, reviewer/collaboration preferences, supplied reference material, or "remember this" instructions | Absorb and structure into `MEMORY.md`; if absent, create a clean placeholder memory file. |
 | `existing_project_state` | required only when project root already exists | Preserve existing files; create missing scaffold directories, ensure `CONTEXT/`, and merge/update `MEMORY.md` only. |
 
 Reject or clarify when the project name is missing, the target path is outside `projects/aigc/`, or the user asks to overwrite/delete existing files without explicit scope.
@@ -62,7 +62,7 @@ Reject or clarify when the project name is missing, the target path is outside `
 | --- | --- | --- |
 | `new_scaffold` | project root does not exist | create all required directories, `MEMORY.md`, and `CONTEXT/` |
 | `repair_scaffold` | project root exists but scaffold directories, `MEMORY.md`, or `CONTEXT/` are missing | create only missing scaffold pieces |
-| `memory_update` | user supplies long-term project preference or replacement | update `MEMORY.md` without creating other artifacts |
+| `memory_update` | user supplies long-term project preference, team configuration, supplemental source/reference material, or replacement | update `MEMORY.md` without creating other artifacts |
 | `unsafe_reset` | deletion, purge, overwrite, or non-AIGC target is implied | block and request explicit scope |
 
 ## Module Loading Matrix
@@ -70,8 +70,8 @@ Reject or clarify when the project name is missing, the target path is outside `
 | module | load condition | permission boundary |
 | --- | --- | --- |
 | `references/scope-and-runtime.md` | scaffold path or directory allowlist needs confirmation | May define paths only; may not reintroduce removed artifact generation. |
-| `templates/project-memory.template.md` | creating a new `MEMORY.md` | Template source for memory shape only. |
-| `templates/project-context-readme.template.md` | creating a new project `CONTEXT/README.md` | Template source for the project context root readme only; may not introduce north-star, team, state, source, or governance carriers. |
+| `templates/project-memory.template.md` | creating a new `MEMORY.md` or repairing memory shape | Template source for centralized project memory, including initialization user information, team configuration, reference absorption summaries, and downstream context guidance. |
+| `templates/project-context-readme.template.md` | creating a new project `CONTEXT/README.md` | Template source for the project context root readme only; may not introduce north-star, team, state, source, or governance carriers as parallel truth. |
 | `review/init-review-gate.md` | maintenance review or final readback check | Checklist only. |
 | `steps/init-workflow.md` | workflow maintenance or implementation review | Node expansion only. |
 
@@ -84,7 +84,7 @@ All former artifact templates are inactive for initialization writeback unless a
 | `N0-intake` | confirm this is an AIGC film/video scaffold task | classify task and reject/reroute non-AIGC media | none | project type clear |
 | `N1-project-root` | resolve canonical root | derive `projects/aigc/<项目名>/` and prevent path escape | none | root is canonical |
 | `N2-scaffold` | create current 0-10 runtime directories and project context root | create only missing directories in the allowlist, including `CONTEXT/` | directories only | all stage directories and `CONTEXT/` exist |
-| `N3-memory` | create or update project memory and context readme | write `MEMORY.md` from template or merge user long-term requirements; create `CONTEXT/README.md` when missing | `MEMORY.md`, `CONTEXT/README.md` | memory exists and context root is readable |
+| `N3-memory` | create or update centralized project memory and context readme | write `MEMORY.md` from template or merge user long-term requirements, team configuration, supplied-reference absorption summaries, and downstream context guidance; create `CONTEXT/README.md` when missing | `MEMORY.md`, `CONTEXT/README.md` | memory exists, captures initialization context, and context root is readable |
 | `N4-readback` | verify completion | read back paths and report created/skipped items | none | no removed artifact was created |
 
 ## Canonical Runtime Skeleton
@@ -157,7 +157,7 @@ Initialization passes only when:
 - every active stage directory from `0-初始化/` through `10-画布/` exists with names matching the current skill package names
 - `MEMORY.md` exists at the project root
 - `CONTEXT/` exists at the project root, with `README.md` created when absent
-- initialization-time user requirements that are long-term preferences or constraints are recorded in `MEMORY.md`
+- initialization-time user requirements, team configuration, supplied-reference absorption summaries, stable preferences, constraints, exclusions, and downstream context-reading guidance are recorded in `MEMORY.md` when supplied
 - no removed initialization artifact listed above was created by this run
 
 Initialization fails or blocks when the project name is ambiguous, the path escapes `projects/aigc/`, an existing `MEMORY.md` would be overwritten instead of merged, or the requested operation requires deletion/overwrite without explicit scope.
@@ -178,7 +178,7 @@ Priority repair targets:
 | --- | --- |
 | wrong stage names or missing scaffold directory | `references/scope-and-runtime.md` and this `Canonical Runtime Skeleton` |
 | former artifact created during initialization | this `Output Contract` and `review/init-review-gate.md` |
-| project memory missing or overwritten | `templates/project-memory.template.md` and `N3-memory` |
+| project memory missing, overwritten, or too weak to absorb initialization context | `templates/project-memory.template.md` and `N3-memory` |
 | project context root missing | `templates/project-context-readme.template.md` and `N2/N3` |
 | path outside canonical namespace | `N1-project-root` and `references/scope-and-runtime.md` |
 
@@ -188,7 +188,7 @@ Priority repair targets:
 | --- | --- | --- | --- |
 | `FIELD-INIT-03` | `N0/N1` | project scope note | AIGC project name and root are clear. |
 | `FIELD-INIT-05` | `N2/N4` | directory scaffold | Current 0-10 directories and project `CONTEXT/` exist; removed artifacts are absent. |
-| `FIELD-INIT-09` | `N3` | `MEMORY.md`, `CONTEXT/README.md` | User initialization requirements and stable inclinations are captured or placeholder sections exist; context root has a readable readme. |
+| `FIELD-INIT-09` | `N3` | `MEMORY.md`, `CONTEXT/README.md` | User initialization requirements, team configuration, reference absorption summaries, stable inclinations, and downstream context guidance are captured or placeholder sections exist; context root has a readable readme. |
 
 ## Thought Pass Map
 
@@ -197,8 +197,8 @@ Priority repair targets:
 | `N0` | `FIELD-INIT-03` | Is this an AIGC film/video scaffold task? | classify or reroute | wrong media route |
 | `N1` | `FIELD-INIT-03` | Is the project root canonical? | resolve `projects/aigc/<项目名>/` | path escape or missing project name |
 | `N2` | `FIELD-INIT-05` | Do current 0-10 directories and project `CONTEXT/` exist? | create missing directories | old alias, missing stage root, or missing context root |
-| `N3` | `FIELD-INIT-09` | Does project memory exist and does context root have a readable readme? | create or merge `MEMORY.md`; create `CONTEXT/README.md` when missing | missing memory, overwrite risk, or missing context readme |
-| `N4` | `FIELD-INIT-05/09` | Did scaffold-only readback pass? | inspect allowlist and denylist | removed artifact created |
+| `N3` | `FIELD-INIT-09` | Does project memory exist, absorb initialization context, and does context root have a readable readme? | create or merge `MEMORY.md`; structure team/reference/user-specified information; create `CONTEXT/README.md` when missing | missing memory, overwrite risk, weak memory structure, or missing context readme |
+| `N4` | `FIELD-INIT-05/09` | Did scaffold-plus-memory readback pass? | inspect allowlist and denylist | removed artifact created |
 
 ## Pass Table
 
@@ -206,11 +206,11 @@ Priority repair targets:
 | --- | --- | --- | --- |
 | `FIELD-INIT-03` | Project root is resolved under `projects/aigc/<项目名>/` | `FAIL-INIT-03` | `N1` |
 | `FIELD-INIT-05` | Current 0-10 stage directories and project `CONTEXT/` exist, and forbidden bootstrap paths were not created | `FAIL-INIT-05` | `N2/N4` |
-| `FIELD-INIT-09` | Project `MEMORY.md` exists, supplied long-term requirements are captured without overwriting prior memory, and `CONTEXT/README.md` exists | `FAIL-INIT-09` | `N3` |
+| `FIELD-INIT-09` | Project `MEMORY.md` exists, supplied long-term requirements, team configuration, reference absorption summaries, and downstream context guidance are captured without overwriting prior memory, and `CONTEXT/README.md` exists | `FAIL-INIT-09` | `N3` |
 
 ## Output Contract
 
-`$aigc-init` has exactly one canonical business output: a scaffolded project root with current stage directories, project `MEMORY.md`, and project `CONTEXT/`.
+`$aigc-init` has exactly one canonical business output: a scaffolded project root with current stage directories, centralized project `MEMORY.md`, and project `CONTEXT/`.
 
 - Required output: `projects/aigc/<项目名>/0-初始化/` through `10-画布/` directories, `projects/aigc/<项目名>/MEMORY.md`, and `projects/aigc/<项目名>/CONTEXT/README.md`.
 - Output format: directories plus Markdown memory and context-readme files.
@@ -218,10 +218,12 @@ Priority repair targets:
 - Naming convention: stage directory names must match the current `.agents/skills/aigc/0-10` package names.
 - Completion gate: pass `FIELD-INIT-05` and `FIELD-INIT-09`; former initialization artifacts must not be created.
 
-Final user-facing answer must state the project root, created or already-present scaffold paths, `MEMORY.md` path, `CONTEXT/` path, any memory items captured, and any blocked or skipped artifact creation.
+`MEMORY.md` must be strong enough for downstream stages to consume as a project-level context hub. At minimum it must be able to hold initialization user requirements, team configuration and collaboration preferences, supplied-reference absorption summaries, stable creative preferences, production/model constraints, exclusions, stage context-reading guidance, conflicts, and unresolved questions.
+
+Final user-facing answer must state the project root, created or already-present scaffold paths, `MEMORY.md` path, `CONTEXT/` path, any memory items captured, any supplied materials absorbed or deferred, and any blocked or skipped artifact creation.
 
 ## Learning / Context Writeback
 
 - Reusable scaffold drift, wrong stage-name aliases, or memory merge failures should be recorded in this skill's `CONTEXT.md`.
-- Project-specific long-term preferences, constraints, exclusions, special elements, and "以后都按这个来" requirements belong in project `MEMORY.md`.
+- Project-specific long-term preferences, constraints, exclusions, special elements, initialization team configuration, supplied-reference absorption summaries, context-reading guidance, and "以后都按这个来" requirements belong in project `MEMORY.md`.
 - Do not write one-off task instructions, script debugging notes, or cross-project skill failures into project `MEMORY.md`.

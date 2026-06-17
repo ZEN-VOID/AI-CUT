@@ -28,7 +28,7 @@ metadata:
 
 - 每次调用 `$aigc-image-stage` 时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目 `CONTEXT/`；legacy `0-初始化/north_star.yaml` 仅在旧项目已存在且本轮需要回读风格边界时加载。
+- 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目 `CONTEXT/`；需要项目美学边界时读取 `2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md` 以及当前集优先/项目级回退的相关风格协议。
 - 正式路由、生成、repair 或 review 时，必须加载 `../_shared/upstream-context-application-contract.md`，并把 `Image Upstream Visual Direction Matrix` 作为父级 handoff 要求传给目标叶子：说明 `2-美学`、`3-主体`、`8-分组`、图像侧车和项目上下文如何导向分镜画面 prompt、故事板 layout / atoms 或平面图空间裁决；父级不得把上游风格词直接当作叶子画风真源。
 - prompt 正文、画面裁决与主体选择由叶子技能中的 LLM 主创完成；父级只裁决路由和阶段边界。
 
@@ -128,7 +128,7 @@ Reject or clarify when:
 | `分镜平面图/SKILL.md` + `分镜平面图/CONTEXT.md` | `floor_plan_sheet`、角色站位图、空间关系图、动线机位平面图 | 平面图叶子执行合同 | 生成故事板画面或单帧分镜画面 | `Mode Selection` / `PASS-IMG-STAGE-02` |
 | 项目 `MEMORY.md` | 绑定 `projects/aigc/<项目名>/` 时 | 项目长期偏好和禁区 | 覆盖技能路由和父级完成门 | `Context Loading Contract` |
 | 项目 `MEMORY.md` 与相关 `CONTEXT/` | 绑定 `projects/aigc/<项目名>/` 时 | 项目偏好、长期要求、图像阶段共享上下文和风格边界 | 替代叶子 prompt 主创或主体图事实 | `Context Loading Contract` |
-| legacy `0-初始化/north_star.yaml` | 旧项目已存在且本轮需要回读时 | 旧项目风格边界辅助证据 | 作为当前必需输入或第二真源 | `Context Loading Contract` |
+| `2-美学/类型风格.md` + `2-美学/画面基调/全局风格协议.md` + 当前集优先/项目级回退的相关风格协议 | 正式路由、生成、repair 或 review 需要项目美学边界时 | 项目类型、美学基调、风格协议与负向边界 | 替代叶子 prompt/layout/空间裁决主创，或成为第二画风真源 | `Context Loading Contract` |
 | 项目 `CONTEXT/` | 项目内有相关图像阶段上下文时 | 项目共享附加上下文 | 作为跨项目经验或父级规则源 | `Context Loading Contract` |
 
 ## Module Trigger Matrix

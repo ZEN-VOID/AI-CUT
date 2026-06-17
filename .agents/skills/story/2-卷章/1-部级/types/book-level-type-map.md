@@ -6,7 +6,7 @@
 - `types/` 中命中的类型包作为固定上下文加载；`knowledge-base/` 只作为按需检索、切片或向量召回的知识库，不替代类型包。
 
 
-本文件提供部级规划的轻量类型矩阵。它只决定执行分支，不替代 `steps/` 的节点网络。
+本文件提供部级规划的轻量类型矩阵。它只决定执行分支，不替代 `SKILL.md` 的 `Thinking-Action Node Map`。
 
 ## Type Profile
 

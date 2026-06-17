@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-06-16
+
+- 新增 `scene_asset_context` 继承合同：当 `3-主体/场景/2-设计`、`3-主体/场景/3-生成` 或 `design-manifest.yaml` 已存在时，`4-编剧` 必须生成 `Scene Asset Integration Map` 或明确 N/A。
+- 新增 `GATE-SCR-24` / `FAIL-SCR-SCENE-ASSET-CONTEXT`，限制场景设计和场景图只能只读用于场景标题、环境白描、空间连续性和 AIGC handoff，不得覆盖 `1-分集` 剧情事实、改主体注册表、复制图像 prompt 或写镜头/生成参数。
+- 同步更新 `SKILL.md`、`review/review-contract.md`、`templates/output-template.md`、`test-prompts.json` 与 `CONTEXT.md`。
+
 ## 2026-06-10
 
 - 接入 `../_shared/upstream-context-application-contract.md`，要求 `1-分集` 或用户指定 source 的剧本化应用写入 `Upstream Context Application Map`。

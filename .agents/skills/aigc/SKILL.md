@@ -23,7 +23,7 @@ metadata:
 
 当 `$aigc` 主技能包被整体调用时，视为用户已授权根入口按本文件声明的阶段和子技能包连续完成整个技能组任务；在满足必要输入、显式选择和安全门后，不再为“是否继续下一步”额外确认。
 
-- 数字序号阶段包默认按根入口声明的阶段链推进；当前显式阶段链包含 `0-初始化` -> `1-分集` -> `2-美学` -> `3-主体` -> `4-编剧` -> `5-导演` -> `6-分镜` -> `7-摄影` -> `8-分组` -> `9-图像` -> `10-画布`。`2-美学` 是分集后第一研究配置阶段，必须从 `1-分集` 涉及的全部故事源内容中解析题材类型、标志性元素和题材专属表现技巧，并输出 `类型风格.md` 供 `3-主体`、`4-编剧` 和后续阶段继承；`3-主体` 是主体命名与资产设计真源，默认消费 `1-分集` 全量故事源、`2-美学/类型风格.md` 及相关风格协议，先生成 `主体注册表.md` / `subject-registry.yaml`，再并发调度 `场景`、`角色`、`道具` 的清单、设计和生成；`4-编剧` 是当前剧本层真源，默认消费 `1-分集`、`2-美学/类型风格.md` 和 `3-主体/主体注册表.md`，并必须输出 `Upstream Creative Direction Matrix`，说明故事真源、题材方向、主体命名和项目长期约束如何共同引导本集编剧创作方向。`2-编导`、`3-运动`、旧 `4-摄影`、旧 `5-分组` 以及 `backup/5-表演`、`backup/6-氛围`、`backup/9-光影` 只作为 legacy 兼容回读、显式点名试用或迁移线索，不得作为当前 runtime 默认写回真源。显式命中 `5-导演` 时由 `5-导演` 消费剧本和 `2-美学` 生成导演批注稿；显式命中 `6-分镜` 时由 `6-分镜` 默认消费 `5-导演` 或用户指定文稿并结合 `2-美学/画面基调` 与 `2-美学/分镜风格` 生成内联分镜稿；显式命中 `7-摄影` 时由 `7-摄影` 消费 `6-分镜` 或用户指定分镜稿，并结合 `2-美学/画面基调` 与 `2-美学/摄影风格` 逐分镜注入综合运镜手法；显式命中 `8-分组` 时由 `8-分组` 默认消费 `7-摄影` 摄影稿，并只读引用 `3-主体/subject-registry.yaml` 的主体 ID 与 canonical name 写入组底 YAML，不允许新增主体信息；显式命中 `9-图像`、`10-画布` 时分别进入图像和画布视频阶段。
+- 数字序号阶段包默认按根入口声明的阶段链推进；当前显式阶段链包含 `0-初始化` -> `1-分集` -> `2-美学` -> `3-主体` -> `4-编剧` -> `5-导演` -> `6-分镜` -> `7-摄影` -> `8-分组` -> `9-图像` -> `10-画布`。`2-美学` 是分集后第一研究配置阶段，必须从 `1-分集` 涉及的全部故事源内容中解析题材类型、标志性元素和题材专属表现技巧，并输出 `类型风格.md` 供 `3-主体`、`4-编剧` 和后续阶段继承；`3-主体` 是主体命名与资产设计真源，默认消费 `1-分集` 全量故事源、`2-美学/类型风格.md` 及相关风格协议，先生成 `主体注册表.md` / `subject-registry.yaml`，再并发调度 `场景`、`角色`、`道具` 的清单、设计和生成；`4-编剧` 是当前剧本层真源，默认消费 `1-分集`、`2-美学/类型风格.md` 和 `3-主体/主体注册表.md`，并必须输出 `Upstream Creative Direction Matrix`，说明故事真源、题材方向、主体命名和项目长期约束如何共同引导本集编剧创作方向。`2-编导`、`3-运动`、旧 `4-摄影`、旧 `5-分组` 以及 `backup/5-表演`、`backup/6-氛围`、`backup/9-光影` 只作为 legacy 只读回读、迁移对照或退役状态说明，不得作为当前 runtime 默认写回真源，也不得被显式点名后直接试用生成新的 canonical 产物。显式命中 `5-导演` 时由 `5-导演` 消费剧本和 `2-美学` 生成导演批注稿；显式命中 `6-分镜` 时由 `6-分镜` 默认消费 `5-导演` 或用户指定文稿并结合 `2-美学/画面基调` 与 `2-美学/分镜风格` 生成内联分镜稿；显式命中 `7-摄影` 时由 `7-摄影` 消费 `6-分镜` 或用户指定分镜稿，并结合 `2-美学/画面基调` 与 `2-美学/摄影风格` 逐分镜注入综合运镜手法；显式命中 `8-分组` 时由 `8-分组` 默认消费 `7-摄影` 摄影稿，并只读引用 `3-主体/subject-registry.yaml` 的主体 ID 与 canonical name 写入组底 YAML，不允许新增主体信息；显式命中 `9-图像`、`10-画布` 时分别进入图像和画布视频阶段。
 - 无序号同级子技能包默认全选并发执行，由所属父级汇总、裁决和写回唯一 canonical 输出；例如 `3-主体` 整体调用时由其父级并发调度 `场景`、`角色`、`道具`。
 - 英文序号子技能包或路线（如 `A-`、`B-`、`C-`、`D-`）默认按用户意图、父级路由或输入类型单选分流；只有用户明确要求对比、并跑或批量多路线时才多选。
 - 卫星技能 `query/`、`resume/`、`review/`、`repair/`、`shot-by-shot/`、`flash/`、`learn/`、`fine-tuning/` 不默认纳入主链串行推进；只有用户请求查询、恢复、审查、修复、参考拉片、聊天窗口迷你提示词、学习吸收、阶段输出物多轮调优或阶段门禁需要时才作为旁路回接。
@@ -78,7 +78,7 @@ Reject or clarify when:
 | `satellite_learn`        | 外部学习对象吸收、AIGC 技能树差距分析、source-first 改进与同步审计 | `.agents/skills/aigc/learn/SKILL.md` |
 | `satellite_fine_tuning`  | `2-美学` 到 `10-画布` 阶段输出物多轮迭代调优、基线对比验收与 owner-safe patch 回交 | `.agents/skills/aigc/fine-tuning/SKILL.md` |
 | `workflow_sword10`       | 明确命中 `sword10` 或 `workflow/sword10` subagent 编排 | `.agents/skills/aigc/workflow/sword10/SKILL.md` |
-| `legacy_compat`          | 明确点名 legacy `5-Image` 或旧产物    | 只做搁浅兼容回读或迁移说明                    |
+| `legacy_compat`          | 明确点名 legacy `5-Image`、backup `5-表演` / `6-氛围` / `9-光影` 或旧产物    | 只做只读回读、迁移对照或退役状态说明                    |
 
 ## Default Leaf Routing Contract
 
@@ -156,10 +156,16 @@ flowchart TD
 | `8-分组`   | `.agents/skills/aigc/8-分组/`   | `projects/aigc/<项目名>/8-分组/`   | active；默认消费 `7-摄影` 摄影稿，用户指定文稿时优先指定 source；组底 YAML 的角色/场景/道具只允许引用 `3-主体/subject-registry.yaml` 中已登记主体 |
 | `9-图像`   | `.agents/skills/aigc/9-图像/`   | `projects/aigc/<项目名>/9-图像/`   | active；默认叶子 `分镜故事板`                                            |
 | `10-画布`   | `.agents/skills/aigc/10-画布/`   | `projects/aigc/<项目名>/10-画布/`   | active；默认叶子 `libTV画布流` |
+| `2-编导` | legacy archived source | `projects/aigc/<项目名>/2-编导/` | 搁浅；旧编导聚合层不再作为 active runtime，相关能力已拆入 `4-编剧`、`5-导演`、`6-分镜` 和 `7-摄影` |
+| `3-运动` | legacy archived source | `projects/aigc/<项目名>/3-运动/` | 搁浅；旧运动/分镜运动层不再作为 active runtime，相关能力由 `6-分镜` 和 `7-摄影` 承接 |
+| `5-表演` | `.agents/skills/aigc/backup/5-表演/` | `projects/aigc/<项目名>/5-表演/` | 搁浅；退役备份只读回读和迁移对照，不生成新的 canonical 产物 |
+| `6-氛围` | `.agents/skills/aigc/backup/6-氛围/` | `projects/aigc/<项目名>/6-氛围/` | 搁浅；退役备份只读回读和迁移对照，不生成新的 canonical 产物 |
+| `9-光影` | `.agents/skills/aigc/backup/9-光影/` | `projects/aigc/<项目名>/9-光影/` | 搁浅；光影能力已收束到 `7-摄影` 的 camera light integration，不生成新的 `9-光影` canonical 产物 |
+| `5-Image` | legacy archived source | `projects/aigc/<项目名>/5-Image/` | 搁浅；旧英文图像 runtime 不再作为 active runtime，当前图像阶段为 `9-图像` |
 
-归档阶段：`backup/5-表演`、`backup/6-氛围`、`backup/9-光影` 不参与默认主链、初始化骨架或 review release 门禁；只有用户显式点名旧阶段、需要历史产物回读、迁移对照或恢复计划时才进入对应 backup skill。
+归档阶段：`backup/5-表演`、`backup/6-氛围`、`backup/9-光影` 不参与默认主链、初始化骨架或 review release 门禁；只有用户显式点名旧阶段、需要历史产物回读、迁移对照或退役状态说明时才只读进入对应 backup skill。若用户要求恢复旧阶段，必须先形成迁移方案或新的 owning stage 设计，不得直接执行旧 backup skill 写回 canonical。
 
-旧 `2-编导`、`3-运动`、旧 `4-摄影`、旧 `5-分组`、旧 `3-导演`、旧 `4-表演`、`5-Image` 与旧 `6-Video` 只作为 legacy 自然语言兼容触发词或旧产物回读线索；显式 `4-编剧`、`5-导演` 分别路由到当前同名阶段目录，显式 `5-表演`、`6-氛围`、`9-光影` 路由到 `backup/` 兼容入口。
+旧 `2-编导`、`3-运动`、旧 `4-摄影`、旧 `5-分组`、旧 `3-导演`、旧 `4-表演`、`5-Image` 与旧 `6-Video` 只作为 legacy 自然语言兼容触发词或旧产物回读线索；显式 `4-编剧`、`5-导演` 分别路由到当前同名阶段目录，显式 `5-表演`、`6-氛围`、`9-光影` 只路由到 `backup/` 退役兼容入口做只读回读、迁移说明或重定向。
 
 Supporting project roots may be created by later owning workflows as needed. `0-初始化` only creates the current 0-10 stage directories, `projects/aigc/<项目名>/MEMORY.md`, and `projects/aigc/<项目名>/CONTEXT/`.
 
@@ -178,7 +184,7 @@ Supporting project roots may be created by later owning workflows as needed. `0-
 | storyboard split                            | `6-分镜/SKILL.md + CONTEXT.md`；默认消费 `5-导演/第N集.md`，用户指定时优先指定文稿，并加载 `2-美学/画面基调/全局风格协议.md` 与当前集优先的 `2-美学/第N集/分镜风格/分镜风格协议.md`，缺失时回退 `2-美学/分镜风格/分镜风格协议.md`，在原画面点下方内联注入 `分镜N（N-N秒）：景别，景深，构图形式，主体陪体背景描述`，并用 `Storyboard Direction Inheritance Matrix` 说明上游如何引导分镜方向 |
 | camera movement injection                   | `7-摄影/SKILL.md + CONTEXT.md`；默认消费 `6-分镜/第N集.md`，用户指定时优先指定分镜稿，并加载 `2-美学/画面基调/全局风格协议.md` 与当前集优先的 `2-美学/第N集/摄影风格/摄影风格协议.md`，缺失时回退 `2-美学/摄影风格/摄影风格协议.md`，在 `分镜N（N-N秒）：原有内容` 后追加镜头角度、镜头类型、速度和焦点行为的综合运镜手法，并用 `Upstream Camera Direction Matrix` 说明上游如何引导摄影方向 |
 | storyboard grouping                         | `8-分组/SKILL.md + CONTEXT.md`；默认消费 `7-摄影/第N集.md` 摄影稿，用户指定时优先指定文稿；必须只读 `3-主体/subject-registry.yaml`，按真实集-场-组生成 `x-y-z` 分镜组、组级风格、首帧衔接和引用注册表主体的 YAML 统计，并用 `Upstream Grouping Direction Matrix` 说明上游如何引导分组方向 |
-| archived performance / atmosphere / lighting | `backup/5-表演/`, `backup/6-氛围/`, `backup/9-光影/`；仅显式点名、历史回读、迁移对照或恢复计划时加载，不作为 active 主链默认来源 |
+| archived performance / atmosphere / lighting | `backup/5-表演/`, `backup/6-氛围/`, `backup/9-光影/`；仅显式点名、历史回读、迁移对照或退役状态说明时只读加载，不作为 active 主链默认来源，不得生成新的 backup canonical 产物 |
 | current image stage                         | `9-图像/SKILL.md + CONTEXT.md`；未显式指定叶子时默认继续加载 `9-图像/分镜故事板/SKILL.md + CONTEXT.md`；叶子报告必须映射 `Image Upstream Visual Direction Matrix` 到 source comprehension、visual prompt atoms、source spatial comprehension 或 prompt authorship evidence |
 | current video stage                         | `10-画布/SKILL.md + CONTEXT.md`；默认继续加载 `10-画布/libTV画布流/SKILL.md + CONTEXT.md`；执行报告必须包含 `LibTV Upstream Video Direction Matrix`，说明 `8-分组`、主体/图像参照、LibTV runtime 和用户 overrides 如何影响 prompt、imageList、settings 与 run/rerun 边界 |
 | query / resume / review / repair / flash / learn / fine-tuning side channels | `query/`, `resume/`, `review/`, `repair/`, `flash/`, `learn/`, `fine-tuning/` skill pairs                                             |
@@ -196,7 +202,7 @@ Supporting project roots may be created by later owning workflows as needed. `0-
 4. 用户显式指定、点名已有产物 query / repair、或明确要求多路线对比时，必须尊重用户路线或原所属叶子，不得被默认叶子覆盖。
 5. 若主入口属于 `2-美学` 到 `10-画布` 且消费上游输出，确认目标阶段已加载 `_shared/upstream-context-application-contract.md`，并把 `Upstream Context Application Map` 与 owning stage 的方向矩阵纳入完成门。
 6. 阶段技能完成后，根入口只汇流下一入口、治理证据与失败回接，不改写阶段业务主稿。
-7. 若遇到 legacy `5-Image` 或 `6-Video`，只允许兼容读取或迁移说明，不得把旧路径写成新 runtime。
+7. 若遇到 legacy `5-Image`、`6-Video`、`5-表演`、`6-氛围` 或 `9-光影`，只允许兼容读取、迁移说明或退役状态说明，不得把旧路径写成新 runtime，不得直接执行 backup skill 写回 canonical。
 8. 若用户要求对 `2-美学` 到 `10-画布` 的已有阶段产物做“迭代调优 / fine-tuning / 多轮优化 / 比对验收”，优先进入 `fine-tuning/`；该卫星只产出调优报告、comparison gate 和 owner-safe patch，正式写回仍回到 owning stage。
 9. 若阶段产物被用户或审计指出“脚本化、偷懒、未经思考、未差异化、句式复用、锚点替换”，根入口必须把它归类为 owning skill 的源层验收门缺口，优先进入 `learn/execute_improvement` 或对应阶段 `R*-REWORK`；不得用补报告、抽样解释、重复率下降或字段补齐替代返工。
 

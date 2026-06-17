@@ -29,6 +29,7 @@ last_checked_at: 2026-04-26T00:00:00-07:00
 | 技能、科技、法术、武功、枪械、厨艺等能力没有正式 owner | card taxonomy 缺口 | 路由到 `技能卡`，用 `skill_taxonomy + activation_rules + limits_and_costs + progression_model + counterplay` 收束 | `1-设定/5-技能卡/**/*.json` 与技能索引可被 writer/validator 追溯 |
 | 风格/全局/类型仍被拆成 `1-设定` 子技能 | north_star owner 漂移 | 把世界规则、写法合同、题材方向盘融合进 `0-初始化/north_star.yaml` | `1-设定` 下只保留角色/场景/物品/技能 |
 | 文档改完但脚本仍跑旧路径 | runtime parity 漂移 | 同步检查 `cards_writer.py`、`cards_coverage_validator.py`、相关 tests | 文档、脚本、测试指向同一 child skill 路由 |
+| 子技能包保留独立 workflow 目录或把运行经验放进知识库目录 | runtime-spine 真源漂移 | 把节点、路由、gate、Mermaid 收回子技能 `SKILL.md`；执行经验写 `CONTEXT.md`；删除旧 workflow/经验目录 | `skill-2.0` delivery validator 不再报告 unsupported module，活动合同无旧 workflow 引用 |
 | 只想修一个对象却生成整套空卡 | 选择性调度失效 | 父层只聚合实际命中的子技能 patch，不补未调度对象 | 输出不包含未执行子技能的占位字段 |
 | subagents 启用但没有按项目 team 请教 | 顾问请教层 | 回读 `../_shared/team-advisor-consultation-contract.md`，优先用 `team.yaml -> roles.planning.members` 请教并汇流 | 把 `advisor_consultation_packet` 固定为子技能 LLM 创作前上下文 | 报告能追溯 roster 来源、问题类型、可执行指导或降级说明 |
 
@@ -42,6 +43,7 @@ last_checked_at: 2026-04-26T00:00:00-07:00
 6. 若涉及风格漂移，先确认 `north_star.yaml.style_contract` 是否把上游承诺转成写法 gate，而不是复述 pitch。
 7. 非平凡修复后，至少运行对应 cards writer / validator 的局部检查；无法运行时要说明原因。
 8. 若本轮启用 subagents，先检查顾问问题是否足够具体：角色问成长/关系，场景问规则/返场，物品问归属/代价，技能问限制/克制；泛泛风格意见不能进入 card payload。
+9. 若升级 Skill 2.0 子技能，优先检查旧 workflow 目录、重复运行经验目录、types/references 中的旧 workflow 指向，以及 `test-prompts.json` 是否齐备。
 
 ## Reusable Heuristics
 

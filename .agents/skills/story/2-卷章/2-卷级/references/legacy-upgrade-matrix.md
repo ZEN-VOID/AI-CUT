@@ -1,6 +1,6 @@
 # Legacy Upgrade Matrix
 
-本文件记录 `2-卷级` 从旧轻量技能包升级为 Skill 2.0 包时的迁移矩阵。它只用于溯源，不替代 `SKILL.md` 的入口合同。
+本文件记录 `2-卷级` 从旧轻量技能包升级为 Skill 2.0 包时的迁移矩阵。它只用于溯源，不替代 `SKILL.md` 的入口合同。No independent gate.
 
 ## Section Migration Matrix
 
@@ -14,8 +14,8 @@
 | `SKILL.md` | `Output Contract` | output anchor | `SKILL.md` + `templates/output-template.md` | rewrite into five-field contract | high | template alignment added | validator |
 | `SKILL.md` | `Required Headings` | content rules | `references/volume-planning-contract.md` + `templates/output-template.md` | move and project into template | medium | template updated | review gate |
 | `SKILL.md` | `Hard Rules` | content rules | `references/volume-planning-contract.md` | move | high | review checks reference owner | manual semantic check |
-| `SKILL.md` | `Visual Map` | process topology | `SKILL.md` + `steps/volume-planning-workflow.md` | keep summary, expand workflow | low | Mermaid retained | review gate |
-| `SKILL.md` | `Thinking-Action Network` | steps topology | `steps/volume-planning-workflow.md` | move and expand with evidence gates | medium | `SKILL.md` node handoff summary updated | review gate |
+| `SKILL.md` | `Visual Map` | process topology | `SKILL.md` Visual Maps | keep summary, sync runtime spine | low | Mermaid retained | review gate |
+| `SKILL.md` | `Thinking-Action Network` | node topology | `SKILL.md` `Thinking-Action Node Map` | move and expand with evidence gates | medium | `SKILL.md` node handoff summary updated | review gate |
 | `CONTEXT.md` | `Type Map` / `Reusable Heuristics` | experience | `CONTEXT.md` + `knowledge-base/volume-planning-heuristics.md` | keep and supplement | low | none | context baseline check |
 | `references/volume-rhythm-framework.md` | entire file | detailed reference | `references/volume-rhythm-framework.md` | keep | low | referenced from guide | review gate |
 | `templates/volume-planning.template.md` | entire file | output template | `templates/volume-planning.template.md` + `templates/output-template.md` | keep and add canonical output template | medium | `Output Contract Alignment` added | validator |

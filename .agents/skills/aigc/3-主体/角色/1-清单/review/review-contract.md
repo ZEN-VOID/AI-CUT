@@ -19,7 +19,8 @@ flowchart TD
     C --> D["REV-CHAR-03 首次登场"]
     D --> E["REV-CHAR-04/05 归并与误并风险"]
     E --> F["REV-CHAR-06 描述边界"]
-    F --> G["REV-CHAR-07 LLM-first"]
+    F --> V["REV-CHAR-07 变体归并"]
+    V --> G["REV-CHAR-08 LLM-first"]
     G --> H{"verdict"}
     H -->|"pass"| I["交付"]
     H -->|"pass_with_risks"| J["交付 + 风险区"]
@@ -38,6 +39,7 @@ flowchart TD
 | `GATE-CHAR-LIST-06` | First appearance | `首次登场` 不是归并后所有候选里最早的可回指分镜组 ID | `N5-FIRST-APPEARANCE` |
 | `GATE-CHAR-LIST-07` | Render and description boundary | 表格字段漂移，`别名` 被拆成独立主体列，或 `原文描述（关键词式）` 扩写成外貌、服装、性格、剧情推断、提示词或设计正文 | `N6-RENDER` |
 | `GATE-CHAR-LIST-08` | LLM-first merge | 脚本、模板或字符串相似度替代 LLM 完成 canonical 命名、别名归并、代称识别或关键词写作 | `N4-MERGE` |
+| `GATE-CHAR-LIST-09` | Variant grouping | 同一角色的多服装、战斗态、战损态、受伤态、少年期、老年期、伪装或时间跳跃状态被拆成多个 canonical 行，或显著变体证据被遗漏 | `N3-EVIDENCE` / `N4-MERGE` / `N6-RENDER` |
 
 ## Fail Codes
 
@@ -52,6 +54,8 @@ flowchart TD
 | `FAIL-CHAR-LIST-07` | 增量 merge 静默覆盖既有清单、破坏已有设计锚点，或未保留旧角色稳定性 | `N4-MERGE` / `N7-REVIEW` |
 | `FAIL-CHAR-LIST-08` | `原文描述（关键词式）` 扩写成角色设计、外貌/服装方案、性格分析、剧情推断或提示词 | `N6-RENDER` |
 | `FAIL-CHAR-LIST-09` | 群体角色、普通背景人群、含糊称呼或低置信度归并未落入待核风险或纳入/不纳入说明 | `N7-REVIEW` |
+| `FAIL-CHAR-LIST-VARIANT-SPLIT` | 多服装、多状态、年龄阶段、战斗、战损、受伤、伪装或时间跳跃被拆成新角色行，而不是归入同一 base character 的变体 | `N4-MERGE` |
+| `FAIL-CHAR-LIST-VARIANT-OMISSION` | 清单或 sidecar 吞掉显著状态变体，导致设计阶段无法知道需要多套服装或多状态资产 | `N3-EVIDENCE` / `N6-RENDER` |
 
 ## Required Checks
 
@@ -63,7 +67,8 @@ flowchart TD
 | `REV-CHAR-04` | 归并质量 | 别名、代称和同一角色不同称呼已归并，低置信度项有风险记录 | major |
 | `REV-CHAR-05` | 误并风险 | 不同角色没有因同职业、同泛称或同群体身份被硬合并 | major |
 | `REV-CHAR-06` | 描述边界 | `原文描述（关键词式）` 不含外貌设计、性格扩写或剧情推断 | major |
-| `REV-CHAR-07` | LLM-first | 没有脚本生成归并判断或 canonical 清单正文 | blocker |
+| `REV-CHAR-07` | 变体归并 | 多服装、多状态和年龄阶段归入同一角色；必要时在描述中用 `变体：...` 短标签或在 manifest sidecar 记录 | blocker |
+| `REV-CHAR-08` | LLM-first | 没有脚本生成归并判断或 canonical 清单正文 | blocker |
 
 ## Verdict
 

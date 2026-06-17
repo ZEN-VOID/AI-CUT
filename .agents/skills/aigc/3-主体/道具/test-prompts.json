@@ -12,7 +12,7 @@
   {
     "id": "route-to-prop-generation",
     "prompt": "使用 $aigc-design-prop，根据已经完成的道具设计文档生成主图和多视图。",
-    "expected": "将请求判为 prop_generation，路由到 3-生成，要求先读取设计稿和 imagegen 合同，不由组根写 JSON prompt。"
+    "expected": "将请求判为 prop_generation，路由到 3-生成，要求先读取设计稿和 libTV 合同，不由组根写 JSON prompt。"
   },
   {
     "id": "repair-script-overreach",

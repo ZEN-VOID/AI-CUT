@@ -12,14 +12,14 @@
 
 ## Scope
 
-本维度检查 `0-初始化 -> 1-分集 -> 2-美学 -> 3-主体 -> 4-编剧` 的 seed 与 obligation 是否连续，尤其是 `MEMORY.md / 分集稿 / 类型风格.md / 主体注册表 / 编剧稿` 是否在正确阶段被继承和兑现。旧项目存在 `north_star / init_handoff` 时可作为 legacy 辅助证据，但不得作为当前 scaffold-only 初始化的必备真源。
+本维度检查 `0-初始化 -> 1-分集 -> 2-美学 -> 3-主体 -> 4-编剧` 的 seed 与 obligation 是否连续，尤其是 `MEMORY.md / 分集稿 / 类型风格.md / 主体注册表 / 编剧稿` 是否在正确阶段被继承和兑现。旧初始化 carrier 只作为历史存在性证据，不作为当前 scaffold-plus-memory 初始化的必备真源。
 
 它不检查单镜构图语法、设计产物、图像 provider 交付或视频 provider 交付。
 
 ## Evidence
 
 - 项目根 `MEMORY.md`
-- legacy 初始化 `north_star / init_handoff` carrier（若存在）
+- 旧初始化 carrier 存在性记录（若存在）
 - `1-分集` 分集稿与 validation carrier
 - `2-美学/类型风格.md`、美学总览与 validation carrier
 - `3-主体/主体注册表.md`、`3-主体/subject-registry.yaml` 与 validation carrier

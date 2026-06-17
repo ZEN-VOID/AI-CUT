@@ -18,5 +18,10 @@
     "id": "upstream-direction-audit",
     "prompt": "检查第2集编剧稿是否明确说明 1-分集、2-美学/类型风格.md、3-主体/主体注册表.md 和项目记忆分别如何引导创作方向。",
     "expected": "路由 review_only 或 screenwriting report repair，触发 GATE-SCR-20、GATE-SCR-21、GATE-SCR-22、GATE-SCR-23；若只写已读取上游或只列输入物，返回 FAIL-SCR-UPSTREAM-DIRECTION-MATRIX，并要求补 Upstream Creative Direction Matrix、Type Style Application Map 和 Subject Registry Application Map。"
+  },
+  {
+    "id": "scene-asset-context-integration",
+    "prompt": "使用 $aigc-screenwriting 改编第4集；项目已经有 projects/aigc/示例项目/3-主体/场景/2-设计/ 和 3-主体/场景/3-生成/ 的场景设计与场景图。检查剧本是否正确匹配这些已有场景资产。",
+    "expected": "正式主链必须建立 scene_asset_context_manifest 和 Scene Asset Integration Map；已有场景设计/场景图只能只读用于场景标题、环境白描、空间连续性和 AIGC handoff，不得覆盖 1-分集事实、改主体注册表、复制图像 prompt、写机位/景别/运镜或生成参数；触发 GATE-SCR-24，失败时返回 FAIL-SCR-SCENE-ASSET-CONTEXT。"
   }
 ]

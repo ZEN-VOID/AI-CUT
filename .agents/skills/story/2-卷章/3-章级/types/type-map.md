@@ -33,7 +33,7 @@
 2. 按任务信号决定是否叠加 `payoff-genre-profile`。
 3. 固定加载命中包的 `context_files`。
 4. 由 `types/chapter-planning-type-map.md` 产出章级 `type_profile`，由 `types/payoff-genre-type-map.md` 产出 `genre_payoff_profile`。
-5. 将类型画像交给 `steps/chapter-planning-workflow.md` 与 `references/chapter-payoff-rules.md` 消费。
+5. 将类型画像交给 `SKILL.md` 的 `Thinking-Action Node Map` 与 `references/chapter-payoff-rules.md` 消费。
 6. 交付前由 `review/review-contract.md` 检查类型分支、爽点口味和输出字段是否一致。
 
 ## Canonical Type Sources

@@ -2,7 +2,7 @@
   {
     "id": "single-prop-design",
     "prompt": "使用 $aigc-prop-design，为 projects/aigc/示例项目 清单中的 PROP-001 青铜钥匙生成单道具细目设计。",
-    "expected": "读取清单、画面基调、道具风格、north_star 和 team synthesis，逐道具生成单主体设计稿，ID 四处一致。"
+    "expected": "读取清单、2-美学/类型风格、画面基调、道具风格和项目 MEMORY，逐道具生成单主体设计稿，ID 四处一致。"
   },
   {
     "id": "incremental-design-fill",

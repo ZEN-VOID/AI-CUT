@@ -515,5 +515,5 @@
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
 | 组合创新是否只在 `module-spec.md` 判定需要元素组合时加载，而非默认资料墙？ | `creative_seed` | `FAIL-INIT-CREATIVE-ROUTE` | `references/creative-seed-routing/module-spec.md` Phase 1-2 | creative_route_plan、loaded_leaf_references |
-| 每个组合元素是否有明确功能，并能用一句话说明核心吸引力？ | `creative_seed` | `FAIL-INIT-CREATIVE-ROUTE` | 本文件组合规则、`steps/init-workflow.md` N5 | combination summary、one-line hook |
+| 每个组合元素是否有明确功能，并能用一句话说明核心吸引力？ | `creative_seed` | `FAIL-INIT-CREATIVE-ROUTE` | 本文件组合规则、`SKILL.md` N6B-N7 | combination summary、one-line hook |
 | 组合方案是否落到 story kernel、planning seed 或 unknowns，而不是生成完整大纲？ | `handoff` | `FAIL-INIT-HANDOFF` | `references/creative-seed-routing/module-spec.md` Phase 3 | story_kernel patch、planning_seed update |

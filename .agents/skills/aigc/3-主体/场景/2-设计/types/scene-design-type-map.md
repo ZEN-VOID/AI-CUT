@@ -16,7 +16,7 @@
 | `reality_level` | `realist`、`stylized_realist`、`symbolic`、`surreal` |
 | `asset_granularity` | `single_set`、`multi_zone`、`establishing_environment`、`detail_corner` |
 | `research_need` | `low`、`medium`、`high` |
-| `space_style_source` | `north_star`、`team_yaml`、`user_input`、`scene_inference`、`web_research_allowed`；建筑场景可兼容记录 `architecture_style_source` |
+| `space_style_source` | `type_style`、`visual_tone`、`scene_style_protocol`、`project_memory`、`user_input`、`scene_inference`、`web_research_allowed`；建筑场景可兼容记录 `architecture_style_source` |
 | `source_posture_need` | `project_only`、`project_plus_inference`、`external_reference_needed`、`unresolved_allowed_with_caution` |
 | `uncertainty_level` | `low`、`medium`、`high` |
 | `visual_translation_mode` | `structure_first`、`material_first`、`light_first`、`symbol_first`、`ecology_first`、`deformation_rule_first` |

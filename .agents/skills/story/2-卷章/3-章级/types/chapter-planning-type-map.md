@@ -6,7 +6,7 @@
 - `types/` 中命中的类型包作为固定上下文加载；`knowledge-base/` 只作为按需检索、切片或向量召回的知识库，不替代类型包。
 
 
-本文件承载章级 planning 的类型变量和分型策略。完整执行步骤由 `steps/chapter-planning-workflow.md` 拥有。
+本文件承载章级 planning 的类型变量和分型策略。完整执行步骤由 `SKILL.md` 的 `Thinking-Action Node Map` 拥有。
 
 ## Type Profile
 

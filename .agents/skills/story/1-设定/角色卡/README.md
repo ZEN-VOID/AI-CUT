@@ -12,8 +12,6 @@
 ├── scripts/
 ├── templates/
 ├── review/
-├── steps/
-├── knowledge-base/
 ├── types/
 │   ├── type-map.md
 │   ├── field-map.md
@@ -23,6 +21,7 @@
 ├── CHANGELOG.md
 ├── SKILL.md
 ├── CONTEXT.md
+├── test-prompts.json
 └── README.md
 ```
 

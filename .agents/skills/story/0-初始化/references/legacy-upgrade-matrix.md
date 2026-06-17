@@ -7,15 +7,15 @@
 | `SKILL.md` | frontmatter、description、governance_tier | entry metadata | `SKILL.md` | keep | low | `agents/openai.yaml` 保持 `$story-init` 唤起 | validator |
 | `SKILL.md` | `Context Loading Contract` | entry contract | `SKILL.md` | keep and tighten | high | 同步项目 `MEMORY.md` 与 `CONTEXT/` 加载口径 | validator + manual semantic check |
 | `SKILL.md` | `概述`、`When to Use`、`When Not to Use` | routing contract | `SKILL.md` | rewrite | medium | `.codex/registry/routes.yaml` 已保留 story/aigc 分流 | manual route check |
-| `SKILL.md` | `业务需求分析合同` | business analysis | `types/init-type-map.md`、`steps/init-workflow.md` | split | medium | `SKILL.md` 只保留 Scope、Input、Mode 与 Output | review gate |
-| `SKILL.md` | `Visual Maps` | topology map | `SKILL.md`、`steps/init-workflow.md` | split | low | 保留入口 mermaid，执行节点详图迁入 steps | markdown check |
+| `SKILL.md` | `业务需求分析合同` | business analysis | `SKILL.md` Business Requirement Analysis Contract、`types/init-type-map.md` | keep and tighten | medium | 业务画像回收进 runtime spine，类型变量仍由 `types/` 展开 | review gate |
+| `SKILL.md` | `Visual Maps` | topology map | `SKILL.md` Visual Maps | keep and tighten | low | Mermaid 与节点表统一在 `SKILL.md`，不再下沉到 steps | markdown check |
 | `SKILL.md` | `Total Input Contract` | input contract | `SKILL.md`、`references/mode-and-team-contract.md` | split | high | `Input Contract` 留在根，team 细则进 references | validator |
-| `SKILL.md` | `Internal Capability Fusion Contract` | capability rules | `references/mode-and-team-contract.md`、`steps/init-workflow.md` | move | high | 根技能引用 owner，不再复制完整能力表 | manual semantic check |
+| `SKILL.md` | `Internal Capability Fusion Contract` | capability rules | `SKILL.md` Thinking-Action Node Map、`references/mode-and-team-contract.md` | split | high | 主节点回收进 `SKILL.md`，team 细则留在 references | manual semantic check |
 | `SKILL.md` | `Initialization Mode Contract` | mode rules | `references/mode-and-team-contract.md` | move | high | 根 `Mode Selection` 保留摘要 | manual semantic check |
 | `SKILL.md` | `Team Manifest Contract` | team truth contract | `references/mode-and-team-contract.md` | move | high | 下游只读 `team.yaml` | review gate |
 | `SKILL.md` | `Prompt Packet Contract` | direct-answer contract | `references/prompt-packet-contract.md` | move | high | subagent 阻断/降级口径保留在根与 reference | manual semantic check |
 | `SKILL.md` | `Canonical Landing`、`Project State Synchronization Contract` | runtime contract | `references/runtime-and-handoff-contract.md` | move | high | 模板和脚本入口仍指向标准五件套 | script/dry-run check |
-| `SKILL.md` | `Execution Procedure` | workflow | `steps/init-workflow.md` | rewrite | high | 根只保留主干节点与动态引用 | review gate |
+| `SKILL.md` | `Execution Procedure` | workflow | `SKILL.md` Thinking-Action Node Map | rewrite | high | 主干节点、分支、证据、route 和 gate 均由 `SKILL.md` 直接承载 | review gate |
 | `SKILL.md` | `Sufficiency Gate` | review gate | `review/init-review-gate.md` | move | high | 根 Completion gate 保留摘要 | review gate |
 | `SKILL.md` | `Root-Cause Execution Contract` | root-cause contract | `SKILL.md`、`review/init-review-gate.md` | keep and route | high | 加入 Section Owner 上溯链 | validator |
 | `SKILL.md` | `Verification` | verification | `review/init-review-gate.md`、`scripts/README.md` | move | medium | 根 Output Contract 保留完成门禁 | command check |
@@ -40,4 +40,4 @@
 | --- | --- | --- | --- | --- |
 | 旧 `SKILL.md` section 与旧资源是否都能追到现有 owner、保留动作和验证门？ | `dynamic_reference` | `FAIL-INIT-DYNAMIC-REFERENCE` | 本文件 Migration Matrix、目标 owner 分区 | migration matrix coverage |
 | 删除或退休的旧路径是否不再作为活跃引用出现？ | `integration` | `FAIL-INIT-INTEGRATION` | 本文件 Reference Sync Notes、全仓引用同步 | retired path `rg` 结果 |
-| 模板、review、types、scripts 的迁移是否没有制造第二真源？ | `structure` / `integration` | `FAIL-INIT-STRUCTURE` / `FAIL-INIT-INTEGRATION` | README Directory Tree、`SKILL.md` Reference Loading Guide | owner map、validator/smoke output |
+| 模板、review、types、scripts 的迁移是否没有制造第二真源？ | `structure` / `integration` | `FAIL-INIT-STRUCTURE` / `FAIL-INIT-INTEGRATION` | README Directory Tree、`SKILL.md` Module Loading Matrix | owner map、validator/smoke output |

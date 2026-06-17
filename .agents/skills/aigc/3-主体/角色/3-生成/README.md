@@ -1,6 +1,6 @@
 # aigc 3-主体/角色/3-生成
 
-Skill 2.0 包：从 `角色/2-设计` 的角色设计文档调用 imagegen，生成角色单主体主图、多视图主体设计图，并同步落 JSON prompt。
+Skill 2.0 包：从 `角色/2-设计` 的角色设计文档调用 libTV，生成角色单主体主图、多视图主体设计图，并同步落 JSON prompt。
 
 ## Directory Tree
 
@@ -35,7 +35,7 @@ Skill 2.0 包：从 `角色/2-设计` 的角色设计文档调用 imagegen，生
 调用 `$aigc-design-character-generation`，提供 `projects/aigc/<项目名>/` 或单个角色名。技能会读取：
 
 - `projects/aigc/<项目名>/3-主体/角色/2-设计/<角色名>.md`
-- `.agents/skills/cli/imagegen/SKILL.md + CONTEXT.md`
+- `.agents/skills/cli/libTV/SKILL.md + CONTEXT.md`
 
 输出到：
 
@@ -46,7 +46,7 @@ Skill 2.0 包：从 `角色/2-设计` 的角色设计文档调用 imagegen，生
 
 ## Boundary
 
-本技能只消费上游设计文档并调用 imagegen。它不重新设计角色主体，不修改上游 `2-设计`，不生成场景、道具或视频提示词。
+本技能只消费上游设计文档并调用 libTV。它不重新设计角色主体，不修改上游 `2-设计`，不生成场景、道具或视频提示词。
 
 ## Visual Governance
 

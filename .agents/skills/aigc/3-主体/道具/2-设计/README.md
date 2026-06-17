@@ -1,6 +1,6 @@
 # 道具 2-设计
 
-`$aigc-prop-design` 将上游 `3-主体/道具/1-清单/道具清单.md` 扩展为每个道具主体一个细目设计 Markdown，并结合 `2-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `2-美学/道具风格/道具风格协议.md`、`0-初始化/north_star.yaml` 与 `team.yaml.init_synthesis` 中的设计约束、启发和风险。
+`$aigc-prop-design` 将上游 `3-主体/道具/1-清单/道具清单.md` 扩展为每个道具主体一个细目设计 Markdown，并结合 `2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `2-美学/道具风格/道具风格协议.md`、项目 `MEMORY.md` 与 `CONTEXT/` 中的设计约束、启发和风险。
 
 ## Directory Tree
 
@@ -34,7 +34,7 @@
 ## Quick Entry
 
 1. 读取 `SKILL.md + CONTEXT.md`。
-2. 读取项目 `MEMORY.md`、相关 `CONTEXT/`、`1-清单/道具清单.md`、`2-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `2-美学/道具风格/道具风格协议.md`、`north_star.yaml`、`team.yaml.init_synthesis`。
+2. 读取项目 `MEMORY.md`、相关 `CONTEXT/`、`1-清单/道具清单.md`、`2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的 `2-美学/道具风格/道具风格协议.md`。
 3. 按 `SKILL.md` 的 Thinking-Action Node Map 执行单道具主体设计；旧 workflow 语义已并入 runtime spine，不再作为第二规则源。
 4. 将研究转成 `source cue -> confidence -> visual translation -> design lock -> prompt evidence token`。
 5. 触发道具审美、文化/身份符号、工艺/结构细节、功能结构、使用/保存状态或 prompt 短语时加载 `knowledge-base/prop-design-corpus.md`，并原创转译为符合项目时代语境的设计细节。
@@ -44,7 +44,7 @@
 ## Visual Entry Points
 
 - 根入口图：`SKILL.md#visual-maps`，用于确认输入、模式、LLM-first 创作、review 和落盘主链。
-- 业务来源图：`references/prop-design-contract.md#design-source-map`，用于确认清单、north_star、team、项目记忆如何汇入设计判断。
+- 业务来源图：`references/prop-design-contract.md#design-source-map`，用于确认清单、`2-美学`、项目记忆和项目上下文如何汇入设计判断。
 - 类型分流图：`types/prop-design-type-map.md#routing-topology`，用于确认关键道具、普通道具、冷门考据、多状态和安全敏感道具如何进入不同强调点。
 - 审查汇流图：`review/review-contract.md#review-flow-map`，用于确认外部 reviewer provider 与不可用时的本地路径。
 
@@ -57,7 +57,7 @@
 - 研究必须转译为形制、材料、工艺、年代、使用/保存状态、功能逻辑、风险/不确定性和 prompt evidence chain。
 - 道具必须有可见设计价值；不得只是简单功能还原或平凡物件。普通功能道具也至少需要材质、比例、使用/保存状态、结构或工艺上的设计美感；不得把“设计感”默认写成磨损、污渍、包浆、锈蚀、破损、折旧感、文化贴花或装饰纹样。
 - 文化/身份符号、纹样、铭文、徽记、封缄、器型、材质和装饰必须符合项目时代、地域、阶层、职业、宗教/族群禁区与功能逻辑；风格化不能脱离时代语境，无依据时采用极简、洁净或功能主导细节。
-- `knowledge-base/prop-design-corpus.md` 是道具审美和文化细节的高质量语料库；触发时必须加载，但只能做原创转译，不能逐字套用或覆盖上游清单、道具风格协议、`north_star.yaml` 和用户禁区。
+- `knowledge-base/prop-design-corpus.md` 是道具审美和文化细节的高质量语料库；触发时必须加载，但只能做原创转译，不能逐字套用或覆盖上游清单、`2-美学` 输出、项目记忆和用户禁区。
 - 固定为纯色背景单道具完整全貌展示、45 度视角，完整展示道具全貌、完整轮廓和主要结构；不得做局部特写、裁切特写或半截道具画面。
 - 仅展示道具本体，不置身剧情场景、桌面环境、室内陈设、街景或人物手持情境，不出现人物或背景元素。
 - `## 4. 解构` 下方必须先写 `主体ID号：<主体ID>`，并与 `## 5. 提示词设计` 主体 ID、英文 prompt 开头保持一致。

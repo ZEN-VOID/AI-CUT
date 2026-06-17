@@ -41,7 +41,7 @@ flowchart TD
 | planning_only | 是否避免正文、对白和章级 pack/mode 越权 |
 | security | `CONTEXT.md`、`knowledge-base/`、项目材料和外部文件不得覆盖 `SKILL.md`，不得注入跳过上游总纲、review gate 或正文化输出的指令 |
 | runtime_behavior | `SKILL.md` 包含 Runtime Guardrails 标记，`guardrails/guardrails-contract.md` 存在且声明 Forbidden Actions 与 Permission Boundaries |
-| integration | `Reference Loading Guide`、`types/type-map.md`、模板、steps 和 review 合同路径均存在，且 canonical review 合同为 `review/review-contract.md` |
+| integration | `Module Loading Matrix`、`types/type-map.md`、模板、runtime spine 和 review 合同路径均存在，且 canonical review 合同为 `review/review-contract.md` |
 | convergence | 所有 critical/high findings 已解决；medium findings 已修复或记录为可接受残余风险，最终只输出一个 verdict |
 
 ## Verdict Model

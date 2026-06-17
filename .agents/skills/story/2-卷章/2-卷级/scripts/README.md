@@ -17,6 +17,6 @@
 ## Validation
 
 ```bash
-python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-工作车间/scripts/validate_skill_2_0.py .agents/skills/story/2-卷章/2-卷级
+python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-2.0/scripts/validate_skill_2_0.py .agents/skills/story/2-卷章/2-卷级 --mode delivery
 python3 scripts/skill_context_audit.py --strict
 ```

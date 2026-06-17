@@ -1,12 +1,16 @@
 ---
 name: aigc-lighting-aesthetic-injection
-description: "Use when injecting cinematic lighting aesthetics into 7-摄影 episode drafts or user-specified storyboard/camera drafts."
+description: "Retired backup skill. Use only when auditing or redirecting the old standalone lighting stage; canonical light handling now belongs inside aigc/7-摄影."
 governance_tier: full
 metadata:
-  short-description: AIGC 分镜光影美学内联注入
+  short-description: 退役备份：旧 AIGC 独立光影注入
 ---
 
 # aigc 9-光影
+
+> 退役兼容入口：本技能已从正式 AIGC 主链移出，不再作为 `projects/aigc/<项目名>/9-光影/` canonical 生成阶段执行。其可复用核心已收束到 `.agents/skills/aigc/7-摄影/references/cinematic-light-in-camera-contract.md`：布光类型/光型、阴影组织、叙事美学功能、主体可读性控制和光影连续性必须作为摄影观看纪律进入 `camera_light_plan`；光源可信只作为 source motivation boundary，不能把正文写成发光物观察清单。不得恢复独立光影追加层、灯位图、光效清单或视频 prompt。
+
+> 审计提示：下方旧合同保留历史链路追溯价值，其中“光源、受光、色温、材质/空气介质”式表述不再是 canonical 主轴。正式生成或修复时必须回到 `7-摄影` 的布光/阴影合同。
 
 `9-光影` 是逐集分镜光影美学注入阶段。它默认消费 `projects/aigc/<项目名>/7-摄影/第N集.md`，也允许用户显式指定文稿、粘贴文本或要求跳过上游部分环节；指定 source 优先于默认路径。执行时必须加载 `2-美学` 的主要风格产物，尤其是：
 

@@ -2,17 +2,17 @@
   {
     "id": "single-prop-generation",
     "prompt": "使用 $aigc-prop-generation，根据 projects/aigc/示例项目/3-主体/道具/2-设计/PROP-001-青铜钥匙.md 生成主图和多视图。",
-    "expected": "读取设计文档的 4. 解构 和 imagegen 合同，生成主图 JSON/图像，再 view_image 主图后生成多视图 JSON/图像。"
+    "expected": "读取设计文档的 4. 解构 和 libTV 合同，生成主图 JSON/图像，再 同画布主图节点 主图后生成多视图 JSON/图像。"
   },
   {
     "id": "prompt-only",
     "prompt": "使用 $aigc-prop-generation，只为若干道具设计稿生成主图和多视图 JSON，不执行生图。",
-    "expected": "进入 prompt_only，写 JSON 证据，不调用 imagegen，并标注 eval_mode 或 dry-run 状态。"
+    "expected": "进入 prompt_only，写 JSON 证据，不调用 libTV，并标注 eval_mode 或 dry-run 状态。"
   },
   {
     "id": "repair-reference-break",
     "prompt": "检查多视图是否没有使用对应主图作为 reference image。",
-    "expected": "触发 repair，回到 P5/P6，要求 reference_image 指向对应主图且真实生成前已 view_image。"
+    "expected": "触发 repair，回到 P5/P6，要求 reference_image 指向对应主图且真实生成前已 同画布主图节点。"
   },
   {
     "id": "reject-template-prompt",

@@ -18,5 +18,10 @@
     "id": "review-only-script-authorship",
     "prompt": "使用 $aigc-design-character-list，只审查现有角色清单是否像脚本批量生成或模板换名。",
     "expected": "Runs review_only, does not rewrite canonical list, and flags FAIL-CHAR-LIST-PSEUDO-DIFF if mechanical authorship is detected."
+  },
+  {
+    "id": "variant-state-grouping",
+    "prompt": "使用 $aigc-design-character-list，检查角色清单是否把同一角色的常服、礼服、战斗态、战损态、受伤态、少年期和老年期误拆成多个角色；这些都应作为同一个角色的多个变体。",
+    "expected": "Builds variant_state_map, keeps one canonical row per base character, records compact variant tags or manifest sidecar, and flags FAIL-CHAR-LIST-VARIANT-SPLIT or FAIL-CHAR-LIST-VARIANT-OMISSION when needed."
   }
 ]

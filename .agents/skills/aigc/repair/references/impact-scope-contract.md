@@ -8,7 +8,8 @@
 | --- | --- | --- |
 | project memory | 该改动是否属于长期偏好、禁区或稳定口味 | `projects/aigc/<项目名>/MEMORY.md` |
 | project context | 项目共享事实、参考片解析、风格资料是否要同步 | `projects/aigc/<项目名>/CONTEXT/` |
-| init source | north_star、team、全局风格、题材元素是否是错误源 | `0-初始化/north_star.yaml`、`team.yaml` |
+| memory source | 项目长期偏好、团队/协作记忆、初始化资料摘要是否是错误源 | `MEMORY.md`、`CONTEXT/` |
+| aesthetic source | 全局风格、题材元素、风格继承是否是错误源 | `2-美学/类型风格.md`、`2-美学/画面基调/全局风格协议.md`、当前集优先/项目级回退的风格协议 |
 | episode source | 原文切集是否错位、漏段或误归集 | `1-分集/第N集.md` |
 | script source | 剧情事实、对白、slugline、声画配对是否错误 | `4-编剧/第N集.md` |
 | director source | 戏剧问题、视觉主轴、导演意图和高潮处理是否需要修 | `5-导演/第N集.md` |
@@ -35,7 +36,7 @@
 | 图像 / storyboard | `9-图像` leaf、`3-主体`、`8-分组` | prompt、reference manifest、结果报告 | `10-画布` 首帧/参照、review finding | 成图是否消费正确源，不用文字修补图像缺陷 |
 | 视频 / MP4 | `10-画布` leaf、`9-图像`、`3-主体`、`8-分组` | 任务 JSON、素材、生成报告、实际视频 | review finding 和 repair route | 缺陷定位到生成、图像、主体、分组或摄影 owner |
 | 中文表达 / 友好润色 | owning stage 文本合同、项目 MEMORY | 当前段落、相邻语气、字段格式 | 后续 prompt、provider messages、review | 只润表达，不改事实、编号、字段和引用 |
-| 创意激发 / 候选增强 | north_star、阶段源合同、用户禁区 | 候选点与原目标的映射 | 需要用户选择或 owning stage 吸收 | 创意可执行、有边界、不自动成为真源 |
+| 创意激发 / 候选增强 | `2-美学`、阶段源合同、用户禁区、项目记忆 | 候选点与原目标的映射 | 需要用户选择或 owning stage 吸收 | 创意可执行、有边界、不自动成为真源 |
 
 ## Minimum Impact Map
 

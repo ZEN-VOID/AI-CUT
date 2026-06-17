@@ -13,5 +13,25 @@
     "id": "explicit-model-no-lane",
     "prompt": "润色第12章，尽量只修明显表达问题。",
     "expected": "Routes to root story-polishing chapter_polish or local_repair according to existing target chapter state."
+  },
+  {
+    "id": "texture-repair-no-add-on-layer",
+    "prompt": "第12章人物反应虚、场景空、画面看不清，但不要重写剧情，只做局部润色。",
+    "expected": "Uses character-reaction, prose-texture, and visual-readability repair types as needed; locks affected spans and source anchors, preserves draft facts and rhythm, and avoids adding unsupported performance, atmosphere, or lighting decorations."
+  },
+  {
+    "id": "genre-scene-action-polish",
+    "prompt": "第12章巷战动作看不清，别等 AIGC 分镜再补，也不要改胜负，只把源章这一段润清楚。",
+    "expected": "Loads genre-scene-repair and the shared genre-scene contract, locks source_anchor and affected_span, sets primary_scene_function=action_combat, repairs distance, direction, material response, cost, and aftermath without changing facts or creating a standalone genre stage."
+  },
+  {
+    "id": "wuxia-blade-qi-flow-polish",
+    "prompt": "第12章源稿里写了白刃剑气流，但剑气、刀气和刀剑风压太泛，按项目记忆做局部润清，不改胜负和伤亡。",
+    "expected": "Loads types/type-map.md, genre-scene-repair.md, and wuxia-blade-qi-repair.md; records repair_type_package_manifest with source_anchor and affected_span; repairs blade path, physical contact, material response, character cost, and aftershock traces while preserving facts and avoiding xianxia spell, laser, modern CG, prompt, or storyboard language."
+  },
+  {
+    "id": "genre-scene-romance-horror-polish",
+    "prompt": "第12章言情拉扯和恐怖悬疑都太模板化，别写成武侠动作，按源章做最小局部修补。",
+    "expected": "Builds project_genre_axis plus scene_function_axis, chooses a primary scene function with at most two secondary functions, repairs only affected spans, and passes genre_scene_integrity without changing relationship outcome, explaining the unknown, or adding unsupported facts."
   }
 ]

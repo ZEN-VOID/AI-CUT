@@ -1,6 +1,6 @@
 # 道具 3-生成
 
-`$aigc-prop-generation` 是 AIGC 工作流中 `3-主体/道具/3-生成` 的 Skill 2.0 包。它消费上游 `2-设计` 的单道具设计文档，调用 `$imagegen` 生成单主体图与多视图主体设计图。
+`$aigc-prop-generation` 是 AIGC 工作流中 `3-主体/道具/3-生成` 的 Skill 2.0 包。它消费上游 `2-设计` 的单道具设计文档，调用 `$libTV` 生成单主体图与多视图主体设计图。
 
 ## 目录树
 
@@ -42,7 +42,7 @@ flowchart LR
 
 ## 执行摘要
 
-1. 读取 `SKILL.md + CONTEXT.md`，并加载项目记忆与 `$imagegen` 合同。
+1. 读取 `SKILL.md + CONTEXT.md`，并加载项目记忆与 `$libTV` 合同。
 2. 从上游道具设计文档抽取 `4. 解构`。
 3. 生成单主体图与 JSON。
 4. 以单主体图为参照，套用 `templates/prop-multiview-prompt.json` 生成多视图图与 JSON。
@@ -51,5 +51,5 @@ flowchart LR
 ## 质量入口
 
 - 结构校验：`python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-2.0/scripts/validate_skill_2_0.py .agents/skills/aigc/3-主体/道具/3-生成 --mode delivery`
-- 语义门禁：检查 `SKILL.md` 的 runtime-spine 控制块、`test-prompts.json`、默认 imagegen 执行器边界、主图 reference image 可见化和反模板伪差异 gate。
+- 语义门禁：检查 `SKILL.md` 的 runtime-spine 控制块、`test-prompts.json`、默认 libTV 执行器边界、主图 reference image 可见化和反模板伪差异 gate。
 - `SKILL.md` runtime spine 仅作为 legacy read-only reference；运行时节点真源在 `SKILL.md`。

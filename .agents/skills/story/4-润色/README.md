@@ -2,7 +2,7 @@
 
 `story-polishing` is the root chapter polishing skill for `story2026`.
 
-## Layout
+## Directory Tree
 
 ```text
 4-润色/
@@ -15,12 +15,20 @@
 ├── references/chapter-polishing-contract.md
 ├── review/review-contract.md
 ├── templates/
-├── types/type-map.md
+├── types/
+│   ├── type-map.md
+│   ├── polishing-type-map.md
+│   ├── guardrail-setup.md
+│   ├── character-reaction-repair.md
+│   ├── prose-texture-repair.md
+│   ├── visual-readability-repair.md
+│   ├── genre-scene-repair.md
+│   └── wuxia-blade-qi-repair.md
 ├── guardrails/guardrails-contract.md
 └── knowledge-base/polishing-heuristics.md
 ```
 
-The root package directly handles first polish, local repair, authorized rewrite, subagent review optimize, and dry-run context assembly. It does not use A/B/C subskill routes.
+The root package directly handles first polish, local repair, authorized rewrite, subagent review optimize, and dry-run context assembly. It does not use A/B/C subskill routes. Character reaction, prose texture, visual readability, genre-scene repair, and wuxia blade-qi repair are repair type packages owned by this root skill. Specific repair packages are selected through `types/type-map.md` and recorded in `repair_type_package_manifest`.
 
 ## Canonical Output
 

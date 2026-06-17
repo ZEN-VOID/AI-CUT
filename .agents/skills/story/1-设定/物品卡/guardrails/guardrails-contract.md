@@ -11,7 +11,7 @@
 
 | boundary | allowed behavior |
 | --- | --- |
-| read-only | `SKILL.md`, `CONTEXT.md`, `references/`, `steps/`, `review/`, `types/`, `templates/`, `agents/`, `guardrails/` |
+| read-only | `SKILL.md`, `CONTEXT.md`, `references/`, `review/`, `types/`, `templates/`, `agents/`, `guardrails/` |
 | writable output | `projects/story/<项目名>/1-设定/4-物品卡/` through the parent writer contract |
 | conditional | project `MEMORY.md`, project `CONTEXT/`, and project `team.yaml` are loaded only when the bound project or subagent mode requires them |
 | forbidden | sibling skill packages, parent stage contracts, API keys, `.env`, and unrelated project artifacts |

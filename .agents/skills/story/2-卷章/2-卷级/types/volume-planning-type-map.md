@@ -6,7 +6,7 @@
 - `types/` 中命中的类型包作为固定上下文加载；`knowledge-base/` 只作为按需检索、切片或向量召回的知识库，不替代类型包。
 
 
-本文件用于先判型，再让 `steps/volume-planning-workflow.md` 消费 `type_profile`。
+本文件用于先判型，再让 `SKILL.md` 的 `Thinking-Action Node Map` 消费 `type_profile`。
 
 ## Type Variables
 

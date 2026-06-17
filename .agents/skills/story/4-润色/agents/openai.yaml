@@ -1,4 +1,8 @@
 metadata:
   display_name: "Story Polishing"
-  short_description: "Polish or locally repair existing story drafts into canonical 4-润色 chapters."
+  short_description: "Polish story chapters safely."
+  default_prompt: "Use $story-polishing to minimally polish projects/story/<项目名>/3-初稿/第N卷/第N章.md into projects/story/<项目名>/4-润色/第N卷/第N章.md."
+interface:
+  display_name: "Story Polishing"
+  short_description: "Polish story chapters safely."
   default_prompt: "Use $story-polishing to minimally polish projects/story/<项目名>/3-初稿/第N卷/第N章.md into projects/story/<项目名>/4-润色/第N卷/第N章.md."

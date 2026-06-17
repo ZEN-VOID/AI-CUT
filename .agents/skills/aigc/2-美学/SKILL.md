@@ -26,6 +26,7 @@ metadata:
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用 `$aigc-aesthetic-suite` 或 `.agents/skills/aigc/2-美学` 时，必须同时加载本目录 `SKILL.md + CONTEXT.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与分集故事源、世界观、美术、参考图/视频、禁区、长期审美偏好或下游模型限制相关的文件。
+- 项目任务必须从 `projects/aigc/<项目名>/MEMORY.md` 构造 `project_memory_init_context`，消费初始化用户要求、团队配置与协作偏好、资料吸收摘要和阶段上下文读取指南；该上下文只作为审美研究约束和启发，不触发 team 身份、顾问问答或 `team.yaml` 生成。
 - 父级整体调用必须为 6 个 subagents 构造同一份 `Aesthetic Task Packet`，包含项目路径、`1-分集` 全量故事源清单、样本范围、`type_style_profile`、用户显式要求、项目记忆、参考资料、写回权限和禁止项。
 - 正式生成、repair 或 review 时，必须加载 `../_shared/upstream-context-application-contract.md`，并在父级执行报告中记录 `Upstream Context Application Map`：说明 `1-分集` 或用户指定 source 如何约束 `类型风格.md` 与 6 路风格协议，哪些剧情/人物/场景/道具事实必须保留，哪些只作为风格信号。
 - 每个 subagent 必须独立加载自身 `SKILL.md + CONTEXT.md`，并按自身 Output Contract 产出局部协议与执行报告。

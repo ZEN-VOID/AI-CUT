@@ -49,3 +49,7 @@ cat "${SKILL_ROOT}/../../query/references/system-data-flow.md"
 - **执行状态三件套**: `STATE.json.workflow_runtime.workflow_state` 记当前断点，`STATE.json.workflow_runtime.execution_state` 记全阶段 run，`STATE.json.workflow_runtime.task_log` 记追加式事件链
 
 </instructions>
+
+## Review Gate Mapping
+
+No independent gate. This file is a redirect and quick reference only; authoritative data-flow gates live in `../../query/references/system-data-flow.md` and `$story-resume` maps runtime boundary checks through `SKILL.md#Review Gate Binding`.

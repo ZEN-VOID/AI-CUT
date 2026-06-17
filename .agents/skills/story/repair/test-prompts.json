@@ -1,0 +1,22 @@
+[
+  {
+    "id": "impact-assessment-clue-thread",
+    "prompt": "Use $story-repair to assess how changing a hidden clue in projects/story/示例项目/第2卷第7章 affects planning, earlier planting, future payoff, acceptance, return, and STATE. Do not write files.",
+    "expected": "Select impact_assessment, load CONTEXT.md plus types/type-map.md, include scope.locality, scope.clue-thread, operation.plan-only, and acceptance.review-gate, then produce an impact_map with six surfaces, canonical_owner, residual risks, and no canonical writeback."
+  },
+  {
+    "id": "execute-character-state-repair",
+    "prompt": "Use $story-repair to execute a user-authorized repair that changes a character allegiance already used in cards, chapter planning, draft prose, polish, and return actualization.",
+    "expected": "Select execute_repair, lock source owner before downstream edits, route creative draft or polish changes back to the owning stage, list changed_files, acceptance/return/STATE actions, state_hook_note, audit_result, and next_generation_constraints."
+  },
+  {
+    "id": "audit-accepted-truth-drift",
+    "prompt": "Use $story-repair to audit whether a completed repair still leaves the old accepted fact in stage acceptance packets, return actualization, project CONTEXT, or future provider guardrails.",
+    "expected": "Select audit_only, load review/review-contract.md and accepted-truth scope, report verdict with findings, fail codes, rework targets, residual risks, and no new creative prose."
+  },
+  {
+    "id": "authorship-boundary-regression",
+    "prompt": "Use $story-repair for a review finding that asks the repair skill itself to rewrite a polished paragraph directly with a regex-based replacement.",
+    "expected": "Reject direct scripted prose generation, cite LLM-first creative authorship and owning stage routing, produce a stage-ready repair brief, and map the issue to FAIL-REPAIR-AUTHORSHIP."
+  }
+]

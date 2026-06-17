@@ -10,6 +10,7 @@
 4. 任何爽点必须至少绑定一项：人物欲望、人物缺陷、代价、关系压力、世界规则、局势后果、伏笔兑现或读者长期期待。
 5. 若题材包示例与项目 `MEMORY.md`、`north_star.style_contract`、角色动机或场景真实性冲突，以项目真源优先。
 6. 类型包不得把正文变成套路展示清单；所有题材元素必须进入人物行动、对白潜台词、现场发现和章末牵引。
+7. 类型化场面强化必须先判 `project_genre_axis + scene_function_axis`，不得把动作/武侠当作默认强化，也不得把言情、玄幻、恐怖、悬疑、现实等题材压成同一种“更刺激”写法。
 
 ## Preferred Conversion
 
@@ -20,6 +21,7 @@
 | 收美女 | 关系线阶段性推进：信任、误读、试探、债务、共同风险或价值观冲突 |
 | 每隔固定字数一个爽点 | 由场景压力、信息揭示、行动代价和章末牵引自然形成节奏 |
 | 脸色大变/倒吸冷气 | 动作停顿、物件误触、呼吸变化、视线偏移、退半步或话语断裂 |
+| 所有高潮都写成打斗 | 按场景功能转译：关系拉扯、规则显影、威胁遮蔽、线索揭示、制度压力或动作对抗 |
 
 ## Review Gate Mapping
 
@@ -29,3 +31,4 @@
 | 爽点是否绑定人物、代价、关系或局势后果？ | payoff quality gate | `FAIL-TROPE-02` | `7-追读力强化` / `3-场景和氛围渲染` | payoff note、missing consequence |
 | 关系线是否被写成占有式奖励？ | relationship dignity gate | `FAIL-TROPE-03` | `5-对白优化` / `6-心理活动描写` | relationship excerpt |
 | 是否出现群众震惊、脸色模板和纸片配角堆叠？ | prose dignity gate | `FAIL-TROPE-04` | `8-润色` / `4-角色形象刻画` | trope markers |
+| 类型化场面是否被压成单一武侠/动作模板，或无视项目题材契约？ | genre-scene quality gate | `FAIL-TROPE-05` | `3-初稿/references/genre-scene-drafting-contract.md` / `4-润色/types/genre-scene-repair.md` | `genre_scene_route`、offending excerpt |
