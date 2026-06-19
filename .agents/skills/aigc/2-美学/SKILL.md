@@ -8,7 +8,7 @@ metadata:
 
 # aigc 2-美学
 
-`2-美学` 是 AIGC 影片项目在 `1-分集` 后立即执行的题材类型与视觉美学研究配置主入口。它先从 `1-分集` 涉及的全部故事源内容中解析最佳适配题材类型、标志性元素、题材专属表现技巧和下游继承边界，写成项目级 `类型风格.md`；再把一次“整体美学设定”请求路由给 6 个同级子技能，并在父级层面完成输入包分发、并发调度、结果汇流、冲突审查和项目级交接。
+`2-美学` 是 AIGC 影片项目在 `1-分集` 后立即执行的题材类型与视觉美学研究配置主入口。它先从 `1-分集` 涉及的全部故事源内容中解析最佳适配题材类型、规范化题材轴、标志性元素、题材专属表现技巧和下游继承边界，写成项目级 `类型风格.md`；再把一次“整体美学设定”请求路由给 6 个同级子技能，并在父级层面完成输入包分发、并发调度、结果汇流、冲突审查和项目级交接。
 
 当 `.agents/skills/aigc/2-美学` 作为整体调用时，必须视为同时调用以下 6 个 subagents，并分别并发执行：
 
@@ -50,6 +50,7 @@ metadata:
 | `B8` | 父级输出索引、汇流报告和写回门 | `Output Contract` |
 | `B9` | 经验写回和项目记忆边界 | `Learning / Context Writeback` |
 | `B10-B14` | 业务画像、量化口径、注意力、检查点和评估资产 | `Business Requirement Analysis Contract`、`Quantifiable Execution Criteria Contract`、`Attention Concentration Protocol`、`Checkpoint Contract`、`Evaluation Prompt Contract` |
+| `B15` | `2-美学` 到 `4-编剧` 的题材轴交接 | `Genre Axis Handoff Contract` / `Type Style Profile Contract` |
 
 ## Multi-Subskill Continuous Workflow
 
@@ -76,8 +77,8 @@ metadata:
 
 Accepted tasks:
 
-- 将 `2-美学` 作为分集后的第一研究配置阶段运行，为一个 AIGC 影片项目生成 `类型风格.md` 并并发生成 6 类美学协议。
-- 根据同一份 `1-分集` 全量故事源、项目设定、参考图/视频或用户审美要求，先完成题材类型研究，再分发给 `场景风格`、`道具风格`、`分镜风格`、`画面基调`、`角色风格`、`摄影风格` 6 个 subagents。
+- 将 `2-美学` 作为分集后的第一研究配置阶段运行，为一个 AIGC 影片项目生成含规范化题材轴交接字段的 `类型风格.md` 并并发生成 6 类美学协议。
+- 根据同一份 `1-分集` 全量故事源、项目设定、参考图/视频或用户审美要求，先完成题材类型研究和 `genre_axis_handoff_profile`，再分发给 `场景风格`、`道具风格`、`分镜风格`、`画面基调`、`角色风格`、`摄影风格` 6 个 subagents。
 - 对 6 个局部协议执行父级汇流审查，检查风格边界、跨子技能冲突、候选状态、依赖缺口、输出路径和下游 handoff。
 - 汇总生成 `projects/aigc/<项目名>/2-美学/类型风格.md`、`projects/aigc/<项目名>/2-美学/美学总览.md` 与 `projects/aigc/<项目名>/2-美学/执行报告.md`。
 - 审查或修复 2-美学阶段已有输出中的缺项、路由错误、子技能未并发执行、父级聚合越权、依赖缺口未报告或下游交接不完整。
@@ -103,9 +104,9 @@ Runtime persona:
 | `business_goal` | 将 2-美学整体阶段一次性完成题材类型研究、6 个风格子技能并发执行，并生成父级汇流索引与报告 | 用户请求、项目路径、`1-分集` 全量故事源、参考资料 | `FAIL-AES-BUSINESS-GOAL` |
 | `business_object` | 被处理对象是 `类型风格.md` 与 2-美学阶段的 6 类风格协议集合，不是单个协议、具体资产或下游生成任务 | 子技能清单、输出路径、任务范围 | `FAIL-AES-BUSINESS-OBJECT` |
 | `constraint_profile` | 整体调用必须 6 路并发、LLM-first、父级不代写子正文、不创建第二真源、依赖缺口显式报告 | 用户额外强调、本 SKILL 禁止项、根规则 | `FAIL-AES-CONSTRAINT` |
-| `success_criteria` | `类型风格.md` 完成且可供 `4-编剧` 继承；6 个 subagents 均完成局部输出或返回阻断原因；父级生成总览、执行报告、依赖缺口和下游 handoff | Output Contract、Review Gate Binding | `FAIL-AES-SUCCESS` |
-| `complexity_source` | 复杂度来自全量分集故事源归纳、题材类型裁决、多子技能并发、同源输入分发、跨协议依赖缺口、风格冲突审查和下游继承边界 | route 说明、type style profile、subagent result matrix | `FAIL-AES-COMPLEXITY` |
-| `topology_fit` | 先锁定 `1-分集` 全量故事源，再形成 `类型风格.md`，再构造输入包并 6 路并发 fan-out，再收集局部结果，再父级一致性审查，再写总览与报告；该拓扑保证编剧前先定题材美学上下文，并保留每个子技能的局部真源 | Visual Maps、节点表、汇流报告 | `FAIL-AES-TOPOLOGY-FIT` |
+| `success_criteria` | `类型风格.md` 完成且含 `genre_axis_handoff_profile`，可供 `4-编剧` 继承规范化题材轴；6 个 subagents 均完成局部输出或返回阻断原因；父级生成总览、执行报告、依赖缺口和下游 handoff | Output Contract、Review Gate Binding、Genre Axis Handoff Contract | `FAIL-AES-SUCCESS` |
+| `complexity_source` | 复杂度来自全量分集故事源归纳、题材类型裁决、题材轴规范化、多子技能并发、同源输入分发、跨协议依赖缺口、风格冲突审查和下游继承边界 | route 说明、type style profile、genre_axis_handoff_profile、subagent result matrix | `FAIL-AES-COMPLEXITY` |
+| `topology_fit` | 先锁定 `1-分集` 全量故事源，再形成 `类型风格.md` 与 `genre_axis_handoff_profile`，再构造输入包并 6 路并发 fan-out，再收集局部结果，再父级一致性审查，再写总览与报告；该拓扑保证编剧前先定题材美学上下文，并保留每个子技能的局部真源 | Visual Maps、节点表、汇流报告、Genre Axis Classification | `FAIL-AES-TOPOLOGY-FIT` |
 
 拓扑适配理由至少满足三条：
 
@@ -161,12 +162,15 @@ Downstream consumption rule: `4-编剧` 必须读取 `类型风格.md` 作为题
 
 ## Type Style Profile Contract
 
-`类型风格.md` 是 `2-美学` 父级拥有的项目级 singleton，不由 6 个子技能替代，也不按集复制。它必须基于 `1-分集` 涉及的全部故事源内容，由 LLM 直接判断题材类型和题材专属表现技巧；脚本只允许辅助读取、清单、统计和校验。
+`类型风格.md` 是 `2-美学` 父级拥有的项目级 singleton，不由 6 个子技能替代，也不按集复制。它必须基于 `1-分集` 涉及的全部故事源内容，由 LLM 直接判断题材类型、规范化题材轴和题材专属表现技巧；脚本只允许辅助读取、清单、统计和校验。
+
+题材轴交接由 `references/genre-axis-handoff-contract.md` 约束。它不是子技能，只是 `类型风格.md` 的字段与证据合同；不得创建 `2-美学/题材类型/` 平行技能包来替代父级题材判定。
 
 必备分析对象：
 
 - 全量 `1-分集` source manifest：列出参与判断的集数、故事源、缺失项和样本边界。
 - 最佳适配题材类型：至少包含 1 个主题材、0-3 个副题材、题材融合逻辑和观众类型承诺。
+- 规范化题材轴交接：必须输出 `genre_axis_handoff_profile`，包含 `raw_genre_label`、`primary_genre_axis`、`primary_genre_name`、`secondary_genre_axes`、`classification_basis`、`source_anchor_evidence`、`genre_confidence`、`genre_conflict_state`、`fallback_policy` 和 `screenwriting_handoff`。
 - 标志性元素：人物关系、核心冲突、世界规则、空间/道具/职业/制度/仪式元素、反复出现的视觉或叙事符号。
 - 题材专属表现技巧：信息释放、冲突推进、爽点/悬念/情绪爆点、视听表达、场景组织、角色出场、对白密度、尾钩方式。
 - 视觉与叙事联动规则：哪些题材规则交给画面基调、场景/角色/道具风格、分镜/摄影风格，哪些交给 `4-编剧`。
@@ -180,6 +184,7 @@ Downstream consumption rule: `4-编剧` 必须读取 `类型风格.md` 作为题
 
 ## Source Manifest
 ## Best-Fit Genre Type
+## Genre Axis Classification
 ## Secondary Genre And Audience Promise
 ## Signature Element Matrix
 ## Genre-Specific Expression Techniques
@@ -187,6 +192,11 @@ Downstream consumption rule: `4-编剧` 必须读取 `类型风格.md` 作为题
 ## Downstream Context Handoff
 ## Anti-Drift Boundaries
 ```
+
+`Genre Axis Classification` 最低表格：
+
+| raw_genre_label | primary_genre_axis | primary_genre_name | secondary_genre_axes | classification_basis | source_anchor_evidence | genre_confidence | genre_conflict_state | fallback_policy | screenwriting_handoff |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 
 ## Style Dimension Taxonomy Contract
 
@@ -229,12 +239,12 @@ Downstream consumption rule: `4-编剧` 必须读取 `类型风格.md` 作为题
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-INTAKE` | 锁定整体/局部模式、项目根和输入来源 | 用户请求、项目路径、已有资料 | 判定 mode；形成 `business_profile`；加载父级 `SKILL.md + CONTEXT.md`；若绑定项目，加载项目 `MEMORY.md` 和相关 `CONTEXT/` | `task_profile`、`business_profile`、`source_manifest` | `N2` / `C1` / `V1` / `R1` | 整体模式不得少于 6 个 subagents；正式写回必须有项目根 |
-| `N2-PACKET` | 构造题材风格画像与共享输入包 | N1 输出、`1-分集` 全量故事源、项目资料、用户要求 | 先生成 `type_style_profile`，解析最佳适配题材、标志性元素、题材专属表现技巧、视觉叙事联动规则和下游 handoff；再生成 `Aesthetic Task Packet`，包含来源、`episode_scope`、边界、禁区、写回权限、参考资料和候选依赖状态 | `type_style_profile`、`aesthetic_task_packet` | `N3` | `type_style_profile` 必须可写成 `类型风格.md` 并可供 `3-主体` 建立主体注册表、供 `4-编剧` 消费；packet 必须可供 6 个 subagents 消费；不得包含父级代写正文；`画面基调` 不继承逐集写回路径 |
+| `N2-PACKET` | 构造题材风格画像、题材轴交接与共享输入包 | N1 输出、`1-分集` 全量故事源、项目资料、用户要求、`references/genre-axis-handoff-contract.md` | 先生成 `type_style_profile` 和 `genre_axis_handoff_profile`，解析最佳适配题材、规范化题材轴、标志性元素、题材专属表现技巧、视觉叙事联动规则和下游 handoff；再生成 `Aesthetic Task Packet`，包含来源、`episode_scope`、边界、禁区、写回权限、参考资料和候选依赖状态 | `type_style_profile`、`genre_axis_handoff_profile`、`aesthetic_task_packet` | `N3` | `type_style_profile` 必须可写成 `类型风格.md`；`genre_axis_handoff_profile` 必须可写入 `Genre Axis Classification` 并供 `4-编剧` 选择 `genre_axis`；packet 必须可供 6 个 subagents 消费；不得包含父级代写正文；`画面基调` 不继承逐集写回路径 |
 | `N3-PARALLEL-FANOUT` | 并发启用 6 个 subagents | `aesthetic_task_packet`、Subagent Routing Matrix | 同时启动 `SA-SCENE`、`SA-PROP`、`SA-STORYBOARD`、`SA-TONE`、`SA-CHARACTER`、`SA-CINEMATOGRAPHY`；每个 subagent 独立加载自身 `SKILL.md + CONTEXT.md` | `subagent_dispatch_matrix`，必须 6 行 | `N4` | dispatch 缺任一 subagent 即失败；不得改为串行补跑 |
 | `N4-SUBAGENT-RESULTS` | 收集局部结果 | 6 个 subagent 输出 | 收集每个 subagent 的 `status`、canonical path、report path、prompt status、dependency gaps、fail codes | `subagent_result_matrix`，必须 6 行 | `N5` | 每个 subagent 必须返回 `pass/candidate/blocked` 之一和证据路径 |
 | `N5-CROSS-CHECK` | 父级一致性与边界审查 | `subagent_result_matrix`、6 个局部协议摘要 | 检查画面基调继承、角色/场景/道具边界、摄影/分镜边界、参考污染、候选状态、下游 handoff | `cross_style_consistency_report`、`dependency_gap_matrix` | `N6` / `R1` | 冲突必须定位到具体 subagent 和字段；父级不得直接改子协议正文 |
-| `N6-CONVERGE` | 生成类型风格、父级总览和执行报告 | N2-N5 输出 | 固定写 `类型风格.md`；再按 `episode_scope` 写 `第N集/美学总览.md`、`第N集/执行报告.md` 或项目级 `美学总览.md`、`执行报告.md`；列出题材画像、6 路状态、路径、提示词摘要、依赖缺口和下游继承建议 | `type_style_document`、`suite_overview`、`suite_execution_report` | `N7` | `类型风格.md` 是题材上下文真源；总览只做索引和摘要，不成为 6 个局部协议的第二真源；不得把画面基调或类型风格复制到逐集目录 |
-| `N7-HANDOFF` | 建立下游交接 | `类型风格.md`、父级总览、6 个局部协议 | 明确交给 `3-主体`、`4-编剧`、`5-导演`、`6-分镜`、`7-摄影`、`8-分组`、`9-图像`、`10-画布` 的继承字段和禁区 | `downstream_handoff_map` | `N8` | 每个下游至少说明继承什么、不继承什么；`3-主体` 必须继承题材类型、标志性元素、题材专属表现技巧和角色/场景/道具风格边界用于主体注册表；`4-编剧` 必须继承题材类型、标志性元素和题材专属表现技巧 |
+| `N6-CONVERGE` | 生成类型风格、父级总览和执行报告 | N2-N5 输出 | 固定写 `类型风格.md`，其中必须包含 `Genre Axis Classification` 和 `genre_axis_handoff_profile`；再按 `episode_scope` 写 `第N集/美学总览.md`、`第N集/执行报告.md` 或项目级 `美学总览.md`、`执行报告.md`；列出题材画像、题材轴交接、6 路状态、路径、提示词摘要、依赖缺口和下游继承建议 | `type_style_document`、`genre_axis_handoff_profile`、`suite_overview`、`suite_execution_report` | `N7` | `类型风格.md` 是题材上下文和题材轴交接真源；总览只做索引和摘要，不成为 6 个局部协议或题材包的第二真源；不得创建 `2-美学/题材类型/` 子技能；不得把画面基调或类型风格复制到逐集目录 |
+| `N7-HANDOFF` | 建立下游交接 | `类型风格.md`、`genre_axis_handoff_profile`、父级总览、6 个局部协议 | 明确交给 `3-主体`、`4-编剧`、`5-导演`、`6-分镜`、`7-摄影`、`8-分组`、`9-图像`、`10-画布` 的继承字段和禁区；交给 `4-编剧` 时必须包含 `raw_genre_label`、`primary_genre_axis`、`secondary_genre_axes`、`classification_basis`、`source_anchor_evidence`、`genre_confidence`、`genre_conflict_state` 和 `fallback_policy` | `downstream_handoff_map`、`screenwriting_genre_axis_handoff` | `N8` | 每个下游至少说明继承什么、不继承什么；`3-主体` 必须继承题材类型、标志性元素、题材专属表现技巧和角色/场景/道具风格边界用于主体注册表；`4-编剧` 必须继承规范化题材轴、原始题材标签、证据锚点、题材置信度、冲突状态、标志性元素和题材专属表现技巧，不得无证据推翻项目级主题材 |
 | `N8-CLOSE` | 完成交付 | 汇流证据 | 输出最终状态、验证结果、残余风险和需要返工的 subagents | `final_report` | done | 只有一个父级 final output；阻断项不得标记为 pass |
 | `C1-CHILD-ROUTE` | 单子技能或部分子技能路由 | 用户点名子技能 | 只调度被点名子技能；若用户未说整体，不自动补齐 6 个 | `child_route_manifest` | `N5` / `N8` | 路由必须与用户点名一致 |
 | `V1-REVIEW` | 审查已有 2-美学输出 | 已有输出路径、报告 | 按目标 scope 检查 6 个 canonical output、6 个报告、父级总览、依赖缺口和下游 handoff；`画面基调` 只查全局 singleton | `review_findings` | `N6` / `R1` | findings 必须有文件路径或明确缺失项；不得要求逐集 `画面基调` |
@@ -289,6 +299,7 @@ flowchart LR
 | --- | --- | --- | --- | --- |
 | `CONTEXT.md` | 每次调用父级入口 | 经验层、整体路由失败模式、并发汇流 heuristics | 重定义父级节点、输出路径、6 路并发规则 | `Learning / Context Writeback` |
 | `../_shared/upstream-context-application-contract.md` | 任意整体生成、repair、review，或 `FAIL-AES-UPSTREAM-CONTEXT` | 规定上游分集故事源和项目上下文如何被 6 路风格协议应用、保真和举证 | 替代任一子技能风格主创、让父级代写子协议、把剧情 source 复制成风格口号 | `N1-INTAKE` / `N5-CROSS-CHECK` / `N6-CONVERGE` |
+| `references/genre-axis-handoff-contract.md` | 任意生成、repair 或 review `类型风格.md`；或触发 `FAIL-AES-GENRE-AXIS-HANDOFF`、`FAIL-AES-GENRE-AXIS-EVIDENCE`、`FAIL-AES-GENRE-AXIS-FALLBACK` | 约束 `genre_axis_handoff_profile` 字段、允许题材轴、证据要求和交给 `4-编剧` 的归属边界 | 变成第 7 个子技能；替代 6 个风格 subagents；创作剧本细节；改写 `4-编剧/types/` 策略卡 | `N2-PACKET` / `N6-CONVERGE` / `N7-HANDOFF` / `GATE-AES-11-TYPE-STYLE` |
 | `SA-SCENE` | `overall_parallel` 或命中 `场景风格` | 执行场景风格协议局部创作与报告；运行时加载 `场景风格/` 的 SKILL.md + CONTEXT.md | 被父级压缩、改写或跳过 | `SA-SCENE` |
 | `SA-PROP` | `overall_parallel` 或命中 `道具风格` | 执行道具风格协议局部创作与报告；运行时加载 `道具风格/` 的 SKILL.md + CONTEXT.md | 被父级压缩、改写或跳过 | `SA-PROP` |
 | `SA-STORYBOARD` | `overall_parallel` 或命中 `分镜风格` | 执行分镜风格协议局部创作与报告；运行时加载 `分镜风格/` 的 SKILL.md + CONTEXT.md | 被父级压缩、改写或跳过 | `SA-STORYBOARD` |
@@ -302,6 +313,7 @@ flowchart LR
 | --- | --- | --- | --- | --- | --- |
 | `overall_parallel / FAIL-AES-TYPE-OVERALL / FAIL-AES-DISPATCH-MISSING / FAIL-AES-CONTEXT-LOAD` | SA-SCENE, SA-PROP, SA-STORYBOARD, SA-TONE, SA-CHARACTER, SA-CINEMATOGRAPHY | `N3-PARALLEL-FANOUT` | `N4-SUBAGENT-RESULTS` | `N3-PARALLEL-FANOUT` | `subagent_dispatch_matrix` 必须 6 行 |
 | `upstream_context_application / FAIL-AES-UPSTREAM-CONTEXT` | `../_shared/upstream-context-application-contract.md`, SA-SCENE, SA-PROP, SA-STORYBOARD, SA-TONE, SA-CHARACTER, SA-CINEMATOGRAPHY | `N1 -> N6` | `GATE-AES-10-UPSTREAM-CONTEXT` | `N5-CROSS-CHECK` | `Upstream Context Application Map` 证明同一故事源如何约束 6 路协议 |
+| `genre_axis_handoff / FAIL-AES-GENRE-AXIS-HANDOFF / FAIL-AES-GENRE-AXIS-EVIDENCE / FAIL-AES-GENRE-AXIS-FALLBACK` | `references/genre-axis-handoff-contract.md` | `N2-PACKET -> N7-HANDOFF` | `GATE-AES-11-TYPE-STYLE` | `N2-PACKET` | `genre_axis_handoff_profile` 与 `Genre Axis Classification` 存在；`primary_genre_axis` 属于 `wuxia/xuanhuan/kehuan/mohuan/generic` |
 | `single_child_route / FAIL-AES-TYPE-SINGLE` | SA-SCENE, SA-PROP, SA-STORYBOARD, SA-TONE, SA-CHARACTER, SA-CINEMATOGRAPHY | `C1-CHILD-ROUTE` | 子技能自身 Output Contract | `C1-CHILD-ROUTE` | `child_route_manifest` 只包含用户点名子技能 |
 | `partial_named_route / FAIL-AES-TYPE-PARTIAL` | SA-SCENE, SA-PROP, SA-STORYBOARD, SA-TONE, SA-CHARACTER, SA-CINEMATOGRAPHY | `C1-CHILD-ROUTE` | `N5-CROSS-CHECK` | `C1-CHILD-ROUTE` | 不补齐未点名子技能 |
 | `review_existing_suite / FAIL-AES-TYPE-REVIEW / FAIL-AES-REPORT-EVIDENCE / FAIL-AES-HANDOFF` | `CONTEXT.md` | `V1-REVIEW` | `N6-CONVERGE` | `V1-REVIEW` | findings 必须有路径或缺失项 |
@@ -314,6 +326,7 @@ flowchart LR
 | `N4-SUBAGENT-RESULTS` | 整体调用收齐 6 行 `subagent_result_matrix` | 任一 subagent 无状态、无路径或无阻断原因 | `subagent_result_matrix` | `N3-PARALLEL-FANOUT` |
 | `N5-CROSS-CHECK` | 冲突、候选状态和依赖缺口均有定位 | 存在未说明冲突或隐藏依赖缺口 | `cross_style_consistency_report`、`dependency_gap_matrix` | `N5-CROSS-CHECK` |
 | `N5A-UPSTREAM-CONTEXT-APPLIED` | 同一份 `Aesthetic Task Packet` 的剧本事实、人物/场景/道具约束和风格信号已投影到 6 路协议，且未把子协议写成互相无关的世界 | 6 路协议各自发明人物、场景、调性或视觉规则；父级只说已读取剧本但无应用证据 | `upstream_context_application_map`、`subagent_result_matrix` | `N1-INTAKE` / `N5-CROSS-CHECK` |
+| `N2A-GENRE-AXIS-HANDOFF` | `genre_axis_handoff_profile` 已写入 `类型风格.md` 的 `Genre Axis Classification`，主题材轴、原始标签、证据锚点、置信度、冲突状态和 fallback 均可供 `4-编剧` 消费 | 只有自然语言题材标签；缺 `primary_genre_axis`；缺 source anchor；把题材判断外包给未声明的 `2-美学/题材类型/` 子技能；或让美学直接写编剧情节策略 | `genre_axis_handoff_profile`、`Genre Axis Classification`、`screenwriting_genre_axis_handoff` | `N2-PACKET` / `N6-CONVERGE` / `N7-HANDOFF` |
 | `N5-ANTI-SCRIPTED-SUITE` | 6 路结果均通过各自 anti-scripted gate，且不存在同一模板句架换子技能名、参考锚点或关键词的伪差异化 | 子协议或父级摘要出现脚本化生成、批量插入、正则套句、映射投影、句式复用、锚点替换或同义改写批量痕迹 | `anti_scripted_suite_audit` | `N5-CROSS-CHECK` / 对应 subagent |
 | `N6-CONVERGE` | 父级总览只做索引、摘要和 handoff | 父级总览替代局部协议正文 | `suite_overview`、canonical path list | `N6-CONVERGE` |
 | `N8-CLOSE` | pass/candidate/blocked 结论与 6 路状态一致 | 有 blocked subagent 但父级标记 pass | `final_report` | `R2-REPAIR` |
@@ -350,19 +363,19 @@ Fail conditions:
 | 父级执行报告证据是否完整？ | `GATE-AES-08-REPORT` | `FAIL-AES-REPORT-EVIDENCE` | `N6-CONVERGE` | 报告六类证据区块 |
 | 6 路协议是否都无脚本化生成、批量插入、正则套句、映射投影、模板句式复用、锚点替换伪差异化或同义改写批量生成痕迹？ | `GATE-AES-09-ANTI-SCRIPTED-SUITE` | `FAIL-AES-SCRIPTED-SUITE` | `N5-CROSS-CHECK` / 对应 subagent | `anti_scripted_suite_audit` |
 | 上游分集故事源、项目记忆和参考资料是否被明确投影为 6 路风格约束，并能证明 source anchor、local decision 和 preservation check，而不是只说“已参考故事源”？ | `GATE-AES-10-UPSTREAM-CONTEXT` | `FAIL-AES-UPSTREAM-CONTEXT` | `N1-INTAKE` / `N5-CROSS-CHECK` / 对应 subagent | `upstream_context_application_map` |
-| `类型风格.md` 是否基于全量 `1-分集` 故事源完成题材类型、标志性元素、题材专属表现技巧和 `4-编剧` handoff？ | `GATE-AES-11-TYPE-STYLE` | `FAIL-AES-TYPE-STYLE-MISSING` | `N2-PACKET` / `N6-CONVERGE` | `type_style_profile`、`类型风格.md`、source manifest |
+| `类型风格.md` 是否基于全量 `1-分集` 故事源完成题材类型、规范化题材轴、标志性元素、题材专属表现技巧和 `4-编剧` handoff？ | `GATE-AES-11-TYPE-STYLE` | `FAIL-AES-TYPE-STYLE-MISSING` / `FAIL-AES-GENRE-AXIS-HANDOFF` / `FAIL-AES-GENRE-AXIS-EVIDENCE` | `N2-PACKET` / `N6-CONVERGE` / `N7-HANDOFF` | `type_style_profile`、`genre_axis_handoff_profile`、`Genre Axis Classification`、`类型风格.md`、source manifest |
 
 ## Output Contract
 
-Required output: 父级必须输出项目级 `类型风格.md`、当前 scope 的 `美学总览.md` 与 `执行报告.md`；整体调用还要求 6 个子技能各自产出 canonical 协议和执行报告，或返回明确 `blocked/candidate` 状态。`类型风格.md` 与 `画面基调` 的 canonical output 始终是项目级 singleton，其余 5 个子技能在 `episode_scope=第N集` 时按集写回。
+Required output: 父级必须输出项目级 `类型风格.md`、当前 scope 的 `美学总览.md` 与 `执行报告.md`；`类型风格.md` 必须包含 `genre_axis_handoff_profile` 对应的 `Genre Axis Classification`。整体调用还要求 6 个子技能各自产出 canonical 协议和执行报告，或返回明确 `blocked/candidate` 状态。`类型风格.md` 与 `画面基调` 的 canonical output 始终是项目级 singleton，其余 5 个子技能在 `episode_scope=第N集` 时按集写回。
 
-Output format: Markdown。父级 `类型风格.md` 包含题材类型、标志性元素、题材专属表现技巧和下游上下文 handoff；父级 `美学总览.md` 只包含来源、6 路结果矩阵、prompt 索引、依赖缺口、跨风格一致性备注和下游 handoff；父级 `执行报告.md` 包含结构化审计证据。
+Output format: Markdown。父级 `类型风格.md` 包含题材类型、规范化题材轴、标志性元素、题材专属表现技巧和下游上下文 handoff；父级 `美学总览.md` 只包含来源、6 路结果矩阵、prompt 索引、依赖缺口、跨风格一致性备注和下游 handoff；父级 `执行报告.md` 包含结构化审计证据。
 
 Output path: 项目绑定且允许写回时，父级始终写入 `projects/aigc/<项目名>/2-美学/类型风格.md`；再按 scope 写回：`episode_scoped` 写入 `projects/aigc/<项目名>/2-美学/第N集/美学总览.md` 和 `projects/aigc/<项目名>/2-美学/第N集/执行报告.md`；`series_baseline` 写入 `projects/aigc/<项目名>/2-美学/美学总览.md` 和 `projects/aigc/<项目名>/2-美学/执行报告.md`。无项目根时在当前回复中交付候选包并标记 `writeback_status: not_applicable`。
 
 Naming convention: 父级文件固定使用 `类型风格.md`、`美学总览.md` 与 `执行报告.md`；子技能文件名沿用各自 `SKILL.md` 的 Output Contract，不由父级改名。
 
-Completion gate: `overall_parallel` 模式必须有 `type_style_profile`、`类型风格.md`、6 行 dispatch、6 行 result、父级 cross-check、`upstream_context_application_map`、`anti_scripted_suite_audit`、父级 handoff 和完整报告证据；任一子技能 `blocked`、`FAIL-AES-UPSTREAM-CONTEXT`、`FAIL-AES-SCRIPTED-SUITE` 或 `类型风格.md` 缺失时父级不得判定为 `pass`。
+Completion gate: `overall_parallel` 模式必须有 `type_style_profile`、`genre_axis_handoff_profile`、`类型风格.md`、6 行 dispatch、6 行 result、父级 cross-check、`upstream_context_application_map`、`anti_scripted_suite_audit`、父级 handoff 和完整报告证据；任一子技能 `blocked`、`FAIL-AES-UPSTREAM-CONTEXT`、`FAIL-AES-SCRIPTED-SUITE`、`FAIL-AES-GENRE-AXIS-HANDOFF` 或 `类型风格.md` 缺失时父级不得判定为 `pass`。
 
 If project-bound and writeback is authorized, parent outputs:
 
@@ -409,6 +422,7 @@ Required child outputs in `overall_parallel` mode when producing a `series_basel
 
 ## Source Manifest
 ## Type Style Summary
+## Genre Axis Handoff Summary
 ## Subagent Result Matrix
 ## Style Prompt Index
 ## Dependency Gap Matrix
@@ -423,6 +437,7 @@ Required child outputs in `overall_parallel` mode when producing a `series_basel
 
 ## Execution Decision Trace
 ## Type Style Profile Evidence
+## Genre Axis Handoff Evidence
 ## Subagent Dispatch Matrix
 ## Reference Execution Matrix
 ## Upstream Context Application Map
@@ -474,6 +489,7 @@ If no project root is bound, return the same structure in the chat response as a
 
 | source_field | parent_field | downstream_use |
 | --- | --- | --- |
+| `类型风格.md.Genre Axis Classification` | `genre_axis_handoff_profile` / `screenwriting_genre_axis_handoff` | 供 `4-编剧` 选择 `genre_axis`、加载对应 `types/genre/*.md` 或 fallback，并记录 `Type Axis Selection Map` |
 | 6 个 subagent 的 `source_manifest` | `Source Manifest` | 证明 6 路同源或差异来源 |
 | 6 个 subagent 的 prompt | `Style Prompt Index` | 供下游快速继承，不替代原协议 |
 | 6 个 subagent 的 `dependency_gap` | `Dependency Gap Matrix` | 决定是否需要后续顺序校准 |
@@ -489,6 +505,7 @@ If no project root is bound, return the same structure in the chat response as a
 常见失败映射：
 
 - 漏掉任一子技能：修 `Subagent Routing Matrix`、`N3-PARALLEL-FANOUT` 和执行调度，不在父级总览补空段落。
+- `类型风格.md` 只有自然语言题材标签，没有 `Genre Axis Classification`：回 `N2-PACKET` 加载 `references/genre-axis-handoff-contract.md`，补 `genre_axis_handoff_profile`、source anchor 和 `screenwriting_handoff`，不得新建 `2-美学/题材类型/` 子技能规避父级职责。
 - 子技能 blocked：回到对应子技能 `SKILL.md` 的输入或 gate，不由父级代写正文。
 - 画面基调和角色/场景/道具冲突：记录冲突字段，返工相关子技能或标记 candidate，不让父级覆盖局部协议。
 - 父级总览变成第二真源：收缩为索引、摘要、路径和 handoff，并保留子技能 canonical output。

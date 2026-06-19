@@ -45,7 +45,7 @@ flowchart LR
 1. 读取 `SKILL.md + CONTEXT.md`，并加载项目记忆与 `$libTV` 合同。
 2. 从上游道具设计文档抽取 `4. 解构`。
 3. 生成单主体图与 JSON。
-4. 以单主体图为参照，套用 `templates/prop-multiview-prompt.json` 生成多视图图与 JSON。
+4. 多视图默认取消；不套用 `templates/prop-multiview-prompt.json`，不生成 `-多视图` 图与 JSON。
 5. 执行 `review/review-contract.md` 门禁。
 
 ## 质量入口

@@ -8,7 +8,7 @@
 - Naming convention: `第N集.md`; report is `执行报告.md`.
 - Completion gate: `GATE-SCR-01..25` blocking failures are zero, including `GATE-SCR-19` anti-scripted draft audit, `GATE-SCR-21` type style context application, `GATE-SCR-22` subject registry application, `GATE-SCR-23` upstream creative direction matrix, `GATE-SCR-24` scene asset context integration, and `GATE-SCR-25` screenplay mode compliance.
 - Module trigger evidence: cite `reference_load_manifest` and the matching `Module Trigger Matrix` row.
-- Business analysis evidence: include `business_profile`, `screenplay_mode_decision`, explicit `jieshuoju_source_unit_coverage_map` and `jieshuoju_field_variety_map` when `screenplay_mode=jieshuoju`, `upstream_creative_direction_matrix`, `type_style_application_map`, `subject_registry_application_map`, `scene_asset_integration_map` or N/A, and `genre_narrative_profile`.
+- Business analysis evidence: include `business_profile`, `screenplay_mode_decision`, `type_axis_selection`, `screenwriting_type_combination_profile`, explicit `jieshuoju_source_unit_coverage_map` and `jieshuoju_field_variety_map` when `screenplay_mode=jieshuoju`, `upstream_creative_direction_matrix`, `type_style_application_map`, `subject_registry_application_map`, `scene_asset_integration_map` or N/A, `genre_narrative_profile`, `dramatic_intent_map`, `dramatization_gap_map`, `controlled_adaptation_plan` or N/A, and `rewrite_scope_check`.
 - Quant criteria evidence: include source count, beat count, rhythm maps, climax/hook maps, A/V pair count, and same-frame continuity checks.
 - Attention evidence: include drift signals and re-center actions if any.
 - Checkpoint evidence: include `CHK-SCOPE`, `CHK-SEMANTIC`, `CHK-VALIDATION`, `CHK-DARWIN` status.
@@ -23,11 +23,16 @@ episode_id: 第N集
 source_episode_path: projects/aigc/<项目名>/1-分集/第N集.md
 screenplay_mode: zhengju
 screenplay_mode_label: 正剧
+presentation_type_package: types/presentation/正剧.md
+genre_type_package: types/default/default.md
+type_combination_id: zhengjuxgeneric
+type_combination_policy: presentation_axis_x_genre_axis
 type_style_context_path: projects/aigc/<项目名>/2-美学/类型风格.md
 subject_registry_context_path: projects/aigc/<项目名>/3-主体/主体注册表.md
 scene_asset_context_policy: optional_read_only_with_required_map_when_present
 output_path: projects/aigc/<项目名>/4-编剧/第N集.md
 upstream_direction_policy: required
+dramatic_adaptation_policy: source_grounded_controlled_supplement
 narration_policy: zhengju_source_grounded_voice
 jieshuoju_source_unit_policy: required_when_jieshuoju
 jieshuoju_field_variety_policy: required_when_jieshuoju
@@ -54,6 +59,13 @@ review_verdict:
 - narration_policy: `<zhengju_source_grounded_voice | jieshuoju_narration_only>`
 - source_unit_coverage: `<n/a_for_zhengju | required_for_jieshuoju>`
 - field_variety_policy: `<n/a_for_zhengju | required_for_jieshuoju>`
+
+## 类型轴组合
+
+- presentation_type_package: `<types/presentation/正剧.md | types/presentation/解说剧.md>`
+- genre_type_package: `<types/genre/武侠剧.md | types/genre/玄幻剧.md | types/genre/科幻剧.md | types/genre/魔幻剧.md | types/default/default.md>`
+- type_combination_id: `<zhengjuxwuxia | jieshuojuxkehuan | ...>`
+- type_combination_summary: `<声音/字段/节奏/补写/高潮尾钩策略摘要>`
 
 ## 4-编剧交接摘要
 
@@ -107,6 +119,11 @@ review_verdict:
 | screenplay_mode | explicit_mode_signal | default_applied | mode_reason | narration_policy | script_landing_rule |
 | --- | --- | --- | --- | --- | --- |
 
+## Type Axis Selection Map
+
+| presentation_mode | presentation_package | primary_genre_type | genre_package | secondary_genre_types | source_signals | upstream_type_style_basis | confidence | conflict_state | fallback_policy |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+
 ## Reference Load Manifest
 
 ## Execution Decision Trace
@@ -134,6 +151,11 @@ review_verdict:
 | type_style_context_path | inherited_genre_rule | signature_element | expression_technique | local_script_decision | preservation_check | verdict |
 | --- | --- | --- | --- | --- | --- | --- |
 
+## Screenwriting Type Combination Profile
+
+| combination_id | selected_presentation_strategy | selected_genre_strategy | combined_voice_and_field_strategy | combined_rhythm_strategy | combined_dramatization_strategy | combined_climax_hook_strategy | boundary_checks | report_landing |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+
 ## Subject Registry Application Map
 
 | subject_registry_context_path | subject_type | registry_id_or_name | canonical_name_used | alias_or_source_name | script_landing | drift_check |
@@ -150,6 +172,21 @@ review_verdict:
 | --- | --- | --- | --- | --- |
 
 ## Genre Narrative Profile
+
+## Dramatic Intent Map
+
+| source_anchor | dramatic_function | audience_need | character_pressure | must_preserve | script_implication |
+| --- | --- | --- | --- | --- | --- |
+
+## Dramatization Gap Map
+
+| source_anchor | gap_type | viewer_risk | allowed_operation | script_landing | n/a_reason |
+| --- | --- | --- | --- | --- | --- |
+
+## Controlled Adaptation Plan
+
+| operation | added_or_adjusted_material | source_basis | preservation_check | authorization_status | downstream_impact |
+| --- | --- | --- | --- | --- | --- |
 
 ## Source To Script Map
 
@@ -189,6 +226,14 @@ review_verdict:
 ## Episode Final Image Map
 
 ## Continuity Detail Map
+
+| script_landing | detail_type | continuity_need | source_or_gap_basis | downstream_need | verdict |
+| --- | --- | --- | --- | --- | --- |
+
+## Rewrite Scope Check
+
+| changed_material | scope_type | preserved_fact | risk_level | authorization_status | verdict |
+| --- | --- | --- | --- | --- | --- |
 
 ## Review Verdict
 

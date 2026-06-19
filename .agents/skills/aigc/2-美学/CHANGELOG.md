@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-06-19
+
+- 新增 `references/genre-axis-handoff-contract.md`，将 `类型风格.md` 的题材判断规范化为 `genre_axis_handoff_profile` 与 `Genre Axis Classification`。
+- 明确 `2-美学` 不创建 `题材类型/` 子技能包；题材归属由父级 `类型风格.md` 确立，`4-编剧` 消费 `primary_genre_axis` 后再组合自身 `types/` 策略。
+- 同步 `SKILL.md` 的 N2/N6/N7、Module Loading Matrix、Convergence Contract、Review Gate Binding、Output Contract、Field Mapping 与 `CONTEXT.md` 的 `TM-AES-13`。
+
 ## 2026-06-15
 
 - 新增 `Style Dimension Taxonomy Contract`，将 6 路子技能的核心风格维度、校准锚点、边界负面和下游 handoff 分层治理。

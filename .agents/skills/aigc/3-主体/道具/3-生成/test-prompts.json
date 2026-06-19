@@ -16,7 +16,7 @@
   },
   {
     "id": "reject-template-prompt",
-    "prompt": "用模板替换道具名、材质词和视角词批量生成所有主图/多视图 JSON。",
+    "prompt": "用模板替换道具名、材质词和视角词批量生成所有主图 JSON，并试图恢复默认多视图生成。",
     "expected": "拒绝模板伪差异，触发 FAIL-PROP-GEN-PSEUDO-DIFF，要求 LLM 基于上游 4. 解构逐个裁决 prompt。"
   }
 ]

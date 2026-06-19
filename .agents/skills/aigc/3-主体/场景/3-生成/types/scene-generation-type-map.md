@@ -13,8 +13,8 @@ generation_profile:
   project_root: ""
   source_design_documents: []
   target_subjects: []
-  mode: single_scene | batch_scene | main_only | multiview_only | reuse_existing_asset | state_variant_generation | repair | review_only
-  libtv_canvas_mode: canvas_image_node | canvas_image_node_with_reference | external_provider_explicit
+  mode: single_scene | batch_scene | main_only | multiview_only_blocked | reuse_existing_asset | state_variant_generation | repair | review_only
+  libtv_canvas_mode: canvas_image_node | external_provider_explicit
   canvas_name_hint: "<项目名>-第<集数>集"
   canvas_uuid: ""
   model_display_name: Midjourney V8.1
@@ -34,20 +34,20 @@ generation_profile:
   midjourney_suffix: "--ar 16:9 --hd --style raw"
   output_conflict_policy: version | overwrite_with_permission | skip
   needs_main_image: true
-  needs_multiview: true
+  needs_multiview: false
   existing_main_image: ""
   reference_images: []
-  reference_context_status: pending_libtv_node_reference | linked_in_libtv_canvas | no_reference_image
+  reference_context_status: disabled_multiview | no_reference_image
 ```
 
 ## Mode Matrix
 
 | type_id | trigger | required source | route | output |
 | --- | --- | --- | --- | --- |
-| `TYPE-SCENE-GEN-01` | Single scene design doc | One upstream design document | Step1 then Step2 | Main image/JSON and multi-view image/JSON |
-| `TYPE-SCENE-GEN-02` | Multiple scene design docs | List of upstream design documents | Repeat Step1/Step2 per doc | Batch asset set |
+| `TYPE-SCENE-GEN-01` | Single scene design doc | One upstream design document | Step1 main only | Main image/JSON |
+| `TYPE-SCENE-GEN-02` | Multiple scene design docs | List of upstream design documents | Repeat Step1 main only per doc | Batch main asset set |
 | `TYPE-SCENE-GEN-03` | Main image only | Upstream design document | Step1 only | Main image/JSON |
-| `TYPE-SCENE-GEN-04` | Multi-view only | Upstream design document and existing main image | Step2 only | Multi-view image/JSON |
+| `TYPE-SCENE-GEN-04` | Multi-view only | Upstream design document and existing main image | blocked by cancellation contract | cancellation evidence |
 | `TYPE-SCENE-GEN-07` | Same subject same state already exists | Existing local or canvas subject image | Reuse or upload; skip generation | Canvas node + JSON evidence |
 | `TYPE-SCENE-GEN-08` | Same subject new state | Existing same-subject reference image | Lib Image state variant | State-suffix image/JSON |
 | `TYPE-SCENE-GEN-05` | Repair missing JSON or misplaced image | Existing asset plus source doc | Mechanical repair, optional regeneration | Completed pair or versioned replacement |
@@ -58,7 +58,7 @@ generation_profile:
 | profile signal | steps impact | references impact | review impact |
 | --- | --- | --- | --- |
 | `needs_main_image=true` | Must execute `N4-MAIN` and `N5-MAIN-JSON` | Enforce Step1 Main Image Contract | Check main image path and same-name JSON |
-| `needs_multiview=true` | Must execute `N6-MULTIVIEW` and `N7-MULTIVIEW-JSON` | Enforce Step2 Multi-View Contract, including same-canvas `reference_node_name` | Check reference main image node continuity and context status |
+| `needs_multiview=true` | Block and return to Multiview Cancellation Contract | Enforce multi-view cancellation | Check no multi-view gap or output is required |
 | `existing_main_image` present | May skip Step1 only if path is readable, role is clear, and the corresponding libTV node can be resolved or recreated by name | Treat as user-provided continuity anchor | Verify source pairing and node name in JSON |
 | `asset_reuse_decision=reuse_existing_asset` | Skip image generation and reuse same-canvas node | Enforce shared existing asset rule | Check `generation_skipped`, `canvas_action`, node name and `local_sync_status` |
 | `asset_reuse_decision=upload_existing_asset` | Upload local existing image to target canvas under the canonical node name | Enforce libTV upload contract | Check uploaded node name equals asset stem and local canonical copy exists |
@@ -80,7 +80,7 @@ flowchart TD
     D -->|"No"| Z["FAIL-SCENE-GEN-01"]
     D -->|"Yes"| E{"Requested output"}
     E -->|"main only"| F["mode=main_only"]
-    E -->|"multiview only + main exists"| G["mode=multiview_only"]
+    E -->|"multiview only + main exists"| G["mode=multiview_only_blocked"]
     E -->|"repair existing"| H["mode=repair"]
     E -->|"review only"| I["mode=review_only"]
     E -->|"default"| J["mode=single_scene or batch_scene"]

@@ -29,19 +29,21 @@ last_checked_at: 2026-06-04
 | `TM-AES-10` | 单集 2-美学执行把场景/角色/道具/分镜/摄影风格全部写到项目级路径，导致不同集互相覆盖 | output scope 漂移 | 若来源或目标是 `第N集`，5 个非画面基调子技能写入 `2-美学/第N集/<子技能>/`，父级总览写入 `2-美学/第N集/` | `SKILL.md` 固定 Output Object Scope Contract | `subagent_result_matrix.canonical_output` 对应当前 `episode_scope`，且 `画面基调` 仍在全局路径 |
 | `TM-AES-11` | 为每集复制一份 `画面基调/全局风格协议.md` | global singleton 误读 | 删除逐集画面基调写回要求；报告只记录单集样本范围或候选状态 | `画面基调` 子技能声明 global singleton，不支持 `2-美学/第N集/画面基调/` | 路径扫描无逐集 `画面基调` canonical 要求 |
 | `TM-AES-12` | 子技能把艺术家锚点、负面禁区、prompt 摘要或下游执行项混入核心风格维度，导致维度专业性不稳 | dimension taxonomy drift | 回到父级 `Style Dimension Taxonomy Contract`，把核心维度、校准锚点、边界负面和 handoff 分层；各子技能只在 `N4` 写自身拥有的风格属性 | 父级 `SKILL.md` 固定分层合同；子技能 `N4` 维度表只含 owning layer 属性 | `rg` 检查核心维度不再把锚点/负面/执行项混作同层真源 |
+| `TM-AES-13` | `类型风格.md` 只写“武侠/玄幻/科幻”等自然语言标签，`4-编剧` 无法稳定选择 `genre_axis` | 题材归属交接缺少 schema，误把题材包放到美学子技能层 | 回到父级 `N2-PACKET`，加载 `references/genre-axis-handoff-contract.md`，补 `genre_axis_handoff_profile` 和 `Genre Axis Classification` | `SKILL.md` 固定 `GATE-AES-11`、`N2A-GENRE-AXIS-HANDOFF` 和题材轴 handoff 字段；不创建 `2-美学/题材类型/` 子技能 | `primary_genre_axis`、`source_anchor_evidence`、`screenwriting_handoff` 均存在，并能被 `4-编剧/types/type-map.md` 消费 |
 
 ## Repair Playbook
 
 1. 先判断用户是否真的整体调用：出现 `2-美学`、`美学系列整体`、`全套美学`、`完整美学阶段` 等信号，默认 `overall_parallel`。
-2. 整体调用时不要推理“画面基调应该先跑所以先跑一个”；用户已明确 6 个 subagents 并发，依赖问题写入 `dependency_gap_matrix`。
-3. 若漏掉任一子技能，不在父级总览补空白字段；必须返工调度缺失 subagent。
-4. 若某个子技能 blocked，父级 verdict 不能写 `pass`；应写 `blocked` 或 `partial/candidate` 并指向该子技能 fail code。
-5. 父级只聚合 `路径、状态、摘要、prompt index、dependency gap、handoff`，不要改写子技能协议正文。
-6. 当风格冲突跨子技能出现时，优先定位冲突字段和拥有真源的子技能；父级只提出返工目标，不直接合并文本。
-7. 用户指出“脚本化/偷懒/未思考/未差异化”时，父级不要做表层整合润色；先跑 `anti_scripted_suite_audit`，再把失败项返给对应 subagent 源层重做。
-8. 单子技能或部分子技能请求不自动补齐 6 个，除非用户明确说“整体”“全套”“完整阶段”。
-9. 下游 handoff 必须同时给出“继承什么”和“不继承什么”，避免设计、图像或视频阶段拿父级摘要替代局部协议。
-10. 单集执行时先锁 `episode_scope`：`画面基调` 不分集，其他 5 个子技能优先写 `2-美学/第N集/<子技能>/`；整季或项目级基线才写回非逐集目录。
+2. 进入 6 路 fan-out 前，先让父级 `N2` 产出 `type_style_profile` 和 `genre_axis_handoff_profile`；题材归属由父级 `类型风格.md` 确立，`4-编剧` 只消费规范化题材轴并组合自己的 `types/` 策略。
+3. 整体调用时不要推理“画面基调应该先跑所以先跑一个”；用户已明确 6 个 subagents 并发，依赖问题写入 `dependency_gap_matrix`。
+4. 若漏掉任一子技能，不在父级总览补空白字段；必须返工调度缺失 subagent。
+5. 若某个子技能 blocked，父级 verdict 不能写 `pass`；应写 `blocked` 或 `partial/candidate` 并指向该子技能 fail code。
+6. 父级只聚合 `路径、状态、摘要、prompt index、dependency gap、handoff`，不要改写子技能协议正文。
+7. 当风格冲突跨子技能出现时，优先定位冲突字段和拥有真源的子技能；父级只提出返工目标，不直接合并文本。
+8. 用户指出“脚本化/偷懒/未思考/未差异化”时，父级不要做表层整合润色；先跑 `anti_scripted_suite_audit`，再把失败项返给对应 subagent 源层重做。
+9. 单子技能或部分子技能请求不自动补齐 6 个，除非用户明确说“整体”“全套”“完整阶段”。
+10. 下游 handoff 必须同时给出“继承什么”和“不继承什么”，避免设计、图像或视频阶段拿父级摘要替代局部协议。
+11. 单集执行时先锁 `episode_scope`：`画面基调` 不分集，其他 5 个子技能优先写 `2-美学/第N集/<子技能>/`；整季或项目级基线才写回非逐集目录。
 
 ## Reusable Heuristics
 
@@ -54,6 +56,8 @@ last_checked_at: 2026-06-04
 - 父级最容易误把“六路格式统一”看成治理一致；格式可以统一，句式、锚点和审美判断不能由同一模板替换生成。
 - `画面基调` 是全片底层渲染协议，保持项目级 singleton；单集差异由场景、角色、道具、分镜和摄影 5 类风格覆盖承接。
 - 核心风格维度只放 owning layer 的专业属性；艺术家/作品/工作室锚点进入 calibration matrix，负面项进入 `Negative Traits` 或扫描报告，下游继承进入 handoff，不要混成同一组维度。
+- `2-美学` 负责确立项目级题材归属与规范化题材轴，`4-编剧` 负责消费该轴并完成“呈现方式 x 题材类型”的编剧策略组合；同一个题材标签在两阶段的职责不同。
+- 暂不建立 `2-美学/题材类型/` 子技能包；当前最佳形态是父级 `类型风格.md` 加 `references/genre-axis-handoff-contract.md`，防止美学阶段超载到创作细节，又给编剧足够稳定的类型入口。
 
 ## Parent-Child Boundary Notes
 
@@ -63,4 +67,4 @@ last_checked_at: 2026-06-04
 - `道具风格` 拥有道具层风格协议，不拥有具体道具清单或单件设计。
 - `摄影风格` 拥有观看方式、构图秩序、景别、机位和运动纪律，不拥有分镜正文或视频生成参数。
 - `分镜风格` 拥有节奏、镜头组合和连接语法，不拥有具体分镜镜头表。
-- 父级 `2-美学` 拥有路由、汇流、冲突审查和 handoff，不拥有上述任何局部协议正文真源。
+- 父级 `2-美学` 拥有路由、汇流、冲突审查、`类型风格.md` 和题材轴 handoff，不拥有上述任何局部协议正文真源，也不通过 `题材类型/` 子技能承接编剧创作细节。

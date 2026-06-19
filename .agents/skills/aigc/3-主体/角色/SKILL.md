@@ -57,7 +57,7 @@ metadata:
 | field | requirement | evidence | fail_code |
 | --- | --- | --- | --- |
 | `business_goal` | 把角色域任务稳定路由到正确叶子，并保护 `1-清单 -> 2-设计 -> 3-生成` 的上游/下游真源顺序。 | 用户请求、目标路径、现有角色域文件、subject registry 与 design-manifest 状态。 | `FAIL-CHAR-GROUP-BUSINESS-GOAL` |
-| `business_object` | 角色清单、角色细目设计稿、角色主图/多视图及同名 JSON prompt、域级 manifest。 | `projects/aigc/<项目名>/3-主体/角色/` 目录、叶子输出路径、叶子 SKILL 合同。 | `FAIL-CHAR-GROUP-BUSINESS-OBJECT` |
+| `business_object` | 角色清单、角色细目设计稿、角色主图及同名 JSON prompt、域级 manifest；多视图默认取消。 | `projects/aigc/<项目名>/3-主体/角色/` 目录、叶子输出路径、叶子 SKILL 合同。 | `FAIL-CHAR-GROUP-BUSINESS-OBJECT` |
 | `constraint_profile` | 本 worker 和本组根均不得越权主创或写入 `场景/`、`道具/`、父级 `3-主体/SKILL.md`；创作正文由叶子 LLM-first 节点完成。 | 用户范围限制、根 AGENTS、叶子 Output Contract。 | `FAIL-CHAR-GROUP-CONSTRAINT` |
 | `success_criteria` | 命中唯一叶子或明确顺序链最早缺口；未命中叶子无占位输出；域级总结能指向叶子验收证据。 | selected_mode、loaded_leaf_manifest、domain_summary、rework_target。 | `FAIL-CHAR-GROUP-SUCCESS` |
 | `complexity_source` | 复杂度来自阶段混合输入、增量上游、既有资产保护、命名漂移、叶子顺序门和脚本主创越权风险。 | mode 判定记录、reconcile_delta、design-manifest、叶子 review verdict。 | `FAIL-CHAR-GROUP-COMPLEXITY` |

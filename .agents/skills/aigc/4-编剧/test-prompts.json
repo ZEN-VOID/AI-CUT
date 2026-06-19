@@ -2,12 +2,17 @@
   {
     "id": "single-episode-novel-to-screenplay",
     "prompt": "使用 $aigc-screenwriting，把 projects/aigc/示例项目/1-分集/第1集.md、projects/aigc/示例项目/2-美学/类型风格.md 和 projects/aigc/示例项目/3-主体/主体注册表.md 改编为短剧剧本，保留剧情事实和主体命名，同时补节奏承托、声画同步、高潮和尾钩。",
-    "expected": "读取 4-编剧 SKILL.md + CONTEXT.md，加载项目记忆、2-美学/类型风格.md、3-主体/主体注册表.md 和 8 个 copied references；未显式指定模式时锁定 screenplay_mode=zhengju；输出 4-编剧/第1集.md 与执行报告；报告包含 Screenplay Mode Decision、Execution Decision Trace、Reference Execution Matrix、Upstream Context Application Map、Upstream Creative Direction Matrix、Type Style Application Map、Subject Registry Application Map、Rule Evidence Map、N/A Justification、Repair Log、genre_narrative_profile、rhythm_strategy_map、audio_visual_pairing_map、same_frame_continuity_map、climax_treatment_map、episode_final_image_map 和 GATE-SCR review verdict。"
+    "expected": "读取 4-编剧 SKILL.md + CONTEXT.md，加载项目记忆、2-美学/类型风格.md、3-主体/主体注册表.md 和 8 个 copied references；未显式指定模式时锁定 screenplay_mode=zhengju，并按 types/type-map.md 生成 type_axis_selection 与 screenwriting_type_combination_profile；输出 4-编剧/第1集.md 与执行报告；报告包含 Screenplay Mode Decision、Type Axis Selection Map、Screenwriting Type Combination Profile、Execution Decision Trace、Reference Execution Matrix、Upstream Context Application Map、Upstream Creative Direction Matrix、Type Style Application Map、Subject Registry Application Map、Dramatic Intent Map、Dramatization Gap Map、Controlled Adaptation Plan、Continuity Detail Map、Rewrite Scope Check、Rule Evidence Map、N/A Justification、Repair Log、genre_narrative_profile、rhythm_strategy_map、audio_visual_pairing_map、same_frame_continuity_map、climax_treatment_map、episode_final_image_map 和 GATE-SCR review verdict。"
   },
   {
     "id": "rhythm-repair",
     "prompt": "第3集剧本太像小说复述，节奏弱，高潮平，尾钩没有吸引力。按 4-编剧 规则修复。",
     "expected": "路由 rhythm_repair，回到 N2/N4/N5，使用 scene-rhythm、directorial-authorship、climax、episode-final-image 和 short-drama rhythm contract；不改上游事实，输出最小修复和 review 复审证据，并在 Reference Execution Matrix 中记录每份触发细则的 applied_to/evidence_in_output 或 n/a_reason。"
+  },
+  {
+    "id": "dramatic-adaptation-repair",
+    "prompt": "第2集剧本字段齐全，但只是把小说按标题排了一遍，人物为什么行动、场景怎么过渡、心理怎么被看见都不顺。按 4-编剧 的父级共享能力修复，不要擅自改结局。",
+    "expected": "路由 dramatic_adaptation_repair 或等价修复路径，回到 N2/N3/N6；先建立 Dramatic Intent Map 和 Dramatization Gap Map，识别 source beat 的戏剧功能、观众需求、角色压力和影视化缺口；再生成 Controlled Adaptation Plan、Continuity Detail Map 与 Rewrite Scope Check，允许外化心理、补过渡、补动机触发、补场面阻力、调整观众信息释放、删并拆分或补下游状态，但不得未经授权改变核心事实、人物关系、因果链和事件结果；触发 GATE-SCR-11、GATE-SCR-12、GATE-SCR-16。"
   },
   {
     "id": "review-only-overreach",
@@ -25,8 +30,13 @@
     "expected": "正式主链必须建立 scene_asset_context_manifest 和 Scene Asset Integration Map；已有场景设计/场景图只能只读用于场景标题、环境白描、空间连续性和 AIGC handoff，不得覆盖 1-分集事实、改主体注册表、复制图像 prompt、写机位/景别/运镜或生成参数；触发 GATE-SCR-24，失败时返回 FAIL-SCR-SCENE-ASSET-CONTEXT。"
   },
   {
+    "id": "type-axis-combination-jieshuoju-wuxia",
+    "prompt": "使用 $aigc-screenwriting，以解说剧方式改编第6集；2-美学/类型风格.md 已确认主题材为武侠剧。不要创建子技能，把呈现方式和题材类型都放在 types/ 下处理，并让最终剧本体现“解说剧 x 武侠剧”的组合结果。",
+    "expected": "N1 必须锁定 presentation_axis=jieshuoju，N2 必须从 2-美学/类型风格.md 继承 genre_axis=wuxia，加载 types/type-map.md、types/presentation/解说剧.md 和 types/genre/武侠剧.md；必须输出 type_axis_selection、presentation_type_profile、genre_type_profile 与 screenwriting_type_combination_profile。组合画像必须说明解说剧的旁白/旁白画面、source 单元覆盖和字段节奏如何与武侠剧的江湖压力、门派/兵器/侠义材料、武打场面承托、高潮尾钩材料结合；不得把武侠题材包升级为子技能，不得让 types/ 改写父级输出路径、review gate 或 source 保真边界；触发 C2F-TYPE-AXIS-COMBINED、GATE-SCR-03、GATE-SCR-16 和 GATE-SCR-25。"
+  },
+  {
     "id": "jieshuoju-mode-narration",
     "prompt": "使用 $aigc-screenwriting，以解说剧模式改编 projects/aigc/示例项目/1-分集/第2集.md，完全按照故事源内容处理，陈述性部分全部作为旁白和旁白画面。",
-    "expected": "N1 必须锁定 screenplay_mode=jieshuoju 并记录 explicit_mode_signal；N3 必须先建立 jieshuoju_source_unit_coverage_map，覆盖 source_dialogue、visible_action、environment_state、declarative_fact、background_exposition、time_bridge、relationship_state、result_summary、rule_or_system_info、mixed_action_declaration 等 source 单元类型；上游已有对白仍逐字冻结为对白，可见动作/环境不被过度旁白化；所有陈述性 source 信息必须在 coverage map 和 narration_to_voice_adaptation_map 中标记 mode_policy=jieshuoju_narration_only，并落到 旁白（叙述者/指定主体）+ 旁白画面；还必须建立 jieshuoju_field_variety_map，正文不得出现【开场定调】等方括号叙事小标题，含 3 条及以上旁白对的场景必须有环境描写、角色动作、动作画面、场面调度、群像画面、道具特写、系统画面、规则显影、音效画面或转场等非旁白视觉字段承托，不得连续 4 组以上无承托旁白对；不得把陈述性 source 改写为派生对白/独白/内心独白，不得 summary/fact_drop/cause_reorder；触发 GATE-SCR-25，失败时返回 FAIL-SCR-SCREENPLAY-MODE 或 FAIL-SCR-JIESHUOJU-FIELD-MONOTONY。"
+    "expected": "N1 必须锁定 screenplay_mode=jieshuoju 并记录 explicit_mode_signal，同时生成 presentation_axis=jieshuoju 的 type_axis_selection；N3 必须先建立 jieshuoju_source_unit_coverage_map，覆盖 source_dialogue、visible_action、environment_state、declarative_fact、background_exposition、time_bridge、relationship_state、result_summary、rule_or_system_info、mixed_action_declaration 等 source 单元类型；上游已有对白仍逐字冻结为对白，可见动作/环境不被过度旁白化；所有陈述性 source 信息必须在 coverage map 和 narration_to_voice_adaptation_map 中标记 mode_policy=jieshuoju_narration_only，并落到 旁白（叙述者/指定主体）+ 旁白画面；还必须建立 jieshuoju_field_variety_map，正文不得出现【开场定调】等方括号叙事小标题，含 3 条及以上旁白对的场景必须有环境描写、角色动作、动作画面、场面调度、群像画面、道具特写、系统画面、规则显影、音效画面或转场等非旁白视觉字段承托，不得连续 4 组以上无承托旁白对；不得把陈述性 source 改写为派生对白/独白/内心独白，不得 summary/fact_drop/cause_reorder；报告必须包含 Type Axis Selection Map 和 Screenwriting Type Combination Profile；触发 GATE-SCR-25，失败时返回 FAIL-SCR-SCREENPLAY-MODE 或 FAIL-SCR-JIESHUOJU-FIELD-MONOTONY。"
   }
 ]

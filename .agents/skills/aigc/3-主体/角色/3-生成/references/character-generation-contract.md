@@ -18,7 +18,7 @@
 - 项目绑定产物必须持久化到工作区输出目录，不得只保留在临时生成目录。
 - 普通新主体默认模型为 `Midjourney V8.1`；执行前必须解析画布 UUID 和 modelKey，并拼接角色图 `--ar 9:16 --hd --style raw` 后缀。
 - 生成前必须扫描 `projects/aigc/<项目名>/3-主体`：同主体同状态已有图则跳过生成；本地已有图仅在当前画布缺同名节点时上传为画布同名节点；同主体新状态必须用 `Lib Image` 和既有参考图生成带状态后缀的变体。
-- 第 N 集画布上生成或复用的角色主图/多视图节点必须用 `libtv download` 同步到 `projects/aigc/<项目名>/3-主体/角色/3-生成/`，或证明本地 canonical 文件已存在。
+- 第 N 集画布上生成或复用的角色主图节点必须用 `libtv download` 同步到 `projects/aigc/<项目名>/3-主体/角色/3-生成/`，或证明本地 canonical 文件已存在；多视图已取消，不再作为本合同的同步对象。
 
 ## Step Outputs
 
@@ -31,17 +31,15 @@ Step1 main image:
 
 Step2 multi-view sheet:
 
-- Input: Step1 主图作为 reference image，加上 `templates/character-multiview-prompt-template.json`。
-- Output image: `<主体ID>-<主体名称>-多视图.<ext>`。
-- Output JSON: `<主体ID>-<主体名称>-多视图.json`。
-- Purpose: 生成同一角色的多视图主体设计图，服务后续资产、服装、镜头和制作审阅。
-- libTV same-canvas image node gate: Step1 主图必须是当前 libTV 画布中的同名图片节点；若主图只在本地，先用 `libtv upload "<节点名>" -p <canvas_uuid> -f <local_path>` 上传。多视图 JSON 必须记录 `reference_node_name` 与 `reference_context_status: linked_in_libtv_canvas`。`prompt_only` 可记录 `pending_libtv_node_reference`，但不得声称已完成参考图生成。
+- Status: cancelled by `Multiview Cancellation Contract`。
+- Default action: 不加载多视图模板，不生成 `<主体ID>-<主体名称>-多视图.<ext>`，不写 `<主体ID>-<主体名称>-多视图.json`。
+- Purpose: 历史说明；不参与默认输出、缺口、同步或 review gate。
 
 ## Prompt Authorship Boundary
 
 - 主图 JSON 的 `prompt_text` 必须直接采用或轻量包装设计文档 `4. 解构`，但不得新增主体设定；不得继续使用旧 `提示词设计` 英文整合 prompt 作为 Midjourney V8.1 或 Lib Image 导入源。
-- 多视图 JSON 的 `critical_requirements` 允许直接引用角色设计文档中的 `4. 解构`，并把该文本作为设计真源。
-- 模板负责布局、模块和一致性，不负责创造角色身份、服装事实、时代设定或叙事压力。
+- 多视图 JSON 已取消，不再作为 prompt 作者性检查对象。
+- 模板负责 JSON 结构，不负责创造角色身份、服装事实、时代设定或叙事压力。
 - 脚本不得生成 prompt_text；脚本只允许复制、校验、汇总已有 prompt 字段，不得批量生成、批量插入、正则套句或映射投影创作提示词。
 
 ## Non-Goals
@@ -59,14 +57,11 @@ Step2 multi-view sheet:
 | 主图 JSON 的 `prompt_text` 是否只直接采用或轻量包装 `4. 解构`，没有新增身份、服装、时代、气质或叙事事实，也没有回退使用旧 `提示词设计` 英文整合 prompt？ | `GATE-CHAR-GEN-02` | `FAIL-PROMPT-DRIFT` | `N3-MAIN-JSON` | 报告主图 JSON 路径、`prompt_source: source_deconstruction_section`、旧英文 prompt 未使用结论和漂移 finding。 |
 | 默认执行器是否仍锁定 `.agents/skills/cli/libTV`，未获用户本轮显式授权时没有切到 nano-banana、seedream、AnyFast 或其他图像 API？ | `GATE-CHAR-GEN-10` | `FAIL-EXECUTOR-DRIFT` | `N1-INTAKE` | 报告 `libtv_canvas_mode`、执行器名称、用户授权原文或 `default_executor: .agents/skills/cli/libTV`。 |
 | 是否在生成前扫描 `projects/aigc/<项目名>/3-主体` 并保护同主体同状态资产？ | `GATE-CHAR-GEN-12` | `FAIL-ASSET-REUSE` | `N9-RECONCILE` | 报告 `asset_reuse_decision`、`existing_asset_path`、`generation_skipped`、`canvas_action`；仅当当前画布缺同名节点且发生上传时记录上传节点名。 |
-| 角色主体图是否已确保存在于项目 `角色/3-生成/`？ | `GATE-CHAR-GEN-14` | `FAIL-CHAR-GEN-LOCAL-SYNC` | `N4-MAIN-IMAGE` / `N6-MULTIVIEW-IMAGE` | 报告 `local_sync_required`、`local_sync_action`、`local_sync_status`、`local_asset_path`、下载分支的 `download_command` / `download_stdout_path`，并检查本地文件 stem 与 libTV 节点名一致；本地 canonical 已有时允许 `already_present`。 |
+| 角色主图是否已确保存在于项目 `角色/3-生成/`？ | `GATE-CHAR-GEN-14` | `FAIL-CHAR-GEN-LOCAL-SYNC` | `N4-MAIN-IMAGE` | 报告 `local_sync_required`、`local_sync_action`、`local_sync_status`、`local_asset_path`、下载分支的 `download_command` / `download_stdout_path`，并检查本地文件 stem 与 libTV 节点名一致；本地 canonical 已有时允许 `already_present`。 |
 | 同主体新状态是否使用 `Lib Image`、既有参考图和状态后缀命名？ | `GATE-CHAR-GEN-13` | `FAIL-STATE-VARIANT` | `N9-RECONCILE` / `N4-MAIN-IMAGE` | 报告 `generation_model_policy: lib_image_state_variant`、`variant_model_key`、`state_variant_suffix`、`base_reference_node_name`。 |
 | 若 libTV 无法真实生成，是否进入 `prompt_only` 并清楚报告阻断原因，而不是声称图片已生成？ | `GATE-CHAR-GEN-07` | `FAIL-PROMPT-ONLY-CLAIM` | `N7-REVIEW` | 报告 `mode: prompt_only`、`blocked_reason`、空图片路径或 planned path，并列出已落盘 JSON。 |
 | 真实生成模式下，主图是否以 `<主体ID>-<主体名称>-主图.<ext>` 存在于 `projects/aigc/<项目名>/3-主体/角色/3-生成/`，并可作为 continuity anchor？ | `GATE-CHAR-GEN-03` | `FAIL-MAIN-IMAGE` | `N4-MAIN-IMAGE` | 报告 `main_image_path`、文件存在检查、主图 JSON 的 `output_image_path`。 |
-| 主图与多视图 JSON / 图片命名是否都遵守 `<主体ID>-<主体名称>-主图/多视图`，且 JSON 中 `subject_id` 与文件名前缀一致？ | `GATE-CHAR-GEN-06` | `FAIL-NAMING` | `N7-REVIEW` | 报告四类产物路径、basename 对照、`subject_id` 一致性检查。 |
-| 多视图 JSON 是否以 Step1 主图作为 `reference_image_path`，且没有跨角色复用参照图？ | `GATE-CHAR-GEN-04` | `FAIL-REFERENCE` | `N5-MULTIVIEW-JSON` | 报告 `reference_image_path`、对应 `main_image_path`、角色名/subject_id 配对结果。 |
-| 真实生成多视图前，对应主图是否已是同一 libTV 画布中的图片节点，且 JSON / 报告记录 `reference_context_status: linked_in_libtv_canvas`？ | `GATE-CHAR-GEN-09` | `FAIL-REFERENCE-CONTEXT` | `N5-MULTIVIEW-JSON` | 报告 `reference_node_name`、`reference_context_status`、多视图 JSON 路径。 |
-| 真实生成模式下，多视图图片是否以 `<主体ID>-<主体名称>-多视图.<ext>` 存在于 canonical 输出目录？ | `GATE-CHAR-GEN-05` | `FAIL-MULTIVIEW-IMAGE` | `N6-MULTIVIEW-IMAGE` | 报告 `multiview_image_path`、文件存在检查、多视图 JSON 的 `output_image_path`。 |
-| 多视图模板是否只负责布局、模块和一致性，没有创造或覆盖角色身份、服装事实、时代设定或叙事压力？ | `GATE-CHAR-GEN-02` | `FAIL-PROMPT-DRIFT` | `N5-MULTIVIEW-JSON` | 报告多视图 JSON 的 `critical_requirements` 来源、`4. 解构` 回指和模板边界 finding。 |
+| 主图 JSON / 图片命名是否遵守 `<主体ID>-<主体名称>-主图`，且 JSON 中 `subject_id` 与文件名前缀一致？ | `GATE-CHAR-GEN-06` | `FAIL-NAMING` | `N7-REVIEW` | 报告主图产物路径、basename 对照、`subject_id` 一致性检查。 |
+| 是否遵守多视图取消合同，未生成、补齐、下载或验收 `-多视图`？ | `GATE-CHAR-GEN-04` | `FAIL-REFERENCE` | `Multiview Cancellation Contract` | 报告 cancellation evidence；历史多视图缺失不计失败。 |
 | 本阶段是否没有修改上游 `2-设计`、registry、父级 skill、场景/道具/视频/分镜目录，也没有把多视图做成 3x3 分镜、战斗动作集或泛化海报？ | `GATE-CHAR-GEN-08` | `FAIL-WRITE-BOUNDARY` | `N7-REVIEW` | 报告 `changed_files`，并确认全部位于 `projects/aigc/<项目名>/3-主体/角色/3-生成/` 或允许的执行报告路径。 |
 | 脚本是否只承担复制、校验或汇总已有字段，没有生成、改写、批量插入、正则套句或映射投影 `prompt_text` 创作正文？ | `GATE-CHAR-GEN-11` | `FAIL-SCRIPT-AUTHORSHIP` | `N3-MAIN-JSON` | 报告脚本使用范围、生成 prompt 的 LLM/source owner、无脚本主创结论。 |

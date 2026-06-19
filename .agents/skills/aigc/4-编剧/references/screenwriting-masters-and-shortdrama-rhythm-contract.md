@@ -135,16 +135,21 @@ rhythm_strategy:
 | `public-witness-shift` | 逆袭、职场、家族 | 群体态度改变一瞬间，下一集承接公开后果 |
 | `mini-easter-egg` | 过渡集或信息铺垫集 | 正片结束后 1-3 秒出现小异常，必须能接下一集 |
 
-## Detail Supplement Rules
+## Controlled Dramatized Supplement Rules
 
-必要细节补充只允许服务以下目标：
+必要细节补充不是装饰性加戏，而是把 source 中已经存在但影视观看不足的戏剧功能落成可见、可听、可演、可连续消费的剧本材料。
 
-- 补足人物行动的起因、对象、阻碍或结果。
-- 让空间转换、时间跳跃、信息传递更连贯。
-- 让 AIGC 下游知道角色、物件、地点、声音和情绪的当前状态。
+允许服务以下目标：
+
+- 补足人物行动的起因、对象、阻碍、触发点或结果承托。
+- 让空间转换、时间跳跃、信息传递、因果承接更连贯。
 - 把小说抽象心理转成可见、可听、可演的场内材料。
+- 用群像、道具、声音、沉默、站位或转场承托压迫、误解、反击、确认和尾钩。
+- 让 AIGC 下游知道角色、物件、地点、声音、天气、情绪和状态的当前变化。
 
-不得使用细节补充新增人物动机、事实、关系或结局。
+每次补写必须能进入 `dramatic_intent_map`、`dramatization_gap_map`、`controlled_adaptation_plan`、`continuity_detail_map` 或 `rewrite_scope_check` 中的至少一个证据表。
+
+不得使用细节补充新增 source 不支持的决定性人物动机、事实、关系、能力、线索、规则、因果或结局。
 
 ## Review Gate Mapping
 
@@ -154,3 +159,4 @@ rhythm_strategy:
 | 每个节奏机制是否匹配题材/情节，并有 source anchor 与承托字段？ | `GATE-SCR-08` | `FAIL-SCR-RHYTHM` | `N4-SCR-RHYTHM-ENGINE` | `rhythm_strategy_map` |
 | 高潮是否同时有视觉、声音、情绪和行动落点？ | `GATE-SCR-09` | `FAIL-SCR-CLIMAX` | `N5-SCR-CLIMAX-HOOK` | `climax_treatment_map` |
 | 尾钩是否为最后可见/可听/可感受落点，而不是抽象悬念句？ | `GATE-SCR-10` | `FAIL-SCR-HOOK` | `N5-SCR-CLIMAX-HOOK` | `episode_final_image_map` |
+| 必要补写是否服务戏剧功能、连贯性、影视表现或下游理解，并有 source basis 和保真边界？ | `GATE-SCR-11` / `GATE-SCR-12` | `FAIL-SCR-DETAILS` / `FAIL-SCR-REWRITE-SCOPE` | `N2/N3/N6` | `dramatic_intent_map`、`dramatization_gap_map`、`controlled_adaptation_plan`、`rewrite_scope_check` |

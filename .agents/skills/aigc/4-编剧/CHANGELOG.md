@@ -1,7 +1,18 @@
 # Changelog
 
+## 2026-06-19
+
+- 同步 `2-美学` 题材轴交接：`types/type-map.md` 与 `SKILL.md` 优先消费 `类型风格.md` 的 `Genre Axis Classification` / `primary_genre_axis`。
+- `Type Axis Selection Map` 新增 `upstream_genre_axis` 与 `upstream_genre_axis_evidence`，保留上游题材轴、source anchor 和 fallback 证据，再组合 `presentation_axis x genre_axis`。
+- 同步 `CONTEXT.md`，防止后续退回只读自然语言题材标签、由编剧阶段重新猜题材的漂移。
+
 ## 2026-06-18
 
+- 新增父级共享的 `Dramatized Adaptation Supplement Contract`：将 `4-编剧` 从单纯字段化/格式化扩展为“戏剧意图提炼 -> 影视化缺口诊断 -> 受控补写 -> 改写边界复核”的编剧主创链路。
+- 新增并同步 `Dramatic Intent Map`、`Dramatization Gap Map`、`Controlled Adaptation Plan`、`Continuity Detail Map` 与 `Rewrite Scope Check` 证据要求，接入 `N2/N3/N6/N8`、`GATE-SCR-11`、`GATE-SCR-12`、`GATE-SCR-16`、输出模板、review contract、CONTEXT、README、入口元数据、test prompts 和审计脚本。
+- 新增 `dramatic_adaptation_repair` 路由信号，用于修复“字段齐全但不成戏、剧情不连贯、心理未外化、过渡/动机/阻力缺失”的剧本问题；明确补写不得未经授权改变核心事实、人物关系、因果链和事件结果。
+- 在 `types/` 下建立二维类型配置：`types/presentation/` 承载 `正剧`、`解说剧` 呈现方式，`types/genre/` 承载 `武侠剧`、`玄幻剧`、`科幻剧`、`魔幻剧` 题材类型；正式编剧任务必须落成 `呈现方式 x 题材类型` 的 `screenwriting_type_combination_profile`，但这些类型包仍是父级授权策略卡，不升级为子技能。
+- 新增 `Type Axis Combination Contract`、`Type Axis Selection Map`、`Screenwriting Type Combination Profile`、`C2F-TYPE-AXIS-COMBINED` 和 `FAIL-SCR-TYPE-AXIS-COMBINATION`，并同步 `SKILL.md`、`review/review-contract.md`、`templates/output-template.md`、`README.md`、`test-prompts.json`、`CONTEXT.md` 与审计脚本。
 - 增强 `§10.3 Long Dialogue Beat Segmentation` 为 `Long Voice Field Beat Segmentation`：适用范围从长对白扩展到所有声音字段类型（对白/旁白/独白/内心独白）；新增旁白节拍画面必须随内容变化而变化的硬规则；新增禁止"同一条泛化旁白画面承托内容完全不同的多个旁白节拍"禁止模式；证据名从 `long_dialogue_beat_map` 升级为 `long_voice_beat_map`（向后兼容）。
 - 同步更新 `review/review-contract.md` `GATE-SCR-07`，增加长声音字段节拍拆分审查和 `FAIL-LONG-DIALOGUE-BEAT` 失败码；更新 `CONTEXT.md` 新增长声音字段共用泛化画面故障行；更新 `SKILL.md` Module Loading Matrix 引用。
 

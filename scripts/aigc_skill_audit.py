@@ -1080,6 +1080,65 @@ def audit_review_runtime_contracts(failures: list[str]) -> None:
                 failures.append(f"{spec_path}: missing review dimension spec for `{role_id}`")
 
 
+def audit_aesthetic_genre_axis_handoff(failures: list[str]) -> None:
+    """Keep 2-美学 genre-axis handoff aligned with 4-编剧 type consumption."""
+    aesthetic_root = ROOT / "2-美学"
+    aesthetic_skill = aesthetic_root / "SKILL.md"
+    handoff_contract = aesthetic_root / "references" / "genre-axis-handoff-contract.md"
+    screenwriting_type_map = ROOT / "4-编剧" / "types" / "type-map.md"
+
+    if not aesthetic_skill.exists():
+        return
+
+    skill_content = aesthetic_skill.read_text(encoding="utf-8")
+    for required_marker in (
+        "## Type Style Profile Contract",
+        "Genre Axis Handoff Contract",
+        "Genre Axis Classification",
+        "genre_axis_handoff_profile",
+        "N2A-GENRE-AXIS-HANDOFF",
+        "FAIL-AES-GENRE-AXIS-HANDOFF",
+        "references/genre-axis-handoff-contract.md",
+        "不得创建 `2-美学/题材类型/`",
+    ):
+        if required_marker not in skill_content:
+            failures.append(
+                f"{aesthetic_skill}: missing aesthetic genre-axis handoff marker `{required_marker}`"
+            )
+
+    if not handoff_contract.exists():
+        failures.append(f"{handoff_contract}: missing aesthetic genre-axis handoff contract")
+    else:
+        contract_content = handoff_contract.read_text(encoding="utf-8")
+        for required_marker in (
+            "Canonical Genre Axis",
+            "Genre Axis Classification Fields",
+            "Handoff To Screenwriting",
+            "Review Gate Mapping",
+            "primary_genre_axis",
+            "source_anchor_evidence",
+            "screenwriting_handoff",
+            "FAIL-AES-GENRE-AXIS-HANDOFF",
+        ):
+            if required_marker not in contract_content:
+                failures.append(
+                    f"{handoff_contract}: missing genre-axis handoff marker `{required_marker}`"
+                )
+
+    if screenwriting_type_map.exists():
+        type_map_content = screenwriting_type_map.read_text(encoding="utf-8")
+        for required_marker in (
+            "Genre Axis Classification",
+            "primary_genre_axis",
+            "upstream_genre_axis",
+            "upstream_genre_axis_evidence",
+        ):
+            if required_marker not in type_map_content:
+                failures.append(
+                    f"{screenwriting_type_map}: missing screenwriting genre-axis consumer marker `{required_marker}`"
+                )
+
+
 def audit_screenwriting_reference_integrity(failures: list[str]) -> None:
     """Keep the adapted 4-编剧 reference layer wired into the root skill contract."""
     skill_root = ROOT / "4-编剧"
@@ -1104,6 +1163,19 @@ def audit_screenwriting_reference_integrity(failures: list[str]) -> None:
             failures.append(f"{skill_path}: missing screenwriting upstream direction marker `{required_marker}`")
 
     for required_marker in (
+        "## Dramatized Adaptation Supplement Contract",
+        "Dramatic Intent Map",
+        "Dramatization Gap Map",
+        "Controlled Adaptation Plan",
+        "Continuity Detail Map",
+        "Rewrite Scope Check",
+        "C2E-DRAMATIC-SUPPLEMENT-CONTROLLED",
+        "dramatic_adaptation_repair",
+    ):
+        if required_marker not in skill_content:
+            failures.append(f"{skill_path}: missing screenwriting dramatic adaptation marker `{required_marker}`")
+
+    for required_marker in (
         "## Screenplay Presentation Mode Contract",
         "Jieshuoju Source Unit Coverage Map",
         "Jieshuoju Field Variety Map",
@@ -1114,12 +1186,36 @@ def audit_screenwriting_reference_integrity(failures: list[str]) -> None:
         if required_marker not in skill_content:
             failures.append(f"{skill_path}: missing screenwriting mode marker `{required_marker}`")
 
+    for required_marker in (
+        "## Type Axis Combination Contract",
+        "Type Axis Selection Map",
+        "Screenwriting Type Combination Profile",
+        "screenwriting_type_combination_profile",
+        "C2F-TYPE-AXIS-COMBINED",
+        "FAIL-SCR-TYPE-AXIS-COMBINATION",
+        "types/presentation/正剧.md",
+        "types/presentation/解说剧.md",
+        "types/genre/武侠剧.md",
+        "types/genre/玄幻剧.md",
+        "types/genre/科幻剧.md",
+        "types/genre/魔幻剧.md",
+    ):
+        if required_marker not in skill_content:
+            failures.append(f"{skill_path}: missing screenwriting type-axis marker `{required_marker}`")
+
     template_path = skill_root / "templates" / "output-template.md"
     if template_path.exists():
         template_content = template_path.read_text(encoding="utf-8")
         for required_marker in (
             "GATE-SCR-01..25",
             "## Screenplay Mode Decision",
+            "## Type Axis Selection Map",
+            "## Screenwriting Type Combination Profile",
+            "## Dramatic Intent Map",
+            "## Dramatization Gap Map",
+            "## Controlled Adaptation Plan",
+            "## Continuity Detail Map",
+            "## Rewrite Scope Check",
             "## Jieshuoju Source Unit Coverage Map",
             "## Jieshuoju Field Variety Map",
             "## Upstream Creative Direction Matrix",
@@ -1132,12 +1228,22 @@ def audit_screenwriting_reference_integrity(failures: list[str]) -> None:
     if review_path.exists():
         review_content = review_path.read_text(encoding="utf-8")
         for required_marker in (
+            "type_axis_combination",
+            "dramatic_adaptation",
             "GATE-SCR-23",
             "GATE-SCR-25",
+            "FAIL-SCR-TYPE-AXIS-COMBINATION",
             "FAIL-SCR-UPSTREAM-DIRECTION-MATRIX",
             "FAIL-SCR-SCREENPLAY-MODE",
             "FAIL-SCR-JIESHUOJU-FIELD-MONOTONY",
+            "type_axis_selection",
+            "screenwriting_type_combination_profile",
             "upstream_creative_direction_matrix",
+            "dramatic_intent_map",
+            "dramatization_gap_map",
+            "controlled_adaptation_plan",
+            "continuity_detail_map",
+            "rewrite_scope_check",
             "jieshuoju_source_unit_coverage_map",
             "jieshuoju_field_variety_map",
         ):
@@ -1179,6 +1285,68 @@ def audit_screenwriting_reference_integrity(failures: list[str]) -> None:
         ):
             if required_marker not in upstream_content:
                 failures.append(f"{upstream_contract}: missing screenwriting upstream contract marker `{required_marker}`")
+
+    type_packages = {
+        skill_root / "types" / "type-map.md": (
+            "presentation_axis",
+            "genre_axis",
+            "screenwriting_type_combination",
+            "Genre Axis Classification",
+            "upstream_genre_axis",
+            "types/presentation/正剧.md",
+            "types/genre/武侠剧.md",
+        ),
+        skill_root / "types" / "presentation" / "正剧.md": (
+            "presentation-zhengju",
+            "presentation_axis",
+            "Combination Notes",
+            "不是子技能",
+            "不拥有输出路径",
+        ),
+        skill_root / "types" / "presentation" / "解说剧.md": (
+            "presentation-jieshuoju",
+            "presentation_axis",
+            "jieshuoju_source_unit_coverage_map",
+            "不是子技能",
+            "不拥有输出路径",
+        ),
+        skill_root / "types" / "genre" / "武侠剧.md": (
+            "genre-wuxia",
+            "genre_axis",
+            "Combination Notes",
+            "不是子技能",
+            "不拥有输出路径",
+        ),
+        skill_root / "types" / "genre" / "玄幻剧.md": (
+            "genre-xuanhuan",
+            "genre_axis",
+            "Combination Notes",
+            "不是子技能",
+            "不拥有输出路径",
+        ),
+        skill_root / "types" / "genre" / "科幻剧.md": (
+            "genre-kehuan",
+            "genre_axis",
+            "Combination Notes",
+            "不是子技能",
+            "不拥有输出路径",
+        ),
+        skill_root / "types" / "genre" / "魔幻剧.md": (
+            "genre-mohuan",
+            "genre_axis",
+            "Combination Notes",
+            "不是子技能",
+            "不拥有输出路径",
+        ),
+    }
+    for type_path, markers in type_packages.items():
+        if not type_path.exists():
+            failures.append(f"{type_path}: missing screenwriting type package")
+            continue
+        type_content = type_path.read_text(encoding="utf-8")
+        for required_marker in markers:
+            if required_marker not in type_content:
+                failures.append(f"{type_path}: missing screenwriting type-package marker `{required_marker}`")
 
     for reference_path in sorted(references_root.glob("*.md")):
         reference_name = reference_path.name
@@ -1650,6 +1818,7 @@ def main() -> int:
     audit_design_2_template_registry(failures)
     audit_design_slot_bundle_runtime(failures)
     audit_review_runtime_contracts(failures)
+    audit_aesthetic_genre_axis_handoff(failures)
     audit_screenwriting_reference_integrity(failures)
     audit_init_single_skill_contract(failures)
     audit_init_only_team_runtime_contracts(stage_index, failures)

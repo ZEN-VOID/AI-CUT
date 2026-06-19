@@ -5,9 +5,9 @@ output_dir: `projects/aigc/<项目名>/3-主体/道具/3-生成`
 
 ## 生成资产
 
-| 主体ID | 主体 | 上游设计文档 | 主图 | 主图 JSON | 多视图 | 多视图 JSON | asset_reuse_decision | canvas_action | local_sync_status | reference_context_status | verdict |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `<主体ID>` | `<主体名称>` | `3-主体/道具/2-设计/<主体名称>.md` | `<主体ID>-<主体名称>-主图.png` | `<主体ID>-<主体名称>-主图.json` | `<主体ID>-<主体名称>-多视图.png` | `<主体ID>-<主体名称>-多视图.json` | `generate_new_subject` | `create_new_node` | `synced` | `linked_in_libtv_canvas` | `pending` |
+| 主体ID | 主体 | 上游设计文档 | 主图 | 主图 JSON | asset_reuse_decision | canvas_action | local_sync_status | multiview_status | verdict |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `<主体ID>` | `<主体名称>` | `3-主体/道具/2-设计/<主体名称>.md` | `<主体ID>-<主体名称>-主图.png` | `<主体ID>-<主体名称>-主图.json` | `generate_new_subject` | `create_new_node` | `synced` | `disabled_by_contract` | `pending` |
 
 ## LibTV Canvas Notes
 
@@ -48,8 +48,8 @@ next_action: ""
 
 | Output Contract field | Template alignment |
 | --- | --- |
-| Required output | 每个主体一张单主体图、一个单主体 JSON、一张多视图主体设计图、一个多视图 JSON。 |
+| Required output | 每个主体一张单主体图、一个单主体 JSON；多视图默认取消。 |
 | Output format | 图像资产为 PNG/JPEG/WebP；提示词为 JSON；执行报告为 Markdown。 |
 | Output path | canonical path 为 `projects/aigc/<项目名>/3-主体/道具/3-生成/`。 |
-| Naming convention | 单体图 `主体ID-主体名称-主图`；多视图 `主体ID-主体名称-多视图`；JSON 与对应图像同 stem。 |
-| Completion gate | 每组资产回指上游 `2-设计` 文档，主图引用 `4. 解构`，已完成既有主体图扫描；同主体同状态复用或上传；画布节点已下载或确认保存到项目 `道具/3-生成/`；状态变体使用 `Lib Image` 和参考节点；多视图引用同画布主图节点，已完成 review verdict。 |
+| Naming convention | 单体图 `主体ID-主体名称-主图`；JSON 与对应图像同 stem。 |
+| Completion gate | 每组资产回指上游 `2-设计` 文档，主图引用 `4. 解构`，已完成既有主体图扫描；同主体同状态复用或上传；画布节点已下载或确认保存到项目 `道具/3-生成/`；状态变体使用 `Lib Image` 和参考节点；多视图未被生成、补齐或验收；已完成 review verdict。 |
