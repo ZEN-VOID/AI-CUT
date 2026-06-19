@@ -32,6 +32,9 @@ last_checked_at: 2026-06-10
 | `TM-POLISH-13` | 白刃剑气流被泛化修成“动作更清楚”，仍缺剑气/刀气/刀剑风压的材质承托 | wuxia blade-qi repair under-specification | 加载 `types/wuxia-blade-qi-repair.md`，只在 affected span 内补出刃路径、实体接触、材质响应、人物代价和余波 | `genre-scene-repair.md` 和 type-map 固定 `wuxia_blade_qi_repair` subtype | before/after evidence 保持胜负、伤亡、关系结果和能力规则不变 |
 | `TM-POLISH-14` | 90 年代香港新浪潮武侠只被润成“更电影感”，文本出现镜头/特效/吊威亚味 | research-to-prose repair drift | 用 `wuxia-blade-qi-repair.md` 的 research axes 只修 affected span：静止预压、实物爆点、刀剑气质、动作戏剧功能和物理锚点 | type-map 把 90 年代港式新派武侠、徐克/程小东、旧港片实物爆点纳入 `wuxia_blade_qi_repair` 触发词 | 润色稿不出现分镜/prompt 化词，且事实、胜负、暴力等级不漂移 |
 | `TM-POLISH-15` | 点名徐克/程小东后，润色只加“电影感/飘逸感”，仍未修人物选择、空间线条和落地重量 | team-lens repair under-integration | 用 `wuxia-blade-qi-repair.md` 的 Team-Lens Repair Overlay，只在 affected span 内补动作关系、类型发动机、空间书法、起落物理和过量删减 | repair package 固定徐克/程小东字段映射，禁止把 team lens 写成影评或整章重写许可 | `team_lens_manifest` 可追踪 source paths 和 applied_fields，before/after 不改事实结果 |
+| `TM-POLISH-16` | 用户要求“细节扩写”，执行者只做泛化润色或整章加料 | detail expansion under-routing | 先锁 source anchor 与 affected span，再按动作、内心戏、氛围压力、科技、赛博、玄幻或言情信号加载专项 repair 包 | `SKILL.md`、`types/type-map.md` 和 review gate 固定 `detail_expansion_profile` 与 no-new-fact boundary | `repair_type_package_manifest.loaded_paths` 包含真实专项包，before/after 不改事实 |
+| `TM-POLISH-17` | 科幻/赛博章节只加术语和霓虹装饰，科技或公司压迫仍不成立 | sci-fi cyber texture drift | 科幻走 `sci-fi-tech-repair.md`，赛博走 `cyberpunk-texture-repair.md`，只补已有技术的边界、代价、反馈、身体/债务/权限/监控压力 | type-map 固定 sci-fi/cyberpunk repair package，禁止新造科技体系或世界观 | 技术不万能，赛博不是装饰清单，人物选择受到可见约束 |
+| `TM-POLISH-18` | 执行者把动作、内心戏、氛围、科技、赛博、玄幻、言情等候选焦点当成所有章节都必须检查和强化的通用清单 | detail focus universalization | 回到 `P3-REPAIR-PLAN`，只保留由项目题材、场景功能、源章坏点或 finding 命中的 selected packages，其余写 N/A | `SKILL.md`、`types/type-map.md` 和 review gate 固定候选焦点不是必修项 | `detail_expansion_profile.n_a_focus` 或 `skipped_reason` 说明未命中焦点，未产生无关加料 |
 
 ## Repair Playbook
 
@@ -49,6 +52,8 @@ last_checked_at: 2026-06-10
 12. 若源章或项目记忆命中白刃剑气流，先判断是否属于源章已有表达的局部坏点；是则走 `wuxia_blade_qi_repair`，否则回到 `3-初稿` 或 `repair` 判定是否需要重写上游。
 13. 若用户或项目记忆指定 90 年代香港新浪潮武侠、徐克/程小东、旧港片实物爆点或刀剑气质区分，润色阶段只把这些资料锚点压成局部动作、材质、声音、人物代价和戏剧功能，不新增影评式说明或电影制作词。
 14. 若用户点名徐克和程小东两位 team lens，润色先问 affected span 是否缺“选择、关系、线条、材料、落点、删减”中的哪一项；只修缺项，不把整段改成动作设计说明。
+15. 若用户要求“题材化细节扩写”，先拆成候选 repair focus：动作设计、内心戏、氛围压力、科技元素、赛博质感、玄幻能力或言情拉扯；只有被项目题材、场景功能、源章坏点或 finding 命中的 focus 才需要 source anchor、affected span 和 no-new-fact boundary，未命中 focus 写 N/A。
+16. 若用户要求科技/赛博质感，先判断是通用科幻技术边界问题，还是赛博朋克的身体/债务/权限/监控/公司权力压迫问题；前者走 `sci-fi-tech-repair`，后者叠加 `cyberpunk-texture-repair`。
 
 ## Reusable Heuristics
 
@@ -59,6 +64,9 @@ last_checked_at: 2026-06-10
 - 人物、场景和视觉可读性修复的共同边界是 source anchor：源章没有的光源、天气、烟雾、气味、关系转折和剧情结果，润色阶段不新增。
 - 类型化场面修复的共同边界也是 source anchor：动作不改胜负，言情不改关系结果，玄幻不改规则体系，恐怖不解释未知，悬疑不提前揭晓，现实不消除后果。
 - subtype repair 不是更大范围的加料许可；它只让已命中的类型坏点更具体、更可读、更符合项目题材边界。
+- 细节扩写不是“写更多”，而是让已有局部更有功能：动作更可读，心理更有压力，氛围更能承托冲突，技术更有边界，赛博更有社会压迫，玄幻能力更有代价，言情拉扯更有潜台词。
+- 选择多个细节扩写包时，先定 primary focus；同一 affected span 最多 1 个 primary package + 2 个 companion packages，避免把局部修补变成全场景重写。
+- 动作不精彩、内心戏浅、氛围淡、科技感弱、赛博味不足、玄幻能力表现弱、言情拉扯弱是“可能存在的问题族”，不是每种题材都必须证明不存在的质量维度。
 - 白刃剑气流润色的重点是把源章已有的剑气/刀气/刀剑风压绑定到实体兵器、身法、内力、现场材质和人物代价，不把 prose 改成视频特效描述。
 - 港式新派武侠润色的判断顺序是：源章事实不动 -> 刀/剑/长兵器气质明确 -> 出刃路径清楚 -> 爆点有物理源 -> 动作服务人物戏 -> 没有镜头、CG、吊威亚或 prompt 词。
 - team lens 参与润色时，徐克负责删掉不改变人物选择的奇观，程小东负责给保留动作补起落、停顿、材料和重量；二者都不能授权改胜负、改伤亡或改关系结果。

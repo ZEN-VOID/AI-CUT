@@ -123,7 +123,8 @@
 | 群体反应、全班凝固、集体低头 | `群像画面` | 用可见行为表达群体心理 |
 | 角色主观判断、恐惧、推理、记忆回闪 | `独白` / `内心独白` / `心理反应` | 优先转成可见身体、表情、道具停点或空间距离 |
 | 主角视角下对他人行为的解读、判断 | `内心独白（主角）` + 主角观察证据 | 把"她在试探他"改成主角内心独白 |
-| 非引号客观叙事、公共事实、群体共识、关系压力 | 优先可拍字段；必要时按 `narration-to-voice-adaptation-contract.md` 转 `对白` / `独白` / `内心独白` / `旁白` | 先通过 voice owner、知识依据、信息差安全和语音预算；不得改写上游已有对白 |
+| 非引号客观叙事、公共事实、群体共识、关系压力（`正剧`） | 优先可拍字段；必要时按 `narration-to-voice-adaptation-contract.md` 转 `对白` / `独白` / `内心独白` / `旁白` | 先通过 voice owner、知识依据、信息差安全和语音预算；不得改写上游已有对白 |
+| 陈述性 source 信息（显式 `解说剧`） | `旁白（叙述者/指定主体）` + `旁白画面` | 完全按照故事源内容；必须先进入 `jieshuoju_source_unit_coverage_map`；不得把陈述性 source 改成派生对白/独白/内心独白；上游已有对白仍走对白冻结 |
 | 直接情绪感受：恶心、难受、愤怒、害怕、崩溃 | `表情特写` / `心理反应` / `角色动作` | 关键面部变化优先落 `表情特写`；非面部联动、生理反应和身体动作分别落 `心理反应` / `角色动作` |
 | 往日常态、重复熟悉、过往背景 | 删除 / `内心独白（主角）` | 非当前主线必要信息删除；必要信息只转成当前可拍证据 |
 | 角色目标、阻碍、试探、潜台词 | `对白画面` / `表演提示` | 转成带目的的行为策略：停顿、避视、道具动作 |
@@ -131,6 +132,38 @@
 | 对白后的沉默、迟疑、反应 | `表演提示` / `表情特写` / `群像画面` | 默认不新增对白；非引号客观叙事满足专项 gate 时才可派生语音，否则用呼吸、停顿、纸张声消失承托 |
 | 转场、未出口对白、下一场压力浮现 | `音效画面` / `道具特写` / `群像画面` / `转场` | 从声音桥、物件状态、动作中断中选择 |
 | 国运灾难、新闻碎片、现实世界同步后果 | `现实灾难画面` / `系统画面` | 作为短促压力插针，不挤占主叙事 |
+
+### 3.1A 解说剧 Source 单元字段落点
+
+显式 `解说剧` 不是“所有句子都旁白”。它先按 `references/narration-to-voice-adaptation-contract.md` 建立 `jieshuoju_source_unit_coverage_map`，再按以下字段路由落正文。
+
+| source_unit_type | primary_field_route | pairing_or_support | forbidden_route |
+| --- | --- | --- | --- |
+| `source_dialogue` | `对白（角色名，语态/状态短语）` | `对白画面` | `旁白` |
+| `explicit_inner_voice` | `内心独白（角色）` | `内心独白画面` | 改成全知旁白或新增角色判断 |
+| `visible_action` | `角色动作` / `动作画面` / `表情特写` / `道具特写` | 可作为相邻 `旁白画面` 的同画面承托 | 为了覆盖率重复写成旁白 |
+| `environment_state` | `环境描写` | 可作为旁白前后的空间承托 | 写成剧情解释或作者判断 |
+| `declarative_fact` | `旁白（叙述者/指定主体）` | `旁白画面` | `对白` / `独白` / `内心独白` |
+| `background_exposition` | `旁白（叙述者/指定主体）` | `旁白画面`；长句拆节拍 | 概要化压缩、删关键事实 |
+| `time_bridge` | `旁白（叙述者/指定主体）` + `转场` 或现场后果画面 | `旁白画面` / `转场` / 信息载体 | 重排时间顺序 |
+| `relationship_state` | `旁白（叙述者/指定主体）` | 站位、群像、道具归属、沉默反应 | 新增冲突问答 |
+| `result_summary` | `旁白（叙述者/指定主体）` | 现场后果、痕迹、空间状态 | 改因果或提前解释未到信息 |
+| `rule_or_system_info` | `系统画面` / `规则显影` + `旁白（系统提示/叙述者）` | `旁白画面` 或系统信息载体 | 新增规则或只写不可听文字 |
+| `mixed_action_declaration` | 动作/环境部分进画面字段；陈述部分进 `旁白` | 同一 source anchor 记录 `split_visual_and_narration` | 整句只旁白导致动作丢失，或整句只画面导致陈述丢失 |
+
+### 3.1B 解说剧字段节奏与段落功能
+
+显式 `解说剧` 的正文仍然是正式字段化剧本，不是“旁白稿 + 画面解释”。叙事段落功能可以用于内部组织和报告证据，但不得以 `【...】` 小标题写入正文。
+
+| risk_pattern | required_repair | evidence |
+| --- | --- | --- |
+| 场景标题写成剧情小标题、主题判断或段落功能 | 改为 `### 场景N：内景/外景 真实地点 - 日/夜 - 天气`；段落功能写入 `jieshuoju_field_variety_map.segment_function` | `scene_heading_check`、`jieshuoju_field_variety_map` |
+| 正文出现 `【开场定调】`、`【童谣惊驾】`、`【群臣解梦】` 等方括号叙事 heading | 删除方括号 heading；用 `环境描写`、`转场`、`道具特写`、`系统画面` 或 `群像画面` 承接功能 | `bracket_heading_check=pass` |
+| 连续 4 组以上 `旁白` + `旁白画面`，且中间没有正式视觉字段介入 | 在 source 支持处插入或提升 `环境描写`、`角色动作`、`动作画面`、`场面调度`、`群像画面`、`道具特写`、`系统画面`、`规则显影`、`音效画面`、`转场` | `max_narration_pair_run<=3`，或记录 `voiceover_montage_exception` |
+| `旁白画面` 只是旁白句子的同义复述 | 将信息载体、空间状态、群体反应、道具变化或转场拆成对应正式字段；`旁白画面` 只保留声画配对关系 | `non_narration_visual_fields` 非空 |
+| 开篇史诗、地图、竹简、诏令等 montage 确实需要长旁白 | 用 `系统画面`、`道具特写`、`环境描写` 或 `转场` 作为节奏骨架，并在报告标记例外理由 | `exception_or_repair=voiceover_montage_exception` |
+
+`jieshuoju_field_variety_map` 是必需报告证据，不是第二正文真源。它只证明场景标题、段落功能和字段节奏已被正确处理。
 
 ### 3.2 字段路由决策树
 
@@ -140,8 +173,15 @@
 ├─ 是否为上游已有对白/独白/内心独白？
 │   └─ 是 → 按 Dialogue Freeze (FR-3) 逐字保留，配对对应 *画面
 │
+├─ screenplay_mode 是否为显式 `解说剧`？
+│   ├─ 是 → 先写入 `jieshuoju_source_unit_coverage_map`
+│   ├─ source_unit_type 为 `source_dialogue`？→ 对白冻结 + `对白画面`
+│   ├─ source_unit_type 为 `visible_action` / `environment_state`？→ 正式画面字段，不强制旁白化
+│   ├─ source_unit_type 为陈述性类型？→ `旁白（叙述者/指定主体）` + `旁白画面`
+│   └─ source_unit_type 为 `mixed_action_declaration`？→ 动作/环境进画面字段，陈述解释进旁白，coverage map 标明 split
+│
 ├─ 是否为非引号客观叙事且需要语音化？
-│   └─ 是 → 先按 narration-to-voice gate 判断；通过后转 `对白` / `独白` / `内心独白` / `旁白` 并配对 *画面
+│   └─ 是 → 在 `正剧` 中先按 narration-to-voice gate 判断；通过后转 `对白` / `独白` / `内心独白` / `旁白` 并配对 *画面
 │
 ├─ 是否为可拍摄的身体动作？
 │   └─ 是 → `角色动作` / `动作画面`
@@ -388,8 +428,8 @@
 ### 9.1 格式要求
 
 ```md
-### 场景1：内景 永夜私立中学二年级A班教室 - 日
-### 场景2：外景 学校操场 - 夜
+### 场景1：内景 永夜私立中学二年级A班教室 - 日 - 晴
+### 场景2：外景 学校操场 - 夜 - 雨
 ```
 
 ### 9.2 判断规则
@@ -402,6 +442,7 @@
 | 角色入场 | ❌ 同场景 | 同 slugline 连续 |
 | 公告/能力觉醒 | ❌ 同场景 | 叙事 beat 变化，不构成新场景 |
 | 连续 slugline | 只首次写标题 | 后续 beat 直接接正文 |
+| 解说剧段落功能 | ❌ 不写进标题 | 段落功能进入 `jieshuoju_field_variety_map`，不写 `【...】` 正文小标题 |
 
 ### 9.3 转场规则
 
@@ -425,7 +466,8 @@
 
 - 上游已有对白必须逐字保真
 - 不做润色、删改、同义替换、语序重排
-- 不把小说叙述句、作者判断、概括说明随意改写成新对白；非引号客观叙事只有通过 `narration-to-voice-adaptation-contract.md` 的 source-grounded gate，才可形成派生语音
+- 不把小说叙述句、作者判断、概括说明随意改写成新对白；非引号客观叙事只有在 `正剧` 中通过 `narration-to-voice-adaptation-contract.md` 的 source-grounded gate，才可形成派生语音
+- 显式 `解说剧` 中，陈述性 source 信息不得形成派生对白/独白/内心独白，必须走 `旁白/旁白画面`；但 `visible_action`、`environment_state`、`source_dialogue` 不得为了“全旁白”被重复旁白化，需在 `jieshuoju_source_unit_coverage_map` 中证明各自落点
 
 ### 10.2 语态/状态短语处理
 
@@ -441,29 +483,36 @@
 - 不要求以"地"结尾
 - **不得**借语态改写对白含义或新增人物心理
 
-### 10.3 Long Dialogue Beat Segmentation（长对白节拍拆分）
+### 10.3 Long Voice Field Beat Segmentation（长声音字段节拍拆分）
 
-当上游小说原文中同一说话者存在单段长对白时，`4-编剧` screenplay layer 必须在对白冻结前提下建立 `long_dialogue_beat_map`。这不是改写台词，而是把同一段原文对白拆成可演、可拍、可被下游摄影承托的连续节拍。
+当上游小说原文中同一说话者存在单段长对白、或解说剧模式下同一段陈述性 source 产生连续长旁白、或角色存在长段独白/内心独白时，`4-编剧` screenplay layer 必须在内容冻结前提下建立 `long_voice_beat_map`（兼容旧名 `long_dialogue_beat_map`）。这不是改写内容，而是把同一段原文声音拆成可演、可拍、可被下游摄影承托的连续节拍。
+
+**适用范围（强制）**：
+- 本规则适用于所有声音字段类型：`对白`、`旁白`、`独白`、`内心独白`。
+- 解说剧模式下的长段旁白同样适用：当同一段 source 产生的连续旁白超过阈值时，必须按本规则拆分节拍并逐段配对画面。
+- 不因 `screenplay_mode` 不同而降级：`正剧` 和 `解说剧` 均须执行。
 
 **触发建议**：
-- 30 字以内且只有一个明确动作的对白可保留为单句。
+- 30 字以内且只有一个明确动作的声音字段可保留为单句。
 - 30-80 字若含转折、条件、追问、威胁或情绪变向，拆成 2-3 个节拍。
 - 80-160 字通常拆成 3-5 个节拍。
-- 160 字以上必须输出 `long_dialogue_beat_map`，并检查是否有非说话者反应、动作停点或环境声承托。
+- 160 字以上必须输出 `long_voice_beat_map`，并检查是否有非说话者反应、动作停点或环境声承托。
 
 **硬规则**：
-- 每个节拍的 `exact_text_segment` 必须是上游对白的连续原文片段；所有节拍按顺序拼接后必须逐字等于上游对白。
+- 每个节拍的 `exact_text_segment` 必须是上游原文的连续片段（对白逐字冻结，旁白可做 `light_oralization` 但不得改变事实）；所有节拍按顺序拼接后必须在语义上等于上游原文。
 - 不在专名、数字、固定称谓、成语、未完成因果短语或依存子句中间断开。
 - 优先在语义动作变化处断开：试探转施压、解释转请求、铺陈转揭示、伪装转泄露、命令转威胁。
 - 优先在表演气口处断开：呼吸换气、短暂停顿、吞咽、笑意收住、对手不接话、手部动作停点。
 - 若上游明确要求一口气说完，仍可建立节拍图，但标记 `breath_or_pause_hint: continuous/no_pause`，由 `6-分镜` 和 `7-摄影` 承接连续气口；显式 legacy 表演任务可回读 `backup/5-表演`。
-- 每个节拍必须有就近 `对白画面` 或相邻 `表情特写`、`心理反应`、`群像画面`、`道具特写` 承托；不得让整段长对白共用一个泛化画面。
-- 每 2-3 个长对白节拍至少出现一次非说话者信息：听者反应、群像压力、手部动作、空间距离、道具状态、环境声或沉默余波。
+- **每个节拍必须有就近 `*画面` 字段或相邻 `表情特写`、`心理反应`、`群像画面`、`道具特写`、`环境描写`、`转场` 承托；不得让整段长声音字段共用一个泛化画面。**
+- 每 2-3 个长声音字段节拍至少出现一次非说话者/非旁白主体信息：听者反应、群像压力、手部动作、空间距离、道具状态、环境声或沉默余波。
+- 旁白节拍的画面承托必须随旁白内容变化而变化：当旁白叙述跨越多个时间、地点或事件时，每个节拍的 `旁白画面` 必须反映该节拍叙述的具体内容对应的信息载体、现场后果或可见承托，不得用同一个泛化画面（如"叙述者站在画面旁"）覆盖多段不同内容的旁白。
 
 **禁止模式**：
-- 将长对白整体压成一行，后面只接一条“说话者看着对方说完”的 `对白画面`。
-- 为了断句而润色、删词、换词、补充台词或重排语序。
-- 把“长对白需要多机位”等摄影指令写入 `4-编剧` screenplay layer 正文；编剧阶段只提供节拍、气口、反应和可见承托，镜头方案交给 `7-摄影`。
+- 将长对白/旁白/独白/内心独白整体压成一行，后面只接一条泛化 `*画面` 字段（如"说话者看着对方说完"或"旁白画面：叙述者站在画面旁"）。
+- 为了断句而润色、删词、换词、补充台词或重排语序（对白冻结）；旁白可做口语化但不改变事实。
+- 把"长声音字段需要多机位"等摄影指令写入 `4-编剧` screenplay layer 正文；编剧阶段只提供节拍、气口、反应和可见承托，镜头方案交给 `7-摄影`。
+- 在解说剧模式下，用同一条 `旁白画面` 承托内容完全不同的多个旁白节拍（如一段叙述龙涎来历、一段叙述元鼋化形、一段叙述踩迹怀孕，却共用"老宫人跪在地上说话"一条画面）。
 
 ---
 
@@ -533,7 +582,7 @@
 | §8 Performance Field | `script-adaptation-contract.md` §Performance | 表演提示可执行化 |
 | §9 Scene Title | `FR-4` | 场景标题与转场规则 |
 | §10 Dialogue Freeze | `FR-3` | 对话冻结 |
-| §10.3 Long Dialogue Beat Segmentation | `FR-3`, `GATE-SCRIPT-23` | 长对白原文保真拆分与可拍节拍承托 |
+| §10.3 Long Voice Field Beat Segmentation | `FR-3`, `GATE-SCRIPT-23` | 长对白/旁白/独白/内心独白原文保真拆分与可拍节拍承托 |
 | §11 Field Examples | - | Good/Bad Patterns 示例 |
 | §12 AIGC Field Mapping | - | AIGC 视觉生成适配（新增） |
 
@@ -542,10 +591,11 @@
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
 | 每条对白、独白、内心独白、旁白和音效是否就近配对对应 `*画面` 字段，且配对表达同一命题而非复述声音文本？ | `GATE-SCRIPT-05` | `FAIL-PAIRING` | `../SKILL.md#N4-FIELD` | `audio_visual_pairing_map` 逐条列出声音字段、对应画面字段、source anchor 和配对状态 |
+| `screenplay_mode` 是否正确影响字段路由：未显式指定时默认 `正剧`，显式 `解说剧` 时 source 单元已类型化，陈述性 source 均走 `旁白/旁白画面`，没有被路由为派生对白/独白/内心独白，可见动作/环境没有被过度旁白化，且没有方括号叙事 heading 或连续无承托旁白清单？ | `GATE-SCR-25` | `FAIL-SCR-SCREENPLAY-MODE` / `FAIL-SCR-JIESHUOJU-FIELD-MONOTONY` | `../SKILL.md#N1-SCR-INTAKE` / `../SKILL.md#N3-SCR-FAITHFUL-PROJECTION` / `../SKILL.md#N6-SCR-CANDIDATE-DRAFT` | `screenplay_mode_decision`、`jieshuoju_source_unit_coverage_map`、`jieshuoju_field_variety_map`、`narration_to_voice_adaptation_map`、`audio_visual_pairing_map` |
 | 相邻 `*画面`、`角色动作`、`表情特写`、`心理反应`、`道具特写`、`群像画面` 是否通过同画面连续性检查，未把同一时刻/同一主体/同一动作链重复拆成多个拍摄单位？ | `GATE-SCRIPT-05` / `GATE-SCRIPT-10` | `FAIL-PAIRING` / `FAIL-CONCRETE-VISUAL` | `../SKILL.md#N4-FIELD` | `same_frame_continuity_map` 记录视觉簇、合并/保留决策、保留字段和下游拆分风险 |
 | 声音字段是否只写可听声音本体，未把时间、事件说明、声音类别或叙述概括写进引号？ | `GATE-SCRIPT-11` | `FAIL-SOUND-LITERAL` | `../SKILL.md#N4-FIELD` | `sound_literal_risk_map` 记录问题声音字段、修正后的声音本体和画面承托 |
 | 对白字段标题是否为 `对白（真实角色名，语态/状态短语）`，角色名不是模板占位，引号内没有动作描写，语态没有改写上游已有对白含义；若为派生语音，是否回指非引号客观叙事？ | `GATE-SCRIPT-04` / `GATE-BD-19` | `FAIL-DIALOGUE` / `FAIL-BD-NARRATION-VOICE` | `../SKILL.md#N5-SCRIPT-DRAFT` / `../SKILL.md#N4.2-NOVEL-TRANSFORM` | `dialogue_lock_map` 记录上游原句、输出对白、真实角色名、语态来源和引号纯度；`narration_to_voice_adaptation_map` 记录派生语音来源 |
-| 上游单段长对白是否拆成连续原文节拍，拼回逐字等于上游对白，并为每个节拍配有就近可见承托？ | `GATE-SCRIPT-23` | `FAIL-LONG-DIALOGUE-BEAT` | `../SKILL.md#N4-FIELD` / `../SKILL.md#N5-SCRIPT-DRAFT` | `long_dialogue_beat_map` 记录原文片段、节拍动作、气口/停顿、配对画面和拼回校验 |
+| 上游单段长对白/旁白/独白/内心独白是否拆成连续原文节拍，拼回逐字等于上游原文，并为每个节拍配有就近可见承托？ | `GATE-SCRIPT-23` | `FAIL-LONG-DIALOGUE-BEAT` | `../SKILL.md#N4-FIELD` / `../SKILL.md#N5-SCRIPT-DRAFT` | `long_voice_beat_map`（兼容旧名 `long_dialogue_beat_map`）记录原文片段、节拍动作、气口/停顿、配对画面和拼回校验 |
 | 所有 `*画面`、`心理反应`、`表情特写`、`表演提示` 是否回答可见/可听/可执行内容，没有抽象概念、解释性因果、作者判断、任务说明或规则复述泄露？ | `GATE-SCRIPT-10` / `GATE-SCRIPT-12` | `FAIL-CONCRETE-VISUAL` / `FAIL-PLACEHOLDER-LEAK` | `../SKILL.md#N4-FIELD` / `../SKILL.md#N5-SCRIPT-DRAFT` | `concrete_visual_risk_map` 与 `placeholder_leak_risk_map` 记录抽象句、占位句和修正字段 |
 | `角色动作` / `动作画面` 是否只写客观可拍动作、速度、力度、重心和空间运动，没有 `试图/想要/打算/意图` 等主观预判词？ | `GATE-SCRIPT-08` | `FAIL-ACTION-PURITY` | `../SKILL.md#N4-FIELD` | `objective_action_purity_map` 与 `objective_action_purity_evidence` 记录删除的主观词和客观投影 |
 | 上游明确的速度、停顿、力度是否在动作字段中保留，未把关键动作改成无节奏的动作清单？ | `GATE-SCRIPT-08` | `FAIL-ACTION-PURITY` | `../SKILL.md#N4-FIELD` | `objective_action_purity_map.motion_dynamics` 记录速度/力度源词和输出动作节奏 |

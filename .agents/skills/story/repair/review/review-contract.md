@@ -10,6 +10,7 @@
 
 | dimension | required checks |
 | --- | --- |
+| problem_discovery | 模糊症状或未定位 finding 是否先转成 `problem_discovery_packet`，并包含证据锚点、suspected root layer、candidate scope packages 和 route hint |
 | impact_scope | 是否覆盖 upstream truth、same-layer predecessor、current locality、downstream existing、future constraints、acceptance/return/state |
 | type_matrix | 是否按 `Universal Type Matrix` 对修改对象判型，并加载对应 `types/scope/*` 包 |
 | source_priority | 是否先修 canonical owner，再修投影和正文 |
@@ -37,7 +38,7 @@
 ```yaml
 finding:
   severity: critical | high | medium | low
-  dimension: impact_scope | type_matrix | source_priority | continuity | cards_planning_alignment | authorship | accepted_truth | residual_risk | security | runtime_behavior | integration | convergence
+  dimension: problem_discovery | impact_scope | type_matrix | source_priority | continuity | cards_planning_alignment | authorship | accepted_truth | residual_risk | security | runtime_behavior | integration | convergence
   symptom: ""
   direct_cause: ""
   source_contract: ""
@@ -48,6 +49,7 @@ finding:
 
 | fail_code | dimension | meaning | default rework target |
 | --- | --- | --- | --- |
+| `FAIL-REPAIR-DISCOVERY` | problem_discovery | 模糊症状直接进入正文改写、泛化润色或 impact map，缺少证据锚点和候选 scope | `N0-PROBLEM-DISCOVERY`、`types/scope/problem-discovery.md` |
 | `FAIL-REPAIR-SCOPE` | impact_scope | 影响范围未覆盖全身面，或缺少 impact map | `N2-IMPACT-MAP` |
 | `FAIL-REPAIR-TYPE-MATRIX` | type_matrix | 命中对象类型但未加载对应 typed scope 包 | `types/type-map.md`、`N2-IMPACT-MAP` |
 | `FAIL-REPAIR-OWNER` | source_priority | 未锁定 canonical owner 或下游先于源层写回 | `references/source-truth-ledger.md`、`N3-OWNER-ROUTE` |
@@ -65,6 +67,7 @@ finding:
 不得宣布完成：
 
 - 没有 `impact_map`。
+- 模糊症状或未定位 finding 没有先形成 `problem_discovery_packet`。
 - 命中通用类型矩阵但没有加载对应 typed scope 包。
 - 没有 `canonical_owner` 和 `writeback_order`。
 - 旧口径在上游真源仍正向命中，但报告声称已完成。
@@ -79,7 +82,7 @@ finding:
 
 当以下条件全部满足时，才可宣布 repair 完成：
 
-1. impact map、canonical owner、writeback order、stage route、authorship evidence、repair review gate 和 residual risk 均已交付。
+1. 模糊症状触发时 `problem_discovery_packet` 已交付；impact map、canonical owner、writeback order、stage route、authorship evidence、repair review gate 和 residual risk 均已交付。
 2. 所有 `critical` / `high` finding 已解决。
 3. `medium` finding 已解决，或在 repair packet 的 residual risks 中记录并说明后续生成约束。
 4. 执行型任务列出实际改动文件、未改文件理由和复验结果。

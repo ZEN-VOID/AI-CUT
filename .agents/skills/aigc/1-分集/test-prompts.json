@@ -10,9 +10,14 @@
     "expected": "Detects real P1 episode markers, chooses explicit_episode_split, preserves original episode boundaries, writes 第1集.md and 第2集.md, and records marker evidence plus coverage in 执行报告.md."
   },
   {
-    "id": "chaptered-novel-not-one-chapter-one-episode",
+    "id": "chaptered-novel-one-chapter-one-episode",
     "prompt": "使用 $aigc-episode-split，将 projects/aigc/示例项目/源/ 中只有第1章、第2章、第3章结构的小说切分为 AIGC 分集。",
-    "expected": "Classifies chapter markers as P2 candidates rather than P1 episode markers, avoids mechanical one-chapter-one-episode mapping, uses natural structure plus the 2500-3000 character window, and documents excluded chapter signals."
+    "expected": "Classifies chapter markers as P2 natural structure boundaries rather than P1 episode markers, defaults to one chapter per episode, writes 第1集.md through 第3集.md, and documents the chapter-to-episode boundary evidence."
+  },
+  {
+    "id": "hui-novel-one-hui-one-episode",
+    "prompt": "使用 $aigc-episode-split，将 projects/aigc/示例项目/源/ 中只有第一回、第二回结构的章回体小说切分为 AIGC 分集。",
+    "expected": "Classifies hui markers as chaptered_novel P2 natural structure boundaries, defaults to one hui per episode, writes 第1集.md and 第2集.md, and does not invoke the 2500-3000 character window unless the user requests regrouping."
   },
   {
     "id": "repair-review-numbering-and-coverage",

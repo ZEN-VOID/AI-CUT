@@ -2,6 +2,13 @@
 
 本文件记录 `.agents/skills/aigc/0-初始化/` 的结构迁移与目录治理说明，不参与默认技能预加载，也不与 `SKILL.md` / `CONTEXT.md` 竞争真源。
 
+## 2026-06-17
+
+- `Case-20260617-AIGC-INIT-STAGE-ROOT-BOUNDARY`
+  - 复查 `0-初始化` 输出目录规则与 `.agents/skills/aigc` 当前技能包树的关系，明确初始化只对齐项目 runtime active `1-10` stage-root：`1-分集/`、`2-美学/`、`3-主体/`、`4-编剧/`、`5-导演/`、`6-分镜/`、`7-摄影/`、`8-分组/`、`9-图像/`、`10-画布/`；不再创建项目级 `0-初始化/`。
+  - 不递归预建 `2-美学` 细目风格包、`3-主体` 场景/角色/道具域包、`9-图像` 叶子、`10-画布/libTV画布流`、卫星技能、backup、workflow 或 `_shared` 包。
+  - 同步修正 `scope-and-runtime.md`、输出模板、共享 runtime layout、经验层与 `scripts/aigc_skill_audit.py` 中 `3-主体` 的阶段顺序漂移。
+
 ## 2026-06-04
 
 - `Case-20260604-AIGC-INIT-CONTEXT-BASELINE`

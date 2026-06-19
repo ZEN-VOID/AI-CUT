@@ -21,6 +21,7 @@ repair/
 │   └── repair-heuristics.md
 ├── types/
 │   ├── type-map.md
+│   ├── scope/problem-discovery.md
 │   ├── scope/locality.md
 │   ├── scope/clue-thread.md
 │   ├── scope/character-state.md
@@ -44,7 +45,9 @@ repair/
 
 ## Quick Entry
 
-Use `$story-repair` for story project repair requests that require typed impact mapping across settings, planning, drafts, polish, review, return, state, and future generation constraints.
+Use `$story-repair` for story project repair requests that require symptom discovery and typed impact mapping across settings, planning, drafts, polish, review, return, state, and future generation constraints.
+
+Vague symptoms such as "不好看", "人物不对", "读不清", "AI 味", "伏笔断了", or "没钩子" first load `types/scope/problem-discovery.md` and produce a `problem_discovery_packet`; they must not jump directly into canonical prose rewriting.
 
 The universal "when X, check X" matrix lives in `references/impact-scope-contract.md`; project-specific additions belong in `projects/story/<项目名>/CONTEXT/` or `MEMORY.md` only when they are stable project memory.
 

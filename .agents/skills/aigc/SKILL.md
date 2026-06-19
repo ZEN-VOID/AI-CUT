@@ -54,7 +54,7 @@ Accepted input:
 Required input:
 
 - 可判断的媒介归属：影视 / 视频 / AIGC 短剧项目进入本根入口；小说进入 `projects/story/<项目名>/` 对应 story 技能；漫画进入 `projects/comic/<项目名>/` 对应 comic 技能。
-- 初始化任务必须能锁定项目名；`0-初始化` 当前只创建 0-10 目录骨架、项目根 `MEMORY.md` 与项目根 `CONTEXT/`，不要求 `auto/custom`、north-star 或团队输入。
+- 初始化任务必须能锁定项目名；`0-初始化` 当前只创建 `1-分集` 到 `10-画布` 目录骨架、项目根 `MEMORY.md` 与项目根 `CONTEXT/`，不创建项目级 `0-初始化/`，不要求 `auto/custom`、north-star 或团队输入。
 - 阶段执行、查询、恢复或审查任务必须能定位项目根，或由用户提供足够上下文让根入口先路由到唯一阶段/卫星。
 
 Reject or clarify when:
@@ -145,7 +145,7 @@ flowchart TD
 
 | stage        | skill path                        | project runtime                      | status                                                                       |
 | ------------ | --------------------------------- | ------------------------------------ | ---------------------------------------------------------------------------- |
-| `0-初始化` | `.agents/skills/aigc/0-初始化/` | `projects/aigc/<项目名>/0-初始化/` | active                                                                       |
+| `0-初始化` | `.agents/skills/aigc/0-初始化/` | no project runtime directory; initializes `projects/aigc/<项目名>/` | active scaffold owner |
 | `1-分集`   | `.agents/skills/aigc/1-分集/`   | `projects/aigc/<项目名>/1-分集/`   | active                                                                       |
 | `2-美学`   | `.agents/skills/aigc/2-美学/`   | `projects/aigc/<项目名>/2-美学/`   | active；默认消费 `1-分集` 全部故事源或用户指定 source，先输出 `类型风格.md`，再并发生成画面基调、场景风格、角色风格、道具风格、分镜风格和摄影风格；`画面基调` 为项目级 singleton，其余 5 类风格在单集执行时优先落到 `2-美学/第N集/<风格>/` |
 | `3-主体`   | `.agents/skills/aigc/3-主体/`   | `projects/aigc/<项目名>/3-主体/`   | active；默认消费 `1-分集` 全量故事源、`2-美学/类型风格.md` 和相关风格协议，建立 `主体注册表.md` / `subject-registry.yaml` 作为角色、场景、道具命名真源，并并发进入三域清单、设计和生成 |
@@ -167,7 +167,7 @@ flowchart TD
 
 旧 `2-编导`、`3-运动`、旧 `4-摄影`、旧 `5-分组`、旧 `3-导演`、旧 `4-表演`、`5-Image` 与旧 `6-Video` 只作为 legacy 自然语言兼容触发词或旧产物回读线索；显式 `4-编剧`、`5-导演` 分别路由到当前同名阶段目录，显式 `5-表演`、`6-氛围`、`9-光影` 只路由到 `backup/` 退役兼容入口做只读回读、迁移说明或重定向。
 
-Supporting project roots may be created by later owning workflows as needed. `0-初始化` only creates the current 0-10 stage directories, `projects/aigc/<项目名>/MEMORY.md`, and `projects/aigc/<项目名>/CONTEXT/`.
+Supporting project roots may be created by later owning workflows as needed. `0-初始化` only creates the current `1-分集` through `10-画布` stage directories, `projects/aigc/<项目名>/MEMORY.md`, and `projects/aigc/<项目名>/CONTEXT/`; it does not create `projects/aigc/<项目名>/0-初始化/`.
 
 ## Reference Loading Guide
 

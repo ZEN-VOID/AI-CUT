@@ -1,9 +1,9 @@
 {
-  "_inactive_for_current_aigc_init": "Current scaffold initialization writes only 0-10 directories plus project MEMORY.md and CONTEXT/README.md.",
+  "_inactive_for_current_aigc_init": "Current scaffold initialization writes only 1-10 directories plus project MEMORY.md and CONTEXT/README.md, without creating project-level 0-初始化/.",
   "schema_version": "aigc-state/v1",
   "project_root": "projects/aigc/__PROJECT_NAME__/",
   "current_stage": "0-初始化",
-  "current_stage_path": "projects/aigc/__PROJECT_NAME__/0-初始化/",
+  "current_stage_path": "",
   "recommended_next_stage": "",
   "recommended_entry_path": "",
   "recommended_next_step": "",
@@ -23,7 +23,6 @@
     "legacy_changelog": "projects/aigc/__PROJECT_NAME__/CHANGELOG.md",
     "source_root": "projects/aigc/__PROJECT_NAME__/源/",
     "stage_roots": [
-      "projects/aigc/__PROJECT_NAME__/0-初始化/",
       "projects/aigc/__PROJECT_NAME__/1-分集/",
       "projects/aigc/__PROJECT_NAME__/2-美学/",
       "projects/aigc/__PROJECT_NAME__/3-主体/",

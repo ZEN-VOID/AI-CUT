@@ -7,6 +7,13 @@ default_model:
   resolution_policy: "handled_by_libtv_model_schema"
   model_key_resolution: "before execution, run libtv model search --type image \"Midjourney V8.1\" and inspect the selected model schema with libtv model <modelKey>"
 
+schema_constraints:
+  midjourney_v8_1:
+    count_policy: "follow resolved libTV model schema; do not force count=1 unless the schema explicitly exposes 1"
+    observed_libtv_count_values: [4]
+    observed_at: "2026-06-17"
+    execution_note: "When libTV schema exposes count=[4], generate the provider candidate set and persist the selected/final canonical asset under the required subject stem; do not expand candidates into separate subjects."
+
 model_policy:
   new_subject_default:
     display_name: "Midjourney V8.1"

@@ -1,6 +1,6 @@
 # AIGC Project Memory Init Context Consumption Contract
 
-本合同替代旧“创作阶段 team advisor consultation”口径。当前 `0-初始化` 是 scaffold-plus-memory：创建当前 0-10 阶段目录、项目根 `MEMORY.md` 与 `CONTEXT/README.md`，并把初始化时用户指定的团队配置、协作偏好、参考资料吸收摘要、生产限制和下游读取指南直接写入 `MEMORY.md`。
+本合同替代旧“创作阶段 team advisor consultation”口径。当前 `0-初始化` 是 scaffold-plus-memory：创建当前 `1-分集` 到 `10-画布` 阶段目录、项目根 `MEMORY.md` 与 `CONTEXT/README.md`，不创建项目级 `0-初始化/`，并把初始化时用户指定的团队配置、协作偏好、参考资料吸收摘要、生产限制和下游读取指南直接写入 `MEMORY.md`。
 
 `team.yaml`、旧初始化风格载体、`init_handoff.yaml` 和 `story-source-manifest.yaml` 不是当前初始化必出项。旧项目已有的这些文件只能作为 legacy evidence；新项目和新阶段默认先消费项目 `MEMORY.md`，美学方向默认消费 `2-美学` 输出。
 

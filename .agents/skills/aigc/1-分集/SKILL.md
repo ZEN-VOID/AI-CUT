@@ -39,8 +39,8 @@ governance_tier: full
 硬门槛：
 
 - `第N集`、`Episode N`、`EP N` 或上下文明显为连载单元的 `第N话` 才能触发原生集标路径。
-- 章节不等于集数；`第N章`、`Chapter N`、卷、章、节、小节和 story 项目章节文件名只能作为候选边界，不得触发“一章一集”。
-- 没有 P1 原生集标时，默认每集约 2500-3000 中文字，允许为自然段、章节小节或强戏剧断点小幅偏离，但必须写明理由。
+- 章回体或章节体小说没有 P1 原生集标时，默认按最稳定的顶层自然结构一章/一回一集；`第N章`、`第N回`、`Chapter N`、回目标题和 story 项目章节文件名都是默认集边界。
+- 只有连续正文缺少章节/回目结构，或用户明确要求短剧节奏重组时，才启用每集约 2500-3000 中文字的字数窗。
 - 输出目录已有 `第N集.md` 时，先判断续跑、修复或覆盖；破坏性覆盖未授权时停止。
 
 ## Input Contract
@@ -69,8 +69,9 @@ governance_tier: full
 | mode | trigger | route | output |
 | --- | --- | --- | --- |
 | `source_scan` | 需要识别项目或用户指定小说原文 | `T1,T2,T3,T8` | 输入清单、可读性判断、排序依据 |
-| `explicit_episode_split` | 原资料自带真实 P1 集标，且不是章节/卷/节结构 | `T1,T2,T3,T4,T5,T6,T7,T8` | 按原集标落盘为 `第N集.md` |
-| `length_based_split` | 原资料没有真实 P1 集标 | `T1,T2,T3,T4,T5,T6,T7,T8` | 按 P2/P3 边界与 2500-3000 字目标窗落盘 |
+| `explicit_episode_split` | 原资料自带真实 P1 集标 | `T1,T2,T3,T4,T5,T6,T7,T8` | 按原集标落盘为 `第N集.md` |
+| `chapter_structure_split` | 原资料没有 P1 集标，但有 `第N章`、`第N回`、回目、chapter 或稳定章节文件 | `T1,T2,T3,T4,T5,T6,T7,T8` | 默认一章/一回一集，保留顶层自然结构 |
+| `length_based_split` | 连续正文缺少章节/回目结构，或用户明确要求重组 | `T1,T2,T3,T4,T5,T6,T7,T8` | 按自然段、戏剧断点与 2500-3000 字目标窗落盘 |
 | `repair` | 输出缺失、编号断裂、源路径漂移、覆盖不完整或复核失败 | `T1,R1,R2,T7,T8` | 最小修复 patch 与更新后的执行报告 |
 | `review` | 用户只要求验收已有分集产物 | `T1,V1,T8` | findings、fail code、返工目标 |
 
@@ -79,7 +80,7 @@ governance_tier: full
 | input_type | signal | route_to | required_nodes | module_load | fail_code |
 | --- | --- | --- | --- | --- | --- |
 | `explicit_episode` | 稳定 `第N集`、`Episode N`、`EP N` 或真实连载单元 `第N话` | `explicit_episode_split` | `T1,T2,T3,T4,T5,T6,T7,T8` | `types/type-map.md`, `types/source-type-map.md`, `references/input-output-contract.md`, `review/review-contract.md`, `templates/episode-output.template.md` | `FAIL-SPLIT-02` |
-| `chaptered_novel` | 只有 `第N章`、chapter、卷、章、节或 story 章节文件名 | `length_based_split` | `T1,T2,T3,T4,T5,T6,T7,T8` | `types/type-map.md`, `types/source-type-map.md`, `references/input-output-contract.md`, `knowledge-base/episode-split-heuristics.md`, `review/review-contract.md`, `templates/episode-output.template.md` | `FAIL-SPLIT-02A` |
+| `chaptered_novel` | 有 `第N章`、`第N回`、回目、chapter、卷、章、节或 story 章节文件名 | `chapter_structure_split` | `T1,T2,T3,T4,T5,T6,T7,T8` | `types/type-map.md`, `types/source-type-map.md`, `references/input-output-contract.md`, `knowledge-base/episode-split-heuristics.md`, `review/review-contract.md`, `templates/episode-output.template.md` | `FAIL-SPLIT-02A` |
 | `plain_novel` | 连续正文，缺少标题或编号 | `length_based_split` | `T1,T2,T3,T4,T5,T6,T7,T8` | `types/type-map.md`, `types/source-type-map.md`, `references/input-output-contract.md`, `knowledge-base/episode-split-heuristics.md`, `review/review-contract.md`, `templates/episode-output.template.md` | `FAIL-SPLIT-03` |
 | `mixed_source` | 多文件、多版本或正文夹杂设定 | `source_scan` 或 `length_based_split` | `T1,T2,T3,T4,T5,T7,T8` | `types/type-map.md`, `types/source-type-map.md`, `references/input-output-contract.md`, `review/review-contract.md` | `FAIL-SPLIT-01` |
 | `blocked_source` | 无正文、乱码、图片、扫描件或权限不可读 | `blocked` | `T1,T2,T8` | `types/type-map.md`, `types/source-type-map.md` | `FAIL-SPLIT-01A` |
@@ -91,8 +92,8 @@ governance_tier: full
 | `T1-INTAKE` | 锁定任务范围、项目根、模式和注意力锚点 | 识别用户显式路径、项目名、输出目录、是否为 review/repair；形成 `business_profile` | 项目根、用户源路径、目标输出目录、模式判断 | `T2` / `R1` / `V1` | 输入缺少项目和输出目标时不落盘；业务目标/对象/成功标准不清回到本节点 |
 | `T2-SOURCE-LOCK` | 锁定唯一小说原文真源 | 按用户显式路径 > 项目 `源/` > 用户明确要求的旧路径 fallback 选源；排除 `MEMORY.md`、`CONTEXT/`、设定案和治理文档 | 至少 1 份输入清单、真源路径、被排除资料说明 | `T3` | 无可读正文或真源多头时停止，`FAIL-SPLIT-01` |
 | `T3-SOURCE-ORDER` | 建立稳定阅读顺序 | 对多文件按自然数字文件名、正文内章节号、标题顺序排序；记录排序依据 | 文件顺序表、可读性判断、排序规则 | `T4` | 排序不可复查或来源不可读时 `FAIL-SPLIT-01A` |
-| `T4-MARK-SCAN` | 判定源材料是否自带真实集数划分 | 扫描 P1 集标；同时列出被排除的 `第N章`、chapter、卷/章/节信号 | P1 集标列表、章节信号排除列表、`source_type` | `T5` | 把章节当集标时 `FAIL-SPLIT-02A`；忽略真实 P1 集标时 `FAIL-SPLIT-02` |
-| `T5-BOUNDARY-SOLVE` | 生成分集边界表 | P1 按原集标；否则用 P2 自然结构和 P3 2500-3000 字目标窗裁决边界 | 每集起止位置、字数、边界理由、偏离说明、anti_mechanical_boundary_audit | `T6` | 每集必须有来源范围；无 P1 时不得机械一章一集；不得用模板句、关键词锚点替换或固定句式伪造差异化边界理由；断句/对白/关键动作被切断时 `FAIL-SPLIT-03` |
+| `T4-MARK-SCAN` | 判定源材料是否自带真实集数划分或章节/回目结构 | 扫描 P1 集标；同时识别可作为默认分集边界的 `第N章`、`第N回`、chapter、回目、卷/章/节信号 | P1 集标列表、章节/回目边界列表、`source_type` | `T5` | 忽略真实 P1 集标时 `FAIL-SPLIT-02`；有章节/回目却未默认映射为集时 `FAIL-SPLIT-02A` |
+| `T5-BOUNDARY-SOLVE` | 生成分集边界表 | P1 按原集标；无 P1 但有章/回结构时默认一章/一回一集；连续正文或用户要求重组时才用 2500-3000 字目标窗 | 每集起止位置、字数、边界理由、偏离说明、anti_mechanical_boundary_audit | `T6` | 每集必须有来源范围；不得跳过可识别章/回边界；不得用模板句、关键词锚点替换或固定句式伪造差异化边界理由；断句/对白/关键动作被切断时 `FAIL-SPLIT-03` |
 | `T6-WRITEBACK` | 写入逐集原文与执行报告 | 生成 `第N集.md`；正文保持原文；更新 `执行报告.md` | 输出文件清单、编号检查、报告路径、正文保真抽查或 diff | `T7` | 编号不连续、路径错误、正文改写或覆盖未授权时 `FAIL-SPLIT-04` |
 | `T7-REVIEW` | 验收覆盖、边界、路径和保真 | 执行 review gates；检查报告字段、覆盖状态、返工入口 | gate 结果、coverage 表、fail code 或 pass evidence | `T8` / `R1` | 8 个 gate 必须全过；失败按 fail code 返回对应节点 |
 | `T8-CLOSE` | 汇流交付 | 输出最终说明、已写文件、未覆盖原因、残余风险和下一阶段入口 | final report、执行报告摘要 | done | 只允许一个 final output；不得留下平行真源 |
@@ -107,7 +108,7 @@ governance_tier: full
 | pass_id | bound_nodes | pass_focus | pass_evidence |
 | --- | --- | --- | --- |
 | `PASS-SOURCE` | `T1,T2,T3` | 项目根、唯一正文真源、可读性和确定性排序 | 输入清单、排序表、排除说明 |
-| `PASS-BOUNDARY` | `T4,T5` | P1 集标识别、章节信号排除、P2/P3 边界裁决 | 集标列表、章节排除列表、边界表 |
+| `PASS-BOUNDARY` | `T4,T5` | P1 集标识别、章节/回目默认边界识别、必要时 P3 边界裁决 | 集标列表、章节/回目边界列表、边界表 |
 | `PASS-WRITEBACK` | `T6` | canonical 路径、连续编号、正文保真 | 输出清单、编号检查、diff 或抽查 |
 | `PASS-REVIEW` | `T7,T8,R1,R2,V1` | review gate、fail code、返工目标和最终汇流 | gate 结果、coverage 表、final report |
 
@@ -120,9 +121,11 @@ flowchart TD
     C --> D["T4-MARK-SCAN<br/>P1 episode mark guard"]
     D --> E{"real P1 episode marks?"}
     E -->|"yes"| F["T5-BOUNDARY-SOLVE<br/>keep original episode boundaries"]
-    E -->|"no or chapter-only"| G["T5-BOUNDARY-SOLVE<br/>P2/P3 + 2500-3000 chars"]
+    E -->|"chapter/hui structure"| G["T5-BOUNDARY-SOLVE<br/>one chapter/hui per episode"]
+    E -->|"plain text or requested regroup"| L["T5-BOUNDARY-SOLVE<br/>P3 + 2500-3000 chars"]
     F --> H["T6-WRITEBACK<br/>第N集.md + 执行报告.md"]
     G --> H
+    L --> H
     H --> I["T7-REVIEW<br/>coverage + faithfulness"]
     I -->|"pass"| J["T8-CLOSE"]
     I -->|"fail"| K["R1/R2 root-cause repair"]
@@ -159,7 +162,8 @@ flowchart LR
 | 每次调用 `$aigc-episode-split` | `types/type-map.md`, `types/source-type-map.md` | `T1` before `T4` | `GATE-SPLIT-02-P1-EPISODE-MARK` |
 | 用户指定源路径或项目默认 `源/` | `references/input-output-contract.md` | `T2` | `GATE-SPLIT-01-SOURCE-LOCK` |
 | 多文件、多章节或 mixed source | `types/source-type-map.md`, `references/input-output-contract.md` | `T3` | `GATE-SPLIT-01A-SOURCE-ORDER` |
-| 无 P1 集标或只有章节结构 | `knowledge-base/episode-split-heuristics.md`, `references/input-output-contract.md` | `T5` | `GATE-SPLIT-03-BOUNDARY-SOLVE` |
+| 无 P1 集标但有章节/回目结构 | `knowledge-base/episode-split-heuristics.md`, `references/input-output-contract.md` | `T5` | `GATE-SPLIT-02A-CHAPTER-AS-EPISODE` |
+| 连续正文缺少章节/回目结构，或用户要求重组 | `knowledge-base/episode-split-heuristics.md`, `references/input-output-contract.md` | `T5` | `GATE-SPLIT-03-BOUNDARY-SOLVE` |
 | 写入单集文件 | `templates/episode-output.template.md` | `T6` | `GATE-SPLIT-04-EPISODE-WRITEBACK` |
 | review、repair 或交付前 | `review/review-contract.md` | `T7` | `GATE-SPLIT-05-REPORT-COVERAGE` |
 | `FAIL-SPLIT-01` / `FAIL-SPLIT-01A` | `types/source-type-map.md`, `references/input-output-contract.md` | `R1` | `GATE-SPLIT-01-SOURCE-LOCK` |
@@ -173,7 +177,8 @@ flowchart LR
 | `action_scope` | 覆盖用户源路径或项目 `源/` 下所有可读正文文件；多文件必须列出 100% 输入顺序。 | `T2,T3` | `FAIL-QUANT-ACTION-SCOPE` |
 | `evidence_count` | 至少保留输入清单、源类型判定、边界表、输出文件清单、coverage 表 5 类证据。 | `T2-T7` | `FAIL-QUANT-EVIDENCE` |
 | `pass_threshold` | 8 个 review gates 全部通过；`第N集.md` 编号从 1 连续；coverage 不允许无解释遗漏；`GATE-SPLIT-06-ANTI-MECHANICAL-BOUNDARY` 阻断项为 0。 | `T7` | `FAIL-QUANT-THRESHOLD` |
-| `length_window` | 无 P1 集标时每集目标 2500-3000 中文字；偏离必须有自然段、章节小节、悬念点或用户指令证据。 | `T5` | `FAIL-SPLIT-03` |
+| `chapter_hui_default` | 无 P1 集标但有稳定章/回结构时，默认一章/一回一集；偏离必须有用户重组指令、源结构异常或覆盖修复证据。 | `T5` | `FAIL-SPLIT-02A` |
+| `length_window` | 仅连续正文缺少章节/回目结构或用户要求重组时，每集目标 2500-3000 中文字；偏离必须有自然段、悬念点或用户指令证据。 | `T5` | `FAIL-SPLIT-03` |
 | `retry_limit` | 同一 fail code 连续返工 2 次仍失败时，停止并报告阻塞原因、已试 patch 和需要用户确认的信息。 | `R1,R2` | `FAIL-QUANT-RETRY` |
 | `fallback_evidence` | 无法做完整 diff 时，至少抽查每集开头/中段/结尾各 1 处正文保真证据。 | `T6,T7` | `FAIL-QUANT-FALLBACK` |
 
@@ -182,7 +187,7 @@ flowchart LR
 | convergence_point | pass_condition | fail_condition | rework_target | evidence |
 | --- | --- | --- | --- | --- |
 | `CV-SOURCE` | 唯一正文真源锁定，且输入顺序可复查。 | 真源多头、误用设定/CONTEXT、不可读或排序漂移。 | `T2` / `T3` | 输入清单、排序表、排除说明 |
-| `CV-BOUNDARY` | P1 集标被尊重；无 P1 时 P2/P3 边界有字数和戏剧断点证据，且每集边界理由不是模板句轮换。 | 忽略 P1、把章节当集、机械截断正文、用规则模板或锚点替换伪造边界差异。 | `T4` / `T5` | 集标列表、章节排除列表、边界表、anti_mechanical_boundary_audit |
+| `CV-BOUNDARY` | P1 集标被尊重；无 P1 但有章节/回目结构时默认一章/一回一集；连续正文或用户要求重组时 P3 边界有字数和戏剧断点证据，且每集边界理由不是模板句轮换。 | 忽略 P1、跳过章/回默认边界、机械截断正文、用规则模板或锚点替换伪造边界差异。 | `T4` / `T5` | 集标列表、章节/回目边界列表、边界表、anti_mechanical_boundary_audit |
 | `CV-WRITEBACK` | 所有 `第N集.md` 写入 canonical 目录，编号连续，正文未改写。 | 路径错误、编号断裂、正文改写或覆盖未授权。 | `T6` | 输出清单、保真抽查、diff |
 | `CV-REPORT` | `执行报告.md` 可复查输入、模式、每集范围、字数、coverage 和返工入口。 | 报告缺字段、coverage 无解释遗漏、返工入口不定位集数。 | `T7` | 报告字段与 gate 结果 |
 
@@ -193,8 +198,8 @@ flowchart LR
 | 是否锁定唯一小说原文真源，且未把 `MEMORY.md`、`CONTEXT/`、设定案或治理文件抬升为正文真源？ | `GATE-SPLIT-01-SOURCE-LOCK` | `FAIL-SPLIT-01` | `T2-SOURCE-LOCK` | 输入路径、fallback 说明、文件清单、真源排除说明 |
 | 多文件或多章节来源是否可读，并已建立可复查的确定性顺序？ | `GATE-SPLIT-01A-SOURCE-ORDER` | `FAIL-SPLIT-01A` | `T3-SOURCE-ORDER` | 可读性判断、排序依据、输入文件顺序表 |
 | 源资料存在真实 P1 集标时，是否按原资料进入 `explicit_episode_split`，没有按字数重切？ | `GATE-SPLIT-02-P1-EPISODE-MARK` | `FAIL-SPLIT-02` | `T4-MARK-SCAN` / `T5-BOUNDARY-SOLVE` | 集标列表、每集原始边界、切分模式 |
-| 章节、卷、节、chapter 或 story 文件名是否只作为 P2 候选，没有被当作 AIGC 原生集标或一章一集规则？ | `GATE-SPLIT-02A-CHAPTER-NOT-EPISODE` | `FAIL-SPLIT-02A` | `T4-MARK-SCAN` / `T5-BOUNDARY-SOLVE` | 被排除章节信号、P2/P3 裁决说明、非一章一集证据 |
-| 无 P1 集标时，边界是否结合自然结构、戏剧断点和 2500-3000 字目标窗？ | `GATE-SPLIT-03-BOUNDARY-SOLVE` | `FAIL-SPLIT-03` | `T5-BOUNDARY-SOLVE` | 每集字数、起止段落、边界理由、偏离说明 |
+| 章节、回目、卷、节、chapter 或 story 文件名是否在无 P1 集标时默认映射为 `第N集.md`，且偏离一章/一回一集时有明确证据？ | `GATE-SPLIT-02A-CHAPTER-AS-EPISODE` | `FAIL-SPLIT-02A` | `T4-MARK-SCAN` / `T5-BOUNDARY-SOLVE` | 章节/回目边界列表、默认映射说明、偏离原因 |
+| 连续正文缺少章节/回目结构，或用户要求重组时，边界是否结合自然结构、戏剧断点和 2500-3000 字目标窗？ | `GATE-SPLIT-03-BOUNDARY-SOLVE` | `FAIL-SPLIT-03` | `T5-BOUNDARY-SOLVE` | 每集字数、起止段落、边界理由、偏离说明 |
 | 逐集文件是否写入 canonical 目录、编号连续、正文保真？ | `GATE-SPLIT-04-EPISODE-WRITEBACK` | `FAIL-SPLIT-04` | `T6-WRITEBACK` | 输出文件清单、编号检查、正文保真抽查或 diff |
 | `执行报告.md` 是否足以复查输入、边界、字数、覆盖状态、跳过原因和具体返工入口？ | `GATE-SPLIT-05-REPORT-COVERAGE` | `FAIL-SPLIT-05` | `T7-REVIEW` | 边界表、coverage 表、跳过原因、返工入口 |
 | 分集边界和理由是否由 LLM 基于原文结构裁决，而非脚本、映射表、规则模板、关键词锚点替换或固定句式轮换批量生成？ | `GATE-SPLIT-06-ANTI-MECHANICAL-BOUNDARY` | `FAIL-SPLIT-06` | `T5-BOUNDARY-SOLVE` | `anti_mechanical_boundary_audit`、非模板化边界理由样本 |
@@ -230,7 +235,7 @@ flowchart LR
 | `FIELD-SPLIT-01` | 输入清单 | 记录用户指定路径或项目默认 `源/`、文件顺序、可读性 | `FAIL-SPLIT-01` |
 | `FIELD-SPLIT-01A` | 排序依据 | 多文件时记录自然数字排序、正文内章节号或标题顺序 | `FAIL-SPLIT-01A` |
 | `FIELD-SPLIT-02` | 切分模式 | 明确 `explicit_episode_split` 或 `length_based_split` | `FAIL-SPLIT-02` |
-| `FIELD-SPLIT-02A` | 章节排除证据 | 章节/卷/节只作为 P2 候选，未触发 P1 | `FAIL-SPLIT-02A` |
+| `FIELD-SPLIT-02A` | 章节/回目默认集边界证据 | 无 P1 时章节/回目默认映射为 `第N集.md`；偏离必须说明 | `FAIL-SPLIT-02A` |
 | `FIELD-SPLIT-03` | 边界表 | 每集起止位置、来源标题/章节/段落证据、字数和理由 | `FAIL-SPLIT-03` |
 | `FIELD-SPLIT-04` | `第N集.md` | 编号连续、内容完整、未改写原文 | `FAIL-SPLIT-04` |
 | `FIELD-SPLIT-05` | `执行报告.md` | 输入、模式、字数、coverage、返工入口完整 | `FAIL-SPLIT-05` |
@@ -251,7 +256,7 @@ flowchart LR
 | --- | --- | --- | --- |
 | `ATTE-SPLIT-01` | 注意力锚点 | 当前锚点始终是“原文真源 -> 源类型 -> 边界表 -> 逐集文件 -> 执行报告 -> review gate”。 | `T1-INTAKE` |
 | `ATTE-SPLIT-02` | 注意力转移 | objective 完成后看 actions；actions 完成后看 evidence；evidence 不足转 gate；gate 失败转 fail code 节点。 | `Thinking-Action Node Map` |
-| `ATTE-SPLIT-03` | 漂移检测 | 出现改写正文、把章节当集、读取设定当正文、只写报告不落盘、模块另立规则、输出路径分裂时判定漂移。 | `Review Gate Binding` |
+| `ATTE-SPLIT-03` | 漂移检测 | 出现改写正文、跳过章/回默认分集、读取设定当正文、只写报告不落盘、模块另立规则、输出路径分裂时判定漂移。 | `Review Gate Binding` |
 | `ATTE-SPLIT-04` | 再集中 | 回到最近有效节点，不继续扩写当前局部文本；最终报告说明漂移信号和收束依据。 | `R1-ROOT-CAUSE` / `R2-SYNC` |
 
 ## Multi-Subskill Continuous Workflow
@@ -283,7 +288,7 @@ flowchart LR
 
 - 把 `CONTEXT/`、设定案、治理文档误当小说原文真源。
 - 原资料已有 `第N集` 等明确划分，却又按 2500-3000 字重切。
-- 把 story 的 `第N章`、chapter 文件或章节标题误判为 AIGC 原生 `第N集` 标记。
+- 原资料有 `第N章`、`第N回`、chapter 文件或章节标题，却没有默认映射为一章/一回一集。
 - 用脚本、映射表、规则模板、关键词锚点替换或固定句式轮换批量生成分集边界理由。
 - 输出写到 `1-Planning`、`1-规划`、`Original`、`源` 或其他平行目录。
 - 脚本替代 LLM 做分集边界创作判断。

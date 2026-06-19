@@ -31,7 +31,7 @@
 | 新增字段标签 | 27种正式字段 | 不得新增其他解析体系或摄影方案字段 |
 | 画面化改写 | 目标/阻碍/策略/停顿/视线/呼吸/手部动作/身体距离/道具关系 | 不得删除事实、改变事件顺序或把动作改成解释性旁白 |
 | 角色主观经验投影 | `独白（角色）`、`内心独白（角色）`、可感知 `心理反应`、可执行 `表演提示` | `心理反应` 必须落实为身体、表情、呼吸、停顿、声线、道具或空间反应，不能成为抽象内心解释 |
-| 客观叙事派生语音 | 非引号内客观叙事可按 `narration-to-voice-adaptation-contract.md` 转为有锚点的对白、独白、内心独白或旁白 | 不得改写上游已有对白，不得新增事实、事件、因果、规则、线索、人物动机或信息差泄露，必须在报告中留 `narration_to_voice_adaptation_map` |
+| 客观叙事派生语音 / 解说旁白 | `正剧` 中非引号内客观叙事可按 `narration-to-voice-adaptation-contract.md` 转为有锚点的对白、独白、内心独白或旁白；`解说剧` 中必须先建立 `jieshuoju_source_unit_coverage_map`，再把陈述性 source 转为 `旁白（主体）` + `旁白画面` | 不得改写上游已有对白，不得新增事实、事件、因果、规则、线索、人物动机或信息差泄露，必须在报告中留 `jieshuoju_source_unit_coverage_map` 与 `narration_to_voice_adaptation_map`；`解说剧` 不得把陈述性 source 改写为派生对白/独白/内心独白，不得摘要、漏写或重排因果 |
 
 ### FR-3：对话冻结
 
@@ -43,7 +43,14 @@
 | **语态限制** | 第二项只展示上游已有或上下文可确认的说话方式与角色状态，可以是短语（例如 `压着笑意`、`声音发颤`），不强制一词或以"地"结尾；不得借该项改变对白含义或新增人物心理 |
 | **引号纯度** | 引号内不得混入动作描写；动作、表情、停顿、空间反应全部下沉到对应 `*画面`、`角色动作`、`表情特写` 或 `表演提示` |
 
-派生语音边界：从非引号内客观叙事转出的 `derived_voice_line` 不属于 `source_dialogue`，但必须满足 `narration-to-voice-adaptation-contract.md` 的触发、说话者资格、预算和证据要求；它不得替代、修饰或续写上游已有对白。
+派生语音边界：从非引号内客观叙事转出的 `derived_voice_line` 不属于 `source_dialogue`，但必须满足 `narration-to-voice-adaptation-contract.md` 的模式、触发、说话者资格、预算和证据要求；它不得替代、修饰或续写上游已有对白。`解说剧` 中的 `derived_voice_line` 只能承载旁白化 source 信息，不授权生成新对白、独白或内心独白。
+
+### FR-2A：剧本呈现模式
+
+| mode | selection | projection rule | required evidence |
+| --- | --- | --- | --- |
+| `zhengju` / `正剧` | 默认；用户未显式指定模式时使用 | 沿用当前正剧剧本化投影：可把陈述转为可拍动作、对白、独白、内心独白、音效、道具证据或必要旁白 | `screenplay_mode_decision.default_applied=true`、`narration_to_voice_adaptation_map.mode_policy=zhengju_source_grounded_voice` |
+| `jieshuoju` / `解说剧` | 只在用户或项目记忆显式指定时使用 | 完全按照故事源内容；先按 source 单元类型覆盖 source，再把陈述性 source 全部投影为 `旁白（叙述者/指定主体）` + `旁白画面`；上游已有对白仍逐字冻结为对白，可见动作/环境不被过度旁白化 | `screenplay_mode_decision.explicit_mode_signal`、`jieshuoju_source_unit_coverage_map`、`narration_to_voice_adaptation_map.mode_policy=jieshuoju_narration_only` |
 
 ### FR-4：场景标题规范
 
@@ -172,6 +179,7 @@ stage: 4-编剧
 source_episode_path: projects/aigc/<项目名>/1-分集/第N集.md
 output_path: projects/aigc/<项目名>/4-编剧/第N集.md
 adaptation_mode: faithful_screenplay_projection
+screenplay_mode: zhengju
 dialogue_lock: true
 audio_visual_pairing: required
 slugline_policy: stable_by_location_time
@@ -243,7 +251,7 @@ enrichment_mode: none
 | FR-1 | 事实保真 | `script-adaptation-contract.md` §Artistic Transformation Boundary |
 | FR-2 | 信息量保真 | `field-routing-and-audio-visual-contract.md` §Audio-Visual Pairing |
 | FR-3 | 对话冻结 | `field-routing-and-audio-visual-contract.md` §Dialogue Freeze |
-| 派生语音 | 客观叙事转对白/独白 | `narration-to-voice-adaptation-contract.md` |
+| 派生语音 / 解说旁白 | `正剧` 客观叙事转对白/独白/内心独白/必要旁白；`解说剧` 先做 source 单元覆盖，再将陈述性 source 转旁白 | `narration-to-voice-adaptation-contract.md` |
 | FR-4 | 场景标题规范 | `field-routing-and-audio-visual-contract.md` §Scene Title Contract |
 | FR-5 | 声音字段纯度 | `field-routing-and-audio-visual-contract.md` §Sound Literal Rule |
 | FR-6 | 动作字段纯度 | `field-routing-and-audio-visual-contract.md` §Action Field Dynamics |
@@ -261,6 +269,7 @@ enrichment_mode: none
 | FR-1 事实保真是否成立：没有压缩、摘要、删减剧情事实，没有自由改写因果或重排事件顺序？ | `GATE-SCRIPT-03` | `FAIL-FAITHFULNESS` | `../SKILL.md#N5-SCRIPT-DRAFT` / `../SKILL.md#N6R-SCRIPT-REPAIR` | `faithful_projection_trace` 逐段记录上游事实、输出字段和顺序对齐 |
 | FR-2 信息量保真是否成立：新增 frontmatter、slugline、字段标签和画面化改写只服务投影，没有替代正文、删除信息或新增第二套解析体系？ | `GATE-SCRIPT-03` / `GATE-SCRIPT-10` | `FAIL-FAITHFULNESS` / `FAIL-CONCRETE-VISUAL` | `../SKILL.md#N4-FIELD` / `../SKILL.md#N5-SCRIPT-DRAFT` | `field_projection_map` 与 `faithful_projection_trace` 记录每条新增字段的上游依据 |
 | FR-3 对话冻结是否成立：上游已有对白逐字保真、真实角色名、语态/状态短语不改含义、引号内无动作，且客观叙事派生语音没有替代或改写上游对白？ | `GATE-SCRIPT-04` | `FAIL-DIALOGUE` | `../SKILL.md#N5-SCRIPT-DRAFT` | `dialogue_lock_map` 记录上游对白、输出对白、角色名、语态依据和派生语音隔离风险；`narration_to_voice_adaptation_map` 记录非对白来源 |
+| `screenplay_mode` 是否符合主合同：无显式指定默认为 `正剧`；显式 `解说剧` 时 source 单元已类型化覆盖，陈述性 source 全部落为 `旁白/旁白画面`，没有转派生对白/独白/内心独白，也没有摘要、漏写或重排因果？ | `GATE-SCR-25` | `FAIL-SCR-SCREENPLAY-MODE` | `../SKILL.md#N1-SCR-INTAKE` / `../SKILL.md#N3-SCR-FAITHFUL-PROJECTION` / `../SKILL.md#N6-SCR-CANDIDATE-DRAFT` | `screenplay_mode_decision`、`jieshuoju_source_unit_coverage_map`、`narration_to_voice_adaptation_map`、`audio_visual_pairing_map` |
 | FR-3 长对白节拍是否成立：上游单段长对白只被拆成连续原文片段，片段拼回逐字等于上游对白，且断句服务戏剧动作、气口和可见承托？ | `GATE-SCRIPT-23` | `FAIL-LONG-DIALOGUE-BEAT` | `../SKILL.md#N4-FIELD` / `../SKILL.md#N5-SCRIPT-DRAFT` | `long_dialogue_beat_map` 记录 source_dialogue、exact_text_segment、recomposed_dialogue、dramatic_action 和 paired_visual_field |
 | FR-4 场景标题是否符合阿拉伯数字编号 + `内景/外景 场所 - 日/夜`，同一 slugline 只首次打印，不因叙事 beat 变化重复开场？ | `GATE-SCRIPT-07` | `FAIL-SLUGLINE` | `../SKILL.md#N3-SCENE` | `scene_slugline_table` 与 `scene_order_trace` 记录场景编号、slugline、首次出现和复用 |
 | 剧本化投影是否只使用允许字段，将上游信息转成可见、可听、可执行材料，而不是改写版小说、概要或自由发挥剧本？ | `GATE-SCRIPT-06` / `GATE-SCRIPT-10` | `FAIL-SCENE-VISUAL` / `FAIL-CONCRETE-VISUAL` | `../SKILL.md#N4-FIELD` / `../SKILL.md#N5-SCRIPT-DRAFT` | `field_projection_map.allowed_field_check` 记录正式字段、上游锚点和可拍性 |

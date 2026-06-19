@@ -5,7 +5,9 @@ This file owns the scaffold path allowlist for `$aigc-init`. It expands the acti
 ## Business Goal
 
 - Create or repair the project root under `projects/aigc/<项目名>/`.
-- Create the current 0-10 AIGC stage directory structure using the latest skill package names.
+- Create the current `1-分集` through `10-画布` AIGC active runtime stage-root directory structure using the latest active stage package names.
+- Do not create a project-level `0-初始化/` folder; `.agents/skills/aigc/0-初始化/` remains the skill owner, not a project output directory.
+- Do not recursively mirror `.agents/skills/aigc` leaf, domain, satellite, backup, workflow, or shared skill package structure into the project scaffold.
 - Create or update project `MEMORY.md` as the centralized project context hub for initialization-time user requirements, team configuration, supplied-reference absorption summaries, stable long-term inclinations, production constraints, exclusions, and downstream context-reading guidance.
 - Create project `CONTEXT/` with a minimal `README.md` so downstream project-context loading has a stable root.
 - Preserve existing files and avoid deleting, overwriting, or creating former multi-file initialization outputs.
@@ -14,15 +16,14 @@ This file owns the scaffold path allowlist for `$aigc-init`. It expands the acti
 
 Active initialization writeback is limited to:
 
-- `projects/aigc/<项目名>/0-初始化/`
 - `projects/aigc/<项目名>/1-分集/`
 - `projects/aigc/<项目名>/2-美学/`
+- `projects/aigc/<项目名>/3-主体/`
 - `projects/aigc/<项目名>/4-编剧/`
 - `projects/aigc/<项目名>/5-导演/`
 - `projects/aigc/<项目名>/6-分镜/`
 - `projects/aigc/<项目名>/7-摄影/`
 - `projects/aigc/<项目名>/8-分组/`
-- `projects/aigc/<项目名>/3-主体/`
 - `projects/aigc/<项目名>/9-图像/`
 - `projects/aigc/<项目名>/10-画布/`
 - `projects/aigc/<项目名>/CONTEXT/`
@@ -44,7 +45,6 @@ Initialization creates or verifies only the active business objects above.
 ## Bootstrap Runtime Skeleton
 
 ```text
-0-初始化/
 1-分集/
 2-美学/
 3-主体/
@@ -66,6 +66,7 @@ Empty stage directories are readiness containers. They do not prove that a stage
 
 New scaffold initialization must not create:
 
+- `0-初始化/`
 - `0-初始化/north_star.yaml`
 - `0-初始化/init_handoff.yaml`
 - `0-初始化/story-source-manifest.yaml`
@@ -91,9 +92,13 @@ Existing historical projects may keep legacy paths as compatibility inputs, but 
 
 ## Runtime Interpretation
 
-- `0-初始化/` is only an empty initialization stage container after scaffold creation.
+- `0-初始化/` is not a project scaffold container for new initialization. The initialization skill package remains under `.agents/skills/aigc/0-初始化/`, while project output starts at `1-分集/`.
+- Initialization aligns only to the active `1-10` runtime stage roots. It does not mirror leaf packages, satellite packages, backup packages, workflow packages, or `_shared/` from `.agents/skills/aigc`.
 - `2-美学/`, `3-主体/`, `4-编剧/`, `5-导演/`, `6-分镜/`, `7-摄影/`, and `8-分组/` replace the older `2-编导/`, `3-运动/`, and `4-摄影/` bootstrap naming; `backup/5-表演`, `backup/6-氛围`, and `backup/9-光影` are not scaffolded as active project directories.
+- `2-美学/` is created only as the stage root. Style protocol subdirectories are created by the owning `2-美学` workflows when needed.
 - `3-主体/` is created only as the stage root. Its scene, role, and prop subdirectories are created by the owning `3-主体` workflow when needed.
+- `9-图像/` is created only as the stage root. Image leaves such as `分镜故事板/`, `分镜画面/`, and `分镜平面图/` are created by the owning `9-图像` workflows when needed.
+- `10-画布/` is created only as the stage root. Canvas/video leaves such as `libTV画布流/` are created by the owning `10-画布` workflows when needed.
 - `MEMORY.md` records project-level long-term preferences, constraints, exclusions, special elements, user initialization requirements, team configuration, supplied-reference absorption summaries, and stage context-reading guidance.
 - `CONTEXT/README.md` is a neutral project-context root marker; later workflows may add source indexes, large reference sidecars, model notes, or other supplemental context files under `CONTEXT/`, but those sidecars must not replace `MEMORY.md` as the project memory hub.
 
@@ -121,7 +126,7 @@ Existing historical projects may keep legacy paths as compatibility inputs, but 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
 | Is the canonical project root `projects/aigc/<项目名>/`? | `FIELD-INIT-03` | `FAIL-INIT-03` | `SKILL.md` `N1-project-root` | Resolved project root path. |
-| Does initialization create or verify the current 0-10 scaffold directories using latest skill package names? | `FIELD-INIT-05` | `FAIL-INIT-05` | `SKILL.md` `N2-scaffold` | Directory readback or dry-run manifest. |
+| Does initialization create or verify the current `1-10` active runtime stage-root scaffold directories using latest active stage package names? | `FIELD-INIT-05` | `FAIL-INIT-05` | `SKILL.md` `N2-scaffold` | Directory readback or dry-run manifest. |
 | Does project `CONTEXT/` exist without becoming a second rules source? | `FIELD-INIT-05` | `FAIL-INIT-05` | `SKILL.md` `N2-scaffold`; `templates/project-context-readme.template.md` | `CONTEXT/README.md` path plus neutral boundary text. |
 | Does initialization avoid former multi-file outputs and forbidden legacy paths? | `FIELD-INIT-05` | `FAIL-INIT-05` | `SKILL.md` `Forbidden Bootstrap Outputs` | Absence check for removed artifacts and legacy aliases. |
 | Does project `MEMORY.md` exist and preserve user initialization requirements, team configuration, supplied-reference absorption summaries, stable inclinations, and downstream context guidance? | `FIELD-INIT-09` | `FAIL-INIT-09` | `SKILL.md` `N3-memory`; `templates/project-memory.template.md` | Memory file path plus summarized captured items and any deferred raw material pointers. |

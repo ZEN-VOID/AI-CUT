@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-06-18
+
+- Added `N0-PROBLEM-DISCOVERY` to convert vague reading symptoms and under-specified findings into a `problem_discovery_packet` before impact mapping or prose routing.
+- Added `types/scope/problem-discovery.md` and synchronized `types/type-map.md`, review gates, output template, README, knowledge-base heuristics, and CONTEXT playbook.
+- Fixed the report template field drift from `review_actualization` to `acceptance_actualization`.
+- Expanded problem discovery for detail-expansion symptoms so action, interiority, atmosphere, sci-fi tech, cyberpunk texture, xuanhuan power, and romance tension findings can route to real `story-polishing` repair package ids before any prose rewrite.
+- Clarified that those detail-expansion symptoms are candidate, genre/scene-dependent problem families; non-applicable foci now report as N/A instead of becoming universal diagnosis requirements.
+
 ## 2026-06-16
 
 - Upgraded `story-repair` to the current Skill 2.0 runtime-spine contract.

@@ -8,7 +8,7 @@ metadata:
 
 # aigc 0-初始化
 
-`aigc-init` is now a scaffold-plus-memory project kickoff skill. It creates the current AIGC 0-10 runtime directory structure under `projects/aigc/<项目名>/`, project `MEMORY.md`, and project `CONTEXT/`. It no longer creates the former initialization artifact set such as `north_star.yaml`, `init_handoff.yaml`, `story-source-manifest.yaml`, `team.yaml`, `STATE.json`, project `CHANGELOG.md`, or source folders. Initialization-time user-specified information, including team configuration, supplied reference material summaries, long-term constraints, and downstream context guidance, is centralized in project `MEMORY.md`.
+`aigc-init` is now a scaffold-plus-memory project kickoff skill. It creates the current AIGC `1-分集` through `10-画布` active stage-root runtime directory structure under `projects/aigc/<项目名>/`, project `MEMORY.md`, and project `CONTEXT/`. It does not create a project-level `0-初始化/` folder, and it does not recursively mirror `.agents/skills/aigc` leaf, domain, satellite, backup, workflow, or shared skill packages into the project scaffold. It no longer creates the former initialization artifact set such as `north_star.yaml`, `init_handoff.yaml`, `story-source-manifest.yaml`, `team.yaml`, `STATE.json`, project `CHANGELOG.md`, or source folders. Initialization-time user-specified information, including team configuration, supplied reference material summaries, long-term constraints, and downstream context guidance, is centralized in project `MEMORY.md`.
 
 ## Context Loading Contract
 
@@ -83,17 +83,16 @@ All former artifact templates are inactive for initialization writeback unless a
 | --- | --- | --- | --- | --- |
 | `N0-intake` | confirm this is an AIGC film/video scaffold task | classify task and reject/reroute non-AIGC media | none | project type clear |
 | `N1-project-root` | resolve canonical root | derive `projects/aigc/<项目名>/` and prevent path escape | none | root is canonical |
-| `N2-scaffold` | create current 0-10 runtime directories and project context root | create only missing directories in the allowlist, including `CONTEXT/` | directories only | all stage directories and `CONTEXT/` exist |
+| `N2-scaffold` | create current `1-分集` through `10-画布` runtime directories and project context root | create only missing directories in the allowlist, including `CONTEXT/` | directories only | all runtime stage directories and `CONTEXT/` exist |
 | `N3-memory` | create or update centralized project memory and context readme | write `MEMORY.md` from template or merge user long-term requirements, team configuration, supplied-reference absorption summaries, and downstream context guidance; create `CONTEXT/README.md` when missing | `MEMORY.md`, `CONTEXT/README.md` | memory exists, captures initialization context, and context root is readable |
 | `N4-readback` | verify completion | read back paths and report created/skipped items | none | no removed artifact was created |
 
 ## Canonical Runtime Skeleton
 
-New initialization creates or verifies exactly these project directories:
+New initialization creates or verifies exactly these active runtime stage-root project directories and project memory/context carriers. This scaffold starts at `1-分集/`; the `.agents/skills/aigc/0-初始化/` skill remains the initialization owner, but new project output no longer includes `projects/aigc/<项目名>/0-初始化/`. The scaffold aligns to the active `1-10` stage package names only; it must not precreate subskill implementation routes such as `2-美学/<风格>/`, `3-主体/场景|角色|道具/`, `9-图像/分镜故事板/`, `10-画布/libTV画布流/`, satellite folders, backup folders, workflow folders, or `_shared/`.
 
 ```text
 projects/aigc/<项目名>/
-├── 0-初始化/
 ├── 1-分集/
 ├── 2-美学/
 ├── 3-主体/
@@ -111,7 +110,6 @@ projects/aigc/<项目名>/
 
 Bootstrap runtime marker allowlist:
 
-- `projects/aigc/<项目名>/0-初始化/`
 - `projects/aigc/<项目名>/1-分集/`
 - `projects/aigc/<项目名>/2-美学/`
 - `projects/aigc/<项目名>/3-主体/`
@@ -128,6 +126,7 @@ Bootstrap runtime marker allowlist:
 
 Do not create these former initialization outputs during scaffold initialization:
 
+- `0-初始化/`
 - `0-初始化/north_star.yaml`
 - `0-初始化/init_handoff.yaml`
 - `0-初始化/story-source-manifest.yaml`
@@ -154,7 +153,7 @@ Forbidden bootstrap paths remain forbidden for new initialization:
 Initialization passes only when:
 
 - the project root is under `projects/aigc/<项目名>/`
-- every active stage directory from `0-初始化/` through `10-画布/` exists with names matching the current skill package names
+- every active runtime stage-root directory from `1-分集/` through `10-画布/` exists with names matching the current active `1-10` skill package names
 - `MEMORY.md` exists at the project root
 - `CONTEXT/` exists at the project root, with `README.md` created when absent
 - initialization-time user requirements, team configuration, supplied-reference absorption summaries, stable preferences, constraints, exclusions, and downstream context-reading guidance are recorded in `MEMORY.md` when supplied
@@ -164,7 +163,7 @@ Initialization fails or blocks when the project name is ambiguous, the path esca
 
 ## Review Gate Binding
 
-Use `review/init-review-gate.md` for scaffold review. The active gate is `FIELD-INIT-05`: current 0-10 scaffold directories plus project `MEMORY.md` and project `CONTEXT/`; no former multi-file initialization artifact generation.
+Use `review/init-review-gate.md` for scaffold review. The active gate is `FIELD-INIT-05`: current `1-10` scaffold directories plus project `MEMORY.md` and project `CONTEXT/`; no project-level `0-初始化/` folder or former multi-file initialization artifact generation.
 
 ## Root-Cause Execution Contract
 
@@ -187,7 +186,7 @@ Priority repair targets:
 | field_id | owner | canonical output | required gate |
 | --- | --- | --- | --- |
 | `FIELD-INIT-03` | `N0/N1` | project scope note | AIGC project name and root are clear. |
-| `FIELD-INIT-05` | `N2/N4` | directory scaffold | Current 0-10 directories and project `CONTEXT/` exist; removed artifacts are absent. |
+| `FIELD-INIT-05` | `N2/N4` | directory scaffold | Current `1-10` directories and project `CONTEXT/` exist; project-level `0-初始化/` and removed artifacts are absent. |
 | `FIELD-INIT-09` | `N3` | `MEMORY.md`, `CONTEXT/README.md` | User initialization requirements, team configuration, reference absorption summaries, stable inclinations, and downstream context guidance are captured or placeholder sections exist; context root has a readable readme. |
 
 ## Thought Pass Map
@@ -196,7 +195,7 @@ Priority repair targets:
 | --- | --- | --- | --- | --- |
 | `N0` | `FIELD-INIT-03` | Is this an AIGC film/video scaffold task? | classify or reroute | wrong media route |
 | `N1` | `FIELD-INIT-03` | Is the project root canonical? | resolve `projects/aigc/<项目名>/` | path escape or missing project name |
-| `N2` | `FIELD-INIT-05` | Do current 0-10 directories and project `CONTEXT/` exist? | create missing directories | old alias, missing stage root, or missing context root |
+| `N2` | `FIELD-INIT-05` | Do current `1-10` directories and project `CONTEXT/` exist? | create missing directories | old alias, missing stage root, unexpected `0-初始化/`, or missing context root |
 | `N3` | `FIELD-INIT-09` | Does project memory exist, absorb initialization context, and does context root have a readable readme? | create or merge `MEMORY.md`; structure team/reference/user-specified information; create `CONTEXT/README.md` when missing | missing memory, overwrite risk, weak memory structure, or missing context readme |
 | `N4` | `FIELD-INIT-05/09` | Did scaffold-plus-memory readback pass? | inspect allowlist and denylist | removed artifact created |
 
@@ -205,17 +204,17 @@ Priority repair targets:
 | field_id | pass standard | fail code | rework entry |
 | --- | --- | --- | --- |
 | `FIELD-INIT-03` | Project root is resolved under `projects/aigc/<项目名>/` | `FAIL-INIT-03` | `N1` |
-| `FIELD-INIT-05` | Current 0-10 stage directories and project `CONTEXT/` exist, and forbidden bootstrap paths were not created | `FAIL-INIT-05` | `N2/N4` |
+| `FIELD-INIT-05` | Current `1-10` stage directories and project `CONTEXT/` exist, and project-level `0-初始化/` plus forbidden bootstrap paths were not created | `FAIL-INIT-05` | `N2/N4` |
 | `FIELD-INIT-09` | Project `MEMORY.md` exists, supplied long-term requirements, team configuration, reference absorption summaries, and downstream context guidance are captured without overwriting prior memory, and `CONTEXT/README.md` exists | `FAIL-INIT-09` | `N3` |
 
 ## Output Contract
 
-`$aigc-init` has exactly one canonical business output: a scaffolded project root with current stage directories, centralized project `MEMORY.md`, and project `CONTEXT/`.
+`$aigc-init` has exactly one canonical business output: a scaffolded project root with current `1-10` stage directories, centralized project `MEMORY.md`, and project `CONTEXT/`.
 
-- Required output: `projects/aigc/<项目名>/0-初始化/` through `10-画布/` directories, `projects/aigc/<项目名>/MEMORY.md`, and `projects/aigc/<项目名>/CONTEXT/README.md`.
+- Required output: `projects/aigc/<项目名>/1-分集/` through `10-画布/` directories, `projects/aigc/<项目名>/MEMORY.md`, and `projects/aigc/<项目名>/CONTEXT/README.md`.
 - Output format: directories plus Markdown memory and context-readme files.
 - Output path: `projects/aigc/<项目名>/`.
-- Naming convention: stage directory names must match the current `.agents/skills/aigc/0-10` package names.
+- Naming convention: stage directory names must match the current active `.agents/skills/aigc/1-10` runtime stage-root package names, not the initialization skill package, leaf, satellite, backup, workflow, or shared package names.
 - Completion gate: pass `FIELD-INIT-05` and `FIELD-INIT-09`; former initialization artifacts must not be created.
 
 `MEMORY.md` must be strong enough for downstream stages to consume as a project-level context hub. At minimum it must be able to hold initialization user requirements, team configuration and collaboration preferences, supplied-reference absorption summaries, stable creative preferences, production/model constraints, exclusions, stage context-reading guidance, conflicts, and unresolved questions.

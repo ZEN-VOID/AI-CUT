@@ -33,5 +33,25 @@
     "id": "genre-scene-romance-horror-polish",
     "prompt": "第12章言情拉扯和恐怖悬疑都太模板化，别写成武侠动作，按源章做最小局部修补。",
     "expected": "Builds project_genre_axis plus scene_function_axis, chooses a primary scene function with at most two secondary functions, repairs only affected spans, and passes genre_scene_integrity without changing relationship outcome, explaining the unknown, or adding unsupported facts."
+  },
+  {
+    "id": "detail-expansion-action-interiority",
+    "prompt": "第12章已有一段巷战，但动作像流水账，主角内心压迫也太浅。按源章做题材化细节扩写，不改胜负、伤亡、人物关系和章末钩子。",
+    "expected": "Selects action_choreography_repair plus interiority_repair as source-anchored packages, records detail_expansion_profile with affected_span and no_new_fact_boundary, improves action beat readability and psychological pressure without changing facts."
+  },
+  {
+    "id": "detail-expansion-sci-fi-cyberpunk",
+    "prompt": "第12章是赛博科幻，但科技感和公司监控压迫都很弱。强化义体、数据权限、低生活质感和技术代价，只修已有段落，不新增世界观设定。",
+    "expected": "Selects sci_fi_tech_repair and cyberpunk_texture_repair, anchors existing tech/cyber elements, adds visible limits, cost, permission, surveillance, and bodily/social pressure while avoiding new technologies, companies, factions, or lore."
+  },
+  {
+    "id": "detail-expansion-romance-xuanhuan",
+    "prompt": "第12章言情拉扯太直白，玄幻能力也只有光效。请在不改关系结果和能力规则的前提下做局部细节扩写。",
+    "expected": "Selects romance_tension_repair and xuanhuan_power_repair as needed, locks source anchors and affected spans, repairs subtext, boundaries, power trigger, cost, and feedback without adding confession, breakthrough, skill, or rule changes."
+  },
+  {
+    "id": "detail-expansion-not-universal-checklist",
+    "prompt": "第12章是现实题材的法庭谈判，只要求修对白压力和信息延迟，不要补动作、赛博、玄幻能力或言情拉扯。",
+    "expected": "Treats action, cyberpunk, xuanhuan, and romance packages as N/A unless source anchors or findings make them relevant; selects only applicable texture, reaction, genre-scene, or interiority packages and avoids universal detail-expansion checklist behavior."
   }
 ]

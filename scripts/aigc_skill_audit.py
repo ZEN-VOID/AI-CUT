@@ -95,7 +95,6 @@ REFERENCE_MODULES = (
 )
 SUBTYPE_PATH_PREFIXES = ("subtypes/", "./subtypes/")
 SHARED_RUNTIME_ROWS = {
-    "0-初始化": "projects/aigc/<项目名>/0-初始化/",
     "1-分集": "projects/aigc/<项目名>/1-分集/",
     "2-美学": "projects/aigc/<项目名>/2-美学/",
     "3-主体": "projects/aigc/<项目名>/3-主体/",
@@ -108,7 +107,6 @@ SHARED_RUNTIME_ROWS = {
     "10-画布": "projects/aigc/<项目名>/10-画布/",
 }
 ROOT_STAGE_LANDING = (
-    "projects/aigc/<项目名>/0-初始化/",
     "projects/aigc/<项目名>/1-分集/",
     "projects/aigc/<项目名>/2-美学/",
     "projects/aigc/<项目名>/3-主体/",
@@ -119,6 +117,18 @@ ROOT_STAGE_LANDING = (
     "projects/aigc/<项目名>/8-分组/",
     "projects/aigc/<项目名>/9-图像/",
     "projects/aigc/<项目名>/10-画布/",
+)
+CURRENT_ACTIVE_STAGE_ROOTS = (
+    "1-分集",
+    "2-美学",
+    "3-主体",
+    "4-编剧",
+    "5-导演",
+    "6-分镜",
+    "7-摄影",
+    "8-分组",
+    "9-图像",
+    "10-画布",
 )
 ROOT_FORBIDDEN_STAGE_LANDING = (
     "projects/aigc/<项目名>/设定/",
@@ -192,7 +202,6 @@ REVIEW_RUNNER_REQUIRED_MARKERS = (
 )
 STAGE_RUNTIME_EXPECTATIONS = {
     ROOT / "0-初始化" / "SKILL.md": (
-        "projects/aigc/<项目名>/0-初始化/",
         "projects/aigc/<项目名>/1-分集/",
         "projects/aigc/<项目名>/2-美学/",
         "projects/aigc/<项目名>/3-主体/",
@@ -427,28 +436,29 @@ BOOTSTRAP_COMPAT_RUNTIME_EXPECTATIONS = {
     ROOT / "_shared" / "project-runtime-layout.md": (
         "Scaffold Plus Memory Initialization Rule",
         "projects/aigc/<项目名>/2-美学/",
+        "projects/aigc/<项目名>/3-主体/",
         "projects/aigc/<项目名>/4-编剧/",
         "projects/aigc/<项目名>/5-导演/",
         "projects/aigc/<项目名>/6-分镜/",
         "projects/aigc/<项目名>/7-摄影/",
         "projects/aigc/<项目名>/8-分组/",
-        "projects/aigc/<项目名>/3-主体/",
         "projects/aigc/<项目名>/9-图像/",
         "projects/aigc/<项目名>/10-画布/",
+        "not a recursive mirror of `.agents/skills/aigc`",
     ),
     ROOT / "0-初始化" / "SKILL.md": (
-        "projects/aigc/<项目名>/0-初始化/",
         "projects/aigc/<项目名>/1-分集/",
         "projects/aigc/<项目名>/2-美学/",
+        "projects/aigc/<项目名>/3-主体/",
         "projects/aigc/<项目名>/4-编剧/",
         "projects/aigc/<项目名>/5-导演/",
         "projects/aigc/<项目名>/6-分镜/",
         "projects/aigc/<项目名>/7-摄影/",
         "projects/aigc/<项目名>/8-分组/",
-        "projects/aigc/<项目名>/3-主体/",
         "projects/aigc/<项目名>/9-图像/",
         "projects/aigc/<项目名>/10-画布/",
         "projects/aigc/<项目名>/MEMORY.md",
+        "not precreate subskill implementation routes",
         "Forbidden bootstrap paths",
     ),
 }
@@ -1093,11 +1103,25 @@ def audit_screenwriting_reference_integrity(failures: list[str]) -> None:
         if required_marker not in skill_content:
             failures.append(f"{skill_path}: missing screenwriting upstream direction marker `{required_marker}`")
 
+    for required_marker in (
+        "## Screenplay Presentation Mode Contract",
+        "Jieshuoju Source Unit Coverage Map",
+        "Jieshuoju Field Variety Map",
+        "GATE-SCR-25",
+        "FAIL-SCR-SCREENPLAY-MODE",
+        "FAIL-SCR-JIESHUOJU-FIELD-MONOTONY",
+    ):
+        if required_marker not in skill_content:
+            failures.append(f"{skill_path}: missing screenwriting mode marker `{required_marker}`")
+
     template_path = skill_root / "templates" / "output-template.md"
     if template_path.exists():
         template_content = template_path.read_text(encoding="utf-8")
         for required_marker in (
-            "GATE-SCR-01..24",
+            "GATE-SCR-01..25",
+            "## Screenplay Mode Decision",
+            "## Jieshuoju Source Unit Coverage Map",
+            "## Jieshuoju Field Variety Map",
             "## Upstream Creative Direction Matrix",
             "## Subject Registry Application Map",
         ):
@@ -1109,11 +1133,42 @@ def audit_screenwriting_reference_integrity(failures: list[str]) -> None:
         review_content = review_path.read_text(encoding="utf-8")
         for required_marker in (
             "GATE-SCR-23",
+            "GATE-SCR-25",
             "FAIL-SCR-UPSTREAM-DIRECTION-MATRIX",
+            "FAIL-SCR-SCREENPLAY-MODE",
+            "FAIL-SCR-JIESHUOJU-FIELD-MONOTONY",
             "upstream_creative_direction_matrix",
+            "jieshuoju_source_unit_coverage_map",
+            "jieshuoju_field_variety_map",
         ):
             if required_marker not in review_content:
                 failures.append(f"{review_path}: missing screenwriting review marker `{required_marker}`")
+
+    narration_contract = references_root / "narration-to-voice-adaptation-contract.md"
+    if narration_contract.exists():
+        narration_content = narration_contract.read_text(encoding="utf-8")
+        for required_marker in (
+            "Jieshuoju Source Unit Typing Matrix",
+            "jieshuoju_source_unit_coverage_map",
+            "summary",
+            "fact_drop",
+            "cause_reorder",
+        ):
+            if required_marker not in narration_content:
+                failures.append(f"{narration_contract}: missing jieshuoju narration marker `{required_marker}`")
+
+    field_contract = references_root / "field-routing-and-audio-visual-contract.md"
+    if field_contract.exists():
+        field_content = field_contract.read_text(encoding="utf-8")
+        for required_marker in (
+            "解说剧 Source 单元字段落点",
+            "解说剧字段节奏与段落功能",
+            "jieshuoju_source_unit_coverage_map",
+            "jieshuoju_field_variety_map",
+            "GATE-SCR-25",
+        ):
+            if required_marker not in field_content:
+                failures.append(f"{field_contract}: missing jieshuoju field-routing marker `{required_marker}`")
 
     upstream_contract = ROOT / "_shared" / "upstream-context-application-contract.md"
     if upstream_contract.exists():
@@ -1157,7 +1212,7 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
         )
     for required_marker in (
         "scaffold-plus-memory project kickoff skill",
-        "0-初始化/` through `10-画布/` directories",
+        "1-分集/` through `10-画布/` directories",
         "projects/aigc/<项目名>/MEMORY.md",
         "team configuration",
         "supplied-reference absorption summaries",
@@ -1170,24 +1225,23 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
         "CHANGELOG.md",
         "CONTEXT/",
         "源/",
+        "active stage-root runtime directory structure",
+        "does not create a project-level `0-初始化/` folder",
+        "does not recursively mirror `.agents/skills/aigc`",
     ):
         if required_marker not in init_content:
             failures.append(f"{init_skill}: missing scaffold-plus-memory init marker `{required_marker}`")
-    for current_stage in (
-        "0-初始化",
-        "1-分集",
-        "2-美学",
-        "4-编剧",
-        "5-导演",
-        "6-分镜",
-        "7-摄影",
-        "8-分组",
-        "3-主体",
-        "9-图像",
-        "10-画布",
-    ):
+    for current_stage in CURRENT_ACTIVE_STAGE_ROOTS:
         if f"├── {current_stage}/" not in init_content and f"└── {current_stage}/" not in init_content:
             failures.append(f"{init_skill}: missing current scaffold stage `{current_stage}/`")
+    stage_positions = [
+        init_content.find(f"├── {stage}/") if f"├── {stage}/" in init_content else init_content.find(f"└── {stage}/")
+        for stage in CURRENT_ACTIVE_STAGE_ROOTS
+    ]
+    if any(position < 0 for position in stage_positions) or stage_positions != sorted(stage_positions):
+        failures.append(
+            f"{init_skill}: current scaffold stage tree must preserve active 1-10 order"
+        )
 
     init_openai = ROOT / "0-初始化" / "agents" / "openai.yaml"
     if init_openai.exists() and ".codex/agents/aigc/初始组/" in init_openai.read_text(encoding="utf-8"):
@@ -1238,10 +1292,10 @@ def audit_episode_split_skill_contract(failures: list[str]) -> None:
         if path.name in {"SKILL.md", "input-output-contract.md", "source-type-map.md", "review-contract.md"}:
             for required_marker in (
                 "第N章",
-                "章节不等于集数",
+                "一章/一回一集",
             ):
                 if required_marker not in content:
-                    failures.append(f"{path}: missing chapter-vs-episode guard `{required_marker}`")
+                    failures.append(f"{path}: missing chapter/hui default split guard `{required_marker}`")
 
 
 def audit_global_single_skill_contract(failures: list[str]) -> None:

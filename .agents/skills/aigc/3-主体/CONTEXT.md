@@ -48,6 +48,8 @@ last_checked_at: 2026-06-16
 13. 处理 router root smoke 时，先看 Phase E/F 是否有硬拒绝；若只剩子目录相对路径 broken refs，必须用叶子独立 smoke 复核真实可运行性。
 14. 编写矩阵单元格时避免逗号分隔多模块；需要表达多文件加载时，用一个授权模块 token 承载触发，细节写入节点 action、mechanical_check 或对应叶子合同。
 15. 若任务进入任一 `3-生成` 叶子，父级不直接生图，但必须保留共享生成规则回指：Midjourney V8.1 默认后缀来自 `_shared/midjourney风格参数.yaml`，跨集复用、本地 canonical 已有跳过、画布缺失时上传、本地缺失时下载补齐和状态变体来自 `_shared/主体图复用与状态变体规则.md`。
+16. 生图执行时不要把 `--ar`、`--hd`、`--style raw` 或武侠片 `--profile lsp4mxl cce1fkr qe4r8p2` 只落到 libTV 参数或 JSON 记录里；这些后缀必须出现在实际节点 `prompt` 文本末尾。若已产图缺后缀，先隔离本地文件并更新节点 prompt 后重跑，不继续批量生成。
+17. libTV `Midjourney V8.1` 当前 schema 暴露 `count: [4]`，不要在主体技能里强制改成 `count=1`；交付层只收束为一个 canonical 主图 stem 和一个 canonical 多视图 stem，候选数量不等于主体数量。
 
 ## Reusable Heuristics
 

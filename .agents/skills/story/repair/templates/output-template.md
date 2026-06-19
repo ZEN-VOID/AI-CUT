@@ -15,15 +15,18 @@
 - `project_root`:
 - `output_path`:
 - `naming`: `story-repair-YYYYMMDD.md`
-- `mode`: `impact_assessment | repair_plan | execute_repair | audit_only`
+- `mode`: `problem_discovery | impact_assessment | repair_plan | execute_repair | audit_only`
 - `eval_mode`: `full_test | dry_run | n/a`
 
 ## Repair Packet
 
+- `problem_discovery_packet`:
 - `target_locality`:
 - `change_intent`:
 - `canonical_owner`:
 - `owning_stage`:
+- `owning_stage_repair_packages`:
+- `n_a_stage_repair_focus`:
 - `creative_engine_note`:
 - `writeback_order`:
 - `scope_packages_loaded`:
@@ -37,7 +40,7 @@
 - `current_locality`:
 - `downstream_existing`:
 - `future_constraints`:
-- `review_actualization`:
+- `acceptance_actualization`:
 - `project_specific_extensions`:
 
 ## Execution Decision Trace
@@ -45,6 +48,9 @@
 - `business_profile`:
 - `type_profile`:
 - `attention_anchor`:
+- `symptom_to_scope_decision`:
+- `symptom_to_stage_package_decision`:
+- `stage_package_applicability_decision`:
 - `source_owner_decision`:
 - `authorship_boundary_decision`:
 - `fallback_or_degradation`:
@@ -83,6 +89,7 @@
 
 ## Completion Gate
 
+- Problem discovery completed or N/A:
 - Impact map completed:
 - Source owner locked:
 - Creative authorship preserved:

@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-06-17
+
+- 修正分集默认边界合同：无 P1 原生集标但有章节/回目结构时，默认一章/一回一集。
+- 将 2500-3000 字目标窗收窄为连续正文缺少章节/回目结构，或用户明确要求短剧节奏重组时才启用。
+- 同步更新 `SKILL.md`、`CONTEXT.md`、`references/`、`review/`、`types/`、`templates/`、`agents/openai.yaml`、`test-prompts.json` 与共享审计脚本。
+
 ## 2026-06-04
 
 - 将 `SKILL.md` 升级为 Skill 2.0 runtime-spine 主合同，补齐业务画像、类型路由、思行节点、模块加载、模块触发、量化口径、汇流合同、检查点、注意力协议和学习回写。

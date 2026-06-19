@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-06-18
+
+- Added source-anchored detail-expansion repair packages for action choreography, interiority, atmosphere pressure, sci-fi tech, cyberpunk texture, xuanhuan power, and romance tension.
+- Wired detail expansion into `SKILL.md` through `detail_expansion_profile`, `FAIL-POLISH-DETAIL-EXPANSION`, Module Loading/Trigger matrices, review gate binding, field mapping, and completion gates.
+- Expanded `types/type-map.md` so "动作不精彩 / 内心戏浅 / 氛围淡 / 科技感弱 / 赛博味不足 / 玄幻能力只有光效 / 言情拉扯模板化" resolve to real repair package paths.
+- Added regression prompts for action+interiority, sci-fi+cyberpunk, and romance+xuanhuan detail-expansion tasks.
+- Clarified that detail-expansion foci are candidate, genre/scene-dependent symptoms rather than universal checklist dimensions; non-applicable foci must be recorded as N/A.
+
 ## 2026-06-16
 
 - Added `character-reaction-repair.md`, `prose-texture-repair.md`, and `visual-readability-repair.md` as polishing-owned repair type packages.

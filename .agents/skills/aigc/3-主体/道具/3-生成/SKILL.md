@@ -19,6 +19,7 @@ metadata:
 - 画布命令必须使用 libTV 画布 UUID，即 `libtv project list` 返回的 `uuid` / `projectUuid`；不得把项目空间 ID、folderId 或项目名字符串误传给 `libtv node -p`。
 - 默认模型显示名固定为 `Midjourney V8.1`。真实执行前必须用 `libtv model search --type image "Midjourney V8.1"` 和 `libtv model <modelKey>` 解析实际 `modelKey` 与 schema；解析失败时进入 `prompt_only` / blocked，不得降级到其他模型。
 - Midjourney 后缀必须从 `../../_shared/midjourney风格参数.yaml` 组装：道具图固定 `--ar 3:2`，并总是追加 `--hd --style raw`；若项目或任务命中风格预设，例如武侠片，则在比例前追加 `--profile lsp4mxl cce1fkr qe4r8p2`。
+- 后缀必须写入实际提交给 libTV 图片节点的 `prompt` 文本末尾，顺序固定为 `style_preset -> --ar 3:2 -> --hd -> --style raw`；只把比例、质量或模型写入 `--set` / JSON / manifest 不能视为合格后缀。
 - 真实生图前必须按 `../../_shared/主体图复用与状态变体规则.md` 扫描 `projects/aigc/<项目名>/3-主体`：同主体同状态已有图则跳过 Midjourney 生成；若当前画布缺同名节点而已有图只在本地，使用 `libtv upload "<节点名>" -p <canvas_uuid> -f <local_path>` 上传到当前画布并保持节点名等于资产 stem。
 - 只有同一道具出现明确新状态（开合、破损、修复、染血、升级、激活/失效等）时才重新生成状态变体；状态变体必须改用 `Lib Image`，先解析 `Lib Image` modelKey，并以既有同主体图节点或上传后的本地图为参考，不得使用默认 `Midjourney V8.1`。
 - 任一道具主图或多视图必须确保项目本地 canonical 目录 `projects/aigc/<项目名>/3-主体/道具/3-生成/` 有同 stem 资产：本地已存在则跳过下载/复制并记录 `already_present`；画布缺节点时上传本地图；本地缺但画布已有或新生成时才用 `libtv download -p <canvas_uuid> -n <node_id_or_node_name> -o projects/aigc/<项目名>/3-主体/道具/3-生成/` 补齐。
@@ -335,7 +336,7 @@ stateDiagram-v2
 | `FIELD-PROP-GEN-02` | 主体边界 | 每组资产只对应一个道具主体，不混入角色、场景或重设计 | `FAIL-PROP-GEN-02` |
 | `FIELD-PROP-GEN-03` | Step1 主图 | 单主体图来自设计文档 `4. 解构`，命名为 `主体ID-主体名称-主图` | `FAIL-PROP-GEN-03` |
 | `FIELD-PROP-GEN-04` | Step2 多视图 | 多视图以同画布主图节点为参照，`reference_context_status=linked_in_libtv_canvas` | `FAIL-PROP-GEN-04` |
-| `FIELD-PROP-GEN-05` | JSON 提示词 | 主图与多视图均有同名 JSON，能回指设计文档、libTV 节点名、Midjourney 后缀和参考节点 | `FAIL-PROP-GEN-05` |
+| `FIELD-PROP-GEN-05` | JSON 提示词 | 主图与多视图均有同名 JSON，能回指设计文档、libTV 节点名、Midjourney 后缀和参考节点；实际 libTV 节点 `prompt` 文本末尾含完整后缀，不以 `--set ratio` 或 JSON 字段替代 | `FAIL-PROP-GEN-05` |
 | `FIELD-PROP-GEN-06` | 输出落盘 | canonical 输出目录正确，未触碰非授权范围 | `FAIL-PROP-GEN-06` |
 | `FIELD-PROP-GEN-07` | 反模板伪差异 | 主图 JSON、多视图 JSON、视角差异和 profile 非模板槽位/锚点/句式轮换批量投影 | `FAIL-PROP-GEN-PSEUDO-DIFF` |
 | `FIELD-PROP-GEN-08` | 既有资产复用 | 已扫描项目 `3-主体` 目录；同主体同状态已有图时跳过生成，并在当前 libTV 画布中复用或上传同名节点 | `FAIL-PROP-GEN-ASSET-REUSE` |

@@ -4,7 +4,7 @@ Active `$aigc-init` writeback is scaffold plus centralized project memory.
 
 | output | target path | template | status |
 | --- | --- | --- | --- |
-| project scaffold directories | `projects/aigc/<项目名>/0-初始化/` through `10-画布/` | none | active |
+| project scaffold directories | `projects/aigc/<项目名>/1-分集/` through `10-画布/` | none | active |
 | project memory | `projects/aigc/<项目名>/MEMORY.md` | `templates/project-memory.template.md` | active; owns initialization user requirements, team configuration, supplied-reference absorption summaries, and downstream context guidance |
 | project context root | `projects/aigc/<项目名>/CONTEXT/README.md` | `templates/project-context-readme.template.md` | active |
 

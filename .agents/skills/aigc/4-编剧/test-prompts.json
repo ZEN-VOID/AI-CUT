@@ -2,7 +2,7 @@
   {
     "id": "single-episode-novel-to-screenplay",
     "prompt": "使用 $aigc-screenwriting，把 projects/aigc/示例项目/1-分集/第1集.md、projects/aigc/示例项目/2-美学/类型风格.md 和 projects/aigc/示例项目/3-主体/主体注册表.md 改编为短剧剧本，保留剧情事实和主体命名，同时补节奏承托、声画同步、高潮和尾钩。",
-    "expected": "读取 4-编剧 SKILL.md + CONTEXT.md，加载项目记忆、2-美学/类型风格.md、3-主体/主体注册表.md 和 8 个 copied references，输出 4-编剧/第1集.md 与执行报告；报告包含 Execution Decision Trace、Reference Execution Matrix、Upstream Context Application Map、Upstream Creative Direction Matrix、Type Style Application Map、Subject Registry Application Map、Rule Evidence Map、N/A Justification、Repair Log、genre_narrative_profile、rhythm_strategy_map、audio_visual_pairing_map、same_frame_continuity_map、climax_treatment_map、episode_final_image_map 和 GATE-SCR review verdict。"
+    "expected": "读取 4-编剧 SKILL.md + CONTEXT.md，加载项目记忆、2-美学/类型风格.md、3-主体/主体注册表.md 和 8 个 copied references；未显式指定模式时锁定 screenplay_mode=zhengju；输出 4-编剧/第1集.md 与执行报告；报告包含 Screenplay Mode Decision、Execution Decision Trace、Reference Execution Matrix、Upstream Context Application Map、Upstream Creative Direction Matrix、Type Style Application Map、Subject Registry Application Map、Rule Evidence Map、N/A Justification、Repair Log、genre_narrative_profile、rhythm_strategy_map、audio_visual_pairing_map、same_frame_continuity_map、climax_treatment_map、episode_final_image_map 和 GATE-SCR review verdict。"
   },
   {
     "id": "rhythm-repair",
@@ -23,5 +23,10 @@
     "id": "scene-asset-context-integration",
     "prompt": "使用 $aigc-screenwriting 改编第4集；项目已经有 projects/aigc/示例项目/3-主体/场景/2-设计/ 和 3-主体/场景/3-生成/ 的场景设计与场景图。检查剧本是否正确匹配这些已有场景资产。",
     "expected": "正式主链必须建立 scene_asset_context_manifest 和 Scene Asset Integration Map；已有场景设计/场景图只能只读用于场景标题、环境白描、空间连续性和 AIGC handoff，不得覆盖 1-分集事实、改主体注册表、复制图像 prompt、写机位/景别/运镜或生成参数；触发 GATE-SCR-24，失败时返回 FAIL-SCR-SCENE-ASSET-CONTEXT。"
+  },
+  {
+    "id": "jieshuoju-mode-narration",
+    "prompt": "使用 $aigc-screenwriting，以解说剧模式改编 projects/aigc/示例项目/1-分集/第2集.md，完全按照故事源内容处理，陈述性部分全部作为旁白和旁白画面。",
+    "expected": "N1 必须锁定 screenplay_mode=jieshuoju 并记录 explicit_mode_signal；N3 必须先建立 jieshuoju_source_unit_coverage_map，覆盖 source_dialogue、visible_action、environment_state、declarative_fact、background_exposition、time_bridge、relationship_state、result_summary、rule_or_system_info、mixed_action_declaration 等 source 单元类型；上游已有对白仍逐字冻结为对白，可见动作/环境不被过度旁白化；所有陈述性 source 信息必须在 coverage map 和 narration_to_voice_adaptation_map 中标记 mode_policy=jieshuoju_narration_only，并落到 旁白（叙述者/指定主体）+ 旁白画面；还必须建立 jieshuoju_field_variety_map，正文不得出现【开场定调】等方括号叙事小标题，含 3 条及以上旁白对的场景必须有环境描写、角色动作、动作画面、场面调度、群像画面、道具特写、系统画面、规则显影、音效画面或转场等非旁白视觉字段承托，不得连续 4 组以上无承托旁白对；不得把陈述性 source 改写为派生对白/独白/内心独白，不得 summary/fact_drop/cause_reorder；触发 GATE-SCR-25，失败时返回 FAIL-SCR-SCREENPLAY-MODE 或 FAIL-SCR-JIESHUOJU-FIELD-MONOTONY。"
   }
 ]

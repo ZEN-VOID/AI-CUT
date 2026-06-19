@@ -10,7 +10,7 @@
 | `directorial-authorship-contract.md` | local adapted copy from legacy 2-编导 reference source: directorial-authorship-contract | 本技能消费“创作判断必须有可见/可听/可执行承托”，本地证据落为 `screenplay_substance_map` / `support_evidence` |
 | `climax-visual-treatment-contract.md` | local adapted copy from legacy 2-编导 reference source: climax-visual-treatment-contract | 本技能消费高潮视觉、声音、情绪和行动落点，本地证据落为 `climax_treatment_map` |
 | `episode-final-image-contract.md` | local adapted copy from legacy 2-编导 reference source: episode-final-image-contract | 本技能消费集末最终画面/声音/感受尾钩，本地证据落为 `episode_final_image_map` |
-| `narration-to-voice-adaptation-contract.md` | local adapted copy from legacy 2-编导 reference source: narration-to-voice-adaptation-contract | 本技能消费陈述性信息转对白、独白、内心独白或喊出式台词 |
+| `narration-to-voice-adaptation-contract.md` | local adapted copy from legacy 2-编导 reference source: narration-to-voice-adaptation-contract | 本技能消费 mode-aware 陈述性信息处理：`正剧` 转对白、独白、内心独白或必要旁白；`解说剧` 先建立 `jieshuoju_source_unit_coverage_map`，再将陈述性 source 转 `旁白/旁白画面` |
 | `hollywood-quality-spec.md` | local adapted copy from legacy 2-编导 reference source: hollywood-quality-spec | 本技能额外要求场景标题追加天气后缀 |
 | `script-adaptation-contract.md` | local adapted copy from legacy 2-编导 reference source: script-adaptation-contract | 输出路径固定为 `projects/aigc/<项目名>/4-编剧/第N集.md` |
 | `field-routing-and-audio-visual-contract.md` | local adapted copy from legacy 2-编导 reference source: field-routing-and-audio-visual-contract | 本技能强制声音字段与对应画面字段就近配对，不新增 `声画同步锚点` 类正文标题；相邻画面字段必须通过同画面连续性检查，避免同一拍摄单位被重复拆写 |

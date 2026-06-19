@@ -1,5 +1,20 @@
 [
   {
+    "id": "problem-discovery-vague-reading-symptom",
+    "prompt": "Use $story-repair to diagnose why projects/story/示例项目/第1卷第4章 feels wrong: the user says the chapter is flat, the protagonist feels off, and the ending has no hook. Do not write files yet.",
+    "expected": "Select problem_discovery or run N0 before downstream routing, load CONTEXT.md plus types/type-map.md and scope.problem-discovery, produce a problem_discovery_packet with symptom families, evidence anchors, suspected root layers, candidate scope packages, route_hint, blocked_inputs if needed, and no canonical prose rewrite."
+  },
+  {
+    "id": "problem-discovery-detail-expansion-routing",
+    "prompt": "Use $story-repair to diagnose projects/story/示例项目 第1卷第6章: the action is not exciting, interiority is thin, and cyber tech texture is weak. Do not rewrite prose yet.",
+    "expected": "Select problem_discovery, produce candidate scope packages plus owning_stage_repair_packages such as story-polishing:action_choreography_repair, story-polishing:interiority_repair, story-polishing:sci_fi_tech_repair or story-polishing:cyberpunk_texture_repair, and avoid direct canonical prose rewriting."
+  },
+  {
+    "id": "problem-discovery-detail-focus-na",
+    "prompt": "Use $story-repair to diagnose a realistic courtroom chapter where the user only says dialogue pressure is weak. Do not assume action, cyberpunk, xuanhuan power, or romance tension problems.",
+    "expected": "Produces problem_discovery_packet with evidence anchors and applicable scope packages, routes only relevant owning-stage packages if any, records non-applicable detail foci in n_a_stage_repair_focus, and avoids treating all genre detail packages as universal checklist items."
+  },
+  {
     "id": "impact-assessment-clue-thread",
     "prompt": "Use $story-repair to assess how changing a hidden clue in projects/story/示例项目/第2卷第7章 affects planning, earlier planting, future payoff, acceptance, return, and STATE. Do not write files.",
     "expected": "Select impact_assessment, load CONTEXT.md plus types/type-map.md, include scope.locality, scope.clue-thread, operation.plan-only, and acceptance.review-gate, then produce an impact_map with six surfaces, canonical_owner, residual risks, and no canonical writeback."

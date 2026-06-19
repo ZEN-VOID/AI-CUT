@@ -1,6 +1,6 @@
 ---
 name: aigc-screenwriting
-description: "Use when adapting AIGC episode novel prose into screenplay-form scripts with genre, rhythm, climax, hook, and A/V field routing."
+description: "Use when adapting AIGC episode novel prose into screenplay-form scripts with zhengju/jieshuoju modes, genre, rhythm, climax, hook, and A/V field routing."
 governance_tier: full
 metadata:
   short-description: AIGC 小说转剧本
@@ -8,7 +8,7 @@ metadata:
 
 # aigc 4-编剧
 
-`4-编剧` 是 AIGC 影视链路中的小说到剧本改编阶段。它接收 `projects/aigc/<项目名>/1-分集/第N集.md` 或用户指定的单集小说正文，并继承 `projects/aigc/<项目名>/2-美学/类型风格.md` 的题材类型、标志性元素和题材专属表现技巧，以及 `projects/aigc/<项目名>/3-主体/主体注册表.md` 的主体命名真源，以“集”为单位完成叙事情节解析、影视剧本化改编、短剧节奏优化、高潮强化、尾钩设计、必要细节补充、受控改写和 AIGC 下游交接证据整理。
+`4-编剧` 是 AIGC 影视链路中的小说到剧本改编阶段。它接收 `projects/aigc/<项目名>/1-分集/第N集.md` 或用户指定的单集小说正文，并继承 `projects/aigc/<项目名>/2-美学/类型风格.md` 的题材类型、标志性元素和题材专属表现技巧，以及 `projects/aigc/<项目名>/3-主体/主体注册表.md` 的主体命名真源，以“集”为单位完成叙事情节解析、影视剧本化改编、短剧节奏优化、高潮强化、尾钩设计、必要细节补充、受控改写和 AIGC 下游交接证据整理。本技能支持 `正剧` 与 `解说剧` 两种剧本呈现模式；没有显式指定时，默认 `正剧`。
 
 本技能只拥有剧本层 canonical truth：剧情事实、事件顺序、人物关系、对白/独白/内心独白/旁白转译、场景标题、正式声画字段、节奏承托和下游交接证据。导演意图、分镜组织、摄影注入、分组、图像 prompt、视频生成请求仍归后续 `5-导演`、`6-分镜`、`7-摄影`、`8-分组`、`9-图像`、`10-画布` 或对应叶子技能所有；归档的 `backup/5-表演`、`backup/6-氛围`、`backup/9-光影` 只在显式历史回读或恢复计划中作为兼容材料。
 
@@ -58,6 +58,7 @@ metadata:
 | `B15` | `Execution Report Evidence Standard` | 定义执行报告中的决策链、references 细则执行矩阵、证据映射、N/A 说明和返工记录 |
 | `B16` | `Upstream Creative Direction Contract` | 定义上游 source、类型风格、主体注册表和项目记忆如何共同约束编剧创作方向 |
 | `B17` | `Scene Asset Integration Contract` | 定义已有场景设计稿、场景图和 manifest 如何只读参与剧本场景命名、环境白描、连续性和 handoff |
+| `B18` | `Screenplay Presentation Mode Contract` | 定义 `正剧` / `解说剧` 两种呈现模式、默认值、解说剧 source 单元类型化、字段节奏、陈述性信息处理和审查证据 |
 
 ## Core Task Contract
 
@@ -66,7 +67,7 @@ Core task:
 - 将单集小说正文改编为好莱坞格式可读、短剧节奏更强、AIGC 下游更易解析的逐集剧本。
 - 以 1-分集 的故事事实、2-美学/类型风格.md 的题材类型/标志性元素/题材专属表现技巧、3-主体/主体注册表.md 的主体命名真源和项目 `MEMORY.md/CONTEXT/` 的长期约束共同建立 `Upstream Creative Direction Matrix`，再据此设计节奏，而不是套“快、爽、燃、虐”等空泛形容。
 - 当 3-主体/场景/2-设计 和 3-主体/场景/3-生成 已有产物存在时，将其作为只读场景资产上下文，校准场景标题地点、环境描写、空间连续性和下游 handoff，但不反向改变剧情事实或输出图像 prompt。
-- 对陈述性小说信息做受控影视化转译：优先设计为人物对白、独白、内心独白、喊出式台词、场内声音、道具证据、动作反应或必要旁白。
+- 对陈述性小说信息按 `screenplay_mode` 做受控转译：`正剧` 默认沿用当前影视化策略，优先设计为人物对白、独白、内心独白、喊出式台词、场内声音、道具证据、动作反应或必要旁白；`解说剧` 必须完全按照故事源内容，把陈述性部分全部处理为 `旁白（主体）` 与 `旁白画面`，不得改写成派生对白/独白/内心独白。
 - 对高潮段落强化视觉冲击、声音冲击、情绪冲击和行动结果；对集末设计微彩蛋尾钩或最后可见/可听/可感受落点。
 
 Applies when:
@@ -87,7 +88,84 @@ Hard prohibitions:
 - 不得把“画面化”写成明喻、隐喻、象征或概念标签；剧本正文中的环境、动作、心理反应、高潮和尾钩必须白描式落到主体、动作、空间、道具、声音、光照、身体状态或时间变化。
 - 不得写入机位、景别、运镜、分镜编号、图像 prompt 或视频生成参数。
 - 不得把 imported references 中的 director/performance 权限扩张为本技能的 canonical 输出权；导演真源属于 `5-导演`，归档表演材料只可在显式 legacy 场景下回读 `backup/5-表演`。
-- 不得在剧本正文新增 `【AIGC下游理解】`、`【声画同步锚点】`、`【节奏承托】`、`【高潮强化】`、`【尾钩落点】` 等非正式字段标题；这些内容只进入 frontmatter 摘要或执行报告证据。
+- 不得在剧本正文新增 `【AIGC下游理解】`、`【声画同步锚点】`、`【节奏承托】`、`【高潮强化】`、`【尾钩落点】`、`【开场定调】`、`【童谣惊驾】` 等非正式字段标题；这些内容只进入 frontmatter 摘要或执行报告证据。
+
+## Screenplay Presentation Mode Contract
+
+本节是 `正剧` / `解说剧` 两种呈现模式的唯一入口合同。`screenplay_mode` 必须在 `N1-SCR-INTAKE` 锁定，并写入剧本 frontmatter、执行报告 `Screenplay Mode Decision` 和 `GATE-SCR-25` 审查证据。
+
+### Mode Selection
+
+| mode | trigger | default_rule |
+| --- | --- | --- |
+| `正剧` | 用户显式要求“正剧”“按当前编剧方式”“影视化正剧”，或没有显式指定模式 | 默认模式；没有显式指定时必须使用 `正剧` |
+| `解说剧` | 用户或项目长期记忆显式要求“解说剧”“解说模式”“旁白解说剧”或等价要求 | 只在显式指定时启用；不得从 source 文风、旁白较多或模型偏好自行推断 |
+
+冲突处理：
+
+- 同一轮输入同时出现 `正剧` 与 `解说剧` 且无法判断最新指令时，必须澄清，不得默认覆盖。
+- 项目 `MEMORY.md` 中的长期默认模式视为显式项目要求；若本轮用户另有显式模式，以本轮用户指令优先。
+- `screenplay_mode` 不改变输出路径、正式字段集合、声画配对要求、上游保真和 LLM-first 主创规则。
+
+### Mode Behavior Matrix
+
+| behavior | `正剧` | `解说剧` |
+| --- | --- | --- |
+| 叙事策略 | 沿用当前正剧剧本化：先保真，再把小说陈述转成可拍动作、对白、独白、内心独白、音效、道具证据、动作反应或必要旁白 | 完全按照故事源内容推进；不为了戏剧化重写陈述性信息 |
+| 陈述性部分 | 非引号客观叙事必须通过 `narration-to-voice-adaptation-contract.md` gate 后，才可转为派生对白/独白/内心独白/旁白；旁白不是默认垃圾桶 | 源文本中的陈述性部分必须全部投影为 `旁白（叙述者/指定主体）` + `旁白画面`；可拆分长陈述为多个旁白 beat，但不得丢失、摘要替代或转成派生对白/独白/内心独白 |
+| 上游已有对白 | 逐字冻结为 `对白（角色名，语态/状态短语）`，并配对 `对白画面` | 同样逐字冻结为对白；解说剧模式不把上游已有对白改成旁白 |
+| 动作与环境 | 可按当前影视化策略投影为动作、环境、道具、群像、系统画面等正式字段 | 上游明确可见动作、环境、道具、系统文字仍可投影为正式画面字段；若同一句含陈述解释，解释部分拆入旁白，画面部分承托旁白或动作 |
+| 新增语音 | 允许 source-grounded 派生语音，但必须有 source anchor、合法 voice owner、知识依据、预算和画面承托 | 不允许把陈述性部分改写为派生对白/独白/内心独白；只能使用上游已有对白、上游明确独白，或 `旁白（主体）` |
+| 节奏/高潮/尾钩 | 可做受控影视化增强，但不得改变 source 事实和结果 | 只能通过源内容顺序、旁白节拍、画面承托、声音和转场增强观看流畅度；不得新增 source 不支持的戏剧回合 |
+| 报告证据 | `narration_to_voice_adaptation_map` 记录派生语音选择与 N/A | `jieshuoju_source_unit_coverage_map` 必须先记录 source 单元类型、落点策略和覆盖状态；`narration_to_voice_adaptation_map` 必须记录 `mode_policy=jieshuoju_narration_only`，并证明陈述性 source anchor 均落到 `旁白/旁白画面` |
+
+### Declarative Source Definition
+
+`解说剧` 中的“陈述性部分”包括但不限于：非引号内客观叙事、背景说明、时间跨度衔接、关系状态说明、公共事实、规则解释、人物已知状态、结果概括、作者叙述性判断和“他/她知道、众人明白、事情已经发生”等信息句。
+
+处理要求：
+
+- 先按 source 顺序拆成最小可听信息单元，再逐条写为 `旁白（叙述者）` 或用户指定的旁白主体。
+- 每条旁白必须就近配对 `旁白画面`；`旁白画面` 只能写对应的信息载体、现场后果、可见行动、空间/道具/群像承托或留白画面，不复述旁白文本。
+- 若 source 句子同时包含动作和陈述，动作落入 `角色动作` / `动作画面` 等正式字段，陈述解释落入 `旁白`，并在 `narration_to_voice_adaptation_map` 中标明同一 source anchor 的拆分策略。
+- 不得把 `解说剧` 写成概要、故事梗概或有声小说字幕稿；它仍然是 `4-编剧` 正式字段化剧本，必须保留场景标题、声画配对、同画面连续性和下游 handoff。
+
+### Jieshuoju Source Unit Typing
+
+显式 `解说剧` 必须在 `N3-SCR-FAITHFUL-PROJECTION` 先建立 `jieshuoju_source_unit_coverage_map`，再进入候选正文。该表不是第二输出真源，只是证明 source 没有被摘要、漏写、误投影或过度旁白化。
+
+| source_unit_type | definition | landing_policy |
+| --- | --- | --- |
+| `source_dialogue` | 上游已有引号内对白或明确发声 | 逐字冻结为 `对白` + `对白画面`；不改成旁白 |
+| `explicit_inner_voice` | 上游明确标记的内心话、心声、默念或不可被他人听见的主观句 | 可落为 `内心独白` + `内心独白画面`；不得扩写成新判断 |
+| `visible_action` | 角色身体动作、位移、手部、表情、道具操作或可见结果 | 落入 `角色动作` / `动作画面` / `表情特写` / `道具特写`；不强制旁白化 |
+| `environment_state` | 地点、天气、光线、空间结构、静置物件和环境声底色 | 落入 `环境描写` 或环境刷新；不写剧情解释 |
+| `declarative_fact` | 非引号客观事实、公共事实、人物已知状态、作者叙述性判断 | 必须落为 `旁白（叙述者/指定主体）` + `旁白画面` |
+| `background_exposition` | 过往背景、世界观、规则由来、关系前史 | 拆成最小可听信息单元，逐条落为 `旁白` + `旁白画面` |
+| `time_bridge` | 时间跨度、场外行动进展、上一 beat 结果、下一 beat 连接 | 落为连续旁白节拍，并用转场、现场后果或信息载体承托 |
+| `relationship_state` | 人物关系、群体共识、权力状态、信任/敌意变化说明 | 落为旁白；画面承托优先用站位、群像、道具归属或沉默反应 |
+| `result_summary` | 结果概括、事实结论、已经发生的后果 | 落为旁白；画面承托用现场后果或可见痕迹 |
+| `rule_or_system_info` | 系统、公告、规则文字、公共通报或信息面板 | 可落为 `系统画面` / `规则显影` + `旁白（系统提示/叙述者）` |
+| `mixed_action_declaration` | 同一句同时含可见动作和陈述解释 | 动作部分落正式画面字段；陈述解释拆入旁白；同一 source anchor 在 coverage map 标明 split |
+
+`jieshuoju_source_unit_coverage_map` 必须至少包含：`unit_id`、`source_anchor`、`source_text`、`source_unit_type`、`landing_policy`、`narrator_profile`、`visual_support_type`、`fidelity_operation`、`output_landing`、`coverage_status`、`risk_check`。
+
+`fidelity_operation` 只允许：`verbatim`、`sentence_split`、`light_oralization`、`pronoun_resolution`、`visual_split`。禁止 `summary`、`fact_drop`、`cause_reorder`、`new_exposition`、`tone_rewrite`。
+
+### Jieshuoju Field Variety And Segment Heading
+
+显式 `解说剧` 不能退化为连续的 `旁白（叙述者）` + `旁白画面` 清单。`旁白` 负责完整承接陈述性 source，正式画面字段负责让下游看见空间、动作、道具、群像、系统信息和转场节奏。
+
+规则：
+
+- 正文场景标题只写真实物理空间、日夜和天气，不写剧情小标题、主题判断或叙事功能；`【开场定调】`、`【童谣惊驾】`、`【群臣解梦】` 等方括号 beat heading 不得进入正文。
+- `【剧本正文】` 可作为正文开始标记；除此之外，任何 `【...】` 形式的叙事段落标题、AIGC 说明、声画锚点、高潮/尾钩标题都不得进入正文。
+- 叙事段落功能必须进入执行报告 `Jieshuoju Field Variety Map` 或 frontmatter 摘要，不作为正文标题字段。
+- 每个含 3 条及以上旁白对的场景，必须至少有 1 个非旁白视觉承托字段参与节奏组织：`环境描写`、`角色动作`、`动作画面`、`场面调度`、`群像画面`、`道具特写`、`系统画面`、`规则显影`、`音效画面` 或 `转场`。
+- 显式 `解说剧` 正文中，不得连续出现 4 组以上“旁白 + 旁白画面”而没有非旁白视觉字段介入；若是开篇史诗 montage、地图/竹简/诏令等纯旁白段，必须在 `Jieshuoju Field Variety Map` 标记 `voiceover_montage_exception`，并用 `系统画面`、`道具特写`、`环境描写` 或 `转场` 承托。
+- `旁白画面` 不得只是旁白文本的同义复述；若画面承托的是信息载体、空间变化、群体反应、道具状态或转场，优先使用对应正式字段，再让 `旁白画面` 只补充声画配对关系。
+
+`jieshuoju_field_variety_map` 必须至少包含：`scene_id`、`source_anchor_range`、`segment_function`、`scene_heading`、`dominant_source_unit_types`、`non_narration_visual_fields`、`max_narration_pair_run`、`bracket_heading_check`、`exception_or_repair`、`verdict`。
 
 ## Formal Screenplay Field System
 
@@ -122,7 +200,7 @@ Hard prohibitions:
 | 对白 | `对白（角色名，语态/状态短语）`、`对白画面` | 对白是场内可听见的角色发声；对白画面写该句对白附近的身体、停顿、对手反应、空间距离或道具压力，不复述对白 |
 | 独白 | `独白（角色）`、`独白画面` | 独白是角色可被听见的自言、自嘲、立誓或低声判断；独白画面写发声时的身体、声线、空间、道具或环境声承托 |
 | 内心独白 | `内心独白（角色）`、`内心独白画面` | 内心独白是焦点角色不可被场内他人听见的主观判断；用户说“内心OS”时按本字段处理，正文不使用 `内心OS` 字段名 |
-| 旁白 | `旁白（主体）`、`旁白画面` | 旁白是非场内角色或特定主体承担的声音说明；只在没有合法场内角色可拥有但必须声音交代时使用 |
+| 旁白 | `旁白（主体）`、`旁白画面` | 旁白是非场内角色或特定主体承担的声音说明；`正剧` 中只在没有合法场内角色可拥有但必须声音交代时使用，`解说剧` 中用于承接全部陈述性 source 信息 |
 | 声音 | `音效（来源）`、`音效画面` | 音效写声音本体和来源；音效画面写可见声源、人物反应、空间承托或不可见来源处理 |
 | 表演 | `心理反应`、`表演提示` | 心理反应必须外化为眉眼、嘴角、咬肌、喉头、呼吸、手指、肩背、脚步、停顿或对手不接话；表演提示只写可执行表演任务 |
 | 转场 | `转场` | 只写硬切、声音桥、动作中断、对比转场、物件串联、环境渐变、重复节奏或跳切压缩等场景过渡方式 |
@@ -160,6 +238,7 @@ Hard prohibitions:
 - `【节奏承托】`
 - `【高潮强化】`
 - `【尾钩落点】`
+- `【开场定调】`、`【童谣惊驾】`、`【群臣解梦】` 等任意叙事 beat heading
 - `【画面】`、`【动作】`、`【对白】`、`【音效】` 等方括号字段
 
 对应信息落点：
@@ -178,7 +257,7 @@ Accepted input:
 
 - 项目名、项目路径、单个或多个 `projects/aigc/<项目名>/1-分集/第N集.md`。
 - 用户粘贴的单集小说正文、带场次的剧情梗概、或上游 1-分集 输出。
-- 用户指定的题材、目标平台、短剧时长、竖屏/横屏倾向、参考风格、改写尺度、禁区、高潮和尾钩偏好。
+- 用户指定的题材、目标平台、短剧时长、竖屏/横屏倾向、参考风格、改写尺度、禁区、高潮和尾钩偏好，以及显式 `正剧` / `解说剧` 模式要求。
 
 Required input:
 
@@ -188,6 +267,7 @@ Required input:
 
 Optional input:
 
+- `screenplay_mode`：`正剧` 或 `解说剧`；未显式指定时默认 `正剧`，不得向用户追问默认模式。
 - 项目 `MEMORY.md` 与由其构造的 `project_memory_init_context`、相关项目 `CONTEXT/`；`2-美学/类型风格.md` 与 `2-美学/画面基调/全局风格协议.md` 作为题材与视觉方向上下文。
 - 下游约束：AIGC 视频生成时长、场景数量预算、角色数量预算、可用地点、声音风格、平台节奏、审查禁区。
 
@@ -197,6 +277,7 @@ Reject or clarify when:
 - 多个项目或多个集号均可能命中，自动推断会覆盖错误文件。
 - 用户要求本技能越权生成镜头、分镜、prompt、视频请求或演员表演稿。
 - 用户要求脚本自动生成核心创作正文。
+- 用户或项目上下文同时要求 `正剧` 与 `解说剧` 且无法按最新显式指令裁决。
 
 ## Business Requirement Analysis Contract
 
@@ -205,7 +286,7 @@ Reject or clarify when:
 | `business_goal` | 把上游单集小说转成短剧影视可执行剧本，并为 AIGC 下游提供清晰字段 | 用户请求、上游文件、目标输出路径 | `FAIL-BUSINESS-GOAL` |
 | `business_object` | 单集小说正文、剧情梗概、逐集上游 source 和项目约束 | `source_episode_path`、集号、文本摘要 | `FAIL-BUSINESS-OBJECT` |
 | `constraint_profile` | 保真边界、改写尺度、AIGC 不越权、声画同步、场景标题天气后缀、Hollywood 格式 | 用户限制、项目记忆、imported reference manifest | `FAIL-BUSINESS-CONSTRAINT` |
-| `success_criteria` | 输出含 `Upstream Creative Direction Matrix`、`Type Style Application Map`、`Subject Registry Application Map`、题材/叙事画像、剧本正文、声画同步、节奏方案、高潮/尾钩、证据报告并通过 review | 输出文件、执行报告、review verdict | `FAIL-BUSINESS-SUCCESS` |
+| `success_criteria` | 输出含 `Screenplay Mode Decision`、`Upstream Creative Direction Matrix`、`Type Style Application Map`、`Subject Registry Application Map`、题材/叙事画像、剧本正文、声画同步、节奏方案、高潮/尾钩、证据报告并通过 review | 输出文件、执行报告、review verdict | `FAIL-BUSINESS-SUCCESS` |
 | `complexity_source` | 复杂度来自把 1-分集 故事真源、`类型风格.md` 题材方向、`主体注册表.md` 命名真源和项目长期约束统一成创作方向矩阵，再执行单集叙事校准、小说叙述到影视动作转译、短剧节奏、尾钩和下游字段汇流 | `upstream_creative_direction_matrix`、`type_style_application_map`、`subject_registry_application_map`、`genre_narrative_profile`、`rhythm_strategy_map` | `FAIL-BUSINESS-COMPLEXITY` |
 | `topology_fit` | 先建立上游创作方向矩阵，再继承题材风格上下文和主体命名真源，再做单集画像，先保真再增强、先候选再 review 的拓扑适配：1) 防止节奏套模板改坏事实；2) 让 2-美学/类型风格.md 和当前集叙事情节共同决定节奏机制；3) 让 3-主体/主体注册表.md 约束命名一致；4) 让声画字段提前服务 AIGC 下游；5) 让高潮/尾钩在证据门前收束 | Mermaid 图、节点表、reference load manifest、`upstream_creative_direction_matrix` | `FAIL-TOPOLOGY-FIT` |
 
@@ -245,18 +326,24 @@ Reject or clarify when:
 | `voice_adaptation_repair` | 陈述性信息太多、旁白乏味、观众理解慢 | `Voice Adaptation Repair Path` | `N1,N2,N3,N6,N7,N8` | `../_shared/upstream-context-application-contract.md`, `../_shared/anti-abstract-language-contract.md`, `references/narration-to-voice-adaptation-contract.md`, `references/field-routing-and-audio-visual-contract.md` | `FAIL-TYPE-VOICE` |
 | `review_only` | 用户只要求检查 `4-编剧` 输出 | `Review Path` | `N1,N7,N8` | `../_shared/upstream-context-application-contract.md`, `../_shared/anti-abstract-language-contract.md`, `review/review-contract.md` | `FAIL-TYPE-REVIEW` |
 
+Mode overlay:
+
+- `screenplay_mode` 不创建平行输出路径，也不跳过任何主链节点；所有生成、修复、审查路径都必须在 `N1` 锁定模式。
+- `正剧` 是默认 overlay，继续使用当前 `single_episode_adaptation` / `episode_range_adaptation` / repair 路由。
+- `解说剧` 是显式 overlay，沿同一路由执行，但 `N3/N6/GATE-SCR-25` 必须先建立 `jieshuoju_source_unit_coverage_map`，再强制陈述性 source 信息落入 `旁白（主体）` + `旁白画面`，并通过 `jieshuoju_field_variety_map` 证明场景标题、段落功能和字段节奏没有退化为连续旁白清单。
+
 ## Thinking-Action Node Map
 
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| `N1-SCR-INTAKE` | 锁定项目、集号、source、类型风格上下文、主体注册表、场景资产上下文、项目长期约束、写回权限和业务画像 | 用户请求、项目根、source 文件、2-美学/类型风格.md、3-主体/主体注册表.md、可选 3-主体/场景/2-设计、可选 3-主体/场景/3-生成、项目 `MEMORY.md/CONTEXT/` | 读取 `SKILL.md + CONTEXT.md`，按项目加载 `MEMORY.md/CONTEXT`，加载 2-美学/类型风格.md 与 3-主体/主体注册表.md；扫描已存在的场景设计稿、场景图、同名 JSON 和 design-manifest.yaml，建立 `scene_asset_context_manifest` 或 N/A；建立 `business_profile`、`source_episode_path`、`type_style_context_path`、`subject_registry_context_path`、`episode_id`、`writeback_mode`；列出至少 8 个用户指定 imported references 的 load manifest；创建 `upstream_creative_direction_matrix` 骨架 | `business_profile`、`source_manifest`、`type_style_context_manifest`、`subject_registry_context_manifest`、`scene_asset_context_manifest`、`upstream_creative_direction_matrix`、`checkpoint_scope` | `N2` / `N9-SCR-BLOCKED` | source 不唯一或写回权限不明时不得继续；正式主链缺 `类型风格.md` 或 `主体注册表.md` 不得 pass；已存在场景资产但无 manifest/N/A 记录不得进入创作；缺方向矩阵骨架不得进入创作 |
+| `N1-SCR-INTAKE` | 锁定项目、集号、source、`screenplay_mode`、类型风格上下文、主体注册表、场景资产上下文、项目长期约束、写回权限和业务画像 | 用户请求、项目根、source 文件、2-美学/类型风格.md、3-主体/主体注册表.md、可选 3-主体/场景/2-设计、可选 3-主体/场景/3-生成、项目 `MEMORY.md/CONTEXT/` | 读取 `SKILL.md + CONTEXT.md`，按项目加载 `MEMORY.md/CONTEXT`，解析显式 `正剧` / `解说剧` 信号并建立 `screenplay_mode_decision`；无显式模式时锁定 `正剧`；加载 2-美学/类型风格.md 与 3-主体/主体注册表.md；扫描已存在的场景设计稿、场景图、同名 JSON 和 design-manifest.yaml，建立 `scene_asset_context_manifest` 或 N/A；建立 `business_profile`、`source_episode_path`、`type_style_context_path`、`subject_registry_context_path`、`episode_id`、`writeback_mode`；列出至少 8 个用户指定 imported references 的 load manifest；创建 `upstream_creative_direction_matrix` 骨架 | `business_profile`、`source_manifest`、`screenplay_mode_decision`、`type_style_context_manifest`、`subject_registry_context_manifest`、`scene_asset_context_manifest`、`upstream_creative_direction_matrix`、`checkpoint_scope` | `N2` / `N9-SCR-BLOCKED` | source 不唯一或写回权限不明时不得继续；模式冲突且无法裁决时不得继续；正式主链缺 `类型风格.md` 或 `主体注册表.md` 不得 pass；已存在场景资产但无 manifest/N/A 记录不得进入创作；缺方向矩阵骨架不得进入创作 |
 | `N2-SCR-GENRE-NARRATIVE` | 继承类型风格、主体命名和场景资产边界，明确上游如何引导创作方向，并解析单集叙事情节 | source、2-美学/类型风格.md、3-主体/主体注册表.md、可选 `scene_asset_context_manifest`、项目约束、`types/type-map.md` | 先把 1-分集、2-美学/类型风格.md、3-主体/主体注册表.md、已有场景设计/场景图、项目 `MEMORY.md/CONTEXT/` 分别投影为 `upstream_creative_direction_matrix`；继承主题材、标志性元素和题材专属表现技巧；按主体注册表锁定角色、场景、道具 canonical name；若存在场景资产，生成 `scene_asset_integration_map`，把场景设计/图像锚点映射到本集场景功能、环境白描边界和 handoff，不允许新增剧情事实；结合当前集识别情节推进类型、人物欲望/阻碍、信息差、单集核心选择、场景功能；每集至少输出 1 个主题材继承判断、0-2 个当前集副题材校准、3-7 个 narrative beats | `upstream_creative_direction_matrix`、`type_style_application_map`、`subject_registry_application_map`、`scene_asset_integration_map`、`genre_narrative_profile`、`beat_inventory` | `N3` / `R1` | 画像必须能解释后续节奏选择，不能只写标签；不得无证据推翻 `类型风格.md` 或 `主体注册表.md`；场景资产不得覆盖 source 事实或注册表；每个关键方向判断必须有正文落点或 N/A |
-| `N3-SCR-FAITHFUL-PROJECTION` | 小说到剧本基础投影 | source、`upstream_creative_direction_matrix`、`scene_asset_integration_map`、imported script/field/narration contracts | 按 Hollywood 格式和本技能场景标题规范建立场景；将叙述拆成画面、动作、对白、独白、内心独白、旁白、音效、道具证据；保留上游关键事实和既有对白；用注册表和已存在场景资产校准场景标题地点、空间连续性、环境白描和天气/时间缺口；场景标题含天气后缀；检查剧本投影没有越过上游方向矩阵边界 | `source_to_script_map`、`dialogue_freeze_check`、`scene_heading_check`、`scene_asset_integration_map`、`upstream_context_application_map` | `N4` / `R1` | 上游事实/顺序/对白无授权不得漂移；场景标题缺天气失败；方向矩阵和场景资产不得覆盖 source 真源 |
+| `N3-SCR-FAITHFUL-PROJECTION` | 小说到剧本基础投影 | source、`screenplay_mode_decision`、`upstream_creative_direction_matrix`、`scene_asset_integration_map`、imported script/field/narration contracts | 按 Hollywood 格式和本技能场景标题规范建立场景；根据 `screenplay_mode` 将叙述拆成画面、动作、对白、独白、内心独白、旁白、音效、道具证据：`正剧` 沿用当前受控影视化策略，`解说剧` 必须先建立 `jieshuoju_source_unit_coverage_map`，按 source 单元类型区分已有对白、可见动作、环境状态、陈述事实、背景说明、时间桥、关系状态、结果概括、规则/系统信息和混合句，再将陈述性单元转为 `旁白（主体）` + `旁白画面`；同步建立 `jieshuoju_field_variety_map`，把叙事段落功能落到报告，正文场景标题只写真实空间/时间/天气，且用非旁白正式视觉字段打断连续旁白清单；保留上游关键事实和既有对白；用注册表和已存在场景资产校准场景标题地点、空间连续性、环境白描和天气/时间缺口；场景标题含天气后缀；检查剧本投影没有越过上游方向矩阵边界 | `source_to_script_map`、`dialogue_freeze_check`、`scene_heading_check`、`screenplay_mode_decision`、`jieshuoju_source_unit_coverage_map`、`jieshuoju_field_variety_map`、`narration_to_voice_adaptation_map`、`scene_asset_integration_map`、`upstream_context_application_map` | `N4` / `R1` | 上游事实/顺序/对白无授权不得漂移；`解说剧` 不得缺少 source 单元覆盖表和字段节奏表，不得把陈述性 source 改写为派生对白/独白/内心独白或漏写旁白画面，不得用 summary/fact_drop/cause_reorder 等操作替代完整承接，不得使用方括号叙事小标题或连续 4 组以上无承托旁白对；场景标题缺天气失败；方向矩阵和场景资产不得覆盖 source 真源 |
 | `N4-SCR-RHYTHM-ENGINE` | 根据题材和情节设计短剧节奏 | `genre_narrative_profile`、`beat_inventory`、节奏 references | 匹配 1-2 个主节奏机制和 1 个辅助机制；标注开场 0-10 秒钩子、中段升级、反转或认知位移、集末尾钩；每个节奏点必须绑定场内承托 | `rhythm_strategy_map`、`rhythm_support_evidence` | `N5` / `R1` | 不允许只写“快节奏/强反转/爽感强”；必须有承托字段 |
 | `N5-SCR-CLIMAX-HOOK` | 强化高潮和尾钩 | 剧本候选、高潮/尾钩 references | 每集锁定 1 个主高潮或 micro-payoff，设计视觉冲击、声音冲击、情绪冲击、行动落点；集末设计最后可见/可听/可感受的尾钩或迷你彩蛋 | `climax_treatment_map`、`episode_final_image_map` | `N6` / `R1` | 高潮不得新增结果；尾钩必须让下一集问题未闭合 |
-| `N6-SCR-CANDIDATE-DRAFT` | 生成候选逐集剧本和 AIGC 下游交接证据 | N2-N5 evidence、templates、`scene_asset_integration_map` | LLM 直接写 `candidate_screenplay`；正文只使用 `4-编剧` script layer 正式字段；对白、独白、内心独白、旁白、音效等声音字段必须就近配对对应画面字段，并检查相邻画面字段是否属于同一拍摄单位；必要细节补充必须回指 source、场景资产连续性或连贯性需求；已有场景设计/图像只转成环境白描边界、空间状态和 handoff notes，不写 prompt、构图或镜头；画面、动作、心理反应、高潮和尾钩必须白描式落到可见/可听/可演材料；AIGC 下游理解、声画同步、节奏、高潮和尾钩证据写入 frontmatter 摘要或执行报告，不作为正文标题；生成后必须做 `anti_scripted_draft_audit` 和 `plain_visualization_audit`，排除模板句式、锚点替换、批量插入、正则套句、映射投影、同义改写批量痕迹以及明喻/隐喻/象征/概念替代正文事实 | `candidate_screenplay`、`field_routing_map`、`audio_visual_pairing_map`、`same_frame_continuity_map`、`scene_asset_integration_map`、`handoff_evidence`、`anti_scripted_draft_audit`、`plain_visualization_audit` | `N7` / `R1` | 候选稿必须白描式可拍、可听、可演、可被下游解析，且不会把同一画面误拆成多个拍摄单位；场景资产不得变成剧情真源、prompt 或镜头；脚本化生成、批量插入、正则套句、映射投影、比喻化画面或概念化画面直接 fail |
-| `N7-SCR-REVIEW-REPAIR` | 审查并最小修复候选稿 | candidate、review contract、validation checklist | 执行 `GATE-SCR-01..23`；阻断项直接回对应节点最小修复，最多 3 轮；无法修复时 blocked 并报告最早 source owner | `review_verdict`、`repair_actions`、`validation_result` | `N8` / `R1` / `N9-SCR-BLOCKED` | review 未通过不得写回 canonical |
-| `N8-SCR-WRITEBACK-CLOSE` | 写回唯一输出并生成报告 | passed candidate、output contract、report evidence standard | 写 `projects/aigc/<项目名>/4-编剧/第N集.md` 和 `执行报告.md`；批量任务逐集追加报告；报告必须包含 `Execution Decision Trace`、`Reference Execution Matrix`、`Upstream Context Application Map`、`Upstream Creative Direction Matrix`、`Type Style Application Map`、`Subject Registry Application Map`、`Scene Asset Integration Map`、`Rule Evidence Map`、`N/A Justification`、`Repair Log`；不写 legacy 路径或下游真源 | `output_path_check`、`execution_report`、`reference_execution_matrix`、`upstream_creative_direction_matrix`、`type_style_application_map`、`subject_registry_application_map`、`scene_asset_integration_map`、`rule_evidence_map`、`downstream_handoff_manifest` | done | 输出路径唯一且报告含必需证据索引；已有场景资产必须有整合或 N/A 证据；缺任一报告证据不得 pass |
+| `N6-SCR-CANDIDATE-DRAFT` | 生成候选逐集剧本和 AIGC 下游交接证据 | N2-N5 evidence、templates、`screenplay_mode_decision`、`scene_asset_integration_map` | LLM 直接写 `candidate_screenplay`；正文只使用 `4-编剧` script layer 正式字段；对白、独白、内心独白、旁白、音效等声音字段必须就近配对对应画面字段，并检查相邻画面字段是否属于同一拍摄单位；按 `screenplay_mode` 执行声音策略：`正剧` 允许 source-grounded 派生语音，`解说剧` 必须沿 `jieshuoju_source_unit_coverage_map` 逐单元落地，陈述性单元使用 `旁白（主体）` + `旁白画面` 且不得转派生对白/独白/内心独白，可见动作/环境不被过度旁白化，混合句必须拆分双落点；显式 `解说剧` 必须用 `环境描写`、`角色动作`、`动作画面`、`场面调度`、`群像画面`、`道具特写`、`系统画面`、`规则显影`、`音效画面` 或 `转场` 组织字段节奏，正文不得用方括号叙事小标题替代段落功能；必要细节补充必须回指 source、场景资产连续性或连贯性需求；已有场景设计/图像只转成环境白描边界、空间状态和 handoff notes，不写 prompt、构图或镜头；画面、动作、心理反应、高潮和尾钩必须白描式落到可见/可听/可演材料；AIGC 下游理解、声画同步、节奏、高潮和尾钩证据写入 frontmatter 摘要或执行报告，不作为正文标题；生成后必须做 `anti_scripted_draft_audit`、`plain_visualization_audit` 和显式 `解说剧` 的 `jieshuoju_field_variety_audit`，排除模板句式、锚点替换、批量插入、正则套句、映射投影、同义改写批量痕迹、连续旁白清单以及明喻/隐喻/象征/概念替代正文事实 | `candidate_screenplay`、`field_routing_map`、`screenplay_mode_decision`、`jieshuoju_source_unit_coverage_map`、`jieshuoju_field_variety_map`、`narration_to_voice_adaptation_map`、`audio_visual_pairing_map`、`same_frame_continuity_map`、`scene_asset_integration_map`、`handoff_evidence`、`anti_scripted_draft_audit`、`plain_visualization_audit` | `N7` / `R1` | 候选稿必须符合 `screenplay_mode`，显式 `解说剧` 必须证明 source 单元覆盖完整且无摘要/漏写/误投影，字段节奏不过度单调、无方括号叙事小标题、无连续 4 组以上无承托旁白对，白描式可拍、可听、可演、可被下游解析，且不会把同一画面误拆成多个拍摄单位；场景资产不得变成剧情真源、prompt 或镜头；脚本化生成、批量插入、正则套句、映射投影、比喻化画面或概念化画面直接 fail |
+| `N7-SCR-REVIEW-REPAIR` | 审查并最小修复候选稿 | candidate、review contract、validation checklist | 执行 `GATE-SCR-01..25`；阻断项直接回对应节点最小修复，最多 3 轮；无法修复时 blocked 并报告最早 source owner | `review_verdict`、`repair_actions`、`validation_result` | `N8` / `R1` / `N9-SCR-BLOCKED` | review 未通过不得写回 canonical |
+| `N8-SCR-WRITEBACK-CLOSE` | 写回唯一输出并生成报告 | passed candidate、output contract、report evidence standard | 写 `projects/aigc/<项目名>/4-编剧/第N集.md` 和 `执行报告.md`；批量任务逐集追加报告；报告必须包含 `Screenplay Mode Decision`、`Execution Decision Trace`、`Reference Execution Matrix`、`Upstream Context Application Map`、`Upstream Creative Direction Matrix`、`Type Style Application Map`、`Subject Registry Application Map`、`Scene Asset Integration Map`、`Rule Evidence Map`、显式 `解说剧` 的 `Jieshuoju Source Unit Coverage Map` 与 `Jieshuoju Field Variety Map`、`N/A Justification`、`Repair Log`；不写 legacy 路径或下游真源 | `output_path_check`、`execution_report`、`screenplay_mode_decision`、`reference_execution_matrix`、`upstream_creative_direction_matrix`、`type_style_application_map`、`subject_registry_application_map`、`scene_asset_integration_map`、`jieshuoju_field_variety_map`、`rule_evidence_map`、`downstream_handoff_manifest` | done | 输出路径唯一且报告含必需证据索引；已有场景资产必须有整合或 N/A 证据；显式 `解说剧` 缺字段节奏证据不得 pass；缺任一报告证据不得 pass |
 | `R1-SCR-REWORK` | 源层返工 | fail code、review evidence | 按失败码回到 N2-N7 或对应 reference；若发现 reference/模板/路由缺陷，进入技能维护任务而非运行中自改 | `root_cause_trace`、`rework_target` | `N2` / `N3` / `N4` / `N5` / `N6` / `N7` | 不得用局部润色掩盖保真、节奏、声画或输出路径失败 |
 | `N9-SCR-BLOCKED` | 阻断收束 | blocking evidence | 输出阻断原因、最早 source owner 和用户需补信息，不写回 canonical | `blocked_report` | done | 只在 source、权限或三轮返工仍失败时进入 |
 
@@ -272,7 +359,7 @@ flowchart TD
     D --> E["N4-SCR-RHYTHM-ENGINE\n短剧节奏机制匹配"]
     E --> F["N5-SCR-CLIMAX-HOOK\n高潮+尾钩"]
     F --> G["N6-SCR-CANDIDATE-DRAFT\n剧本正文+AIGC字段"]
-    G --> H{"N7-SCR-REVIEW-REPAIR\nGATE-SCR-01..23"}
+    G --> H{"N7-SCR-REVIEW-REPAIR\nGATE-SCR-01..25"}
     H -->|"needs_rework"| R["R1-SCR-REWORK"]
     R --> C
     H -->|"pass"| I["N8-SCR-WRITEBACK-CLOSE\n4-编剧/第N集.md + 执行报告.md"]
@@ -284,9 +371,9 @@ flowchart TD
 | criteria_slot | required_content | landing_place | fail_code |
 | --- | --- | --- | --- |
 | `action_scope` | 单集任务处理 1 个 source；批量任务逐集独立执行 N2-N8；每集至少覆盖全部场景和全部 narrative beats | `Thinking-Action Node Map.actions` | `FAIL-QUANT-ACTION-SCOPE` |
-| `evidence_count` | 每集至少 1 个 `upstream_creative_direction_matrix`、1 个 `type_style_application_map`、1 个 `subject_registry_application_map`、1 个 `scene_asset_integration_map` 或明确 N/A、1 个 `genre_narrative_profile`、3-7 个 `beat_inventory`、1 个 `rhythm_strategy_map`、1 个 `climax_treatment_map`、1 个 `episode_final_image_map`、3 组以上 `audio_visual_pairing_map`，并对全部相邻画面字段簇输出 `same_frame_continuity_map`；若场景不足则按实际场景并报告 | `Thinking-Action Node Map.evidence` | `FAIL-QUANT-EVIDENCE` |
-| `pass_threshold` | `GATE-SCR-01..23` 阻断项为 0；非阻断 followup 不超过 3 项，且不得影响保真、声画同步、输出路径、下游 handoff、白描式可拍/可听/可演、anti-scripted authorship、上游创作方向矩阵或执行报告证据完整性 | `gate` / `Convergence Contract.pass_condition` | `FAIL-QUANT-THRESHOLD` |
-| `report_evidence_count` | 正式写回时每集至少包含 1 个 `Execution Decision Trace`、1 个 `Reference Execution Matrix`、1 个 `Upstream Context Application Map`、1 个 `Upstream Creative Direction Matrix`、1 个 `Type Style Application Map`、1 个 `Subject Registry Application Map`、1 个 `Scene Asset Integration Map` 或明确 N/A、1 个 `Rule Evidence Map`、1 个 `N/A Justification`、1 个 `Repair Log`、1 个 `AIGC Handoff Manifest`；没有返工时 `Repair Log` 写 `none` 并说明审查结果 | `Execution Report Evidence Standard` / `GATE-SCR-16` | `FAIL-QUANT-REPORT-EVIDENCE` |
+| `evidence_count` | 每集至少 1 个 `screenplay_mode_decision`、1 个 `upstream_creative_direction_matrix`、1 个 `type_style_application_map`、1 个 `subject_registry_application_map`、1 个 `scene_asset_integration_map` 或明确 N/A、1 个 `genre_narrative_profile`、3-7 个 `beat_inventory`、1 个 `rhythm_strategy_map`、1 个 `climax_treatment_map`、1 个 `episode_final_image_map`、3 组以上 `audio_visual_pairing_map`，并对全部相邻画面字段簇输出 `same_frame_continuity_map`；显式 `解说剧` 另需 1 个覆盖全部 source 单元的 `jieshuoju_source_unit_coverage_map`；若场景不足则按实际场景并报告 | `Thinking-Action Node Map.evidence` | `FAIL-QUANT-EVIDENCE` |
+| `pass_threshold` | `GATE-SCR-01..25` 阻断项为 0；非阻断 followup 不超过 3 项，且不得影响保真、声画同步、输出路径、下游 handoff、白描式可拍/可听/可演、anti-scripted authorship、上游创作方向矩阵、`screenplay_mode` 合规或执行报告证据完整性 | `gate` / `Convergence Contract.pass_condition` | `FAIL-QUANT-THRESHOLD` |
+| `report_evidence_count` | 正式写回时每集至少包含 1 个 `Screenplay Mode Decision`、1 个 `Execution Decision Trace`、1 个 `Reference Execution Matrix`、1 个 `Upstream Context Application Map`、1 个 `Upstream Creative Direction Matrix`、1 个 `Type Style Application Map`、1 个 `Subject Registry Application Map`、1 个 `Scene Asset Integration Map` 或明确 N/A、1 个 `Rule Evidence Map`、1 个 `N/A Justification`、1 个 `Repair Log`、1 个 `AIGC Handoff Manifest`；显式 `解说剧` 另需 1 个 `Jieshuoju Source Unit Coverage Map`；没有返工时 `Repair Log` 写 `none` 并说明审查结果 | `Execution Report Evidence Standard` / `GATE-SCR-16` | `FAIL-QUANT-REPORT-EVIDENCE` |
 | `retry_limit` | 同一集同一 fail code 最多 3 轮最小修复；仍失败则 blocked，报告最早 source owner 和不可修原因 | `R1-SCR-REWORK` | `FAIL-QUANT-RETRY` |
 | `fallback_evidence` | 若缺少明确题材或项目上下文，保守按文本事实建立临时画像，不写入项目 `MEMORY.md`；若缺少天气信息，场景标题写 `天气待定` 并在报告列为 followup | `Review Gate Binding.report_evidence` | `FAIL-QUANT-FALLBACK` |
 
@@ -331,10 +418,10 @@ flowchart TD
 | `references/directorial-authorship-contract.md` | `references/directorial-authorship-contract.md` | 节奏承托、高潮、尾钩需要戏剧问题和可见承托 | 本地适配为 `4-编剧` 剧本承托细则；只产出剧本层 `screenplay_substance_map` / `support_evidence`，不得输出 `5-导演` 导演稿 |
 | `references/climax-visual-treatment-contract.md` | `references/climax-visual-treatment-contract.md` | 高潮或 micro-payoff 设计 | 本地适配为 `4-编剧` 高潮承托细则；写入 `climax_treatment_map` 与正式剧本字段，不写镜头方案 |
 | `references/episode-final-image-contract.md` | `references/episode-final-image-contract.md` | 集末尾钩和迷你彩蛋 | 本地适配为 `4-编剧` 尾钩细则；将 final image 作为剧本末尾可见/可听/可感受落点，写入 `episode_final_image_map` |
-| `references/narration-to-voice-adaptation-contract.md` | `references/narration-to-voice-adaptation-contract.md` | 小说陈述转对白/独白/喊出式台词 | 全量照搬；本技能负责 source-grounded voice 转译和证据索引 |
+| `references/narration-to-voice-adaptation-contract.md` | `references/narration-to-voice-adaptation-contract.md` | 小说陈述转对白/独白/喊出式台词，或 `解说剧` source 单元覆盖与陈述性 source 转旁白 | 本地适配为 mode-aware voice contract；`正剧` 负责 source-grounded voice 转译，`解说剧` 先建立 `jieshuoju_source_unit_coverage_map`，再强制陈述性 source 落为 `旁白/旁白画面` 并留证 |
 | `references/hollywood-quality-spec.md` | `references/hollywood-quality-spec.md` | 每次输出格式化 | 全量照搬；场景标题额外追加天气后缀 |
 | `references/script-adaptation-contract.md` | `references/script-adaptation-contract.md` | 每次基础剧本投影 | 当前本地核心细则；输出路径固定为 `projects/aigc/<项目名>/4-编剧/第N集.md`，且场景标题必须含天气 |
-| `references/field-routing-and-audio-visual-contract.md` | `references/field-routing-and-audio-visual-contract.md` | 每次字段路由、声画同步和同画面连续性检查 | 全量照搬；声画同步必须通过正式声音字段与对应画面字段就近成对出现，不新增 `声画同步锚点` 正文标题；相邻画面字段不得把同一拍摄单位重复拆写 |
+| `references/field-routing-and-audio-visual-contract.md` | `references/field-routing-and-audio-visual-contract.md` | 每次字段路由、声画同步、同画面连续性检查和显式 `解说剧` 字段节奏检查 | 全量照搬；声画同步必须通过正式声音字段与对应画面字段就近成对出现，不新增 `声画同步锚点` 或方括号叙事小标题；相邻画面字段不得把同一拍摄单位重复拆写；显式 `解说剧` 需留 `jieshuoju_field_variety_map` |
 
 ## Module Loading Matrix
 
@@ -355,10 +442,10 @@ flowchart TD
 | `references/directorial-authorship-contract.md` | 节奏、高潮、尾钩需要承托 | 可见/可听/可执行承托细则 | 让本技能输出导演稿、表演稿或镜头 | `N4/N5/N6` |
 | `references/climax-visual-treatment-contract.md` | 高潮强化 | 高潮视觉/声音/情绪承托 | 新增剧情结果或摄影方案 | `N5-SCR-CLIMAX-HOOK` |
 | `references/episode-final-image-contract.md` | 集末尾钩 | 最后画面/声音/感受落点 | 只写“悬念拉满”无具体落点 | `N5-SCR-CLIMAX-HOOK` |
-| `references/narration-to-voice-adaptation-contract.md` | 陈述性信息转对白/独白/喊出式台词 | source-grounded 语音转译 | 改写上游既有对白或新增事实 | `N3/N6` |
+| `references/narration-to-voice-adaptation-contract.md` | 陈述性信息转对白/独白/喊出式台词，或 `解说剧` source 单元覆盖与陈述性信息转旁白 | source-grounded 语音转译与 mode-aware 旁白策略 | 改写上游既有对白、新增事实，或在 `解说剧` 中缺少 source 单元覆盖、把陈述性 source 改成派生对白/独白/内心独白、摘要/漏写/重排 source | `N3/N6` |
 | `references/hollywood-quality-spec.md` | 每次格式化 | 好莱坞剧本格式基线 | 替代本技能输出路径或字段要求 | `N3/N8` |
 | `references/script-adaptation-contract.md` | 每次基础投影 | 保真剧本化核心细则 | 改成 legacy 输出或越权写导演表演 | `N3-SCR-FAITHFUL-PROJECTION` |
-| `references/field-routing-and-audio-visual-contract.md` | 每次字段路由、声画同步和同画面连续性检查 | 字段纯度、声画配对、同画面合并、长对白节拍 | 生成下游镜头或视频参数 | `N3/N6` |
+| `references/field-routing-and-audio-visual-contract.md` | 每次字段路由、声画同步、同画面连续性和显式 `解说剧` 字段节奏检查 | 字段纯度、声画配对、同画面合并、长声音字段（对白/旁白/独白/内心独白）节拍拆分、`jieshuoju_field_variety_map` | 生成下游镜头或视频参数，或把叙事段落功能写成正文方括号标题 | `N3/N6` |
 | `types/type-map.md` | 每次题材/叙事分型 | 类型包索引 | 替代主入口路由 | `N2-SCR-GENRE-NARRATIVE` |
 | `templates/output-template.md` | 写剧本和报告 | 输出格式样板 | 偷渡新的完成门 | `Output Contract` |
 | `review/review-contract.md` | 候选稿 review、review_only、repair | 质量门展开 | 改写业务真源 | `Review Gate Binding` |
@@ -373,11 +460,11 @@ flowchart TD
 | `single_episode_adaptation` / `FAIL-TYPE-SINGLE` / `episode_range_adaptation` / `FAIL-TYPE-RANGE` | `../_shared/upstream-context-application-contract.md`, `../_shared/anti-abstract-language-contract.md`, `references/scene-rhythm-contract.md`, `references/directorial-authorship-contract.md`, `references/climax-visual-treatment-contract.md`, `references/episode-final-image-contract.md`, `references/narration-to-voice-adaptation-contract.md`, `references/hollywood-quality-spec.md`, `references/script-adaptation-contract.md`, `references/field-routing-and-audio-visual-contract.md`, `references/imported-reference-adaptation-map.md`, `references/screenwriting-masters-and-shortdrama-rhythm-contract.md`, `types/type-map.md`, `templates/output-template.md`, `review/review-contract.md` | `N1-N7` | `C2C-UPSTREAM-DIRECTION-LOCKED`, `C5-FINAL-OUTPUT`, `GATE-SCR-15` | reference load manifest has all 8 copied files; `upstream_creative_direction_matrix` and `plain_visualization_audit` present |
 | `upstream_context_application` / `FAIL-SCR-UPSTREAM-CONTEXT` / `FAIL-SCR-UPSTREAM-DIRECTION-MATRIX` | `../_shared/upstream-context-application-contract.md`, `review/review-contract.md` | `N1/N2/N3/N8` | `GATE-SCR-20`, `GATE-SCR-23` | `Upstream Context Application Map` contains `source_anchor -> local_decision -> preservation_check`; `Upstream Creative Direction Matrix` contains `upstream_context -> direction_role -> script_decision -> script_landing -> boundary_check` |
 | `rhythm_repair` / `FAIL-TYPE-RHYTHM` / `FAIL-SCR-RHYTHM` / `FAIL-SCR-GENRE-NARRATIVE` | `references/scene-rhythm-contract.md`, `references/directorial-authorship-contract.md`, `references/screenwriting-masters-and-shortdrama-rhythm-contract.md`, `types/type-map.md`, `review/review-contract.md` | `N2/N4/N7` | `C3-RHYTHM-SUPPORTED` | each rhythm label has support evidence |
-| `voice_adaptation_repair` / `FAIL-TYPE-VOICE` / `FAIL-SCR-VOICE` / `FAIL-SCR-AUDIO-VISUAL` | `references/narration-to-voice-adaptation-contract.md`, `references/field-routing-and-audio-visual-contract.md`, `review/review-contract.md` | `N3/N6/N7` | `C2-SCREENPLAY-FAITHFUL` | each added voice has source anchor and owner |
-| `FAIL-SCR-SCREENPLAY-QUALITY` / `FAIL-SCR-PLAIN-VISUALIZATION` / `FAIL-SCR-AIGC-FIELDS` | `../_shared/anti-abstract-language-contract.md`, `references/script-adaptation-contract.md`, `references/field-routing-and-audio-visual-contract.md`, `review/review-contract.md` | `N6/N7` | `GATE-SCR-15`, `GATE-SCR-13` | `plain_visualization_audit`, `field_quality_check`, `aigc_handoff_manifest` |
+| `voice_adaptation_repair` / `FAIL-TYPE-VOICE` / `FAIL-SCR-VOICE` / `FAIL-SCR-AUDIO-VISUAL` / `FAIL-SCR-SCREENPLAY-MODE` / `FAIL-SCR-JIESHUOJU-FIELD-MONOTONY` | `references/narration-to-voice-adaptation-contract.md`, `references/field-routing-and-audio-visual-contract.md`, `review/review-contract.md` | `N1/N3/N6/N7` | `C1A-SCREENPLAY-MODE-LOCKED`, `C2-SCREENPLAY-FAITHFUL` | each added voice has source anchor and owner; `解说剧` has `jieshuoju_source_unit_coverage_map` and `jieshuoju_field_variety_map`; declarative source anchors map to `旁白/旁白画面` and no bracket heading / unsupported narration run remains |
+| `FAIL-SCR-SCREENPLAY-QUALITY` / `FAIL-SCR-PLAIN-VISUALIZATION` / `FAIL-SCR-JIESHUOJU-FIELD-MONOTONY` / `FAIL-SCR-AIGC-FIELDS` | `../_shared/anti-abstract-language-contract.md`, `references/script-adaptation-contract.md`, `references/field-routing-and-audio-visual-contract.md`, `review/review-contract.md` | `N6/N7` | `GATE-SCR-15`, `GATE-SCR-13` | `plain_visualization_audit`, `field_quality_check`, `jieshuoju_field_variety_map`, `aigc_handoff_manifest` |
 | `FAIL-SCR-CLIMAX` / `FAIL-SCR-HOOK` | `references/climax-visual-treatment-contract.md`, `references/episode-final-image-contract.md`, `references/directorial-authorship-contract.md`, `references/screenwriting-masters-and-shortdrama-rhythm-contract.md`, `review/review-contract.md` | `N5/N7` | `C4-CLIMAX-HOOK-READY` | climax/hook maps are present |
 | `FAIL-SCR-SCENE-HEADING` / `FAIL-SCR-FAITHFULNESS` / `FAIL-SCR-SCREENPLAY-QUALITY` | `references/hollywood-quality-spec.md`, `references/script-adaptation-contract.md`, `references/field-routing-and-audio-visual-contract.md`, `templates/output-template.md`, `review/review-contract.md` | `N3/N6/N8` | `C5-FINAL-OUTPUT` | scene headings include weather suffix |
-| `review_only` / `FAIL-TYPE-REVIEW` / `FAIL-SCR-REVIEW` / `FAIL-SCR-PATH` / `FAIL-SCR-LOAD` / `FAIL-SCR-DETAILS` / `FAIL-SCR-REWRITE-SCOPE` / `FAIL-SCR-AIGC-FIELDS` / `FAIL-SCR-DOWNSTREAM-OVERREACH` / `FAIL-SCR-REPORT` / `FAIL-SCR-LLM-FIRST` / `FAIL-SCR-SCRIPTED-DRAFT` / `FAIL-SCR-TYPE-STYLE-CONTEXT` / `FAIL-SCR-SUBJECT-REGISTRY-CONTEXT` / `FAIL-SCR-UPSTREAM-DIRECTION-MATRIX` / `FAIL-SCR-SCENE-ASSET-CONTEXT` | `../_shared/upstream-context-application-contract.md`, `review/review-contract.md`, `references/imported-reference-adaptation-map.md`, `templates/output-template.md`, `scripts/README.md` | `N7/R1` | `Review Gate Binding` | GATE-SCR rows mapped to fail codes |
+| `review_only` / `FAIL-TYPE-REVIEW` / `FAIL-SCR-REVIEW` / `FAIL-SCR-PATH` / `FAIL-SCR-LOAD` / `FAIL-SCR-DETAILS` / `FAIL-SCR-REWRITE-SCOPE` / `FAIL-SCR-AIGC-FIELDS` / `FAIL-SCR-DOWNSTREAM-OVERREACH` / `FAIL-SCR-REPORT` / `FAIL-SCR-LLM-FIRST` / `FAIL-SCR-SCRIPTED-DRAFT` / `FAIL-SCR-TYPE-STYLE-CONTEXT` / `FAIL-SCR-SUBJECT-REGISTRY-CONTEXT` / `FAIL-SCR-UPSTREAM-DIRECTION-MATRIX` / `FAIL-SCR-SCENE-ASSET-CONTEXT` / `FAIL-SCR-SCREENPLAY-MODE` / `FAIL-SCR-JIESHUOJU-FIELD-MONOTONY` | `../_shared/upstream-context-application-contract.md`, `review/review-contract.md`, `references/imported-reference-adaptation-map.md`, `templates/output-template.md`, `scripts/README.md` | `N7/R1` | `Review Gate Binding` | GATE-SCR rows mapped to fail codes |
 | `FAIL-MODULE-DRIFT` | `review/review-contract.md` | `R1` | `Module Loading Matrix` | no module carries second output truth |
 
 ## Thought Pass Map
@@ -393,6 +480,7 @@ flowchart TD
 | convergence_point | pass_condition | fail_condition | evidence | rework_target |
 | --- | --- | --- | --- | --- |
 | `C1-BUSINESS-LOCKED` | source、集号、目标路径、改写尺度、loaded references 明确 | source 不唯一、改写授权不清、导入合同缺失 | `business_profile`、`reference_load_manifest` | `N1-SCR-INTAKE` |
+| `C1A-SCREENPLAY-MODE-LOCKED` | `screenplay_mode` 已锁定为 `正剧` 或 `解说剧`；无显式指定时为 `正剧`；显式 `解说剧` 的 source 单元类型、陈述性处理边界和覆盖状态已进入执行证据 | 模式缺失、无显式指定却误用 `解说剧`、模式冲突未澄清，或 `解说剧` 缺 `jieshuoju_source_unit_coverage_map`、陈述性 source 被改成派生对白/独白/内心独白、source 被摘要/漏写/重排 | `screenplay_mode_decision`、`jieshuoju_source_unit_coverage_map`、`narration_to_voice_adaptation_map` | `N1/N3/N6/N8` |
 | `C2-SCREENPLAY-FAITHFUL` | 剧情事实、顺序、已有对白、基础场景和字段路由成立 | 无授权新增/删除/重排事实，或声音字段无来源 | `source_to_script_map`、`dialogue_freeze_check` | `N3-SCR-FAITHFUL-PROJECTION` |
 | `C2A-UPSTREAM-CONTEXT-APPLIED` | 1-分集 或用户指定 source 已拆分为 truth/constraint/handoff seed，并能证明每个关键剧本化决定的 source anchor、local decision 与 preservation check | 只说明已读取 source、无法解释剧本化改写依据、或保真检查缺失 | `upstream_context_application_map` | `N1/N3/N8` |
 | `C2B-TYPE-STYLE-APPLIED` | 2-美学/类型风格.md 已拆分为题材类型、标志性元素、表现技巧和禁区，并能证明其如何影响单集节奏、高潮、尾钩和声画策略 | 缺少 `类型风格.md`、只机械复述类型标签、或无证据推翻题材风格真源 | `type_style_application_map` | `N1/N2/N8` |
@@ -416,15 +504,15 @@ flowchart TD
 ## Execution Contract
 
 1. 读取本 `SKILL.md + CONTEXT.md`；若绑定项目，加载项目 `MEMORY.md` 和相关 `CONTEXT/`。
-2. 锁定单集 source、集号、输出根 `projects/aigc/<项目名>/4-编剧/`、改写尺度和 reference load manifest。
+2. 锁定单集 source、集号、输出根 `projects/aigc/<项目名>/4-编剧/`、改写尺度、`screenplay_mode` 和 reference load manifest；无显式模式时默认 `正剧`，显式 `解说剧` 时记录 `screenplay_mode_decision`。
 3. 读取并应用 1-分集、2-美学/类型风格.md、3-主体/主体注册表.md 与项目 `MEMORY.md/CONTEXT/`；若已有 3-主体/场景/2-设计、3-主体/场景/3-生成 或 design-manifest.yaml，建立只读 `scene_asset_context_manifest` 和 `scene_asset_integration_map`；先建立 `upstream_creative_direction_matrix`，再建立 `type_style_application_map`、`subject_registry_application_map` 和必要的场景资产整合证据；随后执行单集叙事情节解析，建立 `genre_narrative_profile` 和 `beat_inventory`。
-4. 执行保真剧本投影：Hollywood 格式、场景标题、天气后缀、字段分流、声画同步、同画面连续性、对白冻结、陈述性信息受控转语音。
+4. 执行保真剧本投影：Hollywood 格式、场景标题、天气后缀、字段分流、声画同步、同画面连续性、对白冻结、陈述性信息按模式受控转语音；`正剧` 沿用派生语音 gate，`解说剧` 先建立 `jieshuoju_source_unit_coverage_map`，再将陈述性 source 全部落入 `旁白/旁白画面`。
 5. 根据题材和情节匹配短剧节奏机制；每个机制必须有场内承托和下游字段。
 6. 强化高潮和集末尾钩；高潮强化不新增结果，尾钩必须有最后可见/可听/可感受落点。
-7. LLM 直接生成候选剧本；正文只写 `4-编剧` screenplay layer 允许字段，AIGC 下游理解、声画同步、同画面连续性、节奏承托、高潮强化和尾钩落点只写入 frontmatter 摘要或执行报告证据，不作为剧本正文标题。
-8. 按 `review/review-contract.md` 执行 `GATE-SCR-01..23`，阻断项直接回对应节点修复并复审。
+7. LLM 直接生成候选剧本；正文只写 `4-编剧` screenplay layer 允许字段，并符合 `screenplay_mode`；AIGC 下游理解、声画同步、同画面连续性、节奏承托、高潮强化和尾钩落点只写入 frontmatter 摘要或执行报告证据，不作为剧本正文标题。
+8. 按 `review/review-contract.md` 执行 `GATE-SCR-01..25`，阻断项直接回对应节点修复并复审。
 9. 通过后写回 `projects/aigc/<项目名>/4-编剧/第N集.md` 和 `projects/aigc/<项目名>/4-编剧/执行报告.md`。
-10. 报告必须包含 `Execution Decision Trace`、`Reference Execution Matrix`、`Upstream Context Application Map`、`Upstream Creative Direction Matrix`、`Type Style Application Map`、`Subject Registry Application Map`、`Scene Asset Integration Map` 或 N/A、`Rule Evidence Map`、`N/A Justification`、`Repair Log`、`source_to_script_map`、`genre_narrative_profile`、`rhythm_strategy_map`、`climax_treatment_map`、`episode_final_image_map`、`audio_visual_pairing_map`、`same_frame_continuity_map`、`narration_to_voice_adaptation_map`、review verdict 和 handoff。
+10. 报告必须包含 `Screenplay Mode Decision`、`Execution Decision Trace`、`Reference Execution Matrix`、`Upstream Context Application Map`、`Upstream Creative Direction Matrix`、`Type Style Application Map`、`Subject Registry Application Map`、`Scene Asset Integration Map` 或 N/A、`Rule Evidence Map`、`N/A Justification`、`Repair Log`、`source_to_script_map`、显式 `解说剧` 的 `jieshuoju_source_unit_coverage_map`、`genre_narrative_profile`、`rhythm_strategy_map`、`climax_treatment_map`、`episode_final_image_map`、`audio_visual_pairing_map`、`same_frame_continuity_map`、`narration_to_voice_adaptation_map`、review verdict 和 handoff。
 
 ## Review Gate Binding
 
@@ -435,7 +523,7 @@ flowchart TD
 | 题材和叙事情节画像是否能解释节奏选择？ | `GATE-SCR-03` | `FAIL-SCR-GENRE-NARRATIVE` | `N2-SCR-GENRE-NARRATIVE` | `genre_narrative_profile` |
 | 上游剧情事实、顺序、人物关系和已有对白是否保真？ | `GATE-SCR-04` | `FAIL-SCR-FAITHFULNESS` | `N3-SCR-FAITHFUL-PROJECTION` | `source_to_script_map` |
 | 场景标题是否符合 Hollywood 格式并包含天气后缀？ | `GATE-SCR-05` | `FAIL-SCR-SCENE-HEADING` | `N3-SCR-FAITHFUL-PROJECTION` | `scene_heading_check` |
-| 陈述性信息转对白/独白/喊出式台词是否有 source anchor、voice owner 和语音预算？ | `GATE-SCR-06` | `FAIL-SCR-VOICE` | `N3/N6` | `narration_to_voice_adaptation_map` |
+| 陈述性信息是否按 `screenplay_mode` 正确转语音：`正剧` 派生对白/独白/旁白有 source anchor、voice owner 和语音预算，`解说剧` 陈述性部分全部落为 `旁白/旁白画面` 且有 source 单元覆盖证据？ | `GATE-SCR-06` | `FAIL-SCR-VOICE` | `N3/N6` | `jieshuoju_source_unit_coverage_map`、`narration_to_voice_adaptation_map` |
 | 声音字段是否就近配对对应画面字段，没有使用 `声画同步锚点` 类正文标题，且相邻画面字段没有把同一时刻/同一主体/同一动作链重复拆成多个拍摄单位？ | `GATE-SCR-07` | `FAIL-SCR-AUDIO-VISUAL` | `N6-SCR-CANDIDATE-DRAFT` | `audio_visual_pairing_map`、`same_frame_continuity_map` |
 | 节奏机制是否有承托，而不是简单形容？ | `GATE-SCR-08` | `FAIL-SCR-RHYTHM` | `N4-SCR-RHYTHM-ENGINE` | `rhythm_support_evidence` |
 | 高潮是否含视觉、声音、情绪和行动落点，且不新增剧情结果？ | `GATE-SCR-09` | `FAIL-SCR-CLIMAX` | `N5-SCR-CLIMAX-HOOK` | `climax_treatment_map` |
@@ -444,8 +532,8 @@ flowchart TD
 | 改写是否受控，没有未经授权改因果或结局？ | `GATE-SCR-12` | `FAIL-SCR-REWRITE-SCOPE` | `N3/N6` | `rewrite_scope_check` |
 | 是否为 AIGC 下游提供了清晰 handoff，且未在正文新增第二套标题字段？ | `GATE-SCR-13` | `FAIL-SCR-AIGC-FIELDS` | `N6/N8` | `aigc_handoff_manifest` |
 | 是否没有越权写机位、景别、运镜、分镜编号、prompt 或视频参数？ | `GATE-SCR-14` | `FAIL-SCR-DOWNSTREAM-OVERREACH` | `N6-SCR-CANDIDATE-DRAFT` | `downstream_overreach_check` |
-| 剧本是否白描式可拍、可听、可演、可读，且字段纯度足够，没有用明喻、隐喻、象征或概念标签替代画面事实？ | `GATE-SCR-15` | `FAIL-SCR-SCREENPLAY-QUALITY` / `FAIL-SCR-PLAIN-VISUALIZATION` | `N6-SCR-CANDIDATE-DRAFT` | `plain_visualization_audit`、`field_quality_check` |
-| 输出模板、报告和证据索引是否完整，并包含决策链、references 执行矩阵、上游上下文应用、上游创作方向矩阵、类型风格应用、主体注册表应用、规则证据、N/A 说明和返工记录？ | `GATE-SCR-16` | `FAIL-SCR-REPORT` | `N8-SCR-WRITEBACK-CLOSE` | `execution_report`、`execution_decision_trace`、`reference_execution_matrix`、`upstream_context_application_map`、`upstream_creative_direction_matrix`、`type_style_application_map`、`subject_registry_application_map`、`rule_evidence_map`、`na_justification`、`repair_log` |
+| 剧本是否白描式可拍、可听、可演、可读，且字段纯度足够，没有用明喻、隐喻、象征或概念标签替代画面事实；显式 `解说剧` 是否没有退化成连续旁白清单？ | `GATE-SCR-15` | `FAIL-SCR-SCREENPLAY-QUALITY` / `FAIL-SCR-PLAIN-VISUALIZATION` / `FAIL-SCR-JIESHUOJU-FIELD-MONOTONY` | `N6-SCR-CANDIDATE-DRAFT` | `plain_visualization_audit`、`field_quality_check`、`jieshuoju_field_variety_map` |
+| 输出模板、报告和证据索引是否完整，并包含模式决策、决策链、references 执行矩阵、上游上下文应用、上游创作方向矩阵、类型风格应用、主体注册表应用、显式 `解说剧` source 单元覆盖和字段节奏、规则证据、N/A 说明和返工记录？ | `GATE-SCR-16` | `FAIL-SCR-REPORT` | `N8-SCR-WRITEBACK-CLOSE` | `execution_report`、`screenplay_mode_decision`、`jieshuoju_source_unit_coverage_map`、`jieshuoju_field_variety_map`、`execution_decision_trace`、`reference_execution_matrix`、`upstream_context_application_map`、`upstream_creative_direction_matrix`、`type_style_application_map`、`subject_registry_application_map`、`rule_evidence_map`、`na_justification`、`repair_log` |
 | 是否遵守 LLM-first，脚本未替代主创？ | `GATE-SCR-17` | `FAIL-SCR-LLM-FIRST` | `LLM-First Creative Authorship Contract` | `authorship_check` |
 | 模块是否没有形成第二规则源或第二输出真源？ | `GATE-SCR-18` | `FAIL-MODULE-DRIFT` | `Module Loading Matrix` | `module_authorization_audit` |
 | 剧本正文、节奏方案、对白、高潮、尾钩和 handoff 是否由 LLM 从上到下逐条理解 source 后落盘，且无脚本化生成、批量插入、正则套句、映射投影、模板句式复用、关键词锚点替换、句式轮换或同义改写批量生成痕迹？ | `GATE-SCR-19` | `FAIL-SCR-SCRIPTED-DRAFT` | `N6-SCR-CANDIDATE-DRAFT` / `R1-SCR-REWORK` | `anti_scripted_draft_audit` |
@@ -454,6 +542,7 @@ flowchart TD
 | 3-主体/主体注册表.md 是否被明确投影为本集角色、场景、道具命名真源，且剧本中未静默新增或改名主体？ | `GATE-SCR-22` | `FAIL-SCR-SUBJECT-REGISTRY-CONTEXT` | `N1-SCR-INTAKE` / `N2-SCR-GENRE-NARRATIVE` / `N8-SCR-WRITEBACK-CLOSE` | `subject_registry_application_map` |
 | 是否明确说明 1-分集、2-美学/类型风格.md、3-主体/主体注册表.md、项目 `MEMORY.md/CONTEXT/` 分别如何引导本集编剧创作方向，并给出正文落点与禁止越权检查？ | `GATE-SCR-23` | `FAIL-SCR-UPSTREAM-DIRECTION-MATRIX` | `N1-SCR-INTAKE` / `N2-SCR-GENRE-NARRATIVE` / `N8-SCR-WRITEBACK-CLOSE` | `upstream_creative_direction_matrix` |
 | 若已存在场景设计稿、场景图或场景 manifest，是否已作为只读 scene asset context 映射到场景标题、环境白描、连续性或 handoff，且没有覆盖 source、注册表或下游权限？ | `GATE-SCR-24` | `FAIL-SCR-SCENE-ASSET-CONTEXT` | `N1-SCR-INTAKE` / `N2-SCR-GENRE-NARRATIVE` / `N3-SCR-FAITHFUL-PROJECTION` / `N6-SCR-CANDIDATE-DRAFT` / `N8-SCR-WRITEBACK-CLOSE` | `scene_asset_context_manifest`、`scene_asset_integration_map`、`downstream_overreach_check` |
+| `screenplay_mode` 是否已锁定且落地：无显式指定时为 `正剧`，显式 `解说剧` 时 source 单元已类型化覆盖，陈述性 source 没有被转成派生对白/独白/内心独白，没有摘要/漏写/因果重排，每条陈述性旁白都有 `旁白画面`，且正文没有方括号叙事小标题或连续 4 组以上无承托旁白对？ | `GATE-SCR-25` | `FAIL-SCR-SCREENPLAY-MODE` / `FAIL-SCR-JIESHUOJU-FIELD-MONOTONY` | `N1-SCR-INTAKE` / `N3-SCR-FAITHFUL-PROJECTION` / `N6-SCR-CANDIDATE-DRAFT` / `N8-SCR-WRITEBACK-CLOSE` | `screenplay_mode_decision`、`jieshuoju_source_unit_coverage_map`、`jieshuoju_field_variety_map`、`narration_to_voice_adaptation_map`、`audio_visual_pairing_map` |
 
 ## Execution Report Evidence Standard
 
@@ -469,7 +558,8 @@ flowchart TD
 
 | section | required_fields | pass_condition | fail_code |
 | --- | --- | --- | --- |
-| `Source Manifest` | `source_episode_path`、`episode_id`、`writeback_mode`、`source_summary` | source 唯一且可回指 | `FAIL-SCR-REPORT-SOURCE` |
+| `Source Manifest` | `source_episode_path`、`episode_id`、`writeback_mode`、`screenplay_mode`、`source_summary` | source 唯一且可回指，模式已锁定 | `FAIL-SCR-REPORT-SOURCE` |
+| `Screenplay Mode Decision` | `screenplay_mode`、`explicit_mode_signal`、`default_applied`、`mode_reason`、`narration_policy`、`script_landing_rule` | 无显式指定时为 `正剧`；显式 `解说剧` 时陈述性 source 全部进入 `旁白/旁白画面`，并声明 `Jieshuoju Source Unit Coverage Map` 为必填证据 | `FAIL-SCR-SCREENPLAY-MODE` |
 | `Reference Load Manifest` | 8 个 copied references、新增 rhythm contract、types、templates、review 的加载状态 | 所有本轮必需模块有 `loaded/triggered/n/a` 状态 | `FAIL-SCR-REPORT-LOAD` |
 | `Execution Decision Trace` | `node_id`、`decision`、`source_anchor`、`reference_or_gate`、`reason`、`output_landing` | 关键题材、分场、转语音、节奏、高潮、尾钩和字段取舍均有摘要 | `FAIL-SCR-REPORT-TRACE` |
 | `Reference Execution Matrix` | `reference`、`load_status`、`trigger_reason`、`applied_to`、`evidence_in_output`、`verdict`、`n/a_reason` | 授权 references 全量审计；不适用项说明 N/A 原因 | `FAIL-SCR-REPORT-REFERENCE-MATRIX` |
@@ -480,7 +570,9 @@ flowchart TD
 | `Scene Asset Integration Map` | `scene_asset_context_path`、`asset_type`、`registry_scene_name_or_id`、`design_or_image_anchor`、`used_for`、`script_landing`、`boundary_check`、`n/a_reason` | 已有场景设计、场景图、JSON 或 manifest 能证明如何只读影响场景标题、环境白描、连续性和 handoff；无资产时有 N/A；不得覆盖 source 或生成 prompt | `FAIL-SCR-SCENE-ASSET-CONTEXT` |
 | `Rule Evidence Map` | `rule_or_gate`、`source_anchor`、`script_landing`、`report_evidence`、`verdict` | 保真、字段、声画配对、节奏、高潮、尾钩、handoff 均能回指证据 | `FAIL-SCR-REPORT-RULE-EVIDENCE` |
 | `Source To Script Map` | source 段落到场景/字段映射 | 关键事实、事件顺序、既有对白无漂移 | `FAIL-SCR-REPORT-SOURCE-MAP` |
-| `Narration To Voice Adaptation Map` | `source_anchor`、`voice_owner`、`derived_voice_line`、`paired_visual_field`、`risk_check` | 每条派生语音有来源、主体、知识依据和画面配对 | `FAIL-SCR-REPORT-VOICE-MAP` |
+| `Jieshuoju Source Unit Coverage Map` | `unit_id`、`source_anchor`、`source_text`、`source_unit_type`、`landing_policy`、`narrator_profile`、`visual_support_type`、`fidelity_operation`、`output_landing`、`coverage_status`、`risk_check` | 显式 `解说剧` 中全部 source 单元均已分类并有落点；陈述性单元进入 `旁白/旁白画面`，可见动作/环境不被过度旁白化，混合句双落点清楚，无摘要、漏写、事实漂移或因果重排；非 `解说剧` 时写 N/A 原因 | `FAIL-SCR-SCREENPLAY-MODE` |
+| `Jieshuoju Field Variety Map` | `scene_id`、`source_anchor_range`、`segment_function`、`scene_heading`、`dominant_source_unit_types`、`non_narration_visual_fields`、`max_narration_pair_run`、`bracket_heading_check`、`exception_or_repair`、`verdict` | 显式 `解说剧` 中场景标题只写真实空间/时间/天气，叙事段落功能不进入正文方括号标题，含 3 条及以上旁白对的场景有非旁白视觉字段承托，且无连续 4 组以上无承托旁白对；非 `解说剧` 时写 N/A 原因 | `FAIL-SCR-JIESHUOJU-FIELD-MONOTONY` |
+| `Narration To Voice Adaptation Map` | `source_anchor`、`source_text`、`screenplay_mode`、`mode_policy`、`target_voice_field`、`voice_owner`、`derived_voice_line`、`paired_visual_field`、`risk_check` | `正剧` 每条派生语音有来源、主体、知识依据和画面配对；`解说剧` 每条陈述性 source anchor 落为 `旁白/旁白画面` 且无派生对白/独白/内心独白 | `FAIL-SCR-REPORT-VOICE-MAP` |
 | `Audio Visual Pairing Map` | `sound_field`、`paired_visual_field`、`script_landing`、`pairing_status` | 声音字段全部就近配对 | `FAIL-SCR-REPORT-AV-MAP` |
 | `Same Frame Continuity Map` | `visual_cluster`、`time_space_relation`、`merge_or_keep_decision`、`kept_field`、`downstream_split_risk` | 同一画面不被重复拆写；保留的连续画面有明确分界条件 | `FAIL-SCR-REPORT-SAME-FRAME` |
 | `Rhythm Strategy Map` | `mechanism_id`、`matched_reason`、`source_anchor`、`support_field`、`script_landing` | 节奏机制有题材/情节匹配和正文承托 | `FAIL-SCR-REPORT-RHYTHM` |
@@ -496,7 +588,7 @@ flowchart TD
 
 - 全量审计：`Module Trigger Matrix` 本轮要求加载的 references 必须进入矩阵。
 - 选择性触发：只把当前集实际需要的细则落到正文；不得为套规则而机械插入无功能内容。
-- N/A 必证：未触发的细则必须写 `n/a_reason`，例如“本集无旁白需求”“无系统画面”“无下一集正文，仅做 episode-local inference”。
+- N/A 必证：未触发的细则必须写 `n/a_reason`，例如“正剧模式下本集无旁白需求”“无系统画面”“无下一集正文，仅做 episode-local inference”。`解说剧` 不得把陈述性 source 的旁白需求、`Jieshuoju Source Unit Coverage Map` 或 `Jieshuoju Field Variety Map` 标为 N/A。
 - 缺证阻断：任一已触发 reference 没有 `applied_to` 或 `evidence_in_output`，不得判定 `pass`。
 
 ### Report Boundary
@@ -511,15 +603,17 @@ Required output:
 
 1. 逐集剧本：`projects/aigc/<项目名>/4-编剧/第N集.md`。
 2. 阶段执行报告：`projects/aigc/<项目名>/4-编剧/执行报告.md`。
-3. 剧本必须包含 frontmatter、题材/叙事画像摘要、`【剧本正文】`、Hollywood 场景标题、天气后缀和 `4-编剧` 正式字段化正文；AIGC 下游理解、声画同步、同画面连续性、节奏承托、高潮强化和尾钩落点作为 frontmatter 摘要或执行报告证据，不进入正文标题。
+3. 剧本必须包含 frontmatter、`screenplay_mode`、题材/叙事画像摘要、`【剧本正文】`、Hollywood 场景标题、天气后缀和 `4-编剧` 正式字段化正文；AIGC 下游理解、声画同步、同画面连续性、节奏承托、高潮强化、尾钩落点和叙事段落功能作为 frontmatter 摘要或执行报告证据，不进入正文标题。
 
 Output format:
 
 - Markdown 剧本与 Markdown 执行报告。
+- frontmatter 必须包含 `screenplay_mode: zhengju | jieshuoju`；没有显式模式时写 `zhengju`。
 - 场景标题格式与 `4-编剧` 保持一致并追加天气：`### 场景N：内景/外景 地点 - 日/夜 - 天气`；无法判断天气时用 `天气待定` 并在报告中列 followup。
 - 正文只允许使用 `4-编剧/references/script-adaptation-contract.md` 的正式字段：`环境描写`、`角色动作`、`动作画面`、`角色造型`、`场面调度`、`群像画面`、`表情特写`、`道具特写`、`系统画面`、`规则显影`、`现实灾难画面`、`对白（角色名，语态/状态短语）`、`对白画面`、`独白（角色）`、`独白画面`、`内心独白（角色）`、`内心独白画面`、`旁白（主体）`、`旁白画面`、`音效（来源）`、`音效画面`、`心理反应`、`表演提示`、`转场`。非命中字段可省略，不补空。
 - 正文画面字段必须白描式直接可见/可听/可演：写主体、动作、空间、道具、声音、光照、身体状态和时间变化，不写“像……一样”“仿佛……”“宿命感”“灵魂碎裂”等比喻、象征或概念标签作为画面事实。
 - 声音字段必须就近配对画面字段：`对白（...）` -> `对白画面`，`独白（...）` -> `独白画面`，`内心独白（...）` -> `内心独白画面`，`旁白（...）` -> `旁白画面`，`音效（...）` -> `音效画面`。用户口语中的“内心OS”在本技能中按 `内心独白` 处理，正文不使用 `内心OS` 字段名。
+- `解说剧` 正文中，陈述性 source 信息必须以 `旁白（叙述者/指定主体）` + `旁白画面` 成对落地；同时必须用正式视觉字段承托段落节奏，不能用方括号叙事小标题或连续旁白清单替代字段化剧本；`正剧` 正文中，旁白仍按必要性使用。
 
 Output path:
 
@@ -536,9 +630,9 @@ Naming convention:
 
 Completion gate:
 
-- `GATE-SCR-01..23` 阻断项为 0。
+- `GATE-SCR-01..25` 阻断项为 0。
 - `FAIL-SCR-PLAIN-VISUALIZATION` 为 0；画面、动作、心理反应、高潮和尾钩均能删去比喻/概念后仍保持可拍、可听、可演。
-- 输出路径唯一，报告含 `Execution Decision Trace`、`Reference Execution Matrix`、`Upstream Context Application Map`、`Upstream Creative Direction Matrix`、`Type Style Application Map`、`Subject Registry Application Map`、`Rule Evidence Map`、`N/A Justification`、`Repair Log`、evidence maps 和 handoff。
+- 输出路径唯一，报告含 `Screenplay Mode Decision`、`Execution Decision Trace`、`Reference Execution Matrix`、`Upstream Context Application Map`、`Upstream Creative Direction Matrix`、`Type Style Application Map`、`Subject Registry Application Map`、`Rule Evidence Map`、`N/A Justification`、`Repair Log`、evidence maps 和 handoff。
 - 已同步加载并触发用户指定 imported references；缺失任一指定 reference 不得正式交付。
 
 ## Runtime Guardrails
@@ -579,17 +673,17 @@ Completion gate:
 
 | field_id | target | must_contain | fail_code |
 | --- | --- | --- | --- |
-| `FIELD-SCR-01` | `4-编剧/第N集.md.frontmatter` | `source_episode_path`、`episode_id`、`type_style_context_path`、`subject_registry_context_path`、`upstream_direction_policy`、`genre_profile`、`rhythm_strategy`、`review_verdict` | `FAIL-SCR-FRONTMATTER` |
+| `FIELD-SCR-01` | `4-编剧/第N集.md.frontmatter` | `source_episode_path`、`episode_id`、`screenplay_mode`、`type_style_context_path`、`subject_registry_context_path`、`upstream_direction_policy`、`genre_profile`、`rhythm_strategy`、`review_verdict` | `FAIL-SCR-FRONTMATTER` |
 | `FIELD-SCR-02` | `genre_narrative_profile` | 主/副题材、叙事 beats、人物欲望/阻碍、信息差、核心选择 | `FAIL-SCR-GENRE-NARRATIVE` |
 | `FIELD-SCR-02A` | `type_style_application_map` | `inherited_genre_rule`、`signature_element`、`expression_technique`、`local_script_decision`、`preservation_check` | `FAIL-SCR-TYPE-STYLE-CONTEXT` |
 | `FIELD-SCR-02B` | `subject_registry_application_map` | `subject_type`、`registry_id_or_name`、`canonical_name_used`、`script_landing`、`drift_check` | `FAIL-SCR-SUBJECT-REGISTRY-CONTEXT` |
 | `FIELD-SCR-02C` | `upstream_creative_direction_matrix` | `upstream_context`、`direction_role`、`used_as`、`script_decision`、`script_landing`、`boundary_check` | `FAIL-SCR-UPSTREAM-DIRECTION-MATRIX` |
 | `FIELD-SCR-02D` | `scene_asset_integration_map` | `scene_asset_context_path`、`asset_type`、`registry_scene_name_or_id`、`used_for`、`script_landing`、`boundary_check` 或 N/A | `FAIL-SCR-SCENE-ASSET-CONTEXT` |
-| `FIELD-SCR-03` | `【剧本正文】` | 与 `4-编剧` 一致的场景标题、天气后缀、正式字段化正文、白描式可拍/可听/可演、声音字段就近画面配对、同一画面不重复拆写 | `FAIL-SCR-SCREENPLAY-QUALITY` |
+| `FIELD-SCR-03` | `【剧本正文】` | 与 `4-编剧` 一致的场景标题、天气后缀、正式字段化正文、白描式可拍/可听/可演、声音字段就近画面配对、同一画面不重复拆写；显式 `解说剧` 不使用方括号叙事小标题，不连续堆叠无承托旁白清单 | `FAIL-SCR-SCREENPLAY-QUALITY` / `FAIL-SCR-JIESHUOJU-FIELD-MONOTONY` |
 | `FIELD-SCR-04` | `rhythm_strategy_map` | 节奏机制、匹配理由、场内承托、转场策略 | `FAIL-SCR-RHYTHM` |
 | `FIELD-SCR-05` | `climax_treatment_map` | 视觉、声音、情绪、行动落点 | `FAIL-SCR-CLIMAX` |
 | `FIELD-SCR-06` | `episode_final_image_map` | 最后可见/可听/可感受落点、未闭合问题、下一集接力点 | `FAIL-SCR-HOOK` |
-| `FIELD-SCR-07` | `execution_report` | upstream_context_application_map、upstream_creative_direction_matrix、type_style_application_map、subject_registry_application_map、source_to_script、narration_to_voice、audio_visual_pairing、same_frame_continuity、review、repair、handoff | `FAIL-SCR-REPORT` |
+| `FIELD-SCR-07` | `execution_report` | screenplay_mode_decision、upstream_context_application_map、upstream_creative_direction_matrix、type_style_application_map、subject_registry_application_map、source_to_script、显式 `解说剧` 的 jieshuoju_source_unit_coverage_map 与 jieshuoju_field_variety_map、narration_to_voice、audio_visual_pairing、same_frame_continuity、review、repair、handoff | `FAIL-SCR-REPORT` |
 
 ## Learning / Context Writeback
 

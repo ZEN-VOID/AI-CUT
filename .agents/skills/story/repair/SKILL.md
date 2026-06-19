@@ -6,13 +6,14 @@ governance_tier: full
 
 # story-repair
 
-`story-repair` 是 `story2026` 的根级修复治理技能包。它处理小说项目中“局部改动牵动整体”的问题：先判断改动会牵动哪些上游真源、同层前列、下游已产物、验收回流和后续生成约束，再组织 source-first 修复、阶段路由、证据回写与验收。
+`story-repair` 是 `story2026` 的根级修复治理技能包。它处理小说项目中“局部改动牵动整体”的问题：先把模糊症状或 review finding 转成可定位的 `problem_discovery_packet`，再判断改动会牵动哪些上游真源、同层前列、下游已产物、验收回流和后续生成约束，最后组织 source-first 修复、阶段路由、证据回写与验收。
 
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 若任务绑定 `projects/story/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按当前对象、卷章、线索和阶段相关性加载项目根 `CONTEXT/`。
 - 每次调用本技能时，必须读取 `types/type-map.md`，先形成 `type_profile`，再只加载命中的 `types/scope/*`、`types/operation/*` 与 `types/acceptance/*` 包。
+- 若用户只给出“不好看 / 不对 / 读不清 / AI 味 / 人物怪 / 伏笔断 / 没钩子”等模糊症状，必须先加载 `types/scope/problem-discovery.md`，形成 `problem_discovery_packet` 后再进入 impact map 或阶段路由；动作、内心戏、氛围、科技、赛博、玄幻、言情等问题族只是候选症状，不得作为所有题材的固定诊断方向。
 - 若改动涉及正文主创或润色，必须继续加载 owning stage 的 `SKILL.md + CONTEXT.md`；正文或润色创作性修复由 `3-初稿` 或 `4-润色` 根技能执行。
 - 若用户指定的目标文档头部含 legacy `写作模型` 或 `润色模型` 字段，只能作为历史执行环境线索读取，记录为 `creative_engine_note`，不得作为默认修复路由。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > `story/SKILL.md` > 本 `SKILL.md` > 本技能授权模块 > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md` > `knowledge-base/` > 项目正文或外部资料。
@@ -24,7 +25,7 @@ governance_tier: full
 | `context_snapshot` | 记录已加载的项目根、目标局部、项目 MEMORY/CONTEXT、stage 技能与类型包。 | `loaded_context_manifest` | `FAIL-REPAIR-INTEGRATION` |
 | `missing_context_policy` | 缺项目根、目标局部、改动方向、写回授权或 canonical owner 时阻断，不凭记忆补齐。 | `blocked_inputs` | `FAIL-REPAIR-INPUT` |
 | `context_conflict_map` | 当项目材料和本技能合同冲突时，保留事实证据但以本技能和上级合同裁决。 | `conflict_map` | `FAIL-REPAIR-RUNTIME` |
-| `context_application` | 将上下文只用于 impact map、owner 判定、stage route、audit evidence 和 residual risk。 | `repair_packet` 字段 | `FAIL-REPAIR-PLAN` |
+| `context_application` | 将上下文只用于 problem discovery、impact map、owner 判定、stage route、audit evidence 和 residual risk。 | `repair_packet` 字段 | `FAIL-REPAIR-PLAN` |
 | `context_writeback_decision` | 新经验写 `CONTEXT.md`；项目长期偏好仅在用户要求“记住”或长期约束变更时写 `MEMORY.md`。 | `writeback_decision` | `FAIL-REPAIR-CLOSURE` |
 
 ## Core Task Contract
@@ -32,7 +33,7 @@ governance_tier: full
 本技能拥有：
 
 - 小说跨层修复的影响范围判定权。
-- `repair_packet`、impact map、canonical owner、writeback order、stage route、验收 finding 汇总与 residual risk 裁决权。
+- `problem_discovery_packet`、`repair_packet`、impact map、canonical owner、writeback order、stage route、验收 finding 汇总与 residual risk 裁决权。
 - 项目文件写回前的 source-first 顺序、创作权归属和状态/return/acceptance 消费者检查权。
 
 本技能不拥有：
@@ -43,11 +44,11 @@ governance_tier: full
 
 ## Runtime Spine Contract
 
-本技能按 `N1 -> N2 -> N3 -> N4/N5/N8 -> N6 -> N7 -> N8 -> N9` 推进。`SKILL.md` 持有入口、类型路由、节点、gate、模块授权、汇流和输出合同的唯一运行脊柱；`references/`、`types/`、`review/`、`templates/`、`guardrails/`、`scripts/` 与 `knowledge-base/` 只在本文件授权条件下展开、校验或提供资料，不得维护第二节点网络。
+本技能按 `N1 -> N0?/N2 -> N3 -> N4/N5/N8 -> N6 -> N7 -> N8 -> N9` 推进。`N0` 只在输入是模糊质量症状、宽泛读感反馈或未定位 finding 时触发，用来把症状转成可执行诊断包；`SKILL.md` 持有入口、类型路由、节点、gate、模块授权、汇流和输出合同的唯一运行脊柱；`references/`、`types/`、`review/`、`templates/`、`guardrails/`、`scripts/` 与 `knowledge-base/` 只在本文件授权条件下展开、校验或提供资料，不得维护第二节点网络。
 
 ## Multi-Subskill Continuous Workflow
 
-- 整体调用 `$story-repair` 时，在项目根、目标局部、改动意图、写回权限和 owning stage 明确后，默认连续完成影响判定、修复计划、执行分流、同步回写和验收。
+- 整体调用 `$story-repair` 时，若项目根、目标局部或改动意图尚不明确，先用 `N0-PROBLEM-DISCOVERY` 把模糊症状转成诊断包；在项目根、目标局部、改动意图、写回权限和 owning stage 明确后，默认连续完成影响判定、修复计划、执行分流、同步回写和验收。
 - 无序号同级子技能包若被本技能显式调度，默认并行收集证据；父级负责汇总、裁决和 canonical 写回。
 - 数字序号阶段或节点默认按数字升序串行：先修源层，再修投影，再修正文或润色，再刷新审查与状态。
 - 英文序号模型分流已退役；正文和润色创作性修复默认回到 owning stage 根技能。
@@ -59,16 +60,16 @@ governance_tier: full
 
 | field | requirement | evidence | fail_code |
 | --- | --- | --- | --- |
-| `business_goal` | 把小说项目中的局部修改、review finding 或跨层不一致，转成可审计的 source-first 修复闭环。 | `task_profile`、`repair_packet` | `FAIL-BUSINESS-GOAL` |
+| `business_goal` | 把小说项目中的模糊症状、局部修改、review finding 或跨层不一致，转成可审计的 problem-discovery -> source-first 修复闭环。 | `task_profile`、`problem_discovery_packet`、`repair_packet` | `FAIL-BUSINESS-GOAL` |
 | `business_object` | 项目 MEMORY/CONTEXT、初始化、对象卡、卷章规划、同层前列、当前局部、已产出正文/润色、acceptance/return/STATE 和后续约束。 | `loaded_context_manifest`、`impact_map` | `FAIL-BUSINESS-OBJECT` |
 | `constraint_profile` | 不直接替代阶段主创；无写回授权不改 canonical 文件；脚本不得生成、插入、正则套句或映射投影创作正文。 | `permission_boundary_check`、script audit | `FAIL-BUSINESS-CONSTRAINT` |
-| `success_criteria` | 输出或落盘的 `repair_packet` 包含 target、intent、scope packages、impact map、owner、writeback order、stage routes、audit、changed files 和 residual risks；执行型任务列出复验结果。 | `Completion Gate`、`audit_result` | `FAIL-BUSINESS-SUCCESS` |
-| `complexity_source` | 复杂度来自多层真源裁决、类型化影响面、多阶段写回顺序、已验收事实处理、创作权边界和后续生成约束。 | `type_profile`、`canonical_owner`、`writeback_order` | `FAIL-BUSINESS-COMPLEXITY` |
-| `topology_fit` | 先判定范围再定 owner，适合避免局部点改；source-first 串行写回适合避免下游覆盖上游；正文/润色交给 owning stage，适合保住作者性和阶段真源。 | `Thinking-Action Node Map`、`Visual Maps` | `FAIL-TOPOLOGY-FIT` |
+| `success_criteria` | 输出或落盘的 `repair_packet` 包含 target、intent、scope packages、impact map、owner、writeback order、stage routes、audit、changed files 和 residual risks；模糊症状触发时还必须包含 `problem_discovery_packet`；执行型任务列出复验结果。 | `Completion Gate`、`audit_result` | `FAIL-BUSINESS-SUCCESS` |
+| `complexity_source` | 复杂度来自模糊读感归因、多层真源裁决、类型化影响面、多阶段写回顺序、已验收事实处理、创作权边界和后续生成约束。 | `problem_discovery_packet`、`type_profile`、`canonical_owner`、`writeback_order` | `FAIL-BUSINESS-COMPLEXITY` |
+| `topology_fit` | 先把症状归类再判定范围，适合避免“这章不好看”直接变成洗稿；先判定范围再定 owner，适合避免局部点改；source-first 串行写回适合避免下游覆盖上游；正文/润色交给 owning stage，适合保住作者性和阶段真源。 | `Thinking-Action Node Map`、`Visual Maps` | `FAIL-TOPOLOGY-FIT` |
 
 ## Input Contract
 
-- Accepted input: 修改目标、错误 finding、局部段落、章节路径、线索/角色/设定名称、review 失败项、跨阶段一致性修复请求。
+- Accepted input: 模糊读感症状、修改目标、错误 finding、局部段落、章节路径、线索/角色/设定名称、review 失败项、跨阶段一致性修复请求。
 - Required input: 可定位的 `projects/story/<项目名>/`，目标局部或问题描述，期望改动方向，是否允许写回 canonical 文件。
 - Optional input: 卷章号、涉及对象、相关 finding、用户给定新设定、禁止改动范围、输出报告路径、是否只生成 repair plan。
 - Reject or clarify when: 项目根不可定位；目标局部无法唯一定位；改动方向与上游硬真源冲突且用户未授权改源；需要覆盖已验收终稿但未授权破坏性写回；正文或润色创作性重写缺 owning stage 写回授权。
@@ -77,6 +78,7 @@ governance_tier: full
 
 | mode | 触发信号 | 默认动作 |
 | --- | --- | --- |
+| `problem_discovery` | 用户只说“不好看 / 不对 / 读不清 / AI 味 / 人物怪 / 伏笔断 / 没钩子”等，或 finding 未定位到对象和层级 | 生成问题发现包、候选 scope、证据锚点和 route hint，不写回 |
 | `impact_assessment` | 用户只问会影响哪里、是否要改全局 | 生成影响图与修复范围，不写回 |
 | `repair_plan` | 用户要求规划修改或 review 失败后返工 | 生成分层修复计划、owner、写回顺序和验收门禁 |
 | `execute_repair` | 用户授权执行修改、同步或写回 | 源层优先写回，再同步投影和正文/润色，由 owning stage 执行创作性改写 |
@@ -86,6 +88,7 @@ governance_tier: full
 
 | input_type | signal | route_to | required_nodes | module_load | fail_code |
 | --- | --- | --- | --- | --- | --- |
+| `problem_discovery` | 模糊质量症状、宽泛读感反馈、未定位 finding 或用户要求先找问题 | 问题发现 | `N1,N0,N8,N9` | `types/type-map.md`, `types/scope/problem-discovery.md`, `templates/output-template.md`, `review/review-contract.md` | `FAIL-REPAIR-DISCOVERY` |
 | `impact_assessment` | 只问影响面、是否牵动全局或不要写回 | 范围评估 | `N1,N2,N3,N8,N9` | `types/type-map.md`, `references/impact-scope-contract.md`, `references/source-truth-ledger.md`, `review/review-contract.md` | `FAIL-REPAIR-SCOPE` |
 | `repair_plan` | 要计划、返工方案、owner 或写回顺序 | 计划输出 | `N1,N2,N3,N8,N9` | `types/type-map.md`, `references/impact-scope-contract.md`, `references/source-truth-ledger.md`, `templates/output-template.md`, `review/review-contract.md` | `FAIL-REPAIR-PLAN` |
 | `execute_repair` | 明确执行、改掉、同步修、写回 | 执行修复 | `N1,N2,N3,N4,N5,N6,N7,N8,N9` | `types/type-map.md`, `references/impact-scope-contract.md`, `references/source-truth-ledger.md`, `templates/output-template.md`, `review/review-contract.md`, `guardrails/guardrails-contract.md`, `scripts/README.md` | `FAIL-REPAIR-EXECUTE` |
@@ -95,8 +98,9 @@ governance_tier: full
 
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| `N1-INTAKE` | 锁定项目、局部、意图、权限和业务画像 | 用户请求、项目根、目标路径、写回授权 | 定位 target locality；选择 mode；建立 `business_profile`、`type_profile` 和初始注意力锚点 | `task_profile`、`business_profile`、`loaded_context_manifest` | `N2` | 项目根、目标局部和改动方向唯一；缺写回授权时降级 plan-only |
-| `N2-IMPACT-MAP` | 建立全身影响图 | `references/impact-scope-contract.md`、`types/type-map.md`、命中 scope 包、`rg` 命中、项目上下文 | 按 Universal Type Matrix 判型；搜索旧/新口径在 upstream/sibling/current/downstream/future/acceptance 的分布 | `impact_map`、`scope_packages_loaded`、search evidence | `N3` | 至少覆盖六类 surface；命中对象类型时列出实际 type package 或 N/A 理由 |
+| `N0-PROBLEM-DISCOVERY` | 把模糊症状转成可执行修复入口 | 用户症状、review finding、章节片段、验收包、项目上下文 | 识别 symptom family；提取至少 1 个 evidence anchor；判定 suspected root layer；选择 candidate scope packages；生成 route hint 和 blocked input | `problem_discovery_packet`、`symptom_family`、`evidence_anchor`、`candidate_scope_packages` | `N2/N9` | 模糊输入不得跳过本节点；无证据锚点时只输出 blocked_inputs 和下一步取证要求，不写回 |
+| `N1-INTAKE` | 锁定项目、局部、意图、权限和业务画像 | 用户请求、`problem_discovery_packet`、项目根、目标路径、写回授权 | 定位 target locality；选择 mode；建立 `business_profile`、`type_profile` 和初始注意力锚点；模糊症状或未定位 finding 转入 N0 | `task_profile`、`business_profile`、`loaded_context_manifest` | `N0/N2` | 项目根、目标局部和改动方向唯一；缺写回授权时降级 plan-only；模糊症状已归类或阻断 |
+| `N2-IMPACT-MAP` | 建立全身影响图 | `problem_discovery_packet`、`references/impact-scope-contract.md`、`types/type-map.md`、命中 scope 包、`rg` 命中、项目上下文 | 按 Universal Type Matrix 判型；搜索旧/新口径在 upstream/sibling/current/downstream/future/acceptance 的分布 | `impact_map`、`scope_packages_loaded`、search evidence | `N3` | 至少覆盖六类 surface；命中对象类型时列出实际 type package 或 N/A 理由 |
 | `N3-OWNER-ROUTE` | 决定 canonical owner 与修复路径 | `impact_map`、`references/source-truth-ledger.md`、项目状态 | 锁定最早 canonical owner；生成 source-first `writeback_order`、stage routes 和权限风险 | `canonical_owner`、`writeback_order`、`stage_routes` | `N4/N5/N8` | 下游不得先于源层修复；owner unknown 时只交付 plan |
 | `N4-SOURCE-WRITEBACK` | 修复源层真源 | MEMORY、初始化、对象卡、卷章规划、用户授权 | 按授权写回长期记忆、初始化、cards 或 planning；更新同层 projection | `changed_source_files`、source diff | `N5` | 旧源层口径已失效、解释为 legacy 或记录为 residual risk |
 | `N5-STAGE-REPAIR-BRIEF` | 把正文/润色改动交给 owning stage | owning stage、stage `SKILL.md + CONTEXT.md`、repair plan | 输出 stage-ready repair brief；路由 `3-初稿` local_repair/chapter_rewrite 或 `4-润色` local_repair/polish_rewrite | `owning_stage`、`repair_brief`、`creative_engine_note` | `N6` | 创作权归属清楚；repair brief 不直接变正文 |
@@ -123,6 +127,7 @@ governance_tier: full
 
 | trigger_signal | required_modules | load_phase | return_gate | mechanical_check |
 | --- | --- | --- | --- | --- |
+| `problem_discovery` / `FAIL-REPAIR-DISCOVERY` | `CONTEXT.md`, `types/scope/problem-discovery.md`, `types/`, `templates/`, `review/` | `N1-INTAKE` / `N0-PROBLEM-DISCOVERY` | `N0-PROBLEM-DISCOVERY` / `N9-CLOSE` | discovery packet includes symptom family, evidence anchor, suspected root layer, candidate packages and route hint |
 | `impact_assessment` / `FAIL-REPAIR-SCOPE` | `CONTEXT.md`, `types/`, `references/`, `review/` | `N1-INTAKE` / `N2-IMPACT-MAP` | `N2-IMPACT-MAP` | type profile lists loaded packages; impact map covers required surfaces |
 | `repair_plan` / `FAIL-REPAIR-PLAN` | `CONTEXT.md`, `types/`, `references/`, `templates/`, `review/` | `N1-INTAKE` / `N3-OWNER-ROUTE` | `N3-OWNER-ROUTE` | owner, writeback order and stage routes are present |
 | `execute_repair` / `FAIL-REPAIR-EXECUTE` | `CONTEXT.md`, `types/`, `references/`, `templates/`, `review/`, `guardrails/`, `scripts/` | `N1-INTAKE` / `N4-SOURCE-WRITEBACK` | `N8-REVIEW-GATE` | changed files, state hook and audit result are listed |
@@ -144,6 +149,7 @@ governance_tier: full
 
 | criteria_slot | required_content | landing_place | fail_code |
 | --- | --- | --- | --- |
+| `problem_discovery` | 模糊症状触发时至少输出 1 个 symptom family、1 个 evidence anchor 或 blocked reason、1 个 suspected root layer、1 组 candidate scope packages 和 1 个 route hint；若建议回 owning stage，还必须列出 `owning_stage_repair_packages` 或 N/A 理由。 | `N0-PROBLEM-DISCOVERY`、`repair_packet` | `FAIL-REPAIR-DISCOVERY` |
 | `action_scope` | 每次 repair 至少锁定 1 个项目根、1 个 target locality、1 个 change intent；多对象修改逐项列入 `scope_packages_loaded`。 | `N1-INTAKE`、`repair_packet` | `FAIL-REPAIR-SCOPE` |
 | `evidence_count` | `impact_map` 至少覆盖 upstream truth、same-layer predecessor、current locality、downstream existing、future constraints、acceptance/actualization 六类；不存在时写 N/A 理由。 | `N2-IMPACT-MAP` | `FAIL-REPAIR-SCOPE` |
 | `pass_threshold` | `audit_result.verdict` 为 `pass` 或 `pass_with_followups`，且 critical/high finding 为 0，才可宣布 execute repair 完成。 | `N8-REVIEW-GATE` | `FAIL-REPAIR-AUDIT` |
@@ -154,6 +160,7 @@ governance_tier: full
 
 | protocol_id | protocol | requirement | rework_entry |
 | --- | --- | --- | --- |
+| `ATTE-S20-00` | Symptom before scope | 模糊读感症状先归类为 problem family、evidence anchor 和 candidate scope，不得直接进入正文润色或整章重写。 | `N0-PROBLEM-DISCOVERY` |
 | `ATTE-S20-01` | Locality is start, not scope | 用户指定局部只是影响图起点；当前注意力锚点是 `impact_map` 六类 surface 和 canonical owner。 | `N2-IMPACT-MAP` |
 | `ATTE-S20-02` | Source before downstream | 先定上游 source truth 和 writeback order，再处理正文、润色、acceptance、return 和 STATE。 | `N3-OWNER-ROUTE` |
 | `ATTE-S20-03` | Authorship before prose | 一旦需要创作性改写，注意力转到 owning stage 根技能；本技能只保留 repair brief 和验收证据。 | `N5-STAGE-REPAIR-BRIEF` |
@@ -161,6 +168,7 @@ governance_tier: full
 
 | drift_type | re_center_entry |
 | --- | --- |
+| 用户只说“不好看/不对/AI 味/没钩子”，执行者直接改正文 | 回到 `N0-PROBLEM-DISCOVERY`，补 symptom family、evidence anchor、suspected root layer 和 route hint。 |
 | 只盯当前章或当前段，未检查上游与同层前列 | 回到 `N2-IMPACT-MAP`，补六类 surface 与 type package manifest。 |
 | 先改正文、润色或 return，再回头找 source owner | 回到 `N3-OWNER-ROUTE`，重建 `canonical_owner` 与 `writeback_order`。 |
 | repair brief 或 review finding 开始直接写 canonical prose | 回到 `N5-STAGE-REPAIR-BRIEF`，交给 owning stage 根技能。 |
@@ -170,7 +178,7 @@ governance_tier: full
 
 | checkpoint_id | checkpoint_trigger | required_action | pass_evidence | fail_code |
 | --- | --- | --- | --- | --- |
-| `CHK-SCOPE` | 解析项目、目标局部、写回授权或删除/覆盖已验收事实前 | 锁定 scope/diff checkpoint，说明是否只计划、是否写回、是否触达 accepted truth。 | `task_profile`、`permission_boundary_check` | `FAIL-REPAIR-INPUT` |
+| `CHK-SCOPE` | 解析项目、目标局部、模糊症状、写回授权或删除/覆盖已验收事实前 | 锁定 scope/diff checkpoint，说明是否只发现问题、只计划、是否写回、是否触达 accepted truth。 | `task_profile`、`problem_discovery_packet`、`permission_boundary_check` | `FAIL-REPAIR-INPUT` |
 | `CHK-SEMANTIC` | 定稿 impact map、owner、writeback order 和 stage route 前 | 确认 business/quant/attention 三类语义门都有证据和返工入口。 | `business_profile`、`impact_map`、`writeback_order` | `FAIL-REPAIR-PLAN` |
 | `CHK-VALIDATION` | 执行写回后或 smoke/review 失败时 | 停止宣布完成，按 fail code 回到 source artifact 或 owning stage。 | `audit_result`、validation output | `FAIL-REPAIR-AUDIT` |
 | `CHK-DARWIN` | 用户要求评分、重复失败或标准升级时 | 用 `test-prompts.json` dry-run 典型 repair/review prompt，并记录 eval_mode。 | prompt ids、expected 摘要、eval_mode | `FAIL-REPAIR-CONVERGENCE` |
@@ -179,6 +187,7 @@ governance_tier: full
 
 | evaluation_target | prompt_focus | required_evidence | fail_code |
 | --- | --- | --- | --- |
+| 问题发现启发式 | 是否能把“不好看/不对/AI 味/人物怪/伏笔断/没钩子/动作不精彩/内心戏浅/科技感弱/赛博味不足”等模糊症状转成证据锚点、候选 scope、适用时的 owning stage repair package 和 route hint；并能把不适用于当前题材/场景的候选问题记为 N/A。 | `problem_discovery_packet`、`scope_packages_loaded`、`owning_stage_repair_packages`、`route_hint` | `FAIL-REPAIR-DISCOVERY` |
 | 影响范围评估 | 是否从局部问题扩展到六类 impact surface，并加载命中类型包。 | `impact_map`、`scope_packages_loaded` | `FAIL-REPAIR-SCOPE` |
 | 执行型修复 | 是否先修 source owner，再同步正文/润色、acceptance/return/STATE 与后续约束。 | `writeback_order`、`changed_files`、`state_hook_note` | `FAIL-REPAIR-EXECUTE` |
 | 审计验收 | 是否能发现旧口径残留、authorship drift、accepted truth drift 和 residual risk。 | `audit_result`、findings、rework targets | `FAIL-REPAIR-AUDIT` |
@@ -187,6 +196,7 @@ governance_tier: full
 
 | convergence_point | pass_condition | fail_condition | evidence | rework_target |
 | --- | --- | --- | --- | --- |
+| `C0-DISCOVERY-CLASSIFIED` | 模糊症状已转成 symptom family、evidence anchor、suspected root layer、candidate scope packages、owning stage repair package（适用时）和 route hint，且不适用的候选问题族已写 N/A；或已阻断并列取证需求 | 模糊症状直接进入正文改写、泛化润色、把候选题材问题当通用缺陷，或 impact map 缺起点 | `problem_discovery_packet` | `N0-PROBLEM-DISCOVERY` |
 | `C1-INTAKE-LOCKED` | 项目根、目标局部、改动意图、写回权限和 mode 均已锁定 | 缺项目、目标不唯一、无改动方向或未处理写回授权 | `task_profile`、`permission_boundary_check` | `N1-INTAKE` |
 | `C2-IMPACT-MAPPED` | 六类 impact surface 已覆盖，scope packages 已加载或说明 N/A | 只列当前文件、类型包缺失或影响面 unknown 却继续写回 | `impact_map`、`scope_packages_loaded` | `N2-IMPACT-MAP` |
 | `C3-OWNER-ROUTED` | canonical owner、writeback order 和 stage routes 明确 | 下游先改源层错误、owner unknown 或 stage route 缺失 | `canonical_owner`、`writeback_order` | `N3-OWNER-ROUTE` |
@@ -199,6 +209,7 @@ governance_tier: full
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
 | 业务目标、对象、约束、成功标准、复杂度和拓扑适配是否明确？ | `business_profile` | `FAIL-BUSINESS-GOAL` | `Business Requirement Analysis Contract` | `business_profile`、topology fit |
+| 模糊症状是否先被转成 problem family、证据锚点、suspected root layer、candidate scope packages、适用时的 owning stage repair packages、N/A 候选焦点和 route hint？ | `problem_discovery` | `FAIL-REPAIR-DISCOVERY` | `N0-PROBLEM-DISCOVERY` | `problem_discovery_packet`、symptom-to-scope/stage-package decision |
 | 本次 repair 是否输出覆盖六类 surface 的 impact map？ | `impact_scope` | `FAIL-REPAIR-SCOPE` | `N2-IMPACT-MAP` | `impact_map` 六类 surface 与路径/状态/理由 |
 | 修改对象是否按 Universal Type Matrix 判型，并加载命中的 typed scope 包？ | `type_matrix` | `FAIL-REPAIR-TYPE-MATRIX` | `N2-IMPACT-MAP` | `scope_packages_loaded`、命中矩阵行、typed package 列表 |
 | 是否锁定最早 canonical owner，并按 source -> projection -> draft/polish -> acceptance/return/state -> future guardrail 处理？ | `source_priority` | `FAIL-REPAIR-OWNER` | `N3-OWNER-ROUTE` | `canonical_owner`、`writeback_order`、changed files 顺序 |
@@ -216,7 +227,7 @@ governance_tier: full
 
 修复任务必须沿以下链路上溯：
 
-`Local Symptom -> Direct Inconsistency -> Canonical Owner -> Upstream Contract -> Downstream Consumers -> Meta Rule Source -> Fix Landing Points -> Reference Sync -> Audit/Smoke`
+`Local Symptom -> Problem Discovery -> Direct Inconsistency -> Canonical Owner -> Upstream Contract -> Downstream Consumers -> Meta Rule Source -> Fix Landing Points -> Reference Sync -> Audit/Smoke`
 
 优先修复顺序：
 
@@ -232,6 +243,7 @@ governance_tier: full
 
 | field_id | owner | required_output | fail_code |
 | --- | --- | --- | --- |
+| `FIELD-REPAIR-00` | problem discovery | `problem_discovery_packet`、`symptom_family`、`evidence_anchor`、适用的 `owning_stage_repair_packages`、不适用候选焦点的 N/A 理由、`route_hint` | `FAIL-REPAIR-DISCOVERY` |
 | `FIELD-REPAIR-01` | intake | `task_profile`、`business_profile`、`loaded_context_manifest` | `FAIL-REPAIR-INPUT` |
 | `FIELD-REPAIR-02` | impact scope | `impact_map` with upstream/sibling/downstream/future/state surfaces | `FAIL-REPAIR-SCOPE` |
 | `FIELD-REPAIR-03` | source truth | `canonical_owner` and `writeback_order` | `FAIL-REPAIR-OWNER` |
@@ -243,11 +255,11 @@ governance_tier: full
 
 ## Output Contract
 
-- Required output: `repair_packet`，至少包含 `target_locality`、`change_intent`、`scope_packages_loaded`、`impact_map`、`canonical_owner`、`writeback_order`、`stage_routes`、`audit_result`、`changed_files`、`residual_risks`、`next_generation_constraints`。
+- Required output: `repair_packet`，至少包含 `target_locality`、`change_intent`、`scope_packages_loaded`、`impact_map`、`canonical_owner`、`writeback_order`、`stage_routes`、`audit_result`、`changed_files`、`residual_risks`、`next_generation_constraints`；模糊症状触发时还必须包含 `problem_discovery_packet`，且当 route hint 指向 owning stage local repair 且候选包适用时包含 `owning_stage_repair_packages`，不适用时写 N/A 理由。
 - Output format: 默认对话交付结构化 Markdown 摘要；用户要求落盘时使用 `templates/output-template.md` 生成 repair report。
 - Output path: 默认对话交付；落盘时写入 `reports/story-repair-YYYYMMDD.md` 或用户指定路径；项目内证据可写入 `projects/story/<项目名>/repair/`。
 - Naming convention: 报告使用 kebab-case 与 `YYYYMMDD` 日期后缀；任务 ID、sidecar slug 和路径片段保持 ASCII 安全。
-- Completion gate: 已完成 intake、impact map、source owner、writeback order、创作权归属、review/code-reviewer 审计、residual risk 和后续生成约束；执行型任务还必须列出实际改动文件、未改文件理由、状态 hook 或阻断说明、复验结果。
+- Completion gate: 已完成 problem discovery（若触发）、intake、impact map、source owner、writeback order、创作权归属、review/code-reviewer 审计、residual risk 和后续生成约束；执行型任务还必须列出实际改动文件、未改文件理由、状态 hook 或阻断说明、复验结果。
 - Exception report: 若因权限、缺输入、外部依赖或验收状态不能同步某个文件、模块、return、STATE 或 stage acceptance，必须报告阻塞、影响面和临时护栏。
 
 ## Runtime Guardrails
@@ -282,7 +294,10 @@ governance_tier: full
 
 ```mermaid
 flowchart TD
-    A["N1 Intake: project, locality, intent, permission"] --> B["N2 Impact map: six surfaces + type packages"]
+    A["N1 Intake: project, locality, intent, permission"] -->|"vague symptom"| Z["N0 Problem discovery: symptom -> scope candidates"]
+    A -->|"target and intent clear"| B["N2 Impact map: six surfaces + type packages"]
+    Z -->|"scope candidate ready"| B
+    Z -->|"blocked discovery only"| I["N9 Close"]
     B --> C["N3 Owner route: canonical owner + writeback order"]
     C -->|"source affected"| D["N4 Source writeback"]
     C -->|"text or polish only"| E["N5 Stage repair brief"]

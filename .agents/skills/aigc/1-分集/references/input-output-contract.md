@@ -25,17 +25,22 @@
 不属于 P1 的信号：
 
 - `第N章`、`第1章`、`第一章`、`Chapter 1`、卷、章、节、小节、story 项目章节文件名。
-- “story 一章”不得被默认投影为 “AIGC 一集”；它只能进入 P2 候选边界。
-- 章节不等于集数；章节编号不能触发 `explicit_episode_split`。
+- `第N回`、回目标题、章回体目录。
+- 上述章节/回目信号不触发 `explicit_episode_split`，但会触发 P2 默认自然结构分集。
 
 ### P2: Natural Structure Boundary
 
-没有集标时，优先借助章节、幕、小节、场面转换、叙事高潮和悬念点形成候选边界。
-章节边界可作为候选，但必须再经过字数窗口、自然段闭合、戏剧断点或用户显式指令确认；不得机械执行“一章一集”。
+没有 P1 集标但有稳定章节/回目结构时，默认一章/一回一集。稳定结构包括 `第N章`、`第N回`、回目标题、chapter 文件、按章节拆分的 story 文件名，以及用户指定的章回范围。
+
+只有在以下情况下才偏离一章/一回一集：
+
+- 用户明确要求按短剧集数、时长、字数或剧情单元重组。
+- 源文件章节结构异常，例如标题缺失、重复、嵌套层级无法确定。
+- 章节过短或过长且用户目标明确要求合并/拆分；偏离必须写入执行报告。
 
 ### P3: Length Window Boundary
 
-若 P1/P2 均不足，默认每集约 2500-3000 中文字。边界应落在自然段或情节小闭环处，避免切断一句话、对白轮次或关键动作。
+仅当 P1/P2 均不足，或用户明确要求重组时，默认每集约 2500-3000 中文字。边界应落在自然段或情节小闭环处，避免切断一句话、对白轮次或关键动作。
 
 ## Output Path
 
@@ -73,7 +78,7 @@ projects/aigc/<项目名>/1-分集/
 | 是否按“用户显式路径 > `projects/aigc/<项目名>/源/` > 用户明确要求的旧路径 fallback”锁定唯一小说原文真源，且未把 `MEMORY.md`、`CONTEXT/`、设定案或治理文件抬升为正文真源？ | `GATE-SPLIT-01-SOURCE-LOCK` | `FAIL-SPLIT-01` | `SKILL.md#T2-SOURCE-LOCK`；`SKILL.md#Input Contract`；本文件 `Source Priority` | 执行报告中的输入路径、fallback 说明、文件清单与真源排除说明 |
 | 多文件或多章节来源是否都是可读文本，并已按文件名数字、正文内章节序号或标题自然顺序建立可复查排序？ | `GATE-SPLIT-01A-SOURCE-ORDER` | `FAIL-SPLIT-01A` | `SKILL.md#T3-SOURCE-ORDER`；本文件 `Valid Source Material` | 执行报告中的可读性判断、排序依据、输入文件顺序表 |
 | 源资料存在 `第N集`、`Episode N`、`EP N` 或上下文明显为连载单元的 `第N话` 时，是否严格按原资料 P1 集标落盘，没有按字数重切？ | `GATE-SPLIT-02-P1-EPISODE-MARK` | `FAIL-SPLIT-02` | `SKILL.md#T4-MARK-SCAN`；`SKILL.md#T5-BOUNDARY-SOLVE`；本文件 `Episode Boundary Policy / P1` | 集标列表、每集原始边界、`explicit_episode_split` 模式说明 |
-| `第N章`、`Chapter N`、卷、章、节、小节或 story 章节文件名是否只作为 P2 候选边界，没有被误判为原生集标或机械执行“一章一集”？ | `GATE-SPLIT-02A-CHAPTER-NOT-EPISODE` | `FAIL-SPLIT-02A` | `SKILL.md#T4-MARK-SCAN`；`SKILL.md#T5-BOUNDARY-SOLVE`；本文件 `Episode Boundary Policy / P1-P2` | 被排除的章节信号列表、P2/P3 边界裁决说明、非一章一集证据 |
-| 无 P1 集标时，P2/P3 边界是否结合自然结构、戏剧断点和 2500-3000 字目标窗，且没有切断句子、对白轮次或关键动作？ | `GATE-SPLIT-03-BOUNDARY-SOLVE` | `FAIL-SPLIT-03` | `SKILL.md#T5-BOUNDARY-SOLVE`；本文件 `Episode Boundary Policy / P2-P3` | 每集字数、起止段落、边界理由、偏离目标窗的说明 |
+| `第N章`、`第N回`、`Chapter N`、回目、卷、章、节、小节或 story 章节文件名是否在无 P1 集标时默认映射为一章/一回一集？ | `GATE-SPLIT-02A-CHAPTER-AS-EPISODE` | `FAIL-SPLIT-02A` | `SKILL.md#T4-MARK-SCAN`；`SKILL.md#T5-BOUNDARY-SOLVE`；本文件 `Episode Boundary Policy / P1-P2` | 章节/回目边界列表、默认映射说明、偏离原因 |
+| 连续正文缺少章节/回目结构，或用户要求重组时，P3 边界是否结合自然结构、戏剧断点和 2500-3000 字目标窗，且没有切断句子、对白轮次或关键动作？ | `GATE-SPLIT-03-BOUNDARY-SOLVE` | `FAIL-SPLIT-03` | `SKILL.md#T5-BOUNDARY-SOLVE`；本文件 `Episode Boundary Policy / P2-P3` | 每集字数、起止段落、边界理由、偏离目标窗的说明 |
 | 逐集文件是否只写入 `projects/aigc/<项目名>/1-分集/第N集.md`，编号从 1 连续，正文保持原文，未改写、扩写、删减、剧本化、分镜化或混入设定说明？ | `GATE-SPLIT-04-EPISODE-WRITEBACK` | `FAIL-SPLIT-04` | `SKILL.md#T6-WRITEBACK`；`SKILL.md#Output Contract`；本文件 `Output Path` 与 `Episode File Requirements` | 输出文件清单、编号连续性检查、正文保真抽查或 diff 说明 |
 | `执行报告.md` 是否包含输入路径、文件清单、切分模式、每集来源范围、字数、边界理由、覆盖状态、跳过原因和按具体集数定位的返工入口？ | `GATE-SPLIT-05-REPORT-COVERAGE` | `FAIL-SPLIT-05` | `SKILL.md#T7-REVIEW`；`SKILL.md#Output Contract`；本文件 `Execution Report Requirements` | 执行报告中的边界表、coverage 表、跳过原因、返工入口 |

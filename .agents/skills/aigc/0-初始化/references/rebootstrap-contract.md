@@ -1,12 +1,12 @@
 # Rebootstrap Contract
 
-For current `$aigc-init`, rebootstrap means returning an existing AIGC project to the scaffold baseline by creating missing current 0-10 directories and creating or merging `MEMORY.md`.
+For current `$aigc-init`, rebootstrap means returning an existing AIGC project to the scaffold baseline by creating missing current `1-10` directories and creating or merging `MEMORY.md`.
 
 It does not delete, archive, purge, or rewrite existing business artifacts.
 
 ## Allowed Rebootstrap Actions
 
-- Create missing active stage directories from `0-初始化/` through `10-画布/`.
+- Create missing active runtime stage directories from `1-分集/` through `10-画布/`; do not create project-level `0-初始化/`.
 - Create `MEMORY.md` if missing.
 - Merge initialization-time user requirements or long-term inclinations into existing `MEMORY.md`.
 - Report legacy paths or former initialization artifacts as existing compatibility material without modifying them.

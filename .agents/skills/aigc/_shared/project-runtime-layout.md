@@ -16,11 +16,10 @@
 
 ## Bootstrap Scaffold Rows
 
-`0-初始化` creates only the current active stage roots, project `MEMORY.md`, and project `CONTEXT/`. Initialization-time user-specified team information, reference material summaries, and context guidance are written into `MEMORY.md`, not into former initialization carriers.
+`0-初始化` creates only the current active `1-10` runtime stage roots, project `MEMORY.md`, and project `CONTEXT/`. It does not create a project-level `0-初始化/` folder. Initialization-time user-specified team information, reference material summaries, and context guidance are written into `MEMORY.md`, not into former initialization carriers. This scaffold is not a recursive mirror of `.agents/skills/aigc`: leaf, domain, satellite, backup, workflow, and `_shared` skill packages create project subdirectories only when their owning workflows actually need them.
 
 | stage | runtime root | note |
 | --- | --- | --- |
-| `0-初始化` | `projects/aigc/<项目名>/0-初始化/` | scaffold container only |
 | `1-分集` | `projects/aigc/<项目名>/1-分集/` | episode source split |
 | `2-美学` | `projects/aigc/<项目名>/2-美学/` | post-split genre type profile, global visual tone, and style protocols; includes `类型风格.md` |
 | `3-主体` | `projects/aigc/<项目名>/3-主体/` | subject registry, scene/role/prop list, design, and generation runtime; owns `主体注册表.md` and `subject-registry.yaml` |
@@ -36,6 +35,7 @@
 
 Current `0-初始化` does not create former initialization carriers:
 
+- `projects/aigc/<项目名>/0-初始化/`
 - `projects/aigc/<项目名>/0-初始化/north_star.yaml`
 - `projects/aigc/<项目名>/0-初始化/init_handoff.yaml`
 - `projects/aigc/<项目名>/0-初始化/story-source-manifest.yaml`

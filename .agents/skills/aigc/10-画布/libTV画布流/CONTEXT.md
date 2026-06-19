@@ -25,7 +25,7 @@ status: ok
 | `LTVCTRL-TM-08` | `libtv node --left-add` 对已经存在的入边长时间无返回 | 对同一视频节点重复追加同一 image edge | 不对已存在边重复执行 `--left-add`；创建时一次性带有序入边，随后直接重写 `imageList/mixedList` 并以 final query 为准 | final query 的 `data.params.imageList[]` 等于 YAML 顺序 |
 | `LTVCTRL-TM-09` | 创建视频节点报 `图片最多 9 个` | 单组绑定图片超过 LibTV 当前视频节点输入上限 | 前置裁剪到 9 张：优先保留用户强指定的多维主角参照、所有关键角色和场景，再在容量内保留道具；被裁掉主体回写为未绑定文本并记录 skip reason | create 成功且 manifest/queue 记录被裁剪主体 |
 | `LTVCTRL-TM-10` | 单组 YAML 修复后相邻分组标题消失或 prompt 夹带下一组正文 | 用局部 fragment 的 offset 回写全局 markdown，替换范围跨过 fence 边界 | 只用全局 regex span 或结构化 markdown block 边界替换；回写后立即校验 `^##` 分组数、每组 fenced YAML 可解析、目标 prompt 不含相邻 `group_id` | source group count 与原始计划一致，目标 final prompt 不含相邻分组标题 |
-| `LTVCTRL-TM-11` | 视频规格时长是整数秒或非 `.5` 结尾 | 规格时长未做半秒尾帧缓冲 | 对视频规格中的非 `.5` 结尾 duration 额外 `+0.5s`；同步 queue record、submit plan 和 summary/report，远端存在同名节点时同步远端 settings.duration | 本地 queue duration 全部 `.5` 结尾，远端 final query duration 无剩余异常 |
+| `LTVCTRL-TM-11` | 视频规格时长被整数化，或应保留的 `.5` 秒丢失 | 把 LibTV schema `duration.step=1` 误解为只能整数秒，或用 `ceil` / `round` / `parseInt` 处理分镜组 `时长估算` | 保留分镜组 `时长估算` 或用户覆盖的小数值；若项目策略要求半秒尾帧缓冲，仅在结果仍处于 LibTV `4–15` 秒范围内对整数时长 `+0.5s`，否则保持边界值并记录原因；同步 queue record、submit plan、summary/report 和远端 `settings.duration` | 本地 queue/submit/report 与远端 final query 的 `duration` 一致，`.5` 未被整数化，且所有值在 `4–15` 秒范围内 |
 | `LTVCTRL-TM-12` | 用户觉得画布节点数多于分组稿 | 目标画布执行前已有旧 video 节点，且本轮未获删除授权所以保留 | 预检时区分 `current_batch_video_nodes`、`legacy_video_nodes` 和 `reference_image_nodes`；最终汇报必须说明旧节点数量和名称前缀，避免误读为本轮多建 | remote node list 中本轮节点数等于分组数，legacy 节点单独列示 |
 | `LTVCTRL-TM-13` | `mixed2video` 视频节点用 `--prompt` 写入后，远端 prompt 把 YAML 主体行的 `{{Image N}}` 自动改成 `{{Mixed N}}` | CLI 写入路径对 mixed 输入占位符做了自动规范化，但画布流 prompt hygiene 仍要求 YAML 主体行保留 `{{Image N}}` | 创建节点后用 `libtv node <node> -s prompt="$(< prompt.txt)"` 重写 prompt，再 final query；若仍被服务端规范化，记录为 runtime normalization 并以 `imageList/mixedList` 顺序为完成证据 | final query 中无 `{{Portrait N}}`，YAML 主体行占位符符合合同或报告记录服务端规范化原因 |
 | `LTVCTRL-TM-14` | 创建 video 节点时报 `params.settings.enableSound=true 不在允许范围。可选: on, off` | LibTV video schema 的 `enableSound` 是枚举字符串，不接受布尔值 | 在 `settings` 中写 `enableSound:"on"` 或 `enableSound:"off"`；不得写 `true/false` | create/update 成功，final query 的 `data.params.settings.enableSound` 为 `on` 或 `off` |
@@ -46,7 +46,7 @@ status: ok
 8. 如果 create 命令已经把图片节点连入 video 节点，后续不要再次对同一入边执行 `--left-add`；重复追加既有边可能卡住 CLI。需要修正顺序时直接重写 `imageList/mixedList/imageListOrder/mixedListOrder`，再 final query。
 9. 单个 video 节点当前按 9 张图片输入上限处理；计划阶段若 `ordered_subjects` 超过 9，必须先裁剪并记录被裁剪主体，不要等远端 create 失败后才发现。
 10. 任何单组 YAML 边界修复后，必须先本地验证 `^##` 分组数量、所有 fenced YAML 可解析、目标 prompt 不含前后相邻 `group_id`，再写远端节点；不得用未验证的 prompt 覆盖 LibTV 节点。
-11. 视频规格时长归一时，所有非 `.5` 结尾的 duration 直接加 `0.5` 秒，而不是四舍五入；例如 `13.0 -> 13.5`、`3.0 -> 3.5`。同步本地证据后必须重新扫描所有 queue record。
+11. 视频规格时长归一时，优先保留分镜组 `时长估算` 或用户覆盖值中的小数；不要因为 LibTV schema `step=1` 就取整。若采用半秒尾帧缓冲，只对仍能留在 `4–15` 秒范围内的整数时长追加 `0.5` 秒，例如 `13.0 -> 13.5`；`15.0` 保持 `15.0` 并记录 `max_duration_bound`，低于 `4.0` 的值先抬到模型下限再记录原因。同步本地证据后必须重新扫描所有 queue record 和远端 final query。
 12. 复用已有画布时，执行前后都要按名称前缀统计远端 video 节点：本轮 `vid__<episode>-*`、历史遗留、图片参照分别报告。没有用户明确删除授权时，旧 video 节点必须保留，但最终汇报不能只报总节点数。
 13. 对 `mixed2video` 节点，如果 create 阶段使用 `--prompt` 导致远端把 `{{Image N}}` 改为 `{{Mixed N}}`，不要误判为用户 prompt 写错；先用 `-s prompt=` 重写并重新 final query，再决定是否记录服务端规范化。
 14. 对 video 节点声音开关，`enableSound` 按 LibTV schema 写枚举字符串 `on/off`；不要用 JSON boolean。若计划层使用布尔值，应在 CLI 提交前归一为 `on/off`。

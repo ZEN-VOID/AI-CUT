@@ -19,6 +19,7 @@ metadata:
 - 画布命令必须使用 libTV 画布 UUID，即 `libtv project list` 返回的 `uuid` / `projectUuid`；不得把项目空间 ID、folderId 或项目名字符串误传给 `libtv node -p`。
 - 默认模型显示名固定为 `Midjourney V8.1`。真实执行前必须用 `libtv model search --type image "Midjourney V8.1"` 和 `libtv model <modelKey>` 解析实际 `modelKey` 与 schema；解析失败时进入 `prompt_only` / blocked，不得降级到其他模型。
 - Midjourney 后缀必须从 `../../_shared/midjourney风格参数.yaml` 组装：场景图固定 `--ar 16:9`，并总是追加 `--hd --style raw`；若项目或任务命中风格预设，例如武侠片，则在比例前追加 `--profile lsp4mxl cce1fkr qe4r8p2`。
+- 后缀必须写入实际提交给 libTV 图片节点的 `prompt` 文本末尾，顺序固定为 `style_preset -> --ar 16:9 -> --hd -> --style raw`；只把比例、质量或模型写入 `--set` / JSON / manifest 不能视为合格后缀。
 - 真实生图前必须按 `../../_shared/主体图复用与状态变体规则.md` 扫描 `projects/aigc/<项目名>/3-主体`：同主体同状态已有图则跳过 Midjourney 生成；若当前画布缺同名节点而已有图只在本地，使用 `libtv upload "<节点名>" -p <canvas_uuid> -f <local_path>` 上传到当前画布并保持节点名等于资产 stem。
 - 只有同一场景出现明确新状态（昼夜、季节、雨雪雾、火灾前后、战后废墟、修复后等）时才重新生成状态变体；状态变体必须改用 `Lib Image`，先解析 `Lib Image` modelKey，并以既有同主体图节点或上传后的本地图为参考，不得使用默认 `Midjourney V8.1`。
 - 任一场景主图或多视图必须确保项目本地 canonical 目录 `projects/aigc/<项目名>/3-主体/场景/3-生成/` 有同 stem 资产：本地已存在则跳过下载/复制并记录 `already_present`；画布缺节点时上传本地图；本地缺但画布已有或新生成时才用 `libtv download -p <canvas_uuid> -n <node_id_or_node_name> -o projects/aigc/<项目名>/3-主体/场景/3-生成/` 补齐。
@@ -206,7 +207,7 @@ stateDiagram-v2
 | `FIELD-SCENE-GEN-03` | 主图生成 | 每个目标场景生成 `主体ID-主体名称-主图` | `FAIL-SCENE-GEN-03` |
 | `FIELD-SCENE-GEN-04` | 多视图生成 | 以同画布主图节点为参照生成 `主体ID-主体名称-多视图`，且 `reference_context_status=linked_in_libtv_canvas` | `FAIL-SCENE-GEN-04` |
 | `FIELD-SCENE-GEN-05` | JSON 记录 | 主图和多视图均有同名提示词 JSON | `FAIL-SCENE-GEN-05` |
-| `FIELD-SCENE-GEN-06` | libTV 合同 | 已遵守画布 UUID、Midjourney V8.1 modelKey、场景图 `--ar 16:9 --hd --style raw` 后缀和节点命名一致性规则 | `FAIL-SCENE-GEN-06` |
+| `FIELD-SCENE-GEN-06` | libTV 合同 | 已遵守画布 UUID、Midjourney V8.1 modelKey、场景图 `--ar 16:9 --hd --style raw` 后缀和节点命名一致性规则；实际 libTV 节点 `prompt` 文本末尾含完整后缀，不以 `--set ratio` 或 JSON 字段替代 | `FAIL-SCENE-GEN-06` |
 | `FIELD-SCENE-GEN-07` | 项目持久化 | 资产落在项目 `3-生成` 目录 | `FAIL-SCENE-GEN-07` |
 | `FIELD-SCENE-GEN-08` | 写入边界 | 不改上游设计、registry、父目录或其他 worker 范围 | `FAIL-SCENE-GEN-08` |
 | `FIELD-SCENE-GEN-09` | 反模板伪差异 | 主图 JSON、多视图 JSON、panel/视角差异和 `generation_profile` 不是由模板槽位、关键词锚点替换、句式轮换或同义改写批量投影；每组 prompt 能回指上游 `4. 解构` 的场景专属结构、材质、光线或镜头裁决 | `FAIL-SCENE-GEN-PSEUDO-DIFF` |

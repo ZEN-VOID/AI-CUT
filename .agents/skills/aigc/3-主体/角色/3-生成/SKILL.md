@@ -19,6 +19,7 @@ metadata:
 - 画布命令必须使用 libTV 画布 UUID，即 `libtv project list` 返回的 `uuid` / `projectUuid`；不得把项目空间 ID、folderId 或项目名字符串误传给 `libtv node -p`。
 - 默认模型显示名固定为 `Midjourney V8.1`。真实执行前必须用 `libtv model search --type image "Midjourney V8.1"` 和 `libtv model <modelKey>` 解析实际 `modelKey` 与 schema；解析失败时进入 `prompt_only` / blocked，不得降级到其他模型。
 - Midjourney 后缀必须从 `../../_shared/midjourney风格参数.yaml` 组装：角色图固定 `--ar 9:16`，并总是追加 `--hd --style raw`；若项目或任务命中风格预设，例如武侠片，则在比例前追加 `--profile lsp4mxl cce1fkr qe4r8p2`。
+- 后缀必须写入实际提交给 libTV 图片节点的 `prompt` 文本末尾，顺序固定为 `style_preset -> --ar 9:16 -> --hd -> --style raw`；只把比例、质量或模型写入 `--set` / JSON / manifest 不能视为合格后缀。
 - 真实生图前必须按 `../../_shared/主体图复用与状态变体规则.md` 扫描 `projects/aigc/<项目名>/3-主体`：同主体同状态已有图则跳过 Midjourney 生成；若当前画布缺同名节点而已有图只在本地，使用 `libtv upload "<节点名>" -p <canvas_uuid> -f <local_path>` 上传到当前画布并保持节点名等于资产 stem。
 - 只有同一角色出现明确新状态（服装、年龄、受伤、战斗前后、伪装、身份切换等）时才重新生成状态变体；状态变体必须改用 `Lib Image`，先解析 `Lib Image` modelKey，并以既有同主体图节点或上传后的本地图为参考，不得使用默认 `Midjourney V8.1`。
 - 任一角色主图或多视图必须确保项目本地 canonical 目录 `projects/aigc/<项目名>/3-主体/角色/3-生成/` 有同 stem 资产：本地已存在则跳过下载/复制并记录 `already_present`；画布缺节点时上传本地图；本地缺但画布已有或新生成时才用 `libtv download -p <canvas_uuid> -n <node_id_or_node_name> -o projects/aigc/<项目名>/3-主体/角色/3-生成/` 补齐。
@@ -199,7 +200,7 @@ stateDiagram-v2
 | `FIELD-CHAR-GEN-03` | 多视图生成 | `<主体ID>-<主体名称>-多视图` 图片节点存在，`reference_node_name` 指向同一画布主图节点，且 `reference_context_status=linked_in_libtv_canvas` | `FAIL-CHAR-GEN-03` |
 | `FIELD-CHAR-GEN-04` | JSON 落盘 | 主图与多视图 JSON 均存在且可解析 | `FAIL-CHAR-GEN-04` |
 | `FIELD-CHAR-GEN-05` | 非设计边界 | 未新增、改写或重解释角色身份、服装、时代和视觉事实 | `FAIL-CHAR-GEN-05` |
-| `FIELD-CHAR-GEN-06` | libTV 合同 | 已遵守画布 UUID、Midjourney V8.1 modelKey、角色图 `--ar 9:16 --hd --style raw` 后缀和节点命名一致性规则 | `FAIL-CHAR-GEN-06` |
+| `FIELD-CHAR-GEN-06` | libTV 合同 | 已遵守画布 UUID、Midjourney V8.1 modelKey、角色图 `--ar 9:16 --hd --style raw` 后缀和节点命名一致性规则；实际 libTV 节点 `prompt` 文本末尾含完整后缀，不以 `--set ratio` 或 JSON 字段替代 | `FAIL-CHAR-GEN-06` |
 | `FIELD-CHAR-GEN-07` | 顾问与复核流程 | 默认外部 provider 调度；不可用时有完整本地 checklist 结果 | `FAIL-CHAR-GEN-07` |
 | `FIELD-CHAR-GEN-08` | 执行器锁定 | 未获用户显式授权时，只使用 `.agents/skills/cli/libTV`，不调用 nano-banana / AnyFast / 其他图像 API 子技能 | `FAIL-CHAR-GEN-08` |
 | `FIELD-CHAR-GEN-09` | 反模板伪差异 | 主图 JSON、多视图 JSON、视角差异和 `generation_profile` 不是由模板槽位、关键词锚点替换、句式轮换或同义改写批量投影；每组 prompt 能回指上游 `4. 解构` 的角色专属身份、服装、姿态或摄影裁决 | `FAIL-CHAR-GEN-PSEUDO-DIFF` |
