@@ -1,4 +1,0 @@
-interface:
-  display_name: "Story Resume"
-  short_description: "安全恢复 story2026 中断任务并回接唯一入口"
-  default_prompt: "Use $story-resume to inspect a story2026 interrupted workflow, normalize safe recovery options, and hand off to the unique next stage."

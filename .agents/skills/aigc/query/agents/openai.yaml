@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 项目查询"
-  short_description: "查询AIGC项目运行状态、阶段产物、媒体资产与治理证据"
-  default_prompt: "Use $aigc-query to resolve PROJECT_ROOT, identify the truth role, read canonical projects/aigc carriers, and answer with evidence paths plus gaps."

@@ -1,9 +1,0 @@
-schema_version: 1
-interface:
-  display_name: "AIGC 场景域路由"
-  short_description: "路由场景清单、场景设计与场景生成任务。"
-  default_prompt: "使用 $aigc-design-scene，先判断 projects/aigc/<项目名>/3-主体/场景 的清单、设计、生成缺口，再只调度命中的 1-清单、2-设计 或 3-生成 叶子技能；组根不得直接创作场景正文或图像提示词。"
-metadata:
-  skill_id: "aigc-design-scene"
-  governance_tier: "router"
-  output_root: "projects/aigc/<项目名>/3-主体/场景"

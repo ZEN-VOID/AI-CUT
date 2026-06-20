@@ -1,4 +1,0 @@
-interface:
-  display_name: "Story 项目查询"
-  short_description: "查询小说项目规划、卡片、实绩、质量、执行态与证据边界"
-  default_prompt: "Use $story-query to resolve PROJECT_ROOT, identify the truth role, read canonical projects/story carriers, and answer with evidence paths plus planned/current/validated_actual boundaries."

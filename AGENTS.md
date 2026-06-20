@@ -1,49 +1,35 @@
-# AGENTS.md
-<!-- last_synced: 2026-06-04 | version: 2026-06-04 -->
+# Repository Guidelines
 
-行业通用的 AI 智能体指令文件。兼容 Claude Code、Cursor、Windsurf 及其他 AI 编码工具。
+## Project Structure & Module Organization
 
-## 项目基线
+This repository is organized around Codex/agent workflows rather than a single application. Keep root-level working areas focused: `input/` for source material, `output/` for generated results, `reports/` for reviews, `projects/` for active project artifacts, and `resources/` or `knowledge-base/` for reusable reference material. Repo-local skills live under `.agents/skills/`; current visible families include `commands/`, `media/`, `wis/`, `video-use/`, and `video-editing-skill/`. Each skill should keep its contract in `SKILL.md`, optional long-lived notes in `CONTEXT.md`, helpers in `scripts/`, examples in `test-prompts.json`, and supporting docs in `README.md` or `references/`. Project harness files live in `.codex/`, including `registry/`, `rules/`, `runbooks/`, `templates/`, `schemas/`, and `state/`.
 
-### 项目概览
+## Build, Test, and Development Commands
 
-AIGC（AI Generated Content）视频·小说·漫画创作管理工作区。该仓库不是传统意义上承载多个独立软件子项目的代码仓，而是用于组织 AIGC 创作流的项目工作台：
+There is no root build step. Run checks from the specific skill or tool you change.
 
-- 以 `projects/` 作为创作项目总容器，并按媒介进入对应 canonical runtime
-- 影视 / 视频 / AIGC 短剧项目使用 `projects/aigc/<项目名>/`
-- 小说 / 长篇故事项目使用 `projects/story/<项目名>/`
-- 漫画项目在命中 comic 技能时使用 `projects/comic/<项目名>/`
-- 在项目空间内逐步沉淀文本、图片、视频及其过程工件
-- 以仓库根层的规则、模板、脚本与治理工件，为多个创作项目提供统一编排能力
+- `python3 scripts/utils.py`: from `.agents/skills/video-editing-skill/`, checks local video-editing dependencies.
+- `pytest tests/`: from `.agents/skills/video-editing-skill/`, runs the Python regression tests.
+- `uv sync` or `pip install -e .`: from `.agents/skills/video-use/`, installs the `video-use` helper dependencies.
+- `python3 scripts/<tool>.py --help`: inspect Python helper CLIs before changing behavior.
 
-### 常用命令
+## Coding Style & Naming Conventions
 
-```bash
-# Git
-git status                    # 查看工作区状态
-git diff                      # 查看未暂存改动
-git log --oneline -20         # 查看最近提交
+Prefer Markdown for workflow contracts and Python for executable helpers. Use 4-space indentation in Python, descriptive snake_case names for files and functions, and kebab-case for skill directories, for example `.agents/skills/wis/wjs-transcribing-audio/`. Keep `SKILL.md` directive-driven and concise; move large background material into `references/` or `knowledge-base/`. Generated media and task outputs should not be committed unless they are intentional fixtures.
 
-# Python
-python3 <script>              # 运行 Python 脚本
-python3 -m pytest tests/      # 运行测试
-python3 -m pip install <pkg>  # 安装依赖包
-```
+## Testing Guidelines
 
-### 编码风格与命名约定
+For Python helpers, add or update focused `pytest` tests beside the skill in `tests/test_*.py`. For prompt-only skills, add realistic cases to `test-prompts.json` and document expected artifacts. Before opening a change, run the narrow test set for the touched skill; run the full skill suite when modifying shared helpers or render logic.
 
-- **语言**：以 Python 3.12+ 为主，Shell 脚本用于自动化。
-- **风格**：遵循 Python 的 PEP 8，尽可能补充类型标注。
-- **命名**：Python 使用 `snake_case`，文件名使用 `kebab-case`。
-- **提交**：使用 Conventional Commits 规范（`type(scope): description`）。
-- **文档**：公共函数使用 docstring，行内注释仅在必要时添加。
-- **测试**：实现改动应尽量配套测试。
-- 分镜 ID 使用四段式模式：`episode-scene-group-frame`，例如 `1-1-1-1`。
-- 小说创作的章节单位层级默认使用：`部 -> 卷 -> 章`。
-- 小说创作中默认 `10 章 = 1 卷`。
-- 小说创作中默认 `6 卷 = 1 部`；若任务、项目设定或用户明确额外强调，则可按声明例外处理。
-- 影视类创作项目通常以 `projects/aigc/<项目名>/` 作为主工作目录；小说与漫画项目按项目概览中的媒介命名空间落位。
-- 模板要求时，提示中的任务 ID 应保持 ASCII 安全字符。
+## Commit & Pull Request Guidelines
+
+Recent commits use concise Chinese sync messages such as `项目同步更新 - YYYY-MM-DD HH:MM`. For feature work, use a short imperative summary and include the affected skill or area when useful. Pull requests should describe the workflow impact, list validation performed, link related tasks or issues, and include screenshots or sample output paths for visual/video changes. Never include secrets from `.env`; use `.env.example` for configuration shape only.
+
+## Agent-Specific Instructions
+
+Read the relevant `SKILL.md` completely before editing or invoking a skill. Preserve user work in the dirty tree, avoid broad rewrites, and update `.codex/registry/` only when adding or renaming durable capabilities.
+
+## Extended Repository Rules
 
 ### 重命名引用同步（强制）
 
@@ -53,18 +39,18 @@ python3 -m pip install <pkg>  # 安装依赖包
 
 ### 架构决策
 
-- `projects/` 是项目总容器；对当前仓库的 AIGC 影视工作流，规范命名空间固定为 `projects/aigc/`，而不是把项目直接平铺在 `projects/` 根层。
-- 对当前仓库，媒介归属通过技能路由、项目元数据和 canonical runtime namespace 表达：影视落到 `projects/aigc/<项目名>/`，小说落到 `projects/story/<项目名>/`，漫画落到 `projects/comic/<项目名>/`；不得再引入 `projects/影片/<项目名>/` / `projects/小说/<项目名>/` 作为第二层路径真源。
-- 共享工具与配置统一放在 `scripts/` 和 `configs/` 中。
+- `projects/` 是项目总容器；对已启用或恢复的 AIGC 影视工作流，规范命名空间固定为 `projects/aigc/`，而不是把项目直接平铺在 `projects/` 根层。
+- 对当前仓库，媒介归属通过技能路由、项目元数据和 canonical runtime namespace 表达：影视落到 `projects/aigc/<项目名>/`，小说落到 `projects/story/<项目名>/`，漫画落到 `projects/comic/<项目名>/`；不得再引入 `projects/影片/<项目名>/` / `projects/小说/<项目名>/` 作为第二层路径真源。若对应技能目录当前不存在，必须先报告缺失入口，不得把 registry 中的历史路径当作可执行入口。
+- 共享脚本优先放在 `scripts/`；共享配置仅在确需跨技能复用时放入 `configs/`。若根 `configs/` 尚不存在，使用技能本地配置或 `.codex/` 下的项目治理配置。
 - `reports/` 用于保存开发或任务过程中的报告，允许按主题、日期或自动化流程归类。
 - `PRPs/` 用于保存大型开发计划与阶段性实施方案。
 - `docs/` 用于保存重要知识、制度说明与典藏文档。
-- `templates/` 中的模板用于脚手架与标准化生成。
+- 项目级模板位于 `.codex/templates/`；技能输出模板使用技能目录内的 `templates/`。根 `templates/` 仅在显式创建后使用。
 - `AIGC-ZEN-VOID` 被视为本仓库下一代影视工作流的发源仓库，但其继承必须通过显式映射与复核进行，而不能直接整仓复制。
 
 ### 测试指引
 
-- 当前仓库未配置专门的测试框架。优先采用脚本级检查、示例运行或局部验证（参见 `scripts/` 与相关技能目录）。
+- 当前仓库没有根级统一测试框架。优先采用脚本级检查、示例运行或局部验证；部分技能自带测试套件，例如 `.agents/skills/video-editing-skill/tests/`。
 - 新增脚本时，应尽量附带最小可运行示例或 dry-run 模式。
 
 ### 提交与 Pull Request 指引
@@ -76,7 +62,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 ### 安全与配置提示
 
 - 严禁提交 `.env` 文件或 API 密钥。请使用 `.env.example` 作为模板。
-- 如果遇到类似 `/Volumes/...: No such file or directory` 的工作区路径错误，请运行 `python3 scripts/workspace_doctor.py` 检查或挂载工作区后再重试。
+- 如果遇到类似 `/Volumes/...: No such file or directory` 的工作区路径错误，先确认工作区挂载状态；仅当 `scripts/workspace_doctor.py` 存在时运行 `python3 scripts/workspace_doctor.py`。
 
 ### 智能体专用指令
 
@@ -92,20 +78,21 @@ python3 -m pip install <pkg>  # 安装依赖包
 当用户输入同时命中多个 skill、或命中 skill 但无法确定子技能路由时，按以下策略处理：
 
 1. **多命中仲裁**：
+
    - 若同时命中的 skill 存在明确的父子关系，优先路由到子技能
    - 若命中的 skill 之间无父子关系，按以下优先级选择：主技能 > 卫星技能 > 子技能
    - 若仍无法裁决，以用户的第一个请求词或任务关键词为路由锚点
-
 2. **无命中兜底**：
+
    - 若用户输入未命中任何已知 skill，以任务类型为锚点尝试最近似匹配
    - 若无近似匹配，进入自由任务模式，按 AGENTS.md 通用规则处理
    - 自由任务模式下的输出应明确说明"未命中特定 skill，按通用规则执行"
-
 3. **部分命中处理**：
+
    - 若命中 skill 但缺少必要的输入字段，显式询问缺失字段
    - 不得在输入不完整时假设默认值或跳过必要校验
-
 4. **路由失败报告**：
+
    - 若路由失败且无法自动兜底，必须显式报告：
      - 当前命中的 skill（若有）
      - 路由失败的原因
@@ -194,7 +181,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 ### Skill 2.0 Runtime-Spine 基线（强制）
 
 - 本仓库恢复 Skill 2.0 作为长期技能工程与项目级编排治理外壳，但采用 runtime-spine 版 Skill 2.0；不得恢复旧的“完整分区越多越合规”制度。
-- 长期维护的可执行 skill 默认应采用 core layout：
+- 新建或升级的长期维护可执行 skill 默认应采用 core layout；尚未迁移的现有技能可逐步补齐缺失文件：
 
   ```text
   skill-name/
@@ -212,19 +199,19 @@ python3 -m pip install <pkg>  # 安装依赖包
 - `steps/` 不再是默认执行主链；思行节点主表必须在 `SKILL.md`。若启用 `steps/`，它只能展开 `SKILL.md` 已声明节点，不能维护第二节点网络。
 - `Type Routing Matrix.module_load` 应写成可解析的已授权模块或模块内真实文件路径；不得只写“按需加载”“按失败码加载”等依赖模型自行猜测的自然语言。
 - `Convergence Contract` 必须定义关键汇流点的通过条件、失败条件、证据和返工目标；最终完成不得只靠自我声明。
-- `knowledge-base/` 只承载用户或维护者手动加入的外部资料、参考包和资料索引；执行中产生的经验、失败模式、成功模式、修复打法与 reusable heuristic 写入同目录 `CONTEXT.md`。
-- `templates/` 只承载输出模板、脚手架模板和报告模板；它必须映射 `SKILL.md` 的 Output Contract，不得另立输出路径、命名规范或完成门禁。
+- `knowledge-base/` 只承载用户或维护者手动加入的外部资料、参考包和资料索引；执行中产生的经验、失败模式、成功模式、修复打法与 reusable heuristic 优先写入同目录 `CONTEXT.md`。若该技能尚无 `CONTEXT.md`，先报告缺口，再按最窄有效作用域创建或等待用户确认。
+- 技能内 `templates/` 只承载输出模板、脚手架模板和报告模板；它必须映射 `SKILL.md` 的 Output Contract，不得另立输出路径、命名规范或完成门禁。项目级脚手架模板使用 `.codex/templates/`。
 - `scripts/` 只承载机械创建、校验、格式转换、批量处理、diff、manifest 回写等辅助动作；内容创作、审美判断、叙事判断和复杂策略判断仍由 LLM 完成。
 - 创建、升级、修复或审计 Skill 2.0 包时，以 `/Users/vincentlee/.codex/skills/meta/构建/技能/skill-2.0` 为当前 canonical meta skill；不得继续引用已废弃的旧元技能路径。
 - 旧技能升级到 Skill 2.0 时，必须先建立迁移矩阵，标注旧 `SKILL.md`、同目录资源和入口元数据中每个 section / 资源的 `SKILL.md` 落点或授权模块落点、迁移动作、语义风险、引用更新与验证门禁。
 
 ### 项目级记忆与上下文规则（强制）
 
-- 对 `story` 与 `aigc` 这类项目型创作工作流，初始化项目目录时还必须同步创建项目级 `MEMORY.md`：
+- 对 `story` 与 `aigc` 这类项目型创作工作流，且对应技能入口存在或本轮任务明确恢复该入口时，初始化项目目录还必须同步创建项目级 `MEMORY.md`：
 
   - `projects/story/<项目名>/MEMORY.md`
   - `projects/aigc/<项目名>/MEMORY.md`
-- 对 `story` 与 `aigc` 这类项目型创作工作流，初始化项目目录时还必须同步创建项目级 `CONTEXT/`：
+- 对 `story` 与 `aigc` 这类项目型创作工作流，且对应技能入口存在或本轮任务明确恢复该入口时，初始化项目目录还必须同步创建项目级 `CONTEXT/`：
 
   - `projects/story/<项目名>/CONTEXT/`
   - `projects/aigc/<项目名>/CONTEXT/`
@@ -233,7 +220,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 
 ### 团队技能索引同步（强制）
 
-- 对 `.agents/skills/team/` 技能树，凡成员配置出现新增、删除、重命名、迁移或适配场景显著变化，都必须在同一轮任务内同步更新 `.agents/skills/team/SKILL.md` 的 `Member And Scenario Index`；不得允许 team 子树与根索引脱节。
+- 对 `.agents/skills/team/` 技能树，凡成员配置出现新增、删除、重命名、迁移或适配场景显著变化，都必须在同一轮任务内同步更新 `.agents/skills/team/SKILL.md` 的 `Member And Scenario Index`；不得允许 team 子树与根索引脱节。若当前工作树缺失 `.agents/skills/team/`，必须先报告缺失状态，不得假装完成索引同步。
 
 ### 技能组成与语义
 
@@ -241,7 +228,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 - `CONTEXT.md` 是经验层，保存可复用 heuristic、失败模式和修复策略；不得重定义 `SKILL.md` 的规范合同。
 - `MEMORY.md` 是项目记忆层，只保存当前项目跨阶段持续生效的偏好、禁区与长期要求；不得写入技能调试经验或一次性任务说明。
 - 主技能拥有业务域或阶段链的总入口和真源裁决权；子技能经父级路由进入并回流局部 patch；卫星技能承担查询、恢复、复核、桥接等旁路职责，默认不并入主链聚合。
-- 每次命中任意 skill 时，必须成对加载同目录 `SKILL.md + CONTEXT.md`；若绑定 `projects/story/<项目名>/` 或 `projects/aigc/<项目名>/`，还必须加载项目根 `MEMORY.md` 和相关 `CONTEXT/`。
+- 每次命中任意 skill 时，必须完整加载同目录 `SKILL.md`；若同目录存在 `CONTEXT.md`，必须同时加载。若绑定 `projects/story/<项目名>/` 或 `projects/aigc/<项目名>/`，且项目根存在 `MEMORY.md` 和相关 `CONTEXT/`，还必须加载这些项目上下文；缺失时先报告，不得静默编造。
 - `references/`、`review/`、`types/`、`templates/`、`scripts/`、`guardrails/`、`assets/`、`steps/`、`knowledge-base/` 只有在当前 `SKILL.md` 显式授权时才参与执行。
 - `CHANGELOG.md`、执行报告和迁移记录默认不预加载，仅在追溯变更、审计差异或查看过程证据时按需读取。
 - 新经验优先写入最窄有效作用域的 `CONTEXT.md`；稳定、重复、高置信度的规则再晋升到对应 `SKILL.md`、runbook、validator 或根层规则。
@@ -441,8 +428,8 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 真源治理意味着：先确定哪个工件是单一权威真源，再强制其他载体退化为派生投影、适配层或局部补充，而不是并列的第二真相。
 - 触发条件：如果同一规范结构需要在 2 个以上同级位置同时编辑，或经常出现漂移/忘记同步，应将“缺少单一真源”视为根因，而非仅仅认为是重复劳动。
 - 可作为真源的载体包括但不限于：
-  - 根 `SKILL.md` / 根 `AGENTS.md`
-  - 共享 `templates/`
+  - 技能根 `SKILL.md` / 仓库根 `AGENTS.md`
+  - `.codex/templates/` 或技能内共享 `templates/`
   - 共享 schema / spec 文件
   - 共享 runbook / validator
   - 共享 helper / config entrypoint
@@ -472,17 +459,18 @@ python3 -m pip install <pkg>  # 安装依赖包
 ### 三省六部制编排治理基线（强制）
 
 - 本仓库的 HARNESS 工程以“三省六部制 + 编排工程”为治理骨架：三省负责目标起草、预审验收与执行调度分权，六部负责能力注册、上下文状态、模板合同、运行生命周期、审计风控与基础设施落地。
-- 三省六部制相关 agent doc、template、registry、route、runbook、audit 和 HARNESS 总览均属于源层治理载体；修改其中任一稳定合同后，必须同步检查直接引用面和审计入口。
+- 三省六部制相关 agent doc、template、registry、route、runbook、audit 和已存在的 HARNESS 总览均属于源层治理载体；修改其中任一稳定合同后，必须同步检查直接引用面和审计入口。
 
 ### HARNESS.md 总览与同步（强制）
 
-- 根目录 `HARNESS.md` 是本仓库 HARNESS 工程的总览型派生文档，不是新的第一真源。
-- `HARNESS.md` 的定位、维护合同、变更同步范围与更新要求，以 `HARNESS.md` 自身”更新维护合同”章节为准。
-- 当 `AGENTS.md` 的 Harness 相关口径调整时，必须同步检查并更新 `HARNESS.md`；如无法同步，必须报告缺口、原因与临时护栏。
-- AIGC 改造、`bootstrap_compat`、registry/routes/runbook/audit 等 Harness 细节以 `HARNESS.md` 及其声明真源为准，根文件不重复维护操作手册。
+- 若根目录 `HARNESS.md` 存在，它是本仓库 HARNESS 工程的总览型派生文档，不是新的第一真源。
+- `HARNESS.md` 存在时，其定位、维护合同、变更同步范围与更新要求，以 `HARNESS.md` 自身“更新维护合同”章节为准。
+- 当 `AGENTS.md` 的 Harness 相关口径调整时，必须检查 `HARNESS.md` 是否存在；存在则同步更新，不存在则在交付说明中报告缺口、原因与临时护栏。
+- AIGC 改造、`bootstrap_compat`、registry/routes/runbook/audit 等 Harness 细节优先以存在的 `HARNESS.md` 及其声明真源为准；若 `HARNESS.md` 缺失，则以 `.codex/registry/`、`.codex/runbooks/`、`.codex/templates/` 和实际存在的技能目录为临时核验来源，并显式报告缺失总览。
 
 ### AIGC 改造兼容模式（强制）
 
-- 当前 `.agents/skills/aigc/` 的重大改造允许处于显式 `bootstrap_compat` 模式；该模式只允许作为重构窗口的兼容护栏，不得把父合同通过包装成整树全绿。
+- 当 `.agents/skills/aigc/` 存在或本轮任务明确恢复它时，AIGC 重大改造允许处于显式 `bootstrap_compat` 模式；该模式只允许作为重构窗口的兼容护栏，不得把父合同通过包装成整树全绿。
 - `bootstrap_compat` 模式下仍必须保留 `projects/aigc/<项目名>/` canonical runtime、registry、routes、runbook、template、audit、已启用卫星技能入口与高风险 preflight / validation gate。
-- `bootstrap_compat` 模式的退出必须满足以下全部量化条件；条件清单、当前状态、阻塞项与更新时间以根目录 `HARNESS.md` 的 `bootstrap_compat 退出条件与进度` 为准。
+- 若 `.agents/skills/aigc/` 当前缺失，`.codex/registry/` 中指向 AIGC 的历史路由不得被当作可执行入口；必须先报告缺失技能树，并由用户确认是恢复 AIGC 体系、迁移路由，还是按当前可见技能集执行。
+- `bootstrap_compat` 模式的退出必须满足量化条件；若根目录 `HARNESS.md` 存在，条件清单、当前状态、阻塞项与更新时间以其 `bootstrap_compat 退出条件与进度` 为准。若 `HARNESS.md` 缺失，必须先补齐或另建明确的退出条件载体。

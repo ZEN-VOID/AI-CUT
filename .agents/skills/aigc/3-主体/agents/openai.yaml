@@ -1,6 +1,0 @@
-name: aigc-design-subjects
-display_name: AIGC 3-主体
-short_description: 并发调度场景、角色、道具三类主体资产并维护主体注册表
-interface:
-  short_description: 并发调度 3-主体 阶段的场景、角色、道具子技能并汇流主体注册表
-  default_prompt: "使用 $aigc-design-subjects，为 projects/aigc/<项目名>/ 并发运行 3-主体 阶段：从 1-分集 与 2-美学 建立主体注册表，调度 场景/角色/道具 三个 subagents，输出主体总览、执行报告和下游 handoff。"

@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 分集"
-  short_description: "将小说原文按原生集数、章回结构或必要的字数窗口切成逐集文件。"
-  default_prompt: "使用 $aigc-episode-split，把 projects/aigc/<项目名>/源 或我指定的小说原文资料切分为 projects/aigc/<项目名>/1-分集/第N集.md。"

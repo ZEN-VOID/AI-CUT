@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 光影（退役备份）"
-  short_description: "退役旧链路；仅用于审计或重定向，光影能力已收束到 AIGC 7-摄影。"
-  default_prompt: "本技能已退役并迁入 backup。不要按旧 AIGC 9-光影 链路生成 projects/aigc/<项目名>/9-光影/第N集.md。若用户需要分镜光影强化，改用 aigc/7-摄影 的 cinematic-light-in-camera-contract，把布光类型/光型、阴影组织、叙事美学功能、主体可读性控制和光影连续性整合进 camera_light_plan；光源可信只作为 source motivation boundary，不得把正文写成发光物观察清单；不得恢复独立光影追加层、灯位图、光效清单或视频 prompt。"

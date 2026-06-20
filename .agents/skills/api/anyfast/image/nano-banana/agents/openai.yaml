@@ -1,4 +1,0 @@
-interface:
-  display_name: "nano-banana 生图"
-  short_description: "AnyFast 加速端点的 nano-banana 生图；默认模型 gemini-3.1-flash-image-preview"
-  default_prompt: "使用 AnyFast 加速端点生成图片；默认模型为 gemini-3.1-flash-image-preview，如果输入没有明确指定比例和质量，自动使用 16:9 和 4K，并输出报告文件。"

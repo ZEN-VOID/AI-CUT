@@ -1,4 +1,0 @@
-interface:
-  display_name: "课程基准对照"
-  short_description: "对照课程、竞品、标准和rubric，输出证据、差距矩阵与阶段改进路线。"
-  default_prompt: "Use $lesson-benchmark when the user asks to benchmark a lesson or courseware project against excellent courses, competitor courseware, industry standards, exam standards, teaching rubrics, platform courses, or enterprise training exemplars. Load the lesson root contract, keep projects under projects/lesson/<项目名>/, produce benchmark evidence, gap matrix, tradeoff recommendations, and owning stage improvement routes only. Do not copy competitor course body, rewrite stage canonical drafts, replace review gates, or generate DOC/PPT/HTML deliverables."

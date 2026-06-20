@@ -1,9 +1,0 @@
-schema_version: 1
-interface:
-  display_name: "AIGC 角色域路由"
-  short_description: "路由角色清单、细目设计、图像生成和域级验收。"
-  default_prompt: "使用 $aigc-design-character，先锁定 projects/aigc/<项目名>/3-主体/角色/ 的清单、设计、生成缺口，再只加载命中的叶子 SKILL.md + CONTEXT.md；组根只输出路由决定、缺口或域级状态，不生成角色清单正文、设计稿或图像 prompt。"
-metadata:
-  skill_id: "aigc-design-character"
-  governance_tier: "router"
-  output_root: "projects/aigc/<项目名>/3-主体/角色"

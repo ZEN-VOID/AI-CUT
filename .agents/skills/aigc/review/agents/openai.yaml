@@ -1,5 +1,0 @@
-interface:
-  display_name: "AIGC Review"
-  short_description: "AIGC checkpoint、阶段与发布审计聚合"
-  default_prompt: "Use $aigc-review when the current AIGC task needs checkpoint review, stage acceptance, or package release gate. Assemble one review_fact_pack, load mandatory dimension specs from .agents/skills/aigc/review/references/dimensions/ via .agents/skills/aigc/review/_shared/review-dimension-registry.yaml, aggregate one packet under projects/aigc/<项目名>/review/, and route to repair or handoff without directly rewriting stage canonical truth."
-version: 1

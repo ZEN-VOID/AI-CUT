@@ -1,5 +1,0 @@
-interface:
-  display_name: "资料吸收与知识建模"
-  short_description: "基于课程定位进行 deep research，整合来源、事实、概念、术语、案例、误区、依赖关系和可引用证据。"
-  default_prompt: "Use $lesson-knowledge-modeling when the user asks for 资料吸收, 知识建模, deep research, source research, evidence-backed lesson context, terms, cases, misconceptions, or dependency mapping after lesson positioning. Default input is `projects/lesson/<项目名>/1-课程定位/course-positioning.md`. Research official sources, docs, standards, forums, community discussions, web materials, and user-provided materials. Produce `research-source-inventory.md`, `knowledge-model.md`, `evidence-and-case-library.md`, and `downstream-handoff.md` under `projects/lesson/<项目名>/2-资料吸收与知识建模/`. Do not generate learning objective matrices, course outlines, lesson scripts, question banks, PPT copy, HTML pages, or DOC/PPT/HTML deliverables in this stage."
-

@@ -1,4 +1,0 @@
-interface:
-  display_name: "课程定位"
-  short_description: "通过快速解析或问卷对话，把课程意图、受众、场景、边界和交付约束整理为定位 MD。"
-  default_prompt: "Use $lesson-positioning when the user asks for 课程定位, 课程 brief, course positioning, training needs clarification, or wants to turn text, images, links, videos, reference courses, or rough ideas into a course positioning Markdown document. Support quick mode when the user provides complete information: check or route upstream project initialization/recovery, parse evidence, produce or write `projects/lesson/<项目名>/1-课程定位/course-positioning.md`, and return downstream handoff. Support dialog mode when the user needs questionnaire-style clarification. Do not generate full course outlines, learning objective matrices, lesson scripts, question banks, PPT copy, HTML pages, or DOC/PPT/HTML deliverables in this stage."

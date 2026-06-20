@@ -1,4 +1,0 @@
-interface:
-  display_name: Story Repair
-  short_description: 小说局部修改牵动整体时的跨层一致性修复、回写、验收与审计入口
-  default_prompt: "Use $story-repair when a story2026 novel repair request starts from vague symptoms or may affect upstream planning, cards, drafts, polish, review, return, or future generation constraints."

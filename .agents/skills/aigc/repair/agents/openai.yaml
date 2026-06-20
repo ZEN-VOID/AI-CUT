@@ -1,4 +1,0 @@
-interface:
-  display_name: AIGC Repair
-  short_description: AIGC 影视多阶段产物的源层回看、豆包执行、中文润色、创意激发与修复验收入口
-  default_prompt: "Use $aigc-repair when an AIGC film/video project needs local or global repair across stage outputs, source rules, Doubao execution, Chinese polish, creative inspiration, generated assets, or review findings."

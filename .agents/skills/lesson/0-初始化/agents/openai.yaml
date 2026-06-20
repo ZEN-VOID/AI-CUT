@@ -1,4 +1,0 @@
-interface:
-  display_name: "课程课件项目初始化"
-  short_description: "初始化课程、课件、培训或 lesson 项目的目录骨架、项目记忆与项目上下文根。"
-  default_prompt: "Use $lesson-init when the user says 初始化课程, 初始化课件, 初始化培训课, new courseware project, lesson project kickoff, or asks to create a DOC/PPT/HTML course project scaffold. Initialize or repair a lesson/courseware project scaffold under `projects/lesson/<项目名>/` by creating the current `0-初始化` through `8-多端交付生成` stage directories, shared `sources/`, `content-model/`, `assets/` containers, project root `MEMORY.md`, and project root `CONTEXT/README.md`. Record initialization-time long-term project requirements in `MEMORY.md`. Do not generate course briefs, learning objectives, outlines, lesson content, question banks, visual systems, DOC/PPT/HTML deliverables, STATE.json, CHANGELOG.md, or release folders during initialization. Route film/video projects to $aigc-init, novel/story projects to $story-init, and comic projects to the comic workflow."

@@ -1,4 +1,0 @@
-interface:
-  display_name: "剧集海报"
-  short_description: "从当前剧集的真实剧情与出场角色出发，生成带居中文字系统、钩子标题和 imagegen 生图交接字段的海报设计 JSON"
-  default_prompt: "Use $comic-episode-poster to design a comic episode poster JSON for the current episode. Lock the actual appearing protagonists, choose one representative story-bound visual hook, prefer user-provided title text when present, keep text centered with a smaller `第N集` label and a larger Chinese hook title, define foreground, subjects, background, atmosphere, color script, and include `imagegen_handoff.tool_skill_path = .agents/skills/cli/imagegen` for downstream rendering."

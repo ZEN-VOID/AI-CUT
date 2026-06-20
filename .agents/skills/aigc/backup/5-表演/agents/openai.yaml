@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 表演（退役备份）"
-  short_description: "退役旧链路；仅用于审计或重定向，不再生成 AIGC 5-表演 canonical 产物。"
-  default_prompt: "本技能已退役并迁入 backup。不要按旧 AIGC 5-表演 链路生成 projects/aigc/<项目名>/5-表演/第N集.md。若用户需要小说正文中的人物在场与反应强化，改用 story/3-初稿 的 character-presence-contract 或 story/4-润色 的 character-reaction-repair；若用户只要求审计旧表演稿，则只读旧稿并报告可迁移到 story 的人物反应问题。"

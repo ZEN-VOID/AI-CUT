@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 氛围（退役备份）"
-  short_description: "退役旧链路；仅用于审计或重定向，不再生成 AIGC 6-氛围 canonical 产物。"
-  default_prompt: "本技能已退役并迁入 backup。不要按旧 AIGC 6-氛围 链路生成 projects/aigc/<项目名>/6-氛围/第N集.md。若用户需要小说正文中的场景压力、感官承托或可读性强化，改用 story/3-初稿 的 scene-pressure-texture-contract，或 story/4-润色 的 prose-texture-repair / visual-readability-repair；若用户只要求审计旧氛围稿，则只读旧稿并报告装饰性氛围、无源天气/光烟和主次失衡问题。"

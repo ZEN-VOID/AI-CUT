@@ -1,4 +1,0 @@
-interface:
-  display_name: "SEEDREAM 5.0 生图"
-  short_description: "调用 doubao-seedream-5-0-260128 完成文本生图、参考图生图与连续多图"
-  default_prompt: "使用 SEEDREAM 5.0 生成图片，支持 sequential_image_generation 与 URL 落盘"

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Lesson Repair"
-  short_description: "Source-first courseware repair routing"
-  default_prompt: "Use $lesson-repair to diagnose lesson project defects, find the earliest owning stage, plan source-first writeback, and audit DOC/PPT/HTML drift."

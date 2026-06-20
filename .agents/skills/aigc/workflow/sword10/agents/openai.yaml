@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC Sword10 Workflow"
-  short_description: "AIGC sword10 subagent workflow"
-  default_prompt: "Use $aigc-workflow-sword10 for projects/aigc/<项目名>/ selected episodes, dispatching 2-美学 through 8-分组 through real stage subagents."

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Story Cards Item"
-  short_description: "Build item cards with ownership and cost."
-  default_prompt: "Use $story-cards-item to generate, repair, or audit item cards for a story project."

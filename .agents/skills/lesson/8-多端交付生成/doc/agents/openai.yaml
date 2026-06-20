@@ -1,4 +1,0 @@
-interface:
-  display_name: "课程 DOC 文档交付"
-  short_description: "生成课程 Word/DOC 交付计划、文档结构与组装 manifest"
-  default_prompt: "Use $lesson-delivery-doc when the user asks for Word, DOC, DOCX, learner handout, instructor guide, course manual, or document delivery under `projects/lesson/<项目名>/8-多端交付生成/doc/`. Load SKILL.md and CONTEXT.md, audit the parent lesson-delivery doc packet, design the document structure, adapt course content with LLM-first judgment, write doc-delivery-plan.md and doc-assembly-manifest.json when project-bound, and only use scripts for Word formatting, assembly, validation, export, and manifest writeback."
