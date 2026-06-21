@@ -2,7 +2,7 @@
   {
     "id": "full-auto-edit-with-reference",
     "prompt": "使用 $F1：参考 projects/测试/示例，用 projects/测试/素材/视频/a.mp4、文案 b.md、旁白 c.mp3，输出到 projects/测试/结果。",
-    "expected": "先锁定输入并写 PRP；分析参考节奏；生成卡点 master.srt 和 dialogue_alignment*.json；渲染 final MP4；执行解码、ffprobe、SRT 结构、字幕台词对齐、抽帧和报告落盘。"
+    "expected": "先锁定输入并写 PRP；分析参考节奏；生成卡点 master.srt、dialogue_alignment*.json 和 subtitle_style*.json；渲染 final MP4；执行解码、ffprobe、SRT 结构、字幕台词对齐、字幕样式、抽帧和报告落盘。"
   },
   {
     "id": "subtitle-sync-repair",
@@ -28,5 +28,10 @@
     "id": "video-description-manifest-selection",
     "prompt": "使用 $F1：source_video 是 projects/测试/素材/视频，目录里有 视频说明.yaml。文案前半段讲 AI 工具流程，后半段进入玄幻战斗爽点。",
     "expected": "N1 读取并校验 视频说明.yaml；N5 必须优先匹配 videos[].segments[]，依据 category、semantic_tags、keyword_triggers、preferred_clip_sec 和 subtitle_safe_zone 区分工具展示段与剧情战斗段；EDL/报告记录 video_id、file、segment_id、source_start、source_end、selection_reason、subtitle_risk、manifest_status，以及高风险字幕遮挡的抽帧验证。"
+  },
+  {
+    "id": "subtitle-style-customization",
+    "prompt": "使用 $F1 自动剪辑，字幕改成 PingFang SC，字号 22，黄色字，黑色粗描边，底部安全区，单行不超过 12 个字，必要时加半透明黑底。",
+    "expected": "N1/N2 把字体、字号、颜色、描边、位置、行宽和底盒要求写入 PRP；N6 生成 subtitle_style*.json 并通过 validate_subtitle_style.py；渲染时只能从该 JSON 投影 ASS/libass 样式；N7 抽查最长 cue 和高风险背景帧，报告字体 fallback、样式验收和残余风险。"
   }
 ]

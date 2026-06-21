@@ -35,6 +35,7 @@ H.264/AAC MP4 unless the user explicitly requests another format.
 - Work directory:
 - Master SRT:
 - Dialogue alignment JSON:
+- Subtitle style JSON:
 - EDL/render plan:
 - ffprobe JSON:
 - Verification frames:
@@ -47,5 +48,6 @@ H.264/AAC MP4 unless the user explicitly requests another format.
 - ffprobe confirms video and audio tracks.
 - SRT structure is valid.
 - Dialogue alignment confirms subtitle text maps to the spoken audio/script span for every cue.
+- Subtitle style JSON exists and validates requested font, size, color, outline, shadow, position, margins, line policy, and fallback evidence.
 - Frame checks confirm subtitle readability.
 - Fallbacks and residual risks are reported.

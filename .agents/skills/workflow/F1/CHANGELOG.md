@@ -15,3 +15,5 @@
 - Required EDL/report evidence to record `video_id/file/segment_id/source_start/source_end/selection_reason/subtitle_risk`, preventing video-level summaries from being treated as sufficient for automatic splicing.
 - Added a hard dialogue-alignment gate: SRT structure, final duration, pause-boundary timing, and frame readability no longer suffice unless every cue has cue-to-audio/script evidence in `dialogue_alignment*.json`.
 - Added `scripts/validate_dialogue_alignment.py` and updated templates/prompts so subtitle text must match the spoken audio line by line before final completion.
+- Added subtitle style customization as a first-class contract: font, size, colors, outline, shadow, placement, margins, line policy, and box style must be captured in `subtitle_style*.json`.
+- Added `scripts/validate_subtitle_style.py` and updated templates/prompts so custom subtitle appearance is validated and reported before final completion.

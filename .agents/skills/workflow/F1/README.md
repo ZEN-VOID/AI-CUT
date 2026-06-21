@@ -16,7 +16,9 @@ F1/
 ├── scripts/
 │   ├── check_environment.py
 │   ├── project_silence_srt.py
-│   └── validate_srt.py
+│   ├── validate_dialogue_alignment.py
+│   ├── validate_srt.py
+│   └── validate_subtitle_style.py
 └── templates/
     ├── execution-report.md
     └── prp.md
@@ -33,3 +35,5 @@ Use `$F1` when the user provides:
 - an output directory.
 
 The runtime spine is in `SKILL.md`. `scripts/` only performs mechanical checks and time projection; semantic subtitle chunking remains an LLM responsibility.
+
+Subtitle font, size, color, outline, shadow, placement, margins, line length, line count, and translucent box style can be customized. Final renders must project these choices from `subtitle_style*.json`, not from an untracked one-off render command.

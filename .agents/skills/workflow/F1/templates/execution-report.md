@@ -7,6 +7,7 @@
 - Work directory:
 - Master SRT:
 - Dialogue alignment:
+- Subtitle style:
 - EDL/render plan:
 - Reference notes:
 
@@ -34,12 +35,14 @@
 - ffprobe:
 - SRT validation:
 - Dialogue alignment validation:
+- Subtitle style validation:
 - Frame checks:
 
 ## Fallbacks And Risks
 
 - ASR:
 - libass:
+- Font fallback:
 - Reference rhythm:
 - Residual risk:
 
