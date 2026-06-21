@@ -1,0 +1,629 @@
+{
+  "method": "fallback_no_asr_credentials_speech_interval_alignment",
+  "script_path": "projects/测试/素材/文案/直接他妈大结局了.md",
+  "voiceover_audio": "projects/测试/素材/音频/男声1.mp3",
+  "asr_status": "unavailable: VOLC_ASR_APPID/VOLC_ASR_ACCESS_TOKEN/VOLC_APPID/VOLC_TOKEN/OPENAI_API_KEY not present in current environment",
+  "cue_count": 31,
+  "cues": [
+    {
+      "index": 1,
+      "text": "我靠，ai漫剧赛道直接他妈大结局了。",
+      "audio_span": {
+        "start": 0.079,
+        "end": 2.606
+      },
+      "speech_interval": {
+        "start": 0.124,
+        "end": 2.536
+      },
+      "script_span": {
+        "start": 0,
+        "end": 18,
+        "text": "我靠，ai漫剧赛道直接他妈大结局了。"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 2,
+      "text": "Gemini three加 gptT\nimages two 的出现，",
+      "audio_span": {
+        "start": 2.927,
+        "end": 5.71
+      },
+      "speech_interval": {
+        "start": 2.972,
+        "end": 5.64
+      },
+      "script_span": {
+        "start": 19,
+        "end": 53,
+        "text": "Gemini three加 gptT images two 的出现，"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 3,
+      "text": "直接宣布了比赛结束。",
+      "audio_span": {
+        "start": 6.092,
+        "end": 7.325
+      },
+      "speech_interval": {
+        "start": 6.137,
+        "end": 7.255
+      },
+      "script_span": {
+        "start": 53,
+        "end": 63,
+        "text": "直接宣布了比赛结束。"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 4,
+      "text": "操作简单到我想骂街，",
+      "audio_span": {
+        "start": 7.624,
+        "end": 8.816
+      },
+      "speech_interval": {
+        "start": 7.669,
+        "end": 8.746
+      },
+      "script_span": {
+        "start": 63,
+        "end": 73,
+        "text": "操作简单到我想骂街，"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 5,
+      "text": "就把你那破小说往里头一丢，",
+      "audio_span": {
+        "start": 9.261,
+        "end": 10.545
+      },
+      "speech_interval": {
+        "start": 9.306,
+        "end": 10.475
+      },
+      "script_span": {
+        "start": 73,
+        "end": 86,
+        "text": "就把你那破小说往里头一丢，"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 6,
+      "text": "大模型就能自动接管一切推理剧情，",
+      "audio_span": {
+        "start": 10.857,
+        "end": 12.562
+      },
+      "speech_interval": {
+        "start": 10.902,
+        "end": 12.492
+      },
+      "script_span": {
+        "start": 86,
+        "end": 102,
+        "text": "大模型就能自动接管一切推理剧情，"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 7,
+      "text": "脚本直接给你生成好，",
+      "audio_span": {
+        "start": 12.743,
+        "end": 13.766
+      },
+      "speech_interval": {
+        "start": 12.788,
+        "end": 13.696
+      },
+      "script_span": {
+        "start": 102,
+        "end": 112,
+        "text": "脚本直接给你生成好，"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 8,
+      "text": "不用你费半天劲研究啥复杂提示词，",
+      "audio_span": {
+        "start": 13.921,
+        "end": 15.555
+      },
+      "speech_interval": {
+        "start": 13.966,
+        "end": 15.485
+      },
+      "script_span": {
+        "start": 112,
+        "end": 128,
+        "text": "不用你费半天劲研究啥复杂提示词，"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 9,
+      "text": "不用你绞尽脑汁写什么智能分镜指令，",
+      "audio_span": {
+        "start": 15.878,
+        "end": 18.187
+      },
+      "speech_interval": {
+        "start": 15.923,
+        "end": 18.117
+      },
+      "script_span": {
+        "start": 128,
+        "end": 145,
+        "text": "不用你绞尽脑汁写什么智能分镜指令，"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 10,
+      "text": "直接给你出连贯到离谱的电影级分镜剧本。",
+      "audio_span": {
+        "start": 18.273,
+        "end": 20.512
+      },
+      "speech_interval": {
+        "start": 18.318,
+        "end": 20.442
+      },
+      "script_span": {
+        "start": 145,
+        "end": 164,
+        "text": "直接给你出连贯到离谱的电影级分镜剧本。"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 11,
+      "text": "最牛逼的来了，",
+      "audio_span": {
+        "start": 21.167,
+        "end": 21.89
+      },
+      "speech_interval": {
+        "start": 21.212,
+        "end": 21.82
+      },
+      "script_span": {
+        "start": 164,
+        "end": 171,
+        "text": "最牛逼的来了，"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 12,
+      "text": "他直接把人物不一致的千古难题给干碎了。",
+      "audio_span": {
+        "start": 22.383,
+        "end": 24.808
+      },
+      "speech_interval": {
+        "start": 22.428,
+        "end": 24.738
+      },
+      "script_span": {
+        "start": 171,
+        "end": 190,
+        "text": "他直接把人物不一致的千古难题给干碎了。"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 13,
+      "text": "一键出人物三视图场景，",
+      "audio_span": {
+        "start": 25.165,
+        "end": 26.56
+      },
+      "speech_interval": {
+        "start": 25.21,
+        "end": 26.49
+      },
+      "script_span": {
+        "start": 190,
+        "end": 201,
+        "text": "一键出人物三视图场景，"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 14,
+      "text": "全套道具。",
+      "audio_span": {
+        "start": 26.994,
+        "end": 27.732
+      },
+      "speech_interval": {
+        "start": 27.039,
+        "end": 27.662
+      },
+      "script_span": {
+        "start": 201,
+        "end": 206,
+        "text": "全套道具。"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 15,
+      "text": "你家主角从片头到片尾长得半毛钱，\n不带差的，",
+      "audio_span": {
+        "start": 27.933,
+        "end": 30.15
+      },
+      "speech_interval": {
+        "start": 27.978,
+        "end": 30.08
+      },
+      "script_span": {
+        "start": 206,
+        "end": 227,
+        "text": "你家主角从片头到片尾长得半毛钱，不带差的，"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 16,
+      "text": "想换画风，",
+      "audio_span": {
+        "start": 30.405,
+        "end": 30.906
+      },
+      "speech_interval": {
+        "start": 30.45,
+        "end": 30.836
+      },
+      "script_span": {
+        "start": 227,
+        "end": 232,
+        "text": "想换画风，"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 17,
+      "text": "一键搞定。",
+      "audio_span": {
+        "start": 31.085,
+        "end": 31.794
+      },
+      "speech_interval": {
+        "start": 31.13,
+        "end": 31.724
+      },
+      "script_span": {
+        "start": 232,
+        "end": 237,
+        "text": "一键搞定。"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 18,
+      "text": "古风赛露露。",
+      "audio_span": {
+        "start": 31.99,
+        "end": 32.511
+      },
+      "speech_interval": {
+        "start": 32.035,
+        "end": 32.441
+      },
+      "script_span": {
+        "start": 237,
+        "end": 243,
+        "text": "古风赛露露。"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 19,
+      "text": "国风3D日系动漫，",
+      "audio_span": {
+        "start": 32.698,
+        "end": 33.417
+      },
+      "speech_interval": {
+        "start": 32.743,
+        "end": 33.347
+      },
+      "script_span": {
+        "start": 243,
+        "end": 252,
+        "text": "国风3D日系动漫，"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 20,
+      "text": "啥风格都有，做完直接一键导出成片，",
+      "audio_span": {
+        "start": 33.775,
+        "end": 35.151
+      },
+      "speech_interval": {
+        "start": 33.82,
+        "end": 35.081
+      },
+      "script_span": {
+        "start": 252,
+        "end": 269,
+        "text": "啥风格都有，做完直接一键导出成片，"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 21,
+      "text": "全程云端运行，",
+      "audio_span": {
+        "start": 35.283,
+        "end": 36.105
+      },
+      "speech_interval": {
+        "start": 35.328,
+        "end": 36.035
+      },
+      "script_span": {
+        "start": 269,
+        "end": 276,
+        "text": "全程云端运行，"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 22,
+      "text": "半毛钱不吃你电脑配置，",
+      "audio_span": {
+        "start": 36.271,
+        "end": 37.609
+      },
+      "speech_interval": {
+        "start": 36.316,
+        "end": 37.539
+      },
+      "script_span": {
+        "start": 276,
+        "end": 287,
+        "text": "半毛钱不吃你电脑配置，"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 23,
+      "text": "就问你，",
+      "audio_span": {
+        "start": 37.891,
+        "end": 38.906
+      },
+      "speech_interval": {
+        "start": 37.936,
+        "end": 38.836
+      },
+      "script_span": {
+        "start": 287,
+        "end": 291,
+        "text": "就问你，"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 24,
+      "text": "这成品够不够顶？",
+      "audio_span": {
+        "start": 39.05,
+        "end": 40.337
+      },
+      "speech_interval": {
+        "start": 39.095,
+        "end": 40.267
+      },
+      "script_span": {
+        "start": 291,
+        "end": 299,
+        "text": "这成品够不够顶？"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 25,
+      "text": "别 time",
+      "audio_span": {
+        "start": 40.541,
+        "end": 40.98
+      },
+      "speech_interval": {
+        "start": 40.586,
+        "end": 40.91
+      },
+      "script_span": {
+        "start": 299,
+        "end": 305,
+        "text": "别 time"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 26,
+      "text": "追着我要工具了，",
+      "audio_span": {
+        "start": 41.189,
+        "end": 42.222
+      },
+      "speech_interval": {
+        "start": 41.234,
+        "end": 42.152
+      },
+      "script_span": {
+        "start": 306,
+        "end": 314,
+        "text": "追着我要工具了，"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 27,
+      "text": "我全给你们整理好了，",
+      "audio_span": {
+        "start": 42.606,
+        "end": 44.019
+      },
+      "speech_interval": {
+        "start": 42.651,
+        "end": 43.949
+      },
+      "script_span": {
+        "start": 314,
+        "end": 324,
+        "text": "我全给你们整理好了，"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 28,
+      "text": "只要是我粉丝，",
+      "audio_span": {
+        "start": 44.264,
+        "end": 45.175
+      },
+      "speech_interval": {
+        "start": 44.309,
+        "end": 45.105
+      },
+      "script_span": {
+        "start": 324,
+        "end": 331,
+        "text": "只要是我粉丝，"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 29,
+      "text": "留下",
+      "audio_span": {
+        "start": 45.85,
+        "end": 46.895
+      },
+      "speech_interval": {
+        "start": 45.895,
+        "end": 46.825
+      },
+      "script_span": {
+        "start": 331,
+        "end": 333,
+        "text": "留下"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 30,
+      "text": "三个8，",
+      "audio_span": {
+        "start": 47.147,
+        "end": 48.039
+      },
+      "speech_interval": {
+        "start": 47.192,
+        "end": 47.969
+      },
+      "script_span": {
+        "start": 333,
+        "end": 337,
+        "text": "三个8，"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    },
+    {
+      "index": 31,
+      "text": "直接。",
+      "audio_span": {
+        "start": 48.393,
+        "end": 49.146
+      },
+      "speech_interval": {
+        "start": 48.438,
+        "end": 49.146
+      },
+      "script_span": {
+        "start": 337,
+        "end": 340,
+        "text": "直接。"
+      },
+      "source_method": "silencedetect_speech_interval_bound_to_llm_semantic_chunk",
+      "verdict": "pass",
+      "reason": "cue follows script order and is bound to one detected speech interval; ASR credentials unavailable"
+    }
+  ]
+}

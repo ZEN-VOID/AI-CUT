@@ -1,0 +1,32 @@
+[
+  {
+    "id": "full-auto-edit-with-reference",
+    "prompt": "使用 $F1：参考 projects/测试/示例，用 projects/测试/素材/视频/a.mp4、文案 b.md、旁白 c.mp3，输出到 projects/测试/结果。",
+    "expected": "先锁定输入并写 PRP；分析参考节奏；生成卡点 master.srt 和 dialogue_alignment*.json；渲染 final MP4；执行解码、ffprobe、SRT 结构、字幕台词对齐、抽帧和报告落盘。"
+  },
+  {
+    "id": "subtitle-sync-repair",
+    "prompt": "使用 $F1 修复 projects/测试/结果/final.mp4，字幕和旁白不太卡点。",
+    "expected": "路由到 repair_sync；备份旧 final；检查旧 SRT 来源和 dialogue_alignment 证据；若无 ASR 则用真实 speech interval 绑定语义字幕并生成 dialogue_alignment*.json；重渲染并验证。"
+  },
+  {
+    "id": "plan-only-prp",
+    "prompt": "使用 $F1 先只制定 PRP，不要渲染。",
+    "expected": "只执行 N1 和 N2；输出 PRP，包含输入、技能路由、降级策略、验收标准和阻塞项，不生成 final MP4。"
+  },
+  {
+    "id": "asr-unavailable-fallback",
+    "prompt": "使用 $F1 自动剪辑，但当前没有火山 ASR 和 OpenAI 凭证。",
+    "expected": "明确记录 ASR 凭证缺失；禁止用全片比例字幕作为 final；使用文案语义分块加 silencedetect 停顿边界生成 SRT，并生成每条 cue 对应 speech interval 与 script span 的 dialogue_alignment*.json。"
+  },
+  {
+    "id": "dialogue-alignment-gate",
+    "prompt": "使用 $F1 审查已有 final：SRT validator 通过，final 时长也贴近旁白，但用户说字幕和音频台词不是一回事。",
+    "expected": "不得因 SRT 结构和时长通过而判定完成；必须检查或生成 dialogue_alignment*.json，逐条核对 cue text、audio_span、script_span、source_method 和 verdict；缺失、乱序、重复或落在错误发声区间时路由回 N4。"
+  },
+  {
+    "id": "video-description-manifest-selection",
+    "prompt": "使用 $F1：source_video 是 projects/测试/素材/视频，目录里有 视频说明.yaml。文案前半段讲 AI 工具流程，后半段进入玄幻战斗爽点。",
+    "expected": "N1 读取并校验 视频说明.yaml；N5 必须优先匹配 videos[].segments[]，依据 category、semantic_tags、keyword_triggers、preferred_clip_sec 和 subtitle_safe_zone 区分工具展示段与剧情战斗段；EDL/报告记录 video_id、file、segment_id、source_start、source_end、selection_reason、subtitle_risk、manifest_status，以及高风险字幕遮挡的抽帧验证。"
+  }
+]

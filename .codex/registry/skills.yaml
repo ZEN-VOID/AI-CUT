@@ -840,6 +840,16 @@ active_skills:
       canonical_skill_root: ".agents/skills/team/aigc/动漫组/井上雄彦/"
       research_carrier: ".agents/skills/team/aigc/动漫组/井上雄彦/references/research/"
       mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
+  - id: workflow-f1-reference-voiceover-auto-edit
+    path: .agents/skills/workflow/F1
+    owner_office: shangshu
+    purpose: "参考样片节奏 + 用户视频 + 文案 + 已有旁白 -> 字幕卡点硬字幕成片的 workflow skill，负责 PRP、字幕时间轴、渲染、验证与报告闭环。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/workflow/F1/"
+      work_root: "<result_dir>/auto-edit/edit/"
+      output_carrier: "<result_dir>/<project-or-script-name>_final.mp4"
+      mirror_policy: "F1 不创建项目 canonical runtime；单次运行产物写入用户指定结果目录，过程报告写入 PRPs/ 与 reports/。"
 
 planned_skills:
   - id: film-suite

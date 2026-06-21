@@ -1,0 +1,2 @@
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'projects/测试/示例/微信视频2026-06-20_230418_487.mp4':
+  Duration: 00:01:00.60, start: 0.000000, bitrate: 1416 kb/s

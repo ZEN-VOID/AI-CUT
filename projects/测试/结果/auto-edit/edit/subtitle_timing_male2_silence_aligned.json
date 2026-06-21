@@ -1,0 +1,350 @@
+{
+  "method": "silencedetect anchored speech-time projection; semantic chunks reused as text only from previous same-script SRT; old timings discarded",
+  "voice_duration": 55.101769,
+  "silence_count": 35,
+  "speech_interval_count": 24,
+  "chunk_count": 31,
+  "source_chunk_file": "projects/测试/结果/auto-edit/edit/master_backup_20260621_000831.srt",
+  "silencedetect": "n=-35dB d=0.08; min_pause=0.18",
+  "intervals": [
+    {
+      "start": 0.149,
+      "end": 2.409,
+      "duration": 2.261
+    },
+    {
+      "start": 2.769,
+      "end": 7.539,
+      "duration": 4.771
+    },
+    {
+      "start": 7.825,
+      "end": 10.799,
+      "duration": 2.974
+    },
+    {
+      "start": 11.179,
+      "end": 13.406,
+      "duration": 2.227
+    },
+    {
+      "start": 13.806,
+      "end": 17.232,
+      "duration": 3.427
+    },
+    {
+      "start": 17.659,
+      "end": 20.45,
+      "duration": 2.791
+    },
+    {
+      "start": 20.71,
+      "end": 23.6,
+      "duration": 2.89
+    },
+    {
+      "start": 24.183,
+      "end": 24.968,
+      "duration": 0.785
+    },
+    {
+      "start": 25.338,
+      "end": 28.735,
+      "duration": 3.396
+    },
+    {
+      "start": 29.264,
+      "end": 31.963,
+      "duration": 2.699
+    },
+    {
+      "start": 32.392,
+      "end": 34.818,
+      "duration": 2.426
+    },
+    {
+      "start": 35.152,
+      "end": 35.765,
+      "duration": 0.613
+    },
+    {
+      "start": 35.959,
+      "end": 37.525,
+      "duration": 1.565
+    },
+    {
+      "start": 38.227,
+      "end": 39.222,
+      "duration": 0.995
+    },
+    {
+      "start": 39.706,
+      "end": 43.354,
+      "duration": 3.648
+    },
+    {
+      "start": 43.823,
+      "end": 44.853,
+      "duration": 1.03
+    },
+    {
+      "start": 45.292,
+      "end": 46.606,
+      "duration": 1.313
+    },
+    {
+      "start": 46.954,
+      "end": 47.316,
+      "duration": 0.362
+    },
+    {
+      "start": 47.633,
+      "end": 48.601,
+      "duration": 0.968
+    },
+    {
+      "start": 49.087,
+      "end": 50.188,
+      "duration": 1.101
+    },
+    {
+      "start": 50.601,
+      "end": 51.517,
+      "duration": 0.917
+    },
+    {
+      "start": 51.92,
+      "end": 52.839,
+      "duration": 0.919
+    },
+    {
+      "start": 53.267,
+      "end": 54.178,
+      "duration": 0.911
+    },
+    {
+      "start": 54.579,
+      "end": 55.102,
+      "duration": 0.523
+    }
+  ],
+  "cues": [
+    {
+      "index": 1,
+      "start": 0.114,
+      "end": 3.019,
+      "duration": 2.905,
+      "text": "我靠，ai漫剧赛道直接他妈大结局了。"
+    },
+    {
+      "index": 2,
+      "start": 3.029,
+      "end": 6.951,
+      "duration": 3.922,
+      "text": "Gemini three加 gptT\nimages two 的出现，"
+    },
+    {
+      "index": 3,
+      "start": 6.961,
+      "end": 8.592,
+      "duration": 1.632,
+      "text": "直接宣布了比赛结束。"
+    },
+    {
+      "index": 4,
+      "start": 8.602,
+      "end": 9.948,
+      "duration": 1.346,
+      "text": "操作简单到我想骂街，"
+    },
+    {
+      "index": 5,
+      "start": 9.958,
+      "end": 12.091,
+      "duration": 2.133,
+      "text": "就把你那破小说往里头一丢，"
+    },
+    {
+      "index": 6,
+      "start": 12.101,
+      "end": 14.66,
+      "duration": 2.559,
+      "text": "大模型就能自动接管一切推理剧情，"
+    },
+    {
+      "index": 7,
+      "start": 14.67,
+      "end": 16.016,
+      "duration": 1.346,
+      "text": "脚本直接给你生成好，"
+    },
+    {
+      "index": 8,
+      "start": 16.026,
+      "end": 18.612,
+      "duration": 2.587,
+      "text": "不用你费半天劲研究啥复杂提示词，"
+    },
+    {
+      "index": 9,
+      "start": 18.622,
+      "end": 21.177,
+      "duration": 2.555,
+      "text": "不用你绞尽脑汁写什么智能分镜指令，"
+    },
+    {
+      "index": 10,
+      "start": 21.187,
+      "end": 24.336,
+      "duration": 3.149,
+      "text": "直接给你出连贯到离谱的电影级分镜剧本。"
+    },
+    {
+      "index": 11,
+      "start": 24.346,
+      "end": 25.656,
+      "duration": 1.31,
+      "text": "最牛逼的来了，"
+    },
+    {
+      "index": 12,
+      "start": 25.666,
+      "end": 28.232,
+      "duration": 2.566,
+      "text": "他直接把人物不一致的千古难题给干碎了。"
+    },
+    {
+      "index": 13,
+      "start": 28.242,
+      "end": 30.253,
+      "duration": 2.011,
+      "text": "一键出人物三视图场景，"
+    },
+    {
+      "index": 14,
+      "start": 30.263,
+      "end": 30.931,
+      "duration": 0.668,
+      "text": "全套道具。"
+    },
+    {
+      "index": 15,
+      "start": 30.941,
+      "end": 34.207,
+      "duration": 3.266,
+      "text": "你家主角从片头到片尾长得半毛钱，\n不带差的，"
+    },
+    {
+      "index": 16,
+      "start": 34.217,
+      "end": 34.885,
+      "duration": 0.668,
+      "text": "想换画风，"
+    },
+    {
+      "index": 17,
+      "start": 34.895,
+      "end": 36.091,
+      "duration": 1.196,
+      "text": "一键搞定。"
+    },
+    {
+      "index": 18,
+      "start": 36.101,
+      "end": 36.904,
+      "duration": 0.804,
+      "text": "古风赛露露。"
+    },
+    {
+      "index": 19,
+      "start": 36.914,
+      "end": 38.827,
+      "duration": 1.912,
+      "text": "国风3D日系动漫，"
+    },
+    {
+      "index": 20,
+      "start": 38.837,
+      "end": 41.615,
+      "duration": 2.779,
+      "text": "啥风格都有，做完直接一键导出成片，"
+    },
+    {
+      "index": 21,
+      "start": 41.625,
+      "end": 42.564,
+      "duration": 0.939,
+      "text": "全程云端运行，"
+    },
+    {
+      "index": 22,
+      "start": 42.574,
+      "end": 44.525,
+      "duration": 1.95,
+      "text": "半毛钱不吃你电脑配置，"
+    },
+    {
+      "index": 23,
+      "start": 44.535,
+      "end": 45.529,
+      "duration": 0.994,
+      "text": "就问你，"
+    },
+    {
+      "index": 24,
+      "start": 45.539,
+      "end": 46.614,
+      "duration": 1.075,
+      "text": "这成品够不够顶？"
+    },
+    {
+      "index": 25,
+      "start": 46.624,
+      "end": 47.958,
+      "duration": 1.334,
+      "text": "别 time"
+    },
+    {
+      "index": 26,
+      "start": 47.968,
+      "end": 49.528,
+      "duration": 1.56,
+      "text": "追着我要工具了，"
+    },
+    {
+      "index": 27,
+      "start": 49.538,
+      "end": 51.296,
+      "duration": 1.758,
+      "text": "我全给你们整理好了，"
+    },
+    {
+      "index": 28,
+      "start": 51.306,
+      "end": 52.648,
+      "duration": 1.342,
+      "text": "只要是我粉丝，"
+    },
+    {
+      "index": 29,
+      "start": 52.658,
+      "end": 53.641,
+      "duration": 0.983,
+      "text": "留下"
+    },
+    {
+      "index": 30,
+      "start": 53.651,
+      "end": 54.206,
+      "duration": 0.555,
+      "text": "三个8，"
+    },
+    {
+      "index": 31,
+      "start": 54.216,
+      "end": 55.102,
+      "duration": 0.886,
+      "text": "直接。"
+    }
+  ]
+}

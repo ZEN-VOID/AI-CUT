@@ -1,0 +1,107 @@
+{
+  "target_duration": 55.101769,
+  "target_resolution": "1280x720",
+  "fps": 30,
+  "audio": "projects/测试/素材/音频/男声2.mp3",
+  "subtitle": "projects/测试/结果/auto-edit/edit/master.srt",
+  "policy": "source pool montage; no reference footage reused; no black fill needed",
+  "segments": [
+    {
+      "source": "projects/测试/素材/视频/content-01-ancient-male-dragon-battle.mp4",
+      "start": 0.0,
+      "duration": 5.0,
+      "index": 1,
+      "timeline_start": 0,
+      "timeline_end": 5.0
+    },
+    {
+      "source": "projects/测试/素材/视频/content-02-purple-cultivation-battle.mp4",
+      "start": 8.0,
+      "duration": 5.0,
+      "index": 2,
+      "timeline_start": 5.0,
+      "timeline_end": 10.0
+    },
+    {
+      "source": "projects/测试/素材/视频/content-03-ice-gold-dragon-clash.mp4",
+      "start": 0.0,
+      "duration": 4.0,
+      "index": 3,
+      "timeline_start": 10.0,
+      "timeline_end": 14.0
+    },
+    {
+      "source": "projects/测试/素材/视频/content-02-purple-cultivation-battle.mp4",
+      "start": 20.0,
+      "duration": 5.0,
+      "index": 4,
+      "timeline_start": 14.0,
+      "timeline_end": 19.0
+    },
+    {
+      "source": "projects/测试/素材/视频/content-01-ancient-male-dragon-battle.mp4",
+      "start": 12.0,
+      "duration": 5.0,
+      "index": 5,
+      "timeline_start": 19.0,
+      "timeline_end": 24.0
+    },
+    {
+      "source": "projects/测试/素材/视频/content-02-purple-cultivation-battle.mp4",
+      "start": 35.0,
+      "duration": 4.5,
+      "index": 6,
+      "timeline_start": 24.0,
+      "timeline_end": 28.5
+    },
+    {
+      "source": "projects/测试/素材/视频/content-03-ice-gold-dragon-clash.mp4",
+      "start": 5.0,
+      "duration": 4.0,
+      "index": 7,
+      "timeline_start": 28.5,
+      "timeline_end": 32.5
+    },
+    {
+      "source": "projects/测试/素材/视频/content-01-ancient-male-dragon-battle.mp4",
+      "start": 24.0,
+      "duration": 5.0,
+      "index": 8,
+      "timeline_start": 32.5,
+      "timeline_end": 37.5
+    },
+    {
+      "source": "projects/测试/素材/视频/content-02-purple-cultivation-battle.mp4",
+      "start": 52.0,
+      "duration": 5.0,
+      "index": 9,
+      "timeline_start": 37.5,
+      "timeline_end": 42.5
+    },
+    {
+      "source": "projects/测试/素材/视频/content-01-ancient-male-dragon-battle.mp4",
+      "start": 38.0,
+      "duration": 5.0,
+      "index": 10,
+      "timeline_start": 42.5,
+      "timeline_end": 47.5
+    },
+    {
+      "source": "projects/测试/素材/视频/content-02-purple-cultivation-battle.mp4",
+      "start": 70.0,
+      "duration": 4.5,
+      "index": 11,
+      "timeline_start": 47.5,
+      "timeline_end": 52.0
+    },
+    {
+      "source": "projects/测试/素材/视频/content-03-ice-gold-dragon-clash.mp4",
+      "start": 10.0,
+      "duration": 3.101769,
+      "index": 12,
+      "timeline_start": 52.0,
+      "timeline_end": 55.102
+    }
+  ],
+  "total_video_duration": 55.101769
+}
