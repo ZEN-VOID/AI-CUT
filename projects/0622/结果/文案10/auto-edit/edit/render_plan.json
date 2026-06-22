@@ -1,0 +1,101 @@
+{
+  "target_resolution": "1280x720",
+  "fps": 30,
+  "video_codec": "libx264",
+  "audio_codec": "aac",
+  "subtitle_filter": "ass=master.ass as final video filter",
+  "audio_policy": "voiceover_audio_only",
+  "segments": [
+    {
+      "id": "mc01",
+      "duration": 3.45,
+      "source_file": "影像内容/微信视频2026-06-21_220234_765.mp4",
+      "source_start": 0.0,
+      "source_end": 3.45
+    },
+    {
+      "id": "mc02",
+      "duration": 3.4,
+      "source_file": "影像内容/微信视频2026-06-21_220234_765.mp4",
+      "source_start": 3.4,
+      "source_end": 6.8
+    },
+    {
+      "id": "mc03",
+      "duration": 3.77,
+      "source_file": "工具使用/1.mp4",
+      "source_start": 0.0,
+      "source_end": 3.77
+    },
+    {
+      "id": "mc04",
+      "duration": 3.43,
+      "source_file": "工具使用/1.mp4",
+      "source_start": 12.0,
+      "source_end": 15.43
+    },
+    {
+      "id": "mc05",
+      "duration": 3.57,
+      "source_file": "操作展示/微信视频2026-06-21_220316_527.mp4",
+      "source_start": 0.0,
+      "source_end": 3.57
+    },
+    {
+      "id": "mc06",
+      "duration": 3.08,
+      "source_file": "工具使用/1.mp4",
+      "source_start": 24.0,
+      "source_end": 27.08
+    },
+    {
+      "id": "mc07",
+      "duration": 3.58,
+      "source_file": "操作展示/微信视频2026-06-21_220316_527.mp4",
+      "source_start": 2.5,
+      "source_end": 6.08
+    },
+    {
+      "id": "mc08",
+      "duration": 3.54,
+      "source_file": "工具使用/1.mp4",
+      "source_start": 15.4,
+      "source_end": 18.94
+    },
+    {
+      "id": "mc09",
+      "duration": 3.63,
+      "source_file": "影像内容/微信视频2026-06-21_220234_765.mp4",
+      "source_start": 0.0,
+      "source_end": 3.63
+    },
+    {
+      "id": "mc10",
+      "duration": 4.15,
+      "source_file": "影像内容/微信视频2026-06-21_220234_765.mp4",
+      "source_start": 6.9,
+      "source_end": 11.05
+    },
+    {
+      "id": "mc11",
+      "duration": 2.58,
+      "source_file": "工具使用/1.mp4",
+      "source_start": 38.0,
+      "source_end": 40.58
+    },
+    {
+      "id": "mc12",
+      "duration": 2.34,
+      "source_file": "工具使用/1.mp4",
+      "source_start": 42.2,
+      "source_end": 44.54
+    },
+    {
+      "id": "mc13",
+      "duration": 2.104,
+      "source_file": "影像内容/微信视频2026-06-21_220234_765.mp4",
+      "source_start": 11.0,
+      "source_end": 13.104
+    }
+  ]
+}

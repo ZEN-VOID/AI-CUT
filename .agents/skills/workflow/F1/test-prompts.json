@@ -2,7 +2,7 @@
   {
     "id": "full-auto-edit-with-reference",
     "prompt": "使用 $F1：参考 projects/测试/示例，用 projects/测试/素材/视频/a.mp4、文案 b.md、旁白 c.mp3，输出到 projects/测试/结果。",
-    "expected": "先锁定输入并写 PRP；分析参考节奏；生成卡点 master.srt、dialogue_alignment*.json 和 subtitle_style*.json；渲染 final MP4；执行解码、ffprobe、SRT 结构、字幕台词对齐、字幕样式、抽帧和报告落盘。"
+    "expected": "先锁定输入并写 PRP；分析参考节奏；生成卡点 master.srt、dialogue_alignment*.json 和 subtitle_style*.json；未指定样式时默认 720p 字号 20、中文单行约 14-16 字；渲染 final MP4；执行解码、ffprobe、SRT 结构、字幕台词对齐、字幕样式、抽帧和报告落盘。"
   },
   {
     "id": "subtitle-sync-repair",
@@ -30,8 +30,38 @@
     "expected": "N1 读取并校验 视频说明.yaml；N5 必须优先匹配 videos[].segments[]，依据 category、semantic_tags、keyword_triggers、preferred_clip_sec 和 subtitle_safe_zone 区分工具展示段与剧情战斗段；EDL/报告记录 video_id、file、segment_id、source_start、source_end、selection_reason、subtitle_risk、manifest_status，以及高风险字幕遮挡的抽帧验证。"
   },
   {
+    "id": "material-category-routing",
+    "prompt": "使用 $F1：素材目录包含 projects/0622/素材/视频/操作展示、projects/0622/素材/视频/工具使用、projects/0622/素材/视频/影像内容。文案同时讲实操步骤、工具参数和影像爽点。",
+    "expected": "N1 读取 manifest 并校验目录-category 映射：操作展示 -> operation_demo，工具使用 -> tool_display，影像内容 -> aigc_content。N5 不得把三类素材混成普通 B-roll；operation_demo 条目记录 operation_state/action_phase/step_label，tool_display 条目记录 screen_state/tool_state，aigc_content 条目记录 semantic_match/visual_rhythm_reason。EDL/报告必须包含 category、segment_id、selection_reason、subtitle_risk 和目录映射校验结果。"
+  },
+  {
+    "id": "material-composition-timeline",
+    "prompt": "使用 $F1：三类素材都已整理好，文案先展示结果，再讲工具参数，再讲操作步骤，最后回到成片效果。请按旁白剪成最终视频。",
+    "expected": "N5 必须生成 material_composition[]，按 dialogue cue/audio_span 排序，而不是按目录顺序或固定比例拼接。结果/钩子和尾钩 cue 优先 aigc_content；工具参数 cue 优先 tool_display；操作步骤 cue 优先 operation_demo。每个 composition 条目记录 primary_category、visual_role、cue_indices、audio_span、visual_span、source_file/segment_id、selection_reason、transition_policy、category_evidence、subtitle_risk 和 verdict。N6 按该计划渲染一条主视觉轨；N7 校验 final 顺序与 material_composition[] 一致。"
+  },
+  {
+    "id": "video-to-manifest-satellite-generation",
+    "prompt": "使用 $F1：先为 projects/0622/素材/视频 生成或更新 视频说明.yaml，然后再用于后续自动剪辑。",
+    "expected": "N1 不直接进入 final 渲染；先路由到 video-to-manifest/ 卫星，生成 material-evidence.json、抽帧、LLM-authored 视频级和 segments[] 字段、validation report 与 canonical 视频说明.yaml；回接 F1 时报告 manifest_path、manifest_status、validation verdict 和残余 warnings。"
+  },
+  {
     "id": "subtitle-style-customization",
     "prompt": "使用 $F1 自动剪辑，字幕改成 PingFang SC，字号 22，黄色字，黑色粗描边，底部安全区，单行不超过 12 个字，必要时加半透明黑底。",
     "expected": "N1/N2 把字体、字号、颜色、描边、位置、行宽和底盒要求写入 PRP；N6 生成 subtitle_style*.json 并通过 validate_subtitle_style.py；渲染时只能从该 JSON 投影 ASS/libass 样式；N7 抽查最长 cue 和高风险背景帧，报告字体 fallback、样式验收和残余风险。"
+  },
+  {
+    "id": "tool-screen-subtitle-alignment",
+    "prompt": "使用 $F1 自动剪辑，文案中有一段讲 Dreamina 里输入提示词、点生成、再导出视频。工具画面必须和这段字幕对上。",
+    "expected": "N5 必须识别工具段并生成 visual_alignment_plan*.json.tool_screen_alignment[]；每个工具条目绑定 cue_indices、audio_span、script_span、visual_span、source_file、segment_id、screen_state、spoken_topic 和 match_evidence；不能只用泛化工具录屏。N7 运行视觉计划校验并抽工具段 final 帧。"
+  },
+  {
+    "id": "title-card-cue-alignment",
+    "prompt": "使用 $F1 自动剪辑，把开头钩子和结尾结论做成大字报，大字报内容要跟字幕和旁白对齐。",
+    "expected": "N5 根据用户圈定或自动强调规则生成 title_card_plan*.json 或 visual_alignment_plan*.json.title_cards[]；每张大字报记录 trigger_source、card_type、text_policy、card_text、source_text、cue_indices、script_span、audio_span、visual_span、duration_policy、layout、safe_zone、style_ref、subtitle_text、subtitle_display_policy、layer_order=before_hard_subtitles、selection_reason 和 verdict；自动压缩必须记录 compression_reason，不得新增脚本外信息；N6 先叠大字报视觉层再烧字幕，N7 抽对应帧验证遮挡、安全区和 cue 对齐。"
+  },
+  {
+    "id": "title-card-processing-detail",
+    "prompt": "使用 $F1 自动剪辑，可以自动加大字报，但不要满屏乱飞，也不要挡住底部字幕或工具界面。",
+    "expected": "N5 必须按 Title Card Processing Detail Contract 判断是否触发大字报；自动强调默认克制，过密触发要记录 density_reason。每张卡必须声明 card_type、text_policy、source_text、duration_policy、safe_zone、subtitle_display_policy 和 layer_order=before_hard_subtitles；工具/操作画面上的 callout_label 必须避开关键 UI，full_frame_card 必须记录 background_policy。N7 校验 title card processing verdict，并抽帧确认不遮挡最终硬字幕、关键 UI 或主体动作。"
   }
 ]

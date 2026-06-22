@@ -1,0 +1,429 @@
+{
+  "version": 1,
+  "script_path": "projects/0622/素材/文案/文案2.md",
+  "voiceover_audio": "projects/0622/素材/音频/文案2-音频.mp3",
+  "asr_status": "unavailable_local_modules",
+  "source_method_summary": "silencedetect speech intervals + LLM semantic script chunks; voiceover assumed to read supplied script in order",
+  "cues": [
+    {
+      "index": 1,
+      "text": "AI 漫剧行业格局",
+      "audio_span": {
+        "start": 0.081,
+        "end": 1.241
+      },
+      "script_span": {
+        "start": 0,
+        "end": 9
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 2,
+      "text": "迎来颠覆性变革",
+      "audio_span": {
+        "start": 1.251,
+        "end": 2.311
+      },
+      "script_span": {
+        "start": 9,
+        "end": 16
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 3,
+      "text": "随着 Gemini Three",
+      "audio_span": {
+        "start": 2.321,
+        "end": 3.674
+      },
+      "script_span": {
+        "start": 17,
+        "end": 32
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 4,
+      "text": "与 GPT Images Two",
+      "audio_span": {
+        "start": 3.684,
+        "end": 5.453
+      },
+      "script_span": {
+        "start": 33,
+        "end": 49
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 5,
+      "text": "两款模型落地",
+      "audio_span": {
+        "start": 5.463,
+        "end": 6.37
+      },
+      "script_span": {
+        "start": 50,
+        "end": 56
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 6,
+      "text": "赛道竞争已然尘埃落定",
+      "audio_span": {
+        "start": 6.38,
+        "end": 8.158
+      },
+      "script_span": {
+        "start": 57,
+        "end": 67
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 7,
+      "text": "工具操作极简",
+      "audio_span": {
+        "start": 8.168,
+        "end": 9.446
+      },
+      "script_span": {
+        "start": 68,
+        "end": 74
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 8,
+      "text": "导入小说文本后",
+      "audio_span": {
+        "start": 9.456,
+        "end": 10.749
+      },
+      "script_span": {
+        "start": 75,
+        "end": 82
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 9,
+      "text": "大模型自动完成剧情推演",
+      "audio_span": {
+        "start": 10.759,
+        "end": 12.787
+      },
+      "script_span": {
+        "start": 83,
+        "end": 94
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 10,
+      "text": "快速输出完整拍摄脚本",
+      "audio_span": {
+        "start": 12.797,
+        "end": 14.549
+      },
+      "script_span": {
+        "start": 95,
+        "end": 105
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 11,
+      "text": "省去钻研复杂提示词",
+      "audio_span": {
+        "start": 14.559,
+        "end": 16.222
+      },
+      "script_span": {
+        "start": 106,
+        "end": 115
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 12,
+      "text": "手动编写分镜指令",
+      "audio_span": {
+        "start": 16.232,
+        "end": 17.444
+      },
+      "script_span": {
+        "start": 116,
+        "end": 124
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 13,
+      "text": "的繁琐步骤",
+      "audio_span": {
+        "start": 17.454,
+        "end": 18.208
+      },
+      "script_span": {
+        "start": 124,
+        "end": 129
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 14,
+      "text": "自动生成叙事流畅",
+      "audio_span": {
+        "start": 18.218,
+        "end": 20.112
+      },
+      "script_span": {
+        "start": 130,
+        "end": 138
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 15,
+      "text": "院线级质感的分镜内容",
+      "audio_span": {
+        "start": 20.122,
+        "end": 21.907
+      },
+      "script_span": {
+        "start": 139,
+        "end": 149
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 16,
+      "text": "长期困扰创作者的",
+      "audio_span": {
+        "start": 21.917,
+        "end": 23.36
+      },
+      "script_span": {
+        "start": 151,
+        "end": 159
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 17,
+      "text": "人物形象不统一问题",
+      "audio_span": {
+        "start": 23.37,
+        "end": 25.162
+      },
+      "script_span": {
+        "start": 159,
+        "end": 168
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 18,
+      "text": "得到彻底根治",
+      "audio_span": {
+        "start": 25.172,
+        "end": 26.079
+      },
+      "script_span": {
+        "start": 168,
+        "end": 174
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 19,
+      "text": "一键生成标准人物三视图",
+      "audio_span": {
+        "start": 26.089,
+        "end": 27.987
+      },
+      "script_span": {
+        "start": 175,
+        "end": 186
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 20,
+      "text": "专属场景与配套道具",
+      "audio_span": {
+        "start": 27.997,
+        "end": 30.082
+      },
+      "script_span": {
+        "start": 187,
+        "end": 196
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 21,
+      "text": "保障角色全片形象统一",
+      "audio_span": {
+        "start": 30.092,
+        "end": 32.238
+      },
+      "script_span": {
+        "start": 197,
+        "end": 207
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 22,
+      "text": "支持古风、赛璐璐",
+      "audio_span": {
+        "start": 32.248,
+        "end": 34.058
+      },
+      "script_span": {
+        "start": 208,
+        "end": 216
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 23,
+      "text": "国风三维、日系二次元",
+      "audio_span": {
+        "start": 34.068,
+        "end": 35.449
+      },
+      "script_span": {
+        "start": 217,
+        "end": 227
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 24,
+      "text": "等多元画风一键切换",
+      "audio_span": {
+        "start": 35.459,
+        "end": 37.187
+      },
+      "script_span": {
+        "start": 227,
+        "end": 236
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 25,
+      "text": "全程云端算力支撑",
+      "audio_span": {
+        "start": 37.197,
+        "end": 38.804
+      },
+      "script_span": {
+        "start": 237,
+        "end": 245
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 26,
+      "text": "对本地设备配置无要求",
+      "audio_span": {
+        "start": 38.814,
+        "end": 40.332
+      },
+      "script_span": {
+        "start": 246,
+        "end": 256
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 27,
+      "text": "成片可一键导出",
+      "audio_span": {
+        "start": 40.342,
+        "end": 41.628
+      },
+      "script_span": {
+        "start": 257,
+        "end": 264
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    },
+    {
+      "index": 28,
+      "text": "相关全套实用工具已整理汇总",
+      "audio_span": {
+        "start": 41.638,
+        "end": 43.56
+      },
+      "script_span": {
+        "start": 265,
+        "end": 278
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk_projection",
+      "evidence": "Cue order follows user script; timing projected over real speech intervals after removing detected pauses.",
+      "verdict": "pass"
+    }
+  ]
+}

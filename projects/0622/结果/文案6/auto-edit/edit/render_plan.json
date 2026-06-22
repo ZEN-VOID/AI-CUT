@@ -1,0 +1,15 @@
+{
+  "render_plan_id": "文案6-render-plan",
+  "final": "projects/0622/结果/文案6/文案6_final.mp4",
+  "filtergraph": "projects/0622/结果/文案6/auto-edit/edit/render_filtergraph.txt",
+  "render_log": "projects/0622/结果/文案6/auto-edit/edit/render.log",
+  "command_summary": "ffmpeg -i content-01 -i tool-01 -i operation-01 -i tool-01 -i operation-01 -i content-01 -i 文案6-音频.mp3 -filter_complex_script render_filtergraph.txt -map [vout] -map 6:a -c:v libx264 -crf 20 -c:a aac -shortest 文案6_final.mp4",
+  "overlay_order": [
+    "main_visual_concat",
+    "subtitles_last"
+  ],
+  "audio_policy": "voiceover replaces all source audio",
+  "codec": "H.264/AAC MP4",
+  "subtitle_filter": "libass subtitles filter with force_style from subtitle_style.json",
+  "verdict": "pass"
+}

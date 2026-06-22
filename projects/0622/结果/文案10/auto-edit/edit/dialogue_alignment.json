@@ -1,0 +1,203 @@
+{
+  "voiceover_audio": "/Volumes/AIGC/AI-CUT/projects/0622/素材/音频/文案10-音频.mp3",
+  "script_path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/文案/文案10.md",
+  "source_method": "ASR unavailable; silencedetect n=-35dB d=0.08 plus LLM semantic chunks",
+  "voice_duration": 42.624,
+  "cues": [
+    {
+      "index": 1,
+      "text": "随着 Gemini Three 与 GPT Images Two 两款模型推出",
+      "audio_span": {
+        "start": 0.121,
+        "end": 3.146
+      },
+      "script_span": {
+        "start_char": 0,
+        "end_char": 39
+      },
+      "source_method": "asr_unavailable_silencedetect_interval_with_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Voiceover is assumed to read the provided script in order; cue boundary is anchored to detected speech/pause intervals."
+    },
+    {
+      "index": 2,
+      "text": "AI 漫剧创作赛道的竞争格局迎来阶段性收尾",
+      "audio_span": {
+        "start": 3.499,
+        "end": 6.5
+      },
+      "script_span": {
+        "start_char": 40,
+        "end_char": 61
+      },
+      "source_method": "asr_unavailable_silencedetect_interval_with_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Voiceover is assumed to read the provided script in order; cue boundary is anchored to detected speech/pause intervals."
+    },
+    {
+      "index": 3,
+      "text": "该创作工具操作门槛极低，用户上传小说文本后",
+      "audio_span": {
+        "start": 6.887,
+        "end": 10.373
+      },
+      "script_span": {
+        "start_char": 62,
+        "end_char": 83
+      },
+      "source_method": "asr_unavailable_silencedetect_interval_with_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Voiceover is assumed to read the provided script in order; cue boundary is anchored to detected speech/pause intervals."
+    },
+    {
+      "index": 4,
+      "text": "大模型可自主完成剧情推理并生成完整脚本",
+      "audio_span": {
+        "start": 10.657,
+        "end": 13.832
+      },
+      "script_span": {
+        "start_char": 84,
+        "end_char": 103
+      },
+      "source_method": "asr_unavailable_silencedetect_interval_with_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Voiceover is assumed to read the provided script in order; cue boundary is anchored to detected speech/pause intervals."
+    },
+    {
+      "index": 5,
+      "text": "无需手动调试复杂提示词、编写分镜指令",
+      "audio_span": {
+        "start": 14.095,
+        "end": 17.269
+      },
+      "script_span": {
+        "start_char": 104,
+        "end_char": 122
+      },
+      "source_method": "asr_unavailable_silencedetect_interval_with_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Voiceover is assumed to read the provided script in order; cue boundary is anchored to detected speech/pause intervals."
+    },
+    {
+      "index": 6,
+      "text": "可自动产出叙事连贯、影视标准的分镜剧本",
+      "audio_span": {
+        "start": 17.652,
+        "end": 20.465
+      },
+      "script_span": {
+        "start_char": 123,
+        "end_char": 142
+      },
+      "source_method": "asr_unavailable_silencedetect_interval_with_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Voiceover is assumed to read the provided script in order; cue boundary is anchored to detected speech/pause intervals."
+    },
+    {
+      "index": 7,
+      "text": "工具突破性解决了人物形象前后不一致的常见创作问题",
+      "audio_span": {
+        "start": 20.729,
+        "end": 23.915
+      },
+      "script_span": {
+        "start_char": 144,
+        "end_char": 168
+      },
+      "source_method": "asr_unavailable_silencedetect_interval_with_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Voiceover is assumed to read the provided script in order; cue boundary is anchored to detected speech/pause intervals."
+    },
+    {
+      "index": 8,
+      "text": "支持一键生成人物三视图、配套场景与全套道具",
+      "audio_span": {
+        "start": 24.309,
+        "end": 27.539
+      },
+      "script_span": {
+        "start_char": 169,
+        "end_char": 190
+      },
+      "source_method": "asr_unavailable_silencedetect_interval_with_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Voiceover is assumed to read the provided script in order; cue boundary is anchored to detected speech/pause intervals."
+    },
+    {
+      "index": 9,
+      "text": "保证角色全片形象统一；同时覆盖古风、赛璐璐",
+      "audio_span": {
+        "start": 27.846,
+        "end": 31.128
+      },
+      "script_span": {
+        "start_char": 191,
+        "end_char": 212
+      },
+      "source_method": "asr_unavailable_silencedetect_interval_with_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Voiceover is assumed to read the provided script in order; cue boundary is anchored to detected speech/pause intervals."
+    },
+    {
+      "index": 10,
+      "text": "国风三维、日系动漫等多种美术风格，支持一键切换",
+      "audio_span": {
+        "start": 31.48,
+        "end": 35.297
+      },
+      "script_span": {
+        "start_char": 213,
+        "end_char": 236
+      },
+      "source_method": "asr_unavailable_silencedetect_interval_with_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Voiceover is assumed to read the provided script in order; cue boundary is anchored to detected speech/pause intervals."
+    },
+    {
+      "index": 11,
+      "text": "创作全程依托云端算力",
+      "audio_span": {
+        "start": 35.617,
+        "end": 37.827
+      },
+      "script_span": {
+        "start_char": 237,
+        "end_char": 247
+      },
+      "source_method": "asr_unavailable_silencedetect_interval_with_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Voiceover is assumed to read the provided script in order; cue boundary is anchored to detected speech/pause intervals."
+    },
+    {
+      "index": 12,
+      "text": "对本地硬件配置无硬性要求",
+      "audio_span": {
+        "start": 38.211,
+        "end": 39.961
+      },
+      "script_span": {
+        "start_char": 248,
+        "end_char": 260
+      },
+      "source_method": "asr_unavailable_silencedetect_interval_with_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Voiceover is assumed to read the provided script in order; cue boundary is anchored to detected speech/pause intervals."
+    },
+    {
+      "index": 13,
+      "text": "作品完成后可一键导出成片",
+      "audio_span": {
+        "start": 40.543,
+        "end": 42.376
+      },
+      "script_span": {
+        "start_char": 261,
+        "end_char": 273
+      },
+      "source_method": "asr_unavailable_silencedetect_interval_with_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Voiceover is assumed to read the provided script in order; cue boundary is anchored to detected speech/pause intervals."
+    }
+  ]
+}

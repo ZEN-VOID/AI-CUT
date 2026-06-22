@@ -318,6 +318,9 @@ route_policies:
   - id: workflow-f1-reference-voiceover-auto-edit-entry
     trigger: 命中 `$F1`、`workflow/F1`、参考样片自动剪辑、参考节奏剪辑、配音字幕成片、已有旁白加字幕、字幕和音频卡点修复，或用户同时提供参考目录、主视频、文案和旁白音频并要求输出 final MP4
     rule: "进入 `.agents/skills/workflow/F1/SKILL.md`；按 Skill 2.0 runtime-spine 执行 `N1 输入锁定 -> N2 PRP/计划 -> N3 参考节奏 -> N4 字幕时间轴 -> N5 画面映射 -> N6 硬字幕渲染 -> N7 验证 -> N8 报告写回`。旁白音频是主时钟，文案是字幕真源；ASR 不可用时必须用 `silencedetect` 停顿边界 fallback，不得把全片比例字幕作为 final 完成口径。"
+  - id: workflow-f1-video-to-manifest-entry
+    trigger: 命中 `$video-to-manifest`、`workflow/F1/video-to-manifest`、生成视频说明、更新视频说明、修复视频说明、校验视频说明、从视频生成 `视频说明.yaml`、为 F1 生成素材说明、或需要把视频目录整理成 F1 可选段素材索引
+    rule: "进入 `.agents/skills/workflow/F1/video-to-manifest/SKILL.md`；先做 ffprobe 与抽帧机械取证，再由 LLM 基于证据逐条填写视频级和片段级字段，输出 canonical `视频说明.yaml`、material evidence、validation report 和 F1 handoff。该卫星不生成 final MP4、SRT 或 EDL，不替代 F1 最终选材裁决。"
 
 legacy_mapping:
   - legacy_object: /Volumes/AIGC/AIGC-ZEN-VOID/.agents/skills/aigc2026

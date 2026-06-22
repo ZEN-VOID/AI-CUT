@@ -1,0 +1,298 @@
+{
+  "script_path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/文案/文案7.md",
+  "voiceover_audio": "/Volumes/AIGC/AI-CUT/projects/0622/素材/音频/文案7-音频.mp3",
+  "method": "ASR unavailable/not configured; LLM semantic chunks projected onto ffmpeg silencedetect speech intervals",
+  "fallback_parameters": {
+    "noise": "-35dB",
+    "silence_duration": 0.08,
+    "min_pause": 0.18
+  },
+  "voice_duration": 27.684,
+  "cues": [
+    {
+      "index": 1,
+      "text": "重磅消息！",
+      "audio_span": {
+        "start": 0.235,
+        "end": 0.957
+      },
+      "script_span": {
+        "start": 0,
+        "end": 5
+      },
+      "source_method": "silencedetect_fallback_real_speech_interval_with_llm_semantic_chunk",
+      "alignment_note": "voiceover was provided for this exact script; cue text preserves script order and maps to detected speech interval",
+      "verdict": "pass"
+    },
+    {
+      "index": 2,
+      "text": "AI 漫剧赛道直接大结局！",
+      "audio_span": {
+        "start": 1.264,
+        "end": 2.768
+      },
+      "script_span": {
+        "start": 5,
+        "end": 18
+      },
+      "source_method": "silencedetect_fallback_real_speech_interval_with_llm_semantic_chunk",
+      "alignment_note": "voiceover was provided for this exact script; cue text preserves script order and maps to detected speech interval",
+      "verdict": "pass"
+    },
+    {
+      "index": 3,
+      "text": "Gemini three",
+      "audio_span": {
+        "start": 2.886,
+        "end": 3.947
+      },
+      "script_span": {
+        "start": 18,
+        "end": 30
+      },
+      "source_method": "silencedetect_fallback_real_speech_interval_with_llm_semantic_chunk",
+      "alignment_note": "voiceover was provided for this exact script; cue text preserves script order and maps to detected speech interval",
+      "verdict": "pass"
+    },
+    {
+      "index": 4,
+      "text": "搭配 GPT Images two \n直接卷完所有对手！",
+      "audio_span": {
+        "start": 4.259,
+        "end": 7.455
+      },
+      "script_span": {
+        "start": 31,
+        "end": 58
+      },
+      "source_method": "silencedetect_fallback_real_speech_interval_with_llm_semantic_chunk",
+      "alignment_note": "voiceover was provided for this exact script; cue text preserves script order and maps to detected speech interval",
+      "verdict": "pass"
+    },
+    {
+      "index": 5,
+      "text": "操作简单到离谱，",
+      "audio_span": {
+        "start": 7.814,
+        "end": 8.68
+      },
+      "script_span": {
+        "start": 58,
+        "end": 66
+      },
+      "source_method": "silencedetect_fallback_real_speech_interval_with_llm_semantic_chunk",
+      "alignment_note": "voiceover was provided for this exact script; cue text preserves script order and maps to detected speech interval",
+      "verdict": "pass"
+    },
+    {
+      "index": 6,
+      "text": "小说丢进去，",
+      "audio_span": {
+        "start": 8.98,
+        "end": 10.114
+      },
+      "script_span": {
+        "start": 66,
+        "end": 72
+      },
+      "source_method": "silencedetect_fallback_real_speech_interval_with_llm_semantic_chunk",
+      "alignment_note": "voiceover was provided for this exact script; cue text preserves script order and maps to detected speech interval",
+      "verdict": "pass"
+    },
+    {
+      "index": 7,
+      "text": "AI 自动捋剧情、",
+      "audio_span": {
+        "start": 10.253,
+        "end": 11.126
+      },
+      "script_span": {
+        "start": 72,
+        "end": 81
+      },
+      "source_method": "silencedetect_fallback_real_speech_interval_with_llm_semantic_chunk",
+      "alignment_note": "voiceover was provided for this exact script; cue text preserves script order and maps to detected speech interval",
+      "verdict": "pass"
+    },
+    {
+      "index": 8,
+      "text": "写完整脚本，",
+      "audio_span": {
+        "start": 11.335,
+        "end": 12.299
+      },
+      "script_span": {
+        "start": 81,
+        "end": 87
+      },
+      "source_method": "silencedetect_fallback_real_speech_interval_with_llm_semantic_chunk",
+      "alignment_note": "voiceover was provided for this exact script; cue text preserves script order and maps to detected speech interval",
+      "verdict": "pass"
+    },
+    {
+      "index": 9,
+      "text": "不用抠提示词、",
+      "audio_span": {
+        "start": 12.458,
+        "end": 13.45
+      },
+      "script_span": {
+        "start": 87,
+        "end": 94
+      },
+      "source_method": "silencedetect_fallback_real_speech_interval_with_llm_semantic_chunk",
+      "alignment_note": "voiceover was provided for this exact script; cue text preserves script order and maps to detected speech interval",
+      "verdict": "pass"
+    },
+    {
+      "index": 10,
+      "text": "不用费劲写分镜，",
+      "audio_span": {
+        "start": 13.715,
+        "end": 14.418
+      },
+      "script_span": {
+        "start": 94,
+        "end": 102
+      },
+      "source_method": "silencedetect_fallback_real_speech_interval_with_llm_semantic_chunk",
+      "alignment_note": "voiceover was provided for this exact script; cue text preserves script order and maps to detected speech interval",
+      "verdict": "pass"
+    },
+    {
+      "index": 11,
+      "text": "直接给到超流畅\n电影级分镜。",
+      "audio_span": {
+        "start": 14.498,
+        "end": 16.07
+      },
+      "script_span": {
+        "start": 102,
+        "end": 115
+      },
+      "source_method": "silencedetect_fallback_real_speech_interval_with_llm_semantic_chunk",
+      "alignment_note": "voiceover was provided for this exact script; cue text preserves script order and maps to detected speech interval",
+      "verdict": "pass"
+    },
+    {
+      "index": 12,
+      "text": "人物反复变脸的痛点\n直接搞定，",
+      "audio_span": {
+        "start": 16.265,
+        "end": 17.85
+      },
+      "script_span": {
+        "start": 116,
+        "end": 130
+      },
+      "source_method": "silencedetect_fallback_real_speech_interval_with_llm_semantic_chunk",
+      "alignment_note": "voiceover was provided for this exact script; cue text preserves script order and maps to detected speech interval",
+      "verdict": "pass"
+    },
+    {
+      "index": 13,
+      "text": "一键出三视图、",
+      "audio_span": {
+        "start": 17.969,
+        "end": 18.927
+      },
+      "script_span": {
+        "start": 130,
+        "end": 137
+      },
+      "source_method": "silencedetect_fallback_real_speech_interval_with_llm_semantic_chunk",
+      "alignment_note": "voiceover was provided for this exact script; cue text preserves script order and maps to detected speech interval",
+      "verdict": "pass"
+    },
+    {
+      "index": 14,
+      "text": "场景、",
+      "audio_span": {
+        "start": 19.037,
+        "end": 19.508
+      },
+      "script_span": {
+        "start": 137,
+        "end": 140
+      },
+      "source_method": "silencedetect_fallback_real_speech_interval_with_llm_semantic_chunk",
+      "alignment_note": "voiceover was provided for this exact script; cue text preserves script order and maps to detected speech interval",
+      "verdict": "pass"
+    },
+    {
+      "index": 15,
+      "text": "全套道具，",
+      "audio_span": {
+        "start": 19.642,
+        "end": 20.271
+      },
+      "script_span": {
+        "start": 140,
+        "end": 145
+      },
+      "source_method": "silencedetect_fallback_real_speech_interval_with_llm_semantic_chunk",
+      "alignment_note": "voiceover was provided for this exact script; cue text preserves script order and maps to detected speech interval",
+      "verdict": "pass"
+    },
+    {
+      "index": 16,
+      "text": "主角全程长相不跑偏，\n各类画风一键切换随便造。",
+      "audio_span": {
+        "start": 20.603,
+        "end": 23.763
+      },
+      "script_span": {
+        "start": 145,
+        "end": 167
+      },
+      "source_method": "silencedetect_fallback_real_speech_interval_with_llm_semantic_chunk",
+      "alignment_note": "voiceover was provided for this exact script; cue text preserves script order and maps to detected speech interval",
+      "verdict": "pass"
+    },
+    {
+      "index": 17,
+      "text": "全程云端跑，",
+      "audio_span": {
+        "start": 23.963,
+        "end": 24.84
+      },
+      "script_span": {
+        "start": 167,
+        "end": 173
+      },
+      "source_method": "silencedetect_fallback_real_speech_interval_with_llm_semantic_chunk",
+      "alignment_note": "voiceover was provided for this exact script; cue text preserves script order and maps to detected speech interval",
+      "verdict": "pass"
+    },
+    {
+      "index": 18,
+      "text": "电脑再差也不卡顿，",
+      "audio_span": {
+        "start": 25.104,
+        "end": 26.219
+      },
+      "script_span": {
+        "start": 173,
+        "end": 182
+      },
+      "source_method": "silencedetect_fallback_real_speech_interval_with_llm_semantic_chunk",
+      "alignment_note": "voiceover was provided for this exact script; cue text preserves script order and maps to detected speech interval",
+      "verdict": "pass"
+    },
+    {
+      "index": 19,
+      "text": "做完一键导出成片！",
+      "audio_span": {
+        "start": 26.322,
+        "end": 27.684
+      },
+      "script_span": {
+        "start": 182,
+        "end": 191
+      },
+      "source_method": "silencedetect_fallback_real_speech_interval_with_llm_semantic_chunk",
+      "alignment_note": "voiceover was provided for this exact script; cue text preserves script order and maps to detected speech interval",
+      "verdict": "pass"
+    }
+  ]
+}

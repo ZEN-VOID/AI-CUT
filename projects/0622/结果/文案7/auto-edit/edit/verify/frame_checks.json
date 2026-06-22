@@ -1,0 +1,56 @@
+{
+  "frames": [
+    {
+      "label": "content_hook",
+      "time": 0.8,
+      "path": "/Volumes/AIGC/AI-CUT/projects/0622/结果/文案7/auto-edit/edit/verify/frames/content_hook_0.8s.jpg"
+    },
+    {
+      "label": "tool_gemini",
+      "time": 3.6,
+      "path": "/Volumes/AIGC/AI-CUT/projects/0622/结果/文案7/auto-edit/edit/verify/frames/tool_gemini_3.6s.jpg"
+    },
+    {
+      "label": "operation_input",
+      "time": 8.6,
+      "path": "/Volumes/AIGC/AI-CUT/projects/0622/结果/文案7/auto-edit/edit/verify/frames/operation_input_8.6s.jpg"
+    },
+    {
+      "label": "tool_workflow",
+      "time": 11.6,
+      "path": "/Volumes/AIGC/AI-CUT/projects/0622/结果/文案7/auto-edit/edit/verify/frames/tool_workflow_11.6s.jpg"
+    },
+    {
+      "label": "content_result",
+      "time": 15.2,
+      "path": "/Volumes/AIGC/AI-CUT/projects/0622/结果/文案7/auto-edit/edit/verify/frames/content_result_15.2s.jpg"
+    },
+    {
+      "label": "operation_assets",
+      "time": 18.4,
+      "path": "/Volumes/AIGC/AI-CUT/projects/0622/结果/文案7/auto-edit/edit/verify/frames/operation_assets_18.4s.jpg"
+    },
+    {
+      "label": "tool_character",
+      "time": 21.6,
+      "path": "/Volumes/AIGC/AI-CUT/projects/0622/结果/文案7/auto-edit/edit/verify/frames/tool_character_21.6s.jpg"
+    },
+    {
+      "label": "tool_cloud",
+      "time": 24.6,
+      "path": "/Volumes/AIGC/AI-CUT/projects/0622/结果/文案7/auto-edit/edit/verify/frames/tool_cloud_24.6s.jpg"
+    },
+    {
+      "label": "content_tail",
+      "time": 27.0,
+      "path": "/Volumes/AIGC/AI-CUT/projects/0622/结果/文案7/auto-edit/edit/verify/frames/content_tail_27.0s.jpg"
+    }
+  ],
+  "coverage": [
+    "content",
+    "tool_display",
+    "operation_demo",
+    "subtitle_style",
+    "high_ui_text_tool_segments"
+  ]
+}

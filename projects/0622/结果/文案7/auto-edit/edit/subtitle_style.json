@@ -1,0 +1,19 @@
+{
+  "font_name": "PingFang SC",
+  "font_size": 24,
+  "primary_color": "&H00FFFFFF",
+  "outline_color": "&H00000000",
+  "outline": 2.6,
+  "shadow": 0.8,
+  "border_style": 3,
+  "back_color": "&H80000000",
+  "alignment": 2,
+  "margin_l": 54,
+  "margin_r": 54,
+  "margin_v": 44,
+  "max_chars_per_line": 15,
+  "max_lines": 2,
+  "line_break_policy": "manual_for_long_cues",
+  "preview_required": true,
+  "decision": "高密度工具界面较多，采用白字黑描边和半透明底盒，底部安全区显示。"
+}

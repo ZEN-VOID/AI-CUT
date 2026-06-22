@@ -1,0 +1,51 @@
+{
+  "final": "/Volumes/AIGC/AI-CUT/projects/0622/结果/文案1/文案1_final.mp4",
+  "ffprobe": "/Volumes/AIGC/AI-CUT/projects/0622/结果/文案1/auto-edit/edit/final_ffprobe.json",
+  "decode": {
+    "ok": true,
+    "returncode": 0,
+    "stderr": ""
+  },
+  "srt_validation": {
+    "path": "projects/0622/结果/文案1/auto-edit/edit/master.srt",
+    "ok": true,
+    "cue_count": 30,
+    "last_end": 43.578,
+    "max_duration": 2.523,
+    "errors": []
+  },
+  "dialogue_alignment_validation": {
+    "path": "projects/0622/结果/文案1/auto-edit/edit/dialogue_alignment.json",
+    "srt_path": "projects/0622/结果/文案1/auto-edit/edit/master.srt",
+    "ok": true,
+    "cue_count": 30,
+    "srt_cue_count": 30,
+    "errors": []
+  },
+  "subtitle_style_validation": {
+    "path": "projects/0622/结果/文案1/auto-edit/edit/subtitle_style.json",
+    "ok": true,
+    "errors": []
+  },
+  "visual_alignment_validation": {
+    "path": "projects/0622/结果/文案1/auto-edit/edit/visual_alignment_plan.json",
+    "dialogue_alignment": "projects/0622/结果/文案1/auto-edit/edit/dialogue_alignment.json",
+    "ok": true,
+    "material_composition_count": 9,
+    "tool_screen_count": 4,
+    "title_card_count": 0,
+    "errors": []
+  },
+  "manual_frame_review": {
+    "ok": true,
+    "checked_frames": [
+      "subtitle_style_preview/tool_high_risk_style.jpg",
+      "subtitle_style_preview/operation_high_risk_style.jpg",
+      "verify_frames/frame_42.50.jpg"
+    ],
+    "notes": "硬字幕可见；工具/操作高风险画面底盒字幕可读；未发现明显遮挡主体或关键 UI。"
+  },
+  "duration_sec": 43.724,
+  "duration_delta_vs_voiceover_sec": 0.016,
+  "overall_pass": true
+}

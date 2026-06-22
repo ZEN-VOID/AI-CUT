@@ -1,0 +1,12 @@
+{
+  "final": "/Volumes/AIGC/AI-CUT/projects/0622/结果/文案5/文案5_final.mp4",
+  "visual_base": "/Volumes/AIGC/AI-CUT/projects/0622/结果/文案5/auto-edit/edit/visual_base.mp4",
+  "render_order": [
+    "base visual segments",
+    "title cards",
+    "ASS hard subtitles",
+    "voiceover audio"
+  ],
+  "subtitle_last": true,
+  "voiceover_main_audio": "/Volumes/AIGC/AI-CUT/projects/0622/素材/音频/文案5-音频.mp3"
+}

@@ -1,0 +1,25 @@
+[mov,mp4,m4a,3gp,3g2,mj2 @ 0x7a3408280] Auto-inserting h264_mp4toannexb bitstream filter
+Input #0, concat, from '/Volumes/AIGC/AI-CUT/projects/0622/结果/文案4/auto-edit/edit/concat_segments.txt':
+  Duration: N/A, start: 0.000000, bitrate: 4316 kb/s
+  Stream #0:0(und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 1280x720 [SAR 1:1 DAR 16:9], 4316 kb/s, 30 fps, 30 tbr, 15360 tbn
+    Metadata:
+      handler_name    : VideoHandler
+      vendor_id       : [0][0][0][0]
+      encoder         : Lavc62.11.100 libx264
+Stream mapping:
+  Stream #0:0 -> #0:0 (copy)
+Output #0, mp4, to '/Volumes/AIGC/AI-CUT/projects/0622/结果/文案4/auto-edit/edit/visual_no_subtitles.mp4':
+  Metadata:
+    encoder         : Lavf62.3.100
+  Stream #0:0(und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 1280x720 [SAR 1:1 DAR 16:9], q=2-31, 4316 kb/s, 30 fps, 30 tbr, 15360 tbn
+    Metadata:
+      handler_name    : VideoHandler
+      vendor_id       : [0][0][0][0]
+      encoder         : Lavc62.11.100 libx264
+Press [q] to stop, [?] for help
+[mov,mp4,m4a,3gp,3g2,mj2 @ 0x7a3408280] Auto-inserting h264_mp4toannexb bitstream filter
+    Last message repeated 7 times
+[out#0/mp4 @ 0x7a2c358c0] video:14743KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.095010%
+frame= 1133 fps=0.0 q=-1.0 Lsize=   14758KiB time=00:00:37.69 bitrate=3206.8kbits/s speed= 458x elapsed=0:00:00.08    
+ffmpeg -hide_banner -y -f concat -safe 0 -i /Volumes/AIGC/AI-CUT/projects/0622/结果/文案4/auto-edit/edit/concat_segments.txt -c copy /Volumes/AIGC/AI-CUT/projects/0622/结果/文案4/auto-edit/edit/visual_no_subtitles.mp4
+

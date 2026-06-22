@@ -7,6 +7,9 @@
 - Work directory:
 - Master SRT:
 - Dialogue alignment:
+- Material composition:
+- Visual alignment:
+- Title-card plan:
 - Subtitle style:
 - EDL/render plan:
 - Reference notes:
@@ -25,6 +28,10 @@
 | Target duration |  |  |  |
 | Subtitle timing |  |  |  |
 | Dialogue alignment |  |  |  |
+| Material composition |  |  |  |
+| Tool-screen alignment |  |  |  |
+| Title-card alignment |  |  |  |
+| Title-card processing |  |  |  |
 | Visual mapping |  |  |  |
 | Subtitle style |  |  |  |
 | Audio mix |  |  |  |
@@ -35,6 +42,10 @@
 - ffprobe:
 - SRT validation:
 - Dialogue alignment validation:
+- Material composition validation:
+- Visual alignment validation:
+- Title-card alignment validation:
+- Title-card processing validation:
 - Subtitle style validation:
 - Frame checks:
 
@@ -43,6 +54,10 @@
 - ASR:
 - libass:
 - Font fallback:
+- Material composition fallback:
+- Tool-screen fallback:
+- Title-card fallback:
+- Title-card source/layout risk:
 - Reference rhythm:
 - Residual risk:
 

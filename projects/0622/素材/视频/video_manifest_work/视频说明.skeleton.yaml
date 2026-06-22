@@ -1,0 +1,240 @@
+schema_version: 2
+manifest_id: 0622-video-material-index
+manifest_name: F1视频素材结构化选材索引
+created_at: '2026-06-21'
+updated_at: '2026-06-21'
+base_dir: /Volumes/AIGC/AI-CUT/projects/0622/素材/视频
+purpose: 为 F1 自动剪辑提供可用于选材、截段、拼接、字幕避让和 EDL 生成的结构化素材索引。
+consumer_contract:
+  primary_consumers:
+  - F1
+  read_phase: N1-INTAKE
+  apply_phase: N5-VISUAL-PLAN
+  verify_phase: N7-VERIFY
+  authority: 素材事实索引与选材辅助层。
+  not_authority:
+  - 不得替代 ffprobe、抽帧验证、用户文案真源、旁白主时钟或最终 EDL 裁决。
+  - 不得仅凭本 YAML 判定字幕不遮挡，必须在 final 或预览帧中验证。
+  fallback: 若 YAML 缺失、解析失败、文件不存在、时长差异超过 0.25 秒或抽帧与描述冲突，F1 回退到 ffprobe + 抽帧人工观察，并在报告记录
+    manifest_mismatch。
+field_model:
+  video_level_required:
+  - id
+  - file
+  - category
+  - role
+  - media
+  - content_profile
+  - selection_profile
+  - splicing_profile
+  - subtitle_safe_zone
+  - segments
+  segment_level_required:
+  - segment_id
+  - start/end/duration_sec
+  - visual_content
+  - semantic_tags
+  - shot_type/motion/action_intensity
+  - text_overlay
+  - best_for/avoid_for
+  - splice_notes
+global_editing_policy:
+  path_resolution: videos[].file 均相对 base_dir 解析。
+  default_audio_policy: 所有视频原音只作参考，F1 final 默认以用户旁白为主音轨。
+  runtime_validation:
+  - 每次执行前重新 ffprobe。
+  - 每个入选素材至少抽 1 帧验证画面与 YAML 描述一致。
+  - 若使用 subtitle_safe_zone.risk_level 为 high 的素材，必须抽最终字幕帧验证遮挡。
+  default_clip_length_sec:
+    operation_demo:
+      min: 2.5
+      ideal: 5.0
+      max: 9.0
+    tool_display:
+      min: 2.5
+      ideal: 4.0
+      max: 7.0
+    aigc_content:
+      min: 2.0
+      ideal: 4.5
+      max: 8.0
+  selection_priority:
+  - 操作步骤、实操演示、前后对比、流程证明：优先 operation_demo。
+  - AI 工具、提示词、生成流程、剪辑软件、导入导出、资产证明：优先 tool_display。
+  - 剧情、打斗、玄幻、角色冲突、爆发、尾钩：优先 aigc_content。
+renames: []
+videos:
+- id: video-01
+  file: 工具使用/1.mp4
+  category: needs_llm
+  role: needs_llm
+  media:
+    duration_sec: 52.011
+    fps: 30/1
+    resolution: 960x720
+    codec: h264
+    has_audio: true
+  content_profile:
+    visual_summary: needs_llm
+    setting: []
+    main_subjects: []
+    color_palette: []
+    visual_density: needs_llm
+    motion_level: needs_llm
+    action_intensity: needs_llm
+    text_overlay_density: needs_llm
+    continuity_group: needs_llm
+  selection_profile:
+    best_for: []
+    avoid_for: []
+    keyword_triggers: []
+    priority: 50
+  splicing_profile:
+    preferred_clip_sec:
+      min: 2.0
+      ideal: 4.0
+      max: 7.0
+    suggested_cut_style: []
+    entry_affordance: needs_llm
+    exit_affordance: needs_llm
+    speed_tolerance: 0.9x-1.1x
+    loopability: needs_llm
+  subtitle_safe_zone:
+    risk_level: needs_llm
+    existing_text_positions: []
+    recommended_f1_position: needs_llm
+    notes: needs_llm
+  evidence:
+    ffprobe_json: /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/ffprobe/1.json
+    sample_frames:
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0000_500.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0005_137.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0009_775.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0014_412.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0019_049.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0023_687.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0028_324.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0032_962.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0037_599.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0042_236.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0046_874.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0051_511.jpg
+    observation_status: needs_llm_semantic_completion
+    directory_category_hint: tool_display
+  segments: []
+- id: video-02
+  file: 影像内容/微信视频2026-06-21_220234_765.mp4
+  category: needs_llm
+  role: needs_llm
+  media:
+    duration_sec: 15.07
+    fps: 5415/226
+    resolution: 1680x720
+    codec: h264
+    has_audio: true
+  content_profile:
+    visual_summary: needs_llm
+    setting: []
+    main_subjects: []
+    color_palette: []
+    visual_density: needs_llm
+    motion_level: needs_llm
+    action_intensity: needs_llm
+    text_overlay_density: needs_llm
+    continuity_group: needs_llm
+  selection_profile:
+    best_for: []
+    avoid_for: []
+    keyword_triggers: []
+    priority: 50
+  splicing_profile:
+    preferred_clip_sec:
+      min: 2.0
+      ideal: 4.0
+      max: 7.0
+    suggested_cut_style: []
+    entry_affordance: needs_llm
+    exit_affordance: needs_llm
+    speed_tolerance: 0.9x-1.1x
+    loopability: needs_llm
+  subtitle_safe_zone:
+    risk_level: needs_llm
+    existing_text_positions: []
+    recommended_f1_position: needs_llm
+    notes: needs_llm
+  evidence:
+    ffprobe_json: /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/ffprobe/微信视频2026-06-21_220234_765.json
+    sample_frames:
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0000_500.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0001_779.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0003_058.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0004_337.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0005_616.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0006_895.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0008_175.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0009_454.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0010_733.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0012_012.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0013_291.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0014_570.jpg
+    observation_status: needs_llm_semantic_completion
+    directory_category_hint: aigc_content
+  segments: []
+- id: video-03
+  file: 操作展示/微信视频2026-06-21_220316_527.mp4
+  category: needs_llm
+  role: needs_llm
+  media:
+    duration_sec: 11.267
+    fps: 504/17
+    resolution: 720x1280
+    codec: h264
+    has_audio: true
+  content_profile:
+    visual_summary: needs_llm
+    setting: []
+    main_subjects: []
+    color_palette: []
+    visual_density: needs_llm
+    motion_level: needs_llm
+    action_intensity: needs_llm
+    text_overlay_density: needs_llm
+    continuity_group: needs_llm
+  selection_profile:
+    best_for: []
+    avoid_for: []
+    keyword_triggers: []
+    priority: 50
+  splicing_profile:
+    preferred_clip_sec:
+      min: 2.0
+      ideal: 4.0
+      max: 7.0
+    suggested_cut_style: []
+    entry_affordance: needs_llm
+    exit_affordance: needs_llm
+    speed_tolerance: 0.9x-1.1x
+    loopability: needs_llm
+  subtitle_safe_zone:
+    risk_level: needs_llm
+    existing_text_positions: []
+    recommended_f1_position: needs_llm
+    notes: needs_llm
+  evidence:
+    ffprobe_json: /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/ffprobe/微信视频2026-06-21_220316_527.json
+    sample_frames:
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0000_500.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0001_433.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0002_367.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0003_300.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0004_233.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0005_167.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0006_100.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0007_034.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0007_967.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0008_900.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0009_834.jpg
+    - /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0010_767.jpg
+    observation_status: needs_llm_semantic_completion
+    directory_category_hint: operation_demo
+  segments: []

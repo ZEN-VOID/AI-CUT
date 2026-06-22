@@ -1,0 +1,21 @@
+{
+  "font_name": "Hiragino Sans GB",
+  "font_file": "/System/Library/Fonts/Hiragino Sans GB.ttc",
+  "font_size": 28,
+  "primary_color": "&H00FFFFFF",
+  "outline_color": "&H00000000",
+  "outline": 2,
+  "shadow": 1,
+  "border_style": 3,
+  "back_color": "&H8C000000",
+  "alignment": 2,
+  "margin_l": 52,
+  "margin_r": 52,
+  "margin_v": 46,
+  "max_chars_per_line": 18,
+  "max_lines": 2,
+  "line_break_policy": "manual",
+  "preview_required": true,
+  "fallback_font": "Hiragino Sans GB used because PingFang was not exposed as a direct system font file",
+  "safety_reason": "tool_display and operation_demo are high-density UI footage; semi-transparent box improves subtitle readability"
+}

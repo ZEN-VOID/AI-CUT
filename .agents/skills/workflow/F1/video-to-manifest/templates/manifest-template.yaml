@@ -1,0 +1,130 @@
+schema_version: 2
+manifest_id: "<dir-slug>-video-material-index"
+manifest_name: "F1 video material structured selection index"
+created_at: "YYYY-MM-DD"
+updated_at: "YYYY-MM-DD"
+base_dir: "<path/to/video-dir>"
+purpose: "为 F1 自动剪辑提供可用于选材、截段、拼接、字幕避让和 EDL 生成的结构化素材索引。"
+
+consumer_contract:
+  primary_consumers: ["F1"]
+  read_phase: "N1-INTAKE"
+  apply_phase: "N5-VISUAL-PLAN"
+  verify_phase: "N7-VERIFY"
+  authority: "素材事实索引与选材辅助层。"
+  not_authority:
+    - "不得替代 ffprobe、抽帧验证、用户文案真源、旁白主时钟或最终 EDL 裁决。"
+    - "不得仅凭本 YAML 判定字幕不遮挡，必须在 final 或预览帧中验证。"
+  fallback: "若 YAML 缺失、解析失败、文件不存在、时长差异超过 0.25 秒或抽帧与描述冲突，F1 回退到 ffprobe + 抽帧人工观察，并在报告记录 manifest_mismatch。"
+
+field_model:
+  video_level_required:
+    - "id: 稳定素材 ID，EDL 和报告中引用。"
+    - "file: 相对 base_dir 的真实文件名。"
+    - "category: operation_demo、tool_display、aigc_content、reference_only 或 other。"
+    - "media: duration_sec、fps、resolution、codec、has_audio。"
+    - "content_profile: 视频整体画面、角色、场景、色彩、信息密度和动作强度。"
+    - "selection_profile: 适用文案、避用文案、关键词触发和优先级。"
+    - "splicing_profile: 推荐切段长度、拼接风格、入点/出点承接能力。"
+    - "subtitle_safe_zone: 既有字幕/界面文字风险和 F1 字幕建议位置。"
+    - "segments: 可直接用于 EDL 候选的片段列表。"
+  segment_level_required:
+    - "segment_id: 视频内稳定片段 ID。"
+    - "start/end/duration_sec: 可截取时间范围。"
+    - "visual_content: 画面内容细节。"
+    - "semantic_tags: 可与文案语义匹配的标签。"
+    - "shot_type/motion/action_intensity: 拼接节奏判断字段。"
+    - "text_overlay: 画面文字/字幕情况。"
+    - "operation_state: 操作展示片段的动作阶段；operation_demo 推荐填写。"
+    - "tool_state: 工具展示片段的界面状态；tool_display 推荐填写。"
+    - "best_for/avoid_for: 选段适配和避用场景。"
+    - "splice_notes: 切入、切出、字幕避让或连续性说明。"
+
+global_editing_policy:
+  path_resolution: "videos[].file 均相对 base_dir 解析。"
+  default_audio_policy: "所有视频原音只作参考，F1 final 默认以用户旁白为主音轨。"
+  runtime_validation:
+    - "每次执行前重新 ffprobe。"
+    - "每个入选素材至少抽 1 帧验证画面与 YAML 描述一致。"
+    - "若使用 subtitle_safe_zone.risk_level 为 high 的素材，必须抽最终字幕帧验证遮挡。"
+  default_clip_length_sec:
+    operation_demo: { min: 2.5, ideal: 5.0, max: 9.0 }
+    tool_display: { min: 2.5, ideal: 4.0, max: 7.0 }
+    aigc_content: { min: 2.0, ideal: 4.5, max: 8.0 }
+  selection_priority:
+    - "操作步骤、实操演示、前后对比、流程证明：优先 operation_demo。"
+    - "AI 工具、提示词、生成流程、剪辑软件、导入导出、资产证明：优先 tool_display。"
+    - "剧情、打斗、玄幻、角色冲突、爆发、尾钩：优先 aigc_content。"
+    - "同一语义段内优先连续使用同 category，避免工具段和剧情段频繁硬切。"
+    - "短强视觉点优先放在旁白重音、反转句、承诺句和尾钩。"
+
+directory_category_mapping:
+  "操作展示": "operation_demo"
+  "工具使用": "tool_display"
+  "影像内容": "aigc_content"
+  conflict_policy: "目录映射是项目分类信号；若抽帧证据与目录类型冲突，写 category_mismatch_reason 并进入复核。"
+
+renames: []
+
+videos:
+  - id: "content-01"
+    file: "<relative-video-path.mp4>"
+    category: "aigc_content"
+    role: "<LLM 根据视频证据填写>"
+    media:
+      duration_sec: 0.0
+      fps: "30/1"
+      resolution: "1280x720"
+      codec: "h264"
+      has_audio: true
+    content_profile:
+      visual_summary: "<LLM 根据抽帧填写>"
+      setting: []
+      main_subjects: []
+      color_palette: []
+      visual_density: "medium"
+      motion_level: "medium"
+      action_intensity: "medium"
+      text_overlay_density: "low"
+      continuity_group: "<group-slug>"
+    selection_profile:
+      best_for: []
+      avoid_for: []
+      keyword_triggers: []
+      priority: 80
+    splicing_profile:
+      preferred_clip_sec: { min: 2.0, ideal: 4.5, max: 8.0 }
+      suggested_cut_style: []
+      entry_affordance: "<LLM 根据画面填写>"
+      exit_affordance: "<LLM 根据画面填写>"
+      speed_tolerance: "0.9x-1.15x"
+      loopability: "medium"
+    subtitle_safe_zone:
+      risk_level: "medium"
+      existing_text_positions: []
+      recommended_f1_position: "bottom_center"
+      notes: "<字幕遮挡风险说明>"
+    evidence:
+      ffprobe_json: "<work-dir>/ffprobe/<video>.json"
+      sample_frames: []
+      observation_status: "llm_authored"
+      llm_observation_summary: "<简述关键证据>"
+      directory_category_hint: "<operation_demo/tool_display/aigc_content/none>"
+    segments:
+      - segment_id: "content-01-s01"
+        start: "00:00.000"
+        end: "00:04.000"
+        duration_sec: 4.0
+        label: "<片段标签>"
+        visual_content: "<LLM 根据片段帧填写>"
+        semantic_tags: []
+        shot_type: "medium"
+        motion: "medium"
+        action_intensity: "medium"
+        text_overlay: "low"
+        operation_state: null
+        tool_state: null
+        best_for: []
+        avoid_for: []
+        splice_notes: "<切入、切出、字幕避让或连续性说明>"
+        evidence_frames: []

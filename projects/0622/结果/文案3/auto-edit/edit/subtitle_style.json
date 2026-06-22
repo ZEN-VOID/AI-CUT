@@ -1,0 +1,26 @@
+{
+  "font_name": "Arial Unicode MS",
+  "font_fallback_reason": "PingFang SC was not matched by fontconfig; Arial Unicode MS is available and supports Chinese glyphs on this machine.",
+  "font_size": 25,
+  "primary_color": "&H00FFFFFF",
+  "outline_color": "&H00000000",
+  "outline": 3,
+  "shadow": 1,
+  "border_style": 3,
+  "back_color": "&H78000000",
+  "alignment": 2,
+  "margin_l": 60,
+  "margin_r": 60,
+  "margin_v": 42,
+  "max_chars_per_line": 15,
+  "max_lines": 2,
+  "line_break_policy": "manual_for_long_cues_auto_safe_otherwise",
+  "preview_required": true,
+  "target_resolution": "1280x720",
+  "verdict": "pass",
+  "preview_frames": [
+    "style_preview/final_23_80_longest_cue.jpg",
+    "style_preview/final_27_00_tool_close.jpg"
+  ],
+  "preview_note": "Frames inspected: boxed subtitles are readable on dense UI, vertical operation, and AIGC content."
+}

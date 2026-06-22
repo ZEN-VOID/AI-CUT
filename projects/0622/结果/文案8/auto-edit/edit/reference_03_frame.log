@@ -1,0 +1,42 @@
+COMMAND:
+ffmpeg -y -hide_banner -ss 1 -i /Volumes/AIGC/AI-CUT/projects/0622/示例/微信视频2026-06-20_230418_487.mp4 -frames:v 1 -q:v 2 /Volumes/AIGC/AI-CUT/projects/0622/结果/文案8/auto-edit/edit/reference_frames/reference_03.jpg
+
+STDOUT:
+
+
+STDERR:
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/Volumes/AIGC/AI-CUT/projects/0622/示例/微信视频2026-06-20_230418_487.mp4':
+  Metadata:
+    minor_version   : 512
+    major_brand     : isom
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf58.20.100
+  Duration: 00:01:00.60, start: 0.000000, bitrate: 1416 kb/s
+  Stream #0:0[0x1](und): Video: h264 (Main) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 1280x720, 1337 kb/s, SAR 1:1 DAR 16:9, 30 fps, 30 tbr, 15360 tbn (default)
+    Metadata:
+      handler_name    : VideoHandler
+      vendor_id       : [0][0][0][0]
+  Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 72 kb/s (default)
+    Metadata:
+      handler_name    : SoundHandler
+      vendor_id       : [0][0][0][0]
+Stream mapping:
+  Stream #0:0 -> #0:0 (h264 (native) -> mjpeg (native))
+Press [q] to stop, [?] for help
+Output #0, image2, to '/Volumes/AIGC/AI-CUT/projects/0622/结果/文案8/auto-edit/edit/reference_frames/reference_03.jpg':
+  Metadata:
+    minor_version   : 512
+    major_brand     : isom
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf62.3.100
+  Stream #0:0(und): Video: mjpeg, yuv420p(pc, bt709, progressive), 1280x720 [SAR 1:1 DAR 16:9], q=2-31, 200 kb/s, 30 fps, 30 tbn (default)
+    Metadata:
+      encoder         : Lavc62.11.100 mjpeg
+      handler_name    : VideoHandler
+      vendor_id       : [0][0][0][0]
+    Side data:
+      cpb: bitrate max/min/avg: 0/0/200000 buffer size: 0 vbv_delay: N/A
+[image2 @ 0xb1905b700] The specified filename '/Volumes/AIGC/AI-CUT/projects/0622/结果/文案8/auto-edit/edit/reference_frames/reference_03.jpg' does not contain an image sequence pattern or a pattern is invalid.
+[image2 @ 0xb1905b700] Use a pattern such as %03d for an image sequence or use the -update option (with -frames:v 1 if needed) to write a single image.
+[out#0/image2 @ 0xb18c243c0] video:139KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
+frame=    1 fps=0.0 q=2.0 Lsize=N/A time=00:00:00.03 bitrate=N/A speed= 1.1x elapsed=0:00:00.03    

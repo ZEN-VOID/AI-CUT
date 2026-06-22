@@ -1,0 +1,97 @@
+{
+  "reference_dir": "/Volumes/AIGC/AI-CUT/projects/0622/示例",
+  "reference_count": 5,
+  "items": [
+    {
+      "file": "/Volumes/AIGC/AI-CUT/projects/0622/示例/微信视频2026-06-20_230344_729.mp4",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "width": 1280,
+            "height": 720,
+            "avg_frame_rate": "30/1",
+            "duration": "42.266667"
+          }
+        ],
+        "format": {
+          "duration": "42.282993"
+        }
+      }
+    },
+    {
+      "file": "/Volumes/AIGC/AI-CUT/projects/0622/示例/微信视频2026-06-20_230409_530.mp4",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "width": 1280,
+            "height": 720,
+            "avg_frame_rate": "30/1",
+            "duration": "48.500000"
+          }
+        ],
+        "format": {
+          "duration": "48.500000"
+        }
+      }
+    },
+    {
+      "file": "/Volumes/AIGC/AI-CUT/projects/0622/示例/微信视频2026-06-20_230418_487.mp4",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "width": 1280,
+            "height": 720,
+            "avg_frame_rate": "30/1",
+            "duration": "60.600000"
+          }
+        ],
+        "format": {
+          "duration": "60.603991"
+        }
+      }
+    },
+    {
+      "file": "/Volumes/AIGC/AI-CUT/projects/0622/示例/微信视频2026-06-20_230430_501.mp4",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "width": 1280,
+            "height": 592,
+            "avg_frame_rate": "30/1",
+            "duration": "17.300000"
+          }
+        ],
+        "format": {
+          "duration": "17.321995"
+        }
+      }
+    },
+    {
+      "file": "/Volumes/AIGC/AI-CUT/projects/0622/示例/微信视频2026-06-20_230437_789.mp4",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "width": 1280,
+            "height": 592,
+            "avg_frame_rate": "30/1",
+            "duration": "52.433333"
+          }
+        ],
+        "format": {
+          "duration": "52.453991"
+        }
+      }
+    }
+  ],
+  "applied_rhythm": "Use 3-6s visual segments, 1280x720 landscape target, hard subtitles near bottom, title-card emphasis only on key cues."
+}

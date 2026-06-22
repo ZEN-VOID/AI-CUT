@@ -1,0 +1,120 @@
+{
+  "reference_dir": "projects/0622/示例",
+  "reference_count": 5,
+  "summary": {
+    "dominant_resolution": "1280x720 or 1280x592",
+    "rhythm_decision": "short-form reference set; use quick proof/result alternation, 1280x720 landscape final, bottom boxed subtitles for dense UI sections"
+  },
+  "items": [
+    {
+      "file": "projects/0622/示例/微信视频2026-06-20_230344_729.mp4",
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          },
+          {
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "30/1"
+          }
+        ],
+        "format": {
+          "duration": "42.282993"
+        }
+      }
+    },
+    {
+      "file": "projects/0622/示例/微信视频2026-06-20_230409_530.mp4",
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          },
+          {
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "30/1"
+          }
+        ],
+        "format": {
+          "duration": "48.500000"
+        }
+      }
+    },
+    {
+      "file": "projects/0622/示例/微信视频2026-06-20_230418_487.mp4",
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "30/1"
+          },
+          {
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "60.603991"
+        }
+      }
+    },
+    {
+      "file": "projects/0622/示例/微信视频2026-06-20_230430_501.mp4",
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 1280,
+            "height": 592,
+            "r_frame_rate": "30/1"
+          },
+          {
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "17.321995"
+        }
+      }
+    },
+    {
+      "file": "projects/0622/示例/微信视频2026-06-20_230437_789.mp4",
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 1280,
+            "height": 592,
+            "r_frame_rate": "30/1"
+          },
+          {
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "52.453991"
+        }
+      }
+    }
+  ]
+}

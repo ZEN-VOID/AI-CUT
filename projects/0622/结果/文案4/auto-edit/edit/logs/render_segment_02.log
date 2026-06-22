@@ -1,0 +1,54 @@
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/工具使用/1.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf59.14.100
+  Duration: 00:00:52.01, start: 0.000000, bitrate: 1754 kb/s
+  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709/smpte432/bt709, progressive), 960x720, 1691 kb/s, 30 fps, 30 tbr, 90k tbn (default)
+    Metadata:
+      handler_name    : VideoHandler
+      vendor_id       : [0][0][0][0]
+  Stream #0:1[0x2](und): Audio: aac (HE-AAC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 56 kb/s (default)
+    Metadata:
+      handler_name    : SoundHandler
+      vendor_id       : [0][0][0][0]
+Stream mapping:
+  Stream #0:0 -> #0:0 (h264 (native) -> h264 (libx264))
+Press [q] to stop, [?] for help
+[libx264 @ 0x958c54e00] using SAR=1/1
+[libx264 @ 0x958c54e00] using cpu capabilities: ARMv8 NEON DotProd I8MM
+[libx264 @ 0x958c54e00] profile High, level 3.1, 4:2:0, 8-bit
+[libx264 @ 0x958c54e00] 264 - core 165 r3222 b35605a - H.264/MPEG-4 AVC codec - Copyleft 2003-2025 - http://www.videolan.org/x264.html - options: cabac=1 ref=1 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=2 psy=1 psy_rd=1.00:0.00 mixed_ref=0 me_range=16 chroma_me=1 trellis=0 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=0 threads=15 lookahead_threads=5 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=1 keyint=250 keyint_min=25 scenecut=40 intra_refresh=0 rc_lookahead=10 rc=crf mbtree=1 crf=18.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+Output #0, mp4, to '/Volumes/AIGC/AI-CUT/projects/0622/结果/文案4/auto-edit/edit/segments/segment_02.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf62.3.100
+  Stream #0:0(und): Video: h264 (avc1 / 0x31637661), yuv420p(tv, bt709/smpte432/bt709, progressive), 1280x720 [SAR 1:1 DAR 16:9], q=2-31, 30 fps, 15360 tbn (default)
+    Metadata:
+      encoder         : Lavc62.11.100 libx264
+      handler_name    : VideoHandler
+      vendor_id       : [0][0][0][0]
+    Side data:
+      cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
+[out#0/mp4 @ 0x9588143c0] video:1576KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.148757%
+frame=  126 fps=0.0 q=-1.0 Lsize=    1578KiB time=00:00:04.13 bitrate=3127.3kbits/s speed=8.32x elapsed=0:00:00.49    
+[libx264 @ 0x958c54e00] frame I:1     Avg QP:14.55  size: 61353
+[libx264 @ 0x958c54e00] frame P:33    Avg QP:16.91  size: 27922
+[libx264 @ 0x958c54e00] frame B:92    Avg QP:22.34  size:  6847
+[libx264 @ 0x958c54e00] consecutive B-frames:  0.8%  3.2%  7.1% 88.9%
+[libx264 @ 0x958c54e00] mb I  I16..4: 42.8% 17.5% 39.7%
+[libx264 @ 0x958c54e00] mb P  I16..4: 15.7%  6.8%  3.7%  P16..4: 23.8% 13.4%  8.1%  0.0%  0.0%    skip:28.5%
+[libx264 @ 0x958c54e00] mb B  I16..4:  1.8%  0.9%  0.2%  B16..8: 20.2%  8.6%  1.4%  direct: 5.4%  skip:61.4%  L0:41.7% L1:39.9% BI:18.4%
+[libx264 @ 0x958c54e00] 8x8 transform intra:26.1% inter:22.1%
+[libx264 @ 0x958c54e00] coded y,uvDC,uvAC intra: 30.8% 32.8% 14.5% inter: 10.6% 7.1% 1.3%
+[libx264 @ 0x958c54e00] i16 v,h,dc,p: 57% 28% 10%  5%
+[libx264 @ 0x958c54e00] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 13% 43% 31%  1%  3%  2%  4%  1%  2%
+[libx264 @ 0x958c54e00] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 22% 44% 18%  1%  4%  2%  3%  2%  3%
+[libx264 @ 0x958c54e00] i8c dc,h,v,p: 61% 23% 13%  3%
+[libx264 @ 0x958c54e00] Weighted P-Frames: Y:3.0% UV:3.0%
+[libx264 @ 0x958c54e00] kb/s:3071.78
+ffmpeg -hide_banner -y -ss 0.000 -i /Volumes/AIGC/AI-CUT/projects/0622/素材/视频/工具使用/1.mp4 -t 4.214 -an -vf scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2:color=black,setsar=1,fps=30,format=yuv420p -r 30 -c:v libx264 -preset veryfast -crf 18 /Volumes/AIGC/AI-CUT/projects/0622/结果/文案4/auto-edit/edit/segments/segment_02.mp4
+

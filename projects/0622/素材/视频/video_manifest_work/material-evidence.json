@@ -1,0 +1,273 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-06-21T22:24:56",
+  "target": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频",
+  "base_dir": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频",
+  "work_dir": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work",
+  "video_count": 3,
+  "videos": [
+    {
+      "file": "工具使用/1.mp4",
+      "absolute_path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/工具使用/1.mp4",
+      "directory_category_hint": "tool_display",
+      "media": {
+        "duration_sec": 52.011,
+        "fps": "30/1",
+        "resolution": "960x720",
+        "codec": "h264",
+        "has_audio": true
+      },
+      "ffprobe_json": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/ffprobe/1.json",
+      "sample_frames": [
+        {
+          "timestamp_sec": 0.5,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0000_500.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 5.137,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0005_137.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 9.775,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0009_775.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 14.412,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0014_412.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 19.049,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0019_049.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 23.687,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0023_687.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 28.324,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0028_324.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 32.962,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0032_962.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 37.599,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0037_599.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 42.236,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0042_236.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 46.874,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0046_874.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 51.511,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/1/0051_511.jpg",
+          "ok": true,
+          "error": ""
+        }
+      ]
+    },
+    {
+      "file": "影像内容/微信视频2026-06-21_220234_765.mp4",
+      "absolute_path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/影像内容/微信视频2026-06-21_220234_765.mp4",
+      "directory_category_hint": "aigc_content",
+      "media": {
+        "duration_sec": 15.07,
+        "fps": "5415/226",
+        "resolution": "1680x720",
+        "codec": "h264",
+        "has_audio": true
+      },
+      "ffprobe_json": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/ffprobe/微信视频2026-06-21_220234_765.json",
+      "sample_frames": [
+        {
+          "timestamp_sec": 0.5,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0000_500.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 1.779,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0001_779.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 3.058,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0003_058.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 4.337,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0004_337.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 5.616,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0005_616.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 6.895,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0006_895.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 8.175,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0008_175.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 9.454,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0009_454.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 10.733,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0010_733.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 12.012,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0012_012.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 13.291,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0013_291.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 14.57,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220234_765/0014_570.jpg",
+          "ok": true,
+          "error": ""
+        }
+      ]
+    },
+    {
+      "file": "操作展示/微信视频2026-06-21_220316_527.mp4",
+      "absolute_path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/操作展示/微信视频2026-06-21_220316_527.mp4",
+      "directory_category_hint": "operation_demo",
+      "media": {
+        "duration_sec": 11.267,
+        "fps": "504/17",
+        "resolution": "720x1280",
+        "codec": "h264",
+        "has_audio": true
+      },
+      "ffprobe_json": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/ffprobe/微信视频2026-06-21_220316_527.json",
+      "sample_frames": [
+        {
+          "timestamp_sec": 0.5,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0000_500.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 1.433,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0001_433.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 2.367,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0002_367.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 3.3,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0003_300.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 4.233,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0004_233.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 5.167,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0005_167.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 6.1,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0006_100.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 7.034,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0007_034.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 7.967,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0007_967.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 8.9,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0008_900.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 9.834,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0009_834.jpg",
+          "ok": true,
+          "error": ""
+        },
+        {
+          "timestamp_sec": 10.767,
+          "path": "/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/video_manifest_work/frames/微信视频2026-06-21_220316_527/0010_767.jpg",
+          "ok": true,
+          "error": ""
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "authorship_boundary": "This packet contains mechanical evidence only. LLM/operator must author final semantic manifest fields."
+}

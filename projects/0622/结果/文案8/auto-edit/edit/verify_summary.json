@@ -1,0 +1,78 @@
+{
+  "final": "projects/0622/结果/文案8/文案8_final.mp4",
+  "pre_wrap_fix_backup": "projects/0622/结果/文案8/文案8_final_pre_srt_wrap_fix_20260622_225042.mp4",
+  "decode_verdict": "pass",
+  "srt_structure_verdict": "pass",
+  "max_display_cue_duration": 3.529,
+  "dialogue_alignment_verdict": "pass_with_fallback_risk",
+  "material_composition_verdict": "pass",
+  "visual_alignment_verdict": "pass_with_risk",
+  "title_card_processing_verdict": "n/a_not_enabled",
+  "subtitle_style_verdict": "pass_by_preview_and_final_frame_extraction",
+  "frames": [
+    {
+      "time": 0.8,
+      "path": "projects/0622/结果/文案8/auto-edit/edit/verify_20260622/frame_0_8.jpg",
+      "status": "pass"
+    },
+    {
+      "time": 3.2,
+      "path": "projects/0622/结果/文案8/auto-edit/edit/verify_20260622/frame_3_2.jpg",
+      "status": "pass"
+    },
+    {
+      "time": 4.6,
+      "path": "projects/0622/结果/文案8/auto-edit/edit/verify_20260622/frame_4_6.jpg",
+      "status": "pass"
+    },
+    {
+      "time": 7.5,
+      "path": "projects/0622/结果/文案8/auto-edit/edit/verify_20260622/frame_7_5.jpg",
+      "status": "pass"
+    },
+    {
+      "time": 10.5,
+      "path": "projects/0622/结果/文案8/auto-edit/edit/verify_20260622/frame_10_5.jpg",
+      "status": "pass"
+    },
+    {
+      "time": 14.2,
+      "path": "projects/0622/结果/文案8/auto-edit/edit/verify_20260622/frame_14_2.jpg",
+      "status": "pass"
+    },
+    {
+      "time": 19.6,
+      "path": "projects/0622/结果/文案8/auto-edit/edit/verify_20260622/frame_19_6.jpg",
+      "status": "pass"
+    },
+    {
+      "time": 21.0,
+      "path": "projects/0622/结果/文案8/auto-edit/edit/verify_20260622/frame_21_0.jpg",
+      "status": "pass"
+    },
+    {
+      "time": 25.4,
+      "path": "projects/0622/结果/文案8/auto-edit/edit/verify_20260622/frame_25_4.jpg",
+      "status": "pass"
+    },
+    {
+      "time": 28.5,
+      "path": "projects/0622/结果/文案8/auto-edit/edit/verify_20260622/frame_28_5.jpg",
+      "status": "pass"
+    },
+    {
+      "time": 30.7,
+      "path": "projects/0622/结果/文案8/auto-edit/edit/verify_20260622/frame_30_7.jpg",
+      "status": "pass"
+    },
+    {
+      "time": 32.2,
+      "path": "projects/0622/结果/文案8/auto-edit/edit/verify_20260622/frame_32_2.jpg",
+      "status": "pass"
+    }
+  ],
+  "residual_risks": [
+    "No word-level ASR was available; dialogue alignment is based on silence intervals and script order.",
+    "The script mentions multiple style conversions, but provided visual素材 only includes one ancient fantasy result; final uses available content as tail showcase."
+  ]
+}

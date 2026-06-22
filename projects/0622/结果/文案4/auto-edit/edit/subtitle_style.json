@@ -1,0 +1,19 @@
+{
+  "font_name": "PingFang SC",
+  "font_size": 24,
+  "primary_color": "&H00FFFFFF",
+  "outline_color": "&H00000000",
+  "outline": 2.2,
+  "shadow": 0.8,
+  "border_style": 3,
+  "back_color": "&H80000000",
+  "alignment": 2,
+  "margin_l": 48,
+  "margin_r": 48,
+  "margin_v": 42,
+  "max_chars_per_line": 14,
+  "max_lines": 2,
+  "line_break_policy": "auto-safe-in-ass-render",
+  "preview_required": true,
+  "style_reason": "工具和操作素材文字密集，采用底部半透明底盒、白字黑描边提高可读性。"
+}

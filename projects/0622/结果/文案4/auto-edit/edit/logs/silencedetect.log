@@ -1,0 +1,88 @@
+Input #0, mp3, from 'projects/0622/素材/音频/文案4-音频.mp3':
+  Metadata:
+    AIGC            : {"Label":"1","ContentProducer":"MiniMax","ProduceID":"0687f4180458a024876b28c87b1d5030","ReservedCode1":"{\"SecurityData\":{\"Type\":\"TC260PG\",\"Version\":1,\"PubSD\":[{\"Type\":\"DS\",\"AlgID\":\"1.2.156.10197.1.501\",\"TBSData\":{\"Type\":\"LabelMataD
+    encoder         : Lavf59.27.100
+  Duration: 00:00:37.80, start: 0.016531, bitrate: 128 kb/s
+  Stream #0:0: Audio: mp3 (mp3float), 32000 Hz, mono, fltp, 128 kb/s, start 0.016531
+Stream mapping:
+  Stream #0:0 -> #0:0 (mp3 (mp3float) -> pcm_s16le (native))
+Press [q] to stop, [?] for help
+Output #0, null, to 'pipe:':
+  Metadata:
+    AIGC            : {"Label":"1","ContentProducer":"MiniMax","ProduceID":"0687f4180458a024876b28c87b1d5030","ReservedCode1":"{\"SecurityData\":{\"Type\":\"TC260PG\",\"Version\":1,\"PubSD\":[{\"Type\":\"DS\",\"AlgID\":\"1.2.156.10197.1.501\",\"TBSData\":{\"Type\":\"LabelMataD
+    encoder         : Lavf62.3.100
+  Stream #0:0: Audio: pcm_s16le, 32000 Hz, mono, s16, 512 kb/s
+    Metadata:
+      encoder         : Lavc62.11.100 pcm_s16le
+[silencedetect @ 0xbc34983c0] silence_start: 0
+[silencedetect @ 0xbc34983c0] silence_end: 0.119063 | silence_duration: 0.119063
+[silencedetect @ 0xbc34983c0] silence_start: 1.291875
+[silencedetect @ 0xbc34983c0] silence_end: 1.560281 | silence_duration: 0.268406
+[silencedetect @ 0xbc34983c0] silence_start: 1.854375
+[silencedetect @ 0xbc34983c0] silence_end: 1.951594 | silence_duration: 0.0972188
+[silencedetect @ 0xbc34983c0] silence_start: 2.765062
+[silencedetect @ 0xbc34983c0] silence_end: 3.000719 | silence_duration: 0.235656
+[silencedetect @ 0xbc34983c0] silence_start: 3.807781
+[silencedetect @ 0xbc34983c0] silence_end: 4.217187 | silence_duration: 0.409406
+[silencedetect @ 0xbc34983c0] silence_start: 5.169437
+[silencedetect @ 0xbc34983c0] silence_end: 5.360844 | silence_duration: 0.191406
+[silencedetect @ 0xbc34983c0] silence_start: 6.226031
+[silencedetect @ 0xbc34983c0] silence_end: 6.414281 | silence_duration: 0.18825
+[silencedetect @ 0xbc34983c0] silence_start: 6.979125
+[silencedetect @ 0xbc34983c0] silence_end: 7.492344 | silence_duration: 0.513219
+[silencedetect @ 0xbc34983c0] silence_start: 8.798125
+[silencedetect @ 0xbc34983c0] silence_end: 9.123781 | silence_duration: 0.325656
+[silencedetect @ 0xbc34983c0] silence_start: 10.126406
+[silencedetect @ 0xbc34983c0] silence_end: 10.572563 | silence_duration: 0.446156
+[silencedetect @ 0xbc34983c0] silence_start: 10.917375
+[silencedetect @ 0xbc34983c0] silence_end: 11.193719 | silence_duration: 0.276344
+[silencedetect @ 0xbc34983c0] silence_start: 12.314156
+[silencedetect @ 0xbc34983c0] silence_end: 12.555594 | silence_duration: 0.241437
+[silencedetect @ 0xbc34983c0] silence_start: 13.189781
+[silencedetect @ 0xbc34983c0] silence_end: 13.27275 | silence_duration: 0.0829688
+[silencedetect @ 0xbc34983c0] silence_start: 13.914219
+[silencedetect @ 0xbc34983c0] silence_end: 14.242156 | silence_duration: 0.327937
+[silencedetect @ 0xbc34983c0] silence_start: 15.849094
+[silencedetect @ 0xbc34983c0] silence_end: 16.126594 | silence_duration: 0.2775
+[silencedetect @ 0xbc34983c0] silence_start: 17.083219
+[silencedetect @ 0xbc34983c0] silence_end: 17.169313 | silence_duration: 0.0860937
+[silencedetect @ 0xbc34983c0] silence_start: 18.006219
+[silencedetect @ 0xbc34983c0] silence_end: 18.315719 | silence_duration: 0.3095
+[silencedetect @ 0xbc34983c0] silence_start: 18.940062
+[silencedetect @ 0xbc34983c0] silence_end: 19.023156 | silence_duration: 0.0830938
+[silencedetect @ 0xbc34983c0] silence_start: 19.870563
+[silencedetect @ 0xbc34983c0] silence_end: 19.970031 | silence_duration: 0.0994688
+[silencedetect @ 0xbc34983c0] silence_start: 20.770437
+[silencedetect @ 0xbc34983c0] silence_end: 21.130375 | silence_duration: 0.359938
+[silencedetect @ 0xbc34983c0] silence_start: 23.345969
+[silencedetect @ 0xbc34983c0] silence_end: 23.698937 | silence_duration: 0.352969
+[silencedetect @ 0xbc34983c0] silence_start: 24.310469
+[silencedetect @ 0xbc34983c0] silence_end: 24.391906 | silence_duration: 0.0814375
+[silencedetect @ 0xbc34983c0] silence_start: 25.178219
+[silencedetect @ 0xbc34983c0] silence_end: 25.383625 | silence_duration: 0.205406
+[silencedetect @ 0xbc34983c0] silence_start: 25.92375
+[silencedetect @ 0xbc34983c0] silence_end: 26.095281 | silence_duration: 0.171531
+[silencedetect @ 0xbc34983c0] silence_start: 26.837031
+[silencedetect @ 0xbc34983c0] silence_end: 27.342437 | silence_duration: 0.505406
+[silencedetect @ 0xbc34983c0] silence_start: 28.882969
+[silencedetect @ 0xbc34983c0] silence_end: 29.384125 | silence_duration: 0.501156
+[silencedetect @ 0xbc34983c0] silence_start: 29.77075
+[silencedetect @ 0xbc34983c0] silence_end: 30.174719 | silence_duration: 0.403969
+[silencedetect @ 0xbc34983c0] silence_start: 30.672563
+[silencedetect @ 0xbc34983c0] silence_end: 31.087031 | silence_duration: 0.414469
+[silencedetect @ 0xbc34983c0] silence_start: 31.713406
+[silencedetect @ 0xbc34983c0] silence_end: 32.160344 | silence_duration: 0.446937
+[silencedetect @ 0xbc34983c0] silence_start: 32.954563
+[silencedetect @ 0xbc34983c0] silence_end: 33.078625 | silence_duration: 0.124063
+[silencedetect @ 0xbc34983c0] silence_start: 33.952562
+[silencedetect @ 0xbc34983c0] silence_end: 34.405031 | silence_duration: 0.452469
+[silencedetect @ 0xbc34983c0] silence_start: 34.947563
+[silencedetect @ 0xbc34983c0] silence_end: 35.044719 | silence_duration: 0.0971562
+[silencedetect @ 0xbc34983c0] silence_start: 35.856344
+[silencedetect @ 0xbc34983c0] silence_end: 36.236 | silence_duration: 0.379656
+[silencedetect @ 0xbc34983c0] silence_start: 36.783437
+[silencedetect @ 0xbc34983c0] silence_end: 36.923313 | silence_duration: 0.139875
+[silencedetect @ 0xbc34983c0] silence_start: 37.6085
+[silencedetect @ 0xbc34983c0] silence_end: 37.783469 | silence_duration: 0.174969
+[out#0/null @ 0xbc3004840] video:0KiB audio:2361KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
+size=N/A time=00:00:37.78 bitrate=N/A speed=1.09e+03x elapsed=0:00:00.03    

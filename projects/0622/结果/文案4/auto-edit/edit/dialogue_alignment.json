@@ -1,0 +1,396 @@
+{
+  "schema_version": 1,
+  "script_path": "projects/0622/素材/文案/文案4.md",
+  "voiceover_path": "projects/0622/素材/音频/文案4-音频.mp3",
+  "srt_path": "projects/0622/结果/文案4/auto-edit/edit/master.srt",
+  "method": "silencedetect n=-35dB d=0.08; min_pause=0.18",
+  "voice_duration": 37.8,
+  "asr_status": "not_available_fallback_used",
+  "cues": [
+    {
+      "index": 1,
+      "text": "做 AI 漫剧的朋友们注意",
+      "audio_span": {
+        "start": 0.074,
+        "end": 1.362
+      },
+      "script_span": {
+        "start_char_compact": 0,
+        "end_char_compact": 11,
+        "source_text": "做 AI 漫剧的朋友们注意"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    },
+    {
+      "index": 2,
+      "text": "行业迎来重大变革",
+      "audio_span": {
+        "start": 1.515,
+        "end": 2.835
+      },
+      "script_span": {
+        "start_char_compact": 12,
+        "end_char_compact": 20,
+        "source_text": "行业迎来重大变革"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    },
+    {
+      "index": 3,
+      "text": "Gemini Three",
+      "audio_span": {
+        "start": 2.956,
+        "end": 3.878
+      },
+      "script_span": {
+        "start_char_compact": 21,
+        "end_char_compact": 32,
+        "source_text": "Gemini Three"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    },
+    {
+      "index": 4,
+      "text": "和 GPT Images Two 上线后",
+      "audio_span": {
+        "start": 4.172,
+        "end": 5.239
+      },
+      "script_span": {
+        "start_char_compact": 32,
+        "end_char_compact": 48,
+        "source_text": "和 GPT Images Two 上线后"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    },
+    {
+      "index": 5,
+      "text": "整个赛道的竞争",
+      "audio_span": {
+        "start": 5.316,
+        "end": 6.296
+      },
+      "script_span": {
+        "start_char_compact": 49,
+        "end_char_compact": 56,
+        "source_text": "整个赛道的竞争"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    },
+    {
+      "index": 6,
+      "text": "基本落幕了",
+      "audio_span": {
+        "start": 6.369,
+        "end": 7.049
+      },
+      "script_span": {
+        "start_char_compact": 56,
+        "end_char_compact": 61,
+        "source_text": "基本落幕了"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    },
+    {
+      "index": 7,
+      "text": "这款工具操作特别简单",
+      "audio_span": {
+        "start": 7.447,
+        "end": 8.868
+      },
+      "script_span": {
+        "start_char_compact": 62,
+        "end_char_compact": 72,
+        "source_text": "这款工具操作特别简单"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    },
+    {
+      "index": 8,
+      "text": "把小说上传进去",
+      "audio_span": {
+        "start": 9.079,
+        "end": 10.196
+      },
+      "script_span": {
+        "start_char_compact": 73,
+        "end_char_compact": 80,
+        "source_text": "把小说上传进去"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    },
+    {
+      "index": 9,
+      "text": "AI 会",
+      "audio_span": {
+        "start": 10.528,
+        "end": 10.987
+      },
+      "script_span": {
+        "start_char_compact": 81,
+        "end_char_compact": 84,
+        "source_text": "AI 会"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    },
+    {
+      "index": 10,
+      "text": "自主梳理故事逻辑",
+      "audio_span": {
+        "start": 11.149,
+        "end": 12.384
+      },
+      "script_span": {
+        "start_char_compact": 84,
+        "end_char_compact": 92,
+        "source_text": "自主梳理故事逻辑"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    },
+    {
+      "index": 11,
+      "text": "直接生成完整脚本",
+      "audio_span": {
+        "start": 12.511,
+        "end": 13.984
+      },
+      "script_span": {
+        "start_char_compact": 93,
+        "end_char_compact": 101,
+        "source_text": "直接生成完整脚本"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    },
+    {
+      "index": 12,
+      "text": "不用花大量时间研究提示词",
+      "audio_span": {
+        "start": 14.197,
+        "end": 15.919
+      },
+      "script_span": {
+        "start_char_compact": 102,
+        "end_char_compact": 114,
+        "source_text": "不用花大量时间研究提示词"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    },
+    {
+      "index": 13,
+      "text": "也不用费心编写复杂分镜指令",
+      "audio_span": {
+        "start": 16.082,
+        "end": 18.076
+      },
+      "script_span": {
+        "start_char_compact": 115,
+        "end_char_compact": 128,
+        "source_text": "也不用费心编写复杂分镜指令"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    },
+    {
+      "index": 14,
+      "text": "自动产出流畅高级的电影分镜剧本",
+      "audio_span": {
+        "start": 18.271,
+        "end": 20.84
+      },
+      "script_span": {
+        "start_char_compact": 129,
+        "end_char_compact": 144,
+        "source_text": "自动产出流畅高级的电影分镜剧本"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    },
+    {
+      "index": 15,
+      "text": "最实用的是解决了人物画风错乱的老问题",
+      "audio_span": {
+        "start": 21.085,
+        "end": 23.416
+      },
+      "script_span": {
+        "start_char_compact": 145,
+        "end_char_compact": 163,
+        "source_text": "最实用的是解决了人物画风错乱的老问题"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    },
+    {
+      "index": 16,
+      "text": "一键生成人物三视图",
+      "audio_span": {
+        "start": 23.654,
+        "end": 25.248
+      },
+      "script_span": {
+        "start_char_compact": 164,
+        "end_char_compact": 173,
+        "source_text": "一键生成人物三视图"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    },
+    {
+      "index": 17,
+      "text": "场景和全套道具",
+      "audio_span": {
+        "start": 25.339,
+        "end": 26.907
+      },
+      "script_span": {
+        "start_char_compact": 174,
+        "end_char_compact": 181,
+        "source_text": "场景和全套道具"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    },
+    {
+      "index": 18,
+      "text": "主角全程样貌不会跑偏",
+      "audio_span": {
+        "start": 27.297,
+        "end": 28.953
+      },
+      "script_span": {
+        "start_char_compact": 182,
+        "end_char_compact": 192,
+        "source_text": "主角全程样貌不会跑偏"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    },
+    {
+      "index": 19,
+      "text": "古风",
+      "audio_span": {
+        "start": 29.339,
+        "end": 29.841
+      },
+      "script_span": {
+        "start_char_compact": 193,
+        "end_char_compact": 195,
+        "source_text": "古风"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    },
+    {
+      "index": 20,
+      "text": "赛璐璐",
+      "audio_span": {
+        "start": 30.13,
+        "end": 30.743
+      },
+      "script_span": {
+        "start_char_compact": 196,
+        "end_char_compact": 199,
+        "source_text": "赛璐璐"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    },
+    {
+      "index": 21,
+      "text": "国风 3D",
+      "audio_span": {
+        "start": 31.042,
+        "end": 31.783
+      },
+      "script_span": {
+        "start_char_compact": 200,
+        "end_char_compact": 204,
+        "source_text": "国风 3D"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    },
+    {
+      "index": 22,
+      "text": "日系动漫风格都能一键切换",
+      "audio_span": {
+        "start": 32.115,
+        "end": 34.023
+      },
+      "script_span": {
+        "start_char_compact": 205,
+        "end_char_compact": 217,
+        "source_text": "日系动漫风格都能一键切换"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    },
+    {
+      "index": 23,
+      "text": "全程云端运行",
+      "audio_span": {
+        "start": 34.36,
+        "end": 35.926
+      },
+      "script_span": {
+        "start_char_compact": 218,
+        "end_char_compact": 224,
+        "source_text": "全程云端运行"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    },
+    {
+      "index": 24,
+      "text": "低配电脑也能流畅使用",
+      "audio_span": {
+        "start": 36.191,
+        "end": 37.8
+      },
+      "script_span": {
+        "start_char_compact": 225,
+        "end_char_compact": 235,
+        "source_text": "低配电脑也能流畅使用"
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunks; ASR unavailable/not invoked in this worker; chunk projected to real speech interval",
+      "verdict": "pass",
+      "alignment_note": "字幕文本按用户文案原文顺序覆盖，时间取真实发声区间；未使用全片字数比例铺排。"
+    }
+  ],
+  "verdict": "pass_with_fallback"
+}

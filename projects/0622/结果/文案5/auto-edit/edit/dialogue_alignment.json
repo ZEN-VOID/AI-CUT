@@ -1,0 +1,309 @@
+{
+  "path": "/Volumes/AIGC/AI-CUT/projects/0622/结果/文案5/auto-edit/edit/dialogue_alignment.json",
+  "voiceover": "/Volumes/AIGC/AI-CUT/projects/0622/素材/音频/文案5-音频.mp3",
+  "script": "/Volumes/AIGC/AI-CUT/projects/0622/素材/文案/文案5.md",
+  "asr_status": "not_available_in_runtime",
+  "fallback_method": "LLM semantic chunking of user script, projected to ffmpeg silencedetect speech intervals",
+  "cues": [
+    {
+      "index": 1,
+      "text": "实话实说，",
+      "audio_span": {
+        "start": 0.08,
+        "end": 0.743
+      },
+      "script_span": {
+        "start": 0,
+        "end": 5
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Cue text is an ordered verbatim span from 文案5.md; timing follows real speech interval boundaries."
+    },
+    {
+      "index": 2,
+      "text": "AI 漫剧赛道的红利内卷直接宣告结束！",
+      "audio_span": {
+        "start": 0.824,
+        "end": 3.153
+      },
+      "script_span": {
+        "start": 5,
+        "end": 23
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Cue text is an ordered verbatim span from 文案5.md; timing follows real speech interval boundaries."
+    },
+    {
+      "index": 3,
+      "text": "Gemini 3",
+      "audio_span": {
+        "start": 3.38,
+        "end": 4.198
+      },
+      "script_span": {
+        "start": 23,
+        "end": 30
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Cue text is an ordered verbatim span from 文案5.md; timing follows real speech interval boundaries."
+    },
+    {
+      "index": 4,
+      "text": "搭配 GPT Images Two 两款模型一出场，",
+      "audio_span": {
+        "start": 4.428,
+        "end": 6.249
+      },
+      "script_span": {
+        "start": 30,
+        "end": 52
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Cue text is an ordered verbatim span from 文案5.md; timing follows real speech interval boundaries."
+    },
+    {
+      "index": 5,
+      "text": "直接改写行业规则。",
+      "audio_span": {
+        "start": 6.375,
+        "end": 7.655
+      },
+      "script_span": {
+        "start": 52,
+        "end": 61
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Cue text is an ordered verbatim span from 文案5.md; timing follows real speech interval boundaries."
+    },
+    {
+      "index": 6,
+      "text": "操作简单到离谱，",
+      "audio_span": {
+        "start": 7.813,
+        "end": 9.126
+      },
+      "script_span": {
+        "start": 61,
+        "end": 69
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Cue text is an ordered verbatim span from 文案5.md; timing follows real speech interval boundaries."
+    },
+    {
+      "index": 7,
+      "text": "上传小说文本，",
+      "audio_span": {
+        "start": 9.402,
+        "end": 10.494
+      },
+      "script_span": {
+        "start": 69,
+        "end": 76
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Cue text is an ordered verbatim span from 文案5.md; timing follows real speech interval boundaries."
+    },
+    {
+      "index": 8,
+      "text": "AI 自主完成剧情推演，",
+      "audio_span": {
+        "start": 10.639,
+        "end": 12.093
+      },
+      "script_span": {
+        "start": 76,
+        "end": 87
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Cue text is an ordered verbatim span from 文案5.md; timing follows real speech interval boundaries."
+    },
+    {
+      "index": 9,
+      "text": "完整脚本自动生成。",
+      "audio_span": {
+        "start": 12.356,
+        "end": 13.724
+      },
+      "script_span": {
+        "start": 87,
+        "end": 96
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Cue text is an ordered verbatim span from 文案5.md; timing follows real speech interval boundaries."
+    },
+    {
+      "index": 10,
+      "text": "再也不用死磕复杂提示词、",
+      "audio_span": {
+        "start": 13.935,
+        "end": 15.934
+      },
+      "script_span": {
+        "start": 96,
+        "end": 108
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Cue text is an ordered verbatim span from 文案5.md; timing follows real speech interval boundaries."
+    },
+    {
+      "index": 11,
+      "text": "熬夜编写分镜指令，",
+      "audio_span": {
+        "start": 16.123,
+        "end": 17.403
+      },
+      "script_span": {
+        "start": 108,
+        "end": 117
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Cue text is an ordered verbatim span from 文案5.md; timing follows real speech interval boundaries."
+    },
+    {
+      "index": 12,
+      "text": "连贯丝滑的电影级分镜直接交付。",
+      "audio_span": {
+        "start": 17.702,
+        "end": 19.82
+      },
+      "script_span": {
+        "start": 117,
+        "end": 132
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Cue text is an ordered verbatim span from 文案5.md; timing follows real speech interval boundaries."
+    },
+    {
+      "index": 13,
+      "text": "人物形象不一致",
+      "audio_span": {
+        "start": 20.185,
+        "end": 21.082
+      },
+      "script_span": {
+        "start": 132,
+        "end": 139
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Cue text is an ordered verbatim span from 文案5.md; timing follows real speech interval boundaries."
+    },
+    {
+      "index": 14,
+      "text": "这个行业万年难题彻底攻克，",
+      "audio_span": {
+        "start": 21.172,
+        "end": 23.021
+      },
+      "script_span": {
+        "start": 139,
+        "end": 152
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Cue text is an ordered verbatim span from 文案5.md; timing follows real speech interval boundaries."
+    },
+    {
+      "index": 15,
+      "text": "一键产出人物三视图、",
+      "audio_span": {
+        "start": 23.385,
+        "end": 24.798
+      },
+      "script_span": {
+        "start": 152,
+        "end": 162
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Cue text is an ordered verbatim span from 文案5.md; timing follows real speech interval boundaries."
+    },
+    {
+      "index": 16,
+      "text": "场景、全套道具，",
+      "audio_span": {
+        "start": 24.986,
+        "end": 26.385
+      },
+      "script_span": {
+        "start": 162,
+        "end": 170
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Cue text is an ordered verbatim span from 文案5.md; timing follows real speech interval boundaries."
+    },
+    {
+      "index": 17,
+      "text": "全片角色形象高度统一；",
+      "audio_span": {
+        "start": 26.581,
+        "end": 28.317
+      },
+      "script_span": {
+        "start": 170,
+        "end": 181
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Cue text is an ordered verbatim span from 文案5.md; timing follows real speech interval boundaries."
+    },
+    {
+      "index": 18,
+      "text": "各类画风一键切换，",
+      "audio_span": {
+        "start": 28.718,
+        "end": 30.086
+      },
+      "script_span": {
+        "start": 181,
+        "end": 190
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Cue text is an ordered verbatim span from 文案5.md; timing follows real speech interval boundaries."
+    },
+    {
+      "index": 19,
+      "text": "多元创作风格全覆盖。",
+      "audio_span": {
+        "start": 30.264,
+        "end": 31.753
+      },
+      "script_span": {
+        "start": 190,
+        "end": 200
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Cue text is an ordered verbatim span from 文案5.md; timing follows real speech interval boundaries."
+    },
+    {
+      "index": 20,
+      "text": "云端运算不消耗电脑性能，成片一键导出。",
+      "audio_span": {
+        "start": 32.042,
+        "end": 34.668
+      },
+      "script_span": {
+        "start": 200,
+        "end": 219
+      },
+      "source_method": "silencedetect_fallback_llm_semantic_chunk",
+      "verdict": "pass",
+      "evidence": "Cue text is an ordered verbatim span from 文案5.md; timing follows real speech interval boundaries."
+    }
+  ]
+}

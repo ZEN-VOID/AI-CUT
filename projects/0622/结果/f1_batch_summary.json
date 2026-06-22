@@ -1,0 +1,12 @@
+{
+  "generated_at": "2026-06-21T22:52:23",
+  "selected": [
+    5
+  ],
+  "results": [
+    {
+      "line": 5,
+      "error": "Command '['ffmpeg', '-y', '-hide_banner', '-loglevel', 'error', '-ss', '33.668', '-i', '/Volumes/AIGC/AI-CUT/projects/0622/结果/文案5/文案5_final.mp4', '-frames:v', '1', '/Volumes/AIGC/AI-CUT/projects/0622/结果/文案5/auto-edit/edit/verify/frame_03_33.67.jpg']' returned non-zero exit status 234."
+    }
+  ]
+}

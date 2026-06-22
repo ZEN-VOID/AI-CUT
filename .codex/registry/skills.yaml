@@ -850,6 +850,18 @@ active_skills:
       work_root: "<result_dir>/auto-edit/edit/"
       output_carrier: "<result_dir>/<project-or-script-name>_final.mp4"
       mirror_policy: "F1 不创建项目 canonical runtime；单次运行产物写入用户指定结果目录，过程报告写入 PRPs/ 与 reports/。"
+  - id: workflow-f1-video-to-manifest
+    path: .agents/skills/workflow/F1/video-to-manifest
+    owner_office: shangshu
+    purpose: "F1 卫星技能：从单个视频或视频目录生成、更新、修复、校验 `视频说明.yaml`，为 F1 的素材选段、字幕避让和 EDL 计划提供结构化素材索引。"
+    contract_mode: active
+    route_role: satellite
+    parent_skill: workflow-f1-reference-voiceover-auto-edit
+    runtime_control:
+      canonical_skill_root: ".agents/skills/workflow/F1/video-to-manifest/"
+      output_carrier: "<source_video_dir>/视频说明.yaml"
+      work_root: "<source_video_dir>/video_manifest_work/"
+      mirror_policy: "该卫星不创建项目 runtime，不生成 final MP4；单次运行只写 manifest、证据包、校验报告和 sidecar 报告。"
 
 planned_skills:
   - id: film-suite

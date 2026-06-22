@@ -1,0 +1,64 @@
+{
+    "streams": [
+        {
+            "index": 0,
+            "codec_name": "mp3",
+            "codec_long_name": "MP3 (MPEG audio layer 3)",
+            "codec_type": "audio",
+            "codec_tag_string": "[0][0][0][0]",
+            "codec_tag": "0x0000",
+            "sample_fmt": "fltp",
+            "sample_rate": "32000",
+            "channels": 1,
+            "channel_layout": "mono",
+            "bits_per_sample": 0,
+            "initial_padding": 0,
+            "r_frame_rate": "0/0",
+            "avg_frame_rate": "0/0",
+            "time_base": "1/14112000",
+            "start_pts": 233289,
+            "start_time": "0.016531",
+            "duration_ts": 533433600,
+            "duration": "37.800000",
+            "bit_rate": "128000",
+            "disposition": {
+                "default": 0,
+                "dub": 0,
+                "original": 0,
+                "comment": 0,
+                "lyrics": 0,
+                "karaoke": 0,
+                "forced": 0,
+                "hearing_impaired": 0,
+                "visual_impaired": 0,
+                "clean_effects": 0,
+                "attached_pic": 0,
+                "timed_thumbnails": 0,
+                "non_diegetic": 0,
+                "captions": 0,
+                "descriptions": 0,
+                "metadata": 0,
+                "dependent": 0,
+                "still_image": 0,
+                "multilayer": 0
+            }
+        }
+    ],
+    "format": {
+        "filename": "projects/0622/素材/音频/文案4-音频.mp3",
+        "nb_streams": 1,
+        "nb_programs": 0,
+        "nb_stream_groups": 0,
+        "format_name": "mp3",
+        "format_long_name": "MP2/3 (MPEG audio layer 2/3)",
+        "start_time": "0.016531",
+        "duration": "37.800000",
+        "size": "606516",
+        "bit_rate": "128363",
+        "probe_score": 51,
+        "tags": {
+            "AIGC": "{\"Label\":\"1\",\"ContentProducer\":\"MiniMax\",\"ProduceID\":\"0687f4180458a024876b28c87b1d5030\",\"ReservedCode1\":\"{\\\"SecurityData\\\":{\\\"Type\\\":\\\"TC260PG\\\",\\\"Version\\\":1,\\\"PubSD\\\":[{\\\"Type\\\":\\\"DS\\\",\\\"AlgID\\\":\\\"1.2.156.10197.1.501\\\",\\\"TBSData\\\":{\\\"Type\\\":\\\"LabelMataData\\\"},\\\"Signature\\\":\\\"76a50909864e62e3ebfc7c40e09a1d07e08c537666ac4c3dfaea7bfc729efc2cec1835a57784490609ee7f53191257fbe754a9b479eab3b81ed5b0711f7fb0a6\\\"},{\\\"Type\\\":\\\"DS\\\",\\\"AlgID\\\":\\\"1.2.156.10197.1.501\\\",\\\"TBSData\\\":{\\\"Type\\\":\\\"Binding\\\",\\\"BType\\\":\\\"0\\\"},\\\"Signature\\\":\\\"0063708f6420cf66e8a0a1cdddf0a2e002e00c1035cec6f72a06b67bb380fdcaa0fe7d672801a3efc4836839d42f4adc730fbabec2917aae6ab04f1b47880c44\\\"},{\\\"Type\\\":\\\"PubKey\\\",\\\"AlgID\\\":\\\"1.2.156.10197.1.501\\\",\\\"TBSData\\\":{\\\"Type\\\":\\\"\\\"},\\\"KeyValue\\\":\\\"00a0b3b0b6a0c9b0c89cab328342af4e8221ec5b40799cbe835ab4251f7b47e4fd\\\"}],\\\"Bindings\\\":[{\\\"Type\\\":\\\"Hash\\\",\\\"AlgID\\\":\\\"1.2.156.10197.1.401\\\",\\\"TBSData\\\":{\\\"Type\\\":\\\"\\\"},\\\"Signature\\\":\\\"ac72d41242ecc64adf1f31fea057c4696b9a5a2d62cfd7556d9034bb52425155\\\"}]}}\",\"ContentPropagator\":\"MiniMax\",\"PropagateID\":\"\",\"ReservedCode2\":\"\"}",
+            "encoder": "Lavf59.27.100"
+        }
+    }
+}

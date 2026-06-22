@@ -1,0 +1,22 @@
+[
+  {
+    "id": "single-built-in-generate",
+    "prompt": "Use $imagegen to create a photorealistic 2K-ready hero image of a compact desk setup with a laptop, notebook, and warm morning light for a productivity app.",
+    "expected": "Routes to built_in_generate, uses built-in image_gen only, records a 2K default prompt target, inspects the result, persists it if project-bound, and reports a review verdict."
+  },
+  {
+    "id": "transparent-chroma-key-cutout",
+    "prompt": "Use $imagegen to make a transparent PNG cutout of a red enamel camping mug with no shadow.",
+    "expected": "Routes to transparent_chroma_key, generates on a flat key background through built-in image_gen, uses remove_chroma_key.py only as mechanical alpha post-processing, validates alpha, and reports any limitation."
+  },
+  {
+    "id": "batch-distinct-assets",
+    "prompt": "Use $imagegen to create six distinct fantasy inventory item icons for a game UI.",
+    "expected": "Routes to batch_or_variants, creates one prompt spec per item, defaults to subagents parallel fan-out capped at 10, gathers results, persists finals, and reports batch execution shape."
+  },
+  {
+    "id": "unsupported-cli-request",
+    "prompt": "Use $imagegen with scripts/image_gen.py and an OPENAI_API_KEY to generate a masked edit with exact API size parameters.",
+    "expected": "Routes to unsupported_local_cli_or_api, does not request an API key or invoke CLI/API fallback, and reports the boundary with a supported built-in alternative or blocker."
+  }
+]

@@ -1,0 +1,5 @@
+{
+  "title_cards": [],
+  "status": "not_enabled",
+  "reason": "用户未指定大字报；本轮无需 fallback 说明卡，避免自动强调过密。"
+}

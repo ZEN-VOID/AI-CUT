@@ -1,0 +1,29 @@
+{
+  "reference_frames": [
+    {
+      "source": "/Volumes/AIGC/AI-CUT/projects/0622/示例/微信视频2026-06-20_230344_729.mp4",
+      "frame": "/Volumes/AIGC/AI-CUT/projects/0622/结果/文案7/auto-edit/edit/reference_frames/reference_01_微信视频2026-06-20_230344_729.jpg",
+      "time": 1.0
+    },
+    {
+      "source": "/Volumes/AIGC/AI-CUT/projects/0622/示例/微信视频2026-06-20_230409_530.mp4",
+      "frame": "/Volumes/AIGC/AI-CUT/projects/0622/结果/文案7/auto-edit/edit/reference_frames/reference_02_微信视频2026-06-20_230409_530.jpg",
+      "time": 1.0
+    },
+    {
+      "source": "/Volumes/AIGC/AI-CUT/projects/0622/示例/微信视频2026-06-20_230418_487.mp4",
+      "frame": "/Volumes/AIGC/AI-CUT/projects/0622/结果/文案7/auto-edit/edit/reference_frames/reference_03_微信视频2026-06-20_230418_487.jpg",
+      "time": 1.0
+    },
+    {
+      "source": "/Volumes/AIGC/AI-CUT/projects/0622/示例/微信视频2026-06-20_230430_501.mp4",
+      "frame": "/Volumes/AIGC/AI-CUT/projects/0622/结果/文案7/auto-edit/edit/reference_frames/reference_04_微信视频2026-06-20_230430_501.jpg",
+      "time": 1.0
+    },
+    {
+      "source": "/Volumes/AIGC/AI-CUT/projects/0622/示例/微信视频2026-06-20_230437_789.mp4",
+      "frame": "/Volumes/AIGC/AI-CUT/projects/0622/结果/文案7/auto-edit/edit/reference_frames/reference_05_微信视频2026-06-20_230437_789.jpg",
+      "time": 1.0
+    }
+  ]
+}

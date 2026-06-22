@@ -1,0 +1,52 @@
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/Volumes/AIGC/AI-CUT/projects/0622/素材/视频/工具使用/1.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf59.14.100
+  Duration: 00:00:52.01, start: 0.000000, bitrate: 1754 kb/s
+  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709/smpte432/bt709, progressive), 960x720, 1691 kb/s, 30 fps, 30 tbr, 90k tbn (default)
+    Metadata:
+      handler_name    : VideoHandler
+      vendor_id       : [0][0][0][0]
+  Stream #0:1[0x2](und): Audio: aac (HE-AAC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 56 kb/s (default)
+    Metadata:
+      handler_name    : SoundHandler
+      vendor_id       : [0][0][0][0]
+Stream mapping:
+  Stream #0:0 -> #0:0 (h264 (native) -> h264 (libx264))
+Press [q] to stop, [?] for help
+[libx264 @ 0xb24c40e00] using SAR=1/1
+[libx264 @ 0xb24c40e00] using cpu capabilities: ARMv8 NEON DotProd I8MM
+[libx264 @ 0xb24c40e00] profile High, level 3.1, 4:2:0, 8-bit
+[libx264 @ 0xb24c40e00] 264 - core 165 r3222 b35605a - H.264/MPEG-4 AVC codec - Copyleft 2003-2025 - http://www.videolan.org/x264.html - options: cabac=1 ref=1 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=2 psy=1 psy_rd=1.00:0.00 mixed_ref=0 me_range=16 chroma_me=1 trellis=0 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=0 threads=15 lookahead_threads=5 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=1 keyint=250 keyint_min=25 scenecut=40 intra_refresh=0 rc_lookahead=10 rc=crf mbtree=1 crf=18.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+Output #0, mp4, to '/Volumes/AIGC/AI-CUT/projects/0622/结果/文案2/auto-edit/edit/render_segments/segment_03_mc-03.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf62.3.100
+  Stream #0:0(und): Video: h264 (avc1 / 0x31637661), yuv420p(tv, bt709/smpte432/bt709, progressive), 1280x720 [SAR 1:1 DAR 16:9], q=2-31, 30 fps, 15360 tbn (default)
+    Metadata:
+      encoder         : Lavc62.11.100 libx264
+      handler_name    : VideoHandler
+      vendor_id       : [0][0][0][0]
+    Side data:
+      cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
+[out#0/mp4 @ 0xb2502dc80] video:1402KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.119508%
+frame=   77 fps=0.0 q=-1.0 Lsize=    1404KiB time=00:00:02.50 bitrate=4600.3kbits/s speed=5.73x elapsed=0:00:00.43    
+[libx264 @ 0xb24c40e00] frame I:1     Avg QP:14.17  size: 78974
+[libx264 @ 0xb24c40e00] frame P:32    Avg QP:18.45  size: 28710
+[libx264 @ 0xb24c40e00] frame B:44    Avg QP:21.45  size:  9943
+[libx264 @ 0xb24c40e00] consecutive B-frames: 19.5%  7.8% 15.6% 57.1%
+[libx264 @ 0xb24c40e00] mb I  I16..4: 43.8% 11.8% 44.5%
+[libx264 @ 0xb24c40e00] mb P  I16..4: 16.2% 10.6%  6.6%  P16..4: 21.7% 12.2%  7.1%  0.0%  0.0%    skip:25.6%
+[libx264 @ 0xb24c40e00] mb B  I16..4:  4.2%  2.4%  0.5%  B16..8: 22.5% 10.7%  1.6%  direct: 7.2%  skip:50.9%  L0:39.4% L1:42.0% BI:18.6%
+[libx264 @ 0xb24c40e00] 8x8 transform intra:30.8% inter:23.4%
+[libx264 @ 0xb24c40e00] coded y,uvDC,uvAC intra: 36.6% 43.3% 19.7% inter: 15.1% 12.1% 1.3%
+[libx264 @ 0xb24c40e00] i16 v,h,dc,p: 54% 31% 12%  3%
+[libx264 @ 0xb24c40e00] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 22% 45% 26%  1%  1%  1%  1%  1%  1%
+[libx264 @ 0xb24c40e00] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 28% 38% 14%  1%  5%  3%  4%  3%  4%
+[libx264 @ 0xb24c40e00] i8c dc,h,v,p: 49% 30% 18%  3%
+[libx264 @ 0xb24c40e00] Weighted P-Frames: Y:12.5% UV:3.1%
+[libx264 @ 0xb24c40e00] kb/s:4473.35

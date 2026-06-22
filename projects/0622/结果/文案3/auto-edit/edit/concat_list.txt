@@ -1,0 +1,6 @@
+file '/Volumes/AIGC/AI-CUT/projects/0622/结果/文案3/auto-edit/edit/render_segments/seg_01_aigc_content.mp4'
+file '/Volumes/AIGC/AI-CUT/projects/0622/结果/文案3/auto-edit/edit/render_segments/seg_02_tool_display.mp4'
+file '/Volumes/AIGC/AI-CUT/projects/0622/结果/文案3/auto-edit/edit/render_segments/seg_03_operation_demo.mp4'
+file '/Volumes/AIGC/AI-CUT/projects/0622/结果/文案3/auto-edit/edit/render_segments/seg_04_tool_display.mp4'
+file '/Volumes/AIGC/AI-CUT/projects/0622/结果/文案3/auto-edit/edit/render_segments/seg_05_aigc_content.mp4'
+file '/Volumes/AIGC/AI-CUT/projects/0622/结果/文案3/auto-edit/edit/render_segments/seg_06_tool_display.mp4'

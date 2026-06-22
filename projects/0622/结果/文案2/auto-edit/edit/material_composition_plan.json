@@ -1,0 +1,334 @@
+{
+  "material_composition": [
+    {
+      "id": "mc-01",
+      "cue_indices": [
+        1,
+        2
+      ],
+      "script_span": {
+        "start": 0,
+        "end": 16
+      },
+      "audio_span": {
+        "start": 0.081,
+        "end": 2.311
+      },
+      "visual_span": {
+        "start": 0.081,
+        "end": 2.311
+      },
+      "primary_category": "aigc_content",
+      "visual_role": "hook",
+      "source_file": "影像内容/微信视频2026-06-21_220234_765.mp4",
+      "segment_id": "content-01-s01",
+      "source_start": 0.0,
+      "source_end": 3.4,
+      "selection_reason": "开头行业格局变化先用高质感古风成片建立结果预期。",
+      "transition_policy": "hard_cut_with_reference_rhythm",
+      "category_evidence": "白衣古风角色冷蓝战场登场，匹配 AI 漫剧和成片质感钩子。",
+      "subtitle_risk": "medium_bottom_margin",
+      "verdict": "pass",
+      "semantic_match": "白衣古风角色冷蓝战场登场，匹配 AI 漫剧和成片质感钩子。",
+      "visual_rhythm_reason": "开头行业格局变化先用高质感古风成片建立结果预期。"
+    },
+    {
+      "id": "mc-02",
+      "cue_indices": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "script_span": {
+        "start": 17,
+        "end": 67
+      },
+      "audio_span": {
+        "start": 2.321,
+        "end": 8.158
+      },
+      "visual_span": {
+        "start": 2.321,
+        "end": 8.158
+      },
+      "primary_category": "tool_display",
+      "visual_role": "tool_proof",
+      "source_file": "工具使用/1.mp4",
+      "segment_id": "tool-01-s01",
+      "source_start": 0.0,
+      "source_end": 8.0,
+      "selection_reason": "模型落地和赛道竞争用节点式 AI 工具总览证明工具链已成型。",
+      "transition_policy": "hard_cut_with_reference_rhythm",
+      "category_evidence": "节点式创作工具工作流总览，可见节点、连线和素材卡片。",
+      "subtitle_risk": "high_ui_text_boxed_bottom_subtitles",
+      "verdict": "pass",
+      "screen_state": "节点式创作工具工作流总览，可见节点、连线和素材卡片。",
+      "tool_state": "节点式创作工具工作流总览，可见节点、连线和素材卡片。"
+    },
+    {
+      "id": "mc-03",
+      "cue_indices": [
+        7,
+        8
+      ],
+      "script_span": {
+        "start": 68,
+        "end": 82
+      },
+      "audio_span": {
+        "start": 8.168,
+        "end": 10.749
+      },
+      "visual_span": {
+        "start": 8.168,
+        "end": 10.749
+      },
+      "primary_category": "tool_display",
+      "visual_role": "tool_proof",
+      "source_file": "工具使用/1.mp4",
+      "segment_id": "tool-01-s02",
+      "source_start": 12.0,
+      "source_end": 18.0,
+      "selection_reason": "工具操作极简和导入文本段继续展示人物素材卡片与工具界面。",
+      "transition_policy": "hard_cut_with_reference_rhythm",
+      "category_evidence": "人物素材/角色卡片区域，匹配工具极简与资产载入说明。",
+      "subtitle_risk": "high_ui_text_boxed_bottom_subtitles",
+      "verdict": "pass",
+      "screen_state": "人物素材/角色卡片区域，匹配工具极简与资产载入说明。",
+      "tool_state": "人物素材/角色卡片区域，匹配工具极简与资产载入说明。"
+    },
+    {
+      "id": "mc-04",
+      "cue_indices": [
+        9,
+        10,
+        11,
+        12
+      ],
+      "script_span": {
+        "start": 83,
+        "end": 124
+      },
+      "audio_span": {
+        "start": 10.759,
+        "end": 17.444
+      },
+      "visual_span": {
+        "start": 10.759,
+        "end": 17.444
+      },
+      "primary_category": "operation_demo",
+      "visual_role": "process_proof",
+      "source_file": "操作展示/微信视频2026-06-21_220316_527.mp4",
+      "segment_id": "operation-01-s01",
+      "source_start": 0.0,
+      "source_end": 5.2,
+      "selection_reason": "自动推演、输出脚本与省提示词用素材库浏览到详情的操作证明承接。",
+      "transition_policy": "hard_cut_with_reference_rhythm",
+      "category_evidence": "browse_gallery/open_asset_detail：从素材库网格进入详情页。",
+      "subtitle_risk": "high_ui_text_boxed_bottom_subtitles",
+      "verdict": "pass",
+      "operation_state": "browse_gallery/open_asset_detail：从素材库网格进入详情页。",
+      "action_phase": "browse_gallery/open_asset_detail：从素材库网格进入详情页。",
+      "step_label": "自动推演、输出脚本与省提示词用素材库浏览到详情的"
+    },
+    {
+      "id": "mc-05",
+      "cue_indices": [
+        13,
+        14,
+        15
+      ],
+      "script_span": {
+        "start": 124,
+        "end": 149
+      },
+      "audio_span": {
+        "start": 17.454,
+        "end": 21.907
+      },
+      "visual_span": {
+        "start": 17.454,
+        "end": 21.907
+      },
+      "primary_category": "tool_display",
+      "visual_role": "process_proof",
+      "source_file": "工具使用/1.mp4",
+      "segment_id": "tool-01-s03",
+      "source_start": 24.0,
+      "source_end": 34.0,
+      "selection_reason": "分镜指令和院线分镜段展示资源列表与节点联动，强调自动化省步骤。",
+      "transition_policy": "hard_cut_with_reference_rhythm",
+      "category_evidence": "资源列表和节点流程并列显示，适合导入/连接素材和自动流程说明。",
+      "subtitle_risk": "high_ui_text_boxed_bottom_subtitles",
+      "verdict": "pass",
+      "screen_state": "资源列表和节点流程并列显示，适合导入/连接素材和自动流程说明。",
+      "tool_state": "资源列表和节点流程并列显示，适合导入/连接素材和自动流程说明。"
+    },
+    {
+      "id": "mc-06",
+      "cue_indices": [
+        16,
+        17,
+        18
+      ],
+      "script_span": {
+        "start": 151,
+        "end": 174
+      },
+      "audio_span": {
+        "start": 21.917,
+        "end": 26.079
+      },
+      "visual_span": {
+        "start": 21.917,
+        "end": 26.079
+      },
+      "primary_category": "aigc_content",
+      "visual_role": "result_showcase",
+      "source_file": "影像内容/微信视频2026-06-21_220234_765.mp4",
+      "segment_id": "content-01-s03",
+      "source_start": 6.9,
+      "source_end": 11.0,
+      "selection_reason": "人物统一问题根治回到成片反击画面作结果证明。",
+      "transition_policy": "hard_cut_with_reference_rhythm",
+      "category_evidence": "剑气反击、飞矢穿场、玄幻爽点，匹配院线级质感。",
+      "subtitle_risk": "medium_bottom_margin",
+      "verdict": "pass",
+      "semantic_match": "剑气反击、飞矢穿场、玄幻爽点，匹配院线级质感。",
+      "visual_rhythm_reason": "人物统一问题根治回到成片反击画面作结果证明。"
+    },
+    {
+      "id": "mc-07",
+      "cue_indices": [
+        19,
+        20,
+        21
+      ],
+      "script_span": {
+        "start": 175,
+        "end": 207
+      },
+      "audio_span": {
+        "start": 26.089,
+        "end": 32.238
+      },
+      "visual_span": {
+        "start": 26.089,
+        "end": 32.238
+      },
+      "primary_category": "tool_display",
+      "visual_role": "asset_proof",
+      "source_file": "工具使用/1.mp4",
+      "segment_id": "tool-01-s02",
+      "source_start": 14.0,
+      "source_end": 23.0,
+      "selection_reason": "人物三视图、场景、道具与角色统一需要展示工具中的人物素材卡片。",
+      "transition_policy": "hard_cut_with_reference_rhythm",
+      "category_evidence": "人物素材卡片和预览窗口，匹配角色资产统一。",
+      "subtitle_risk": "high_ui_text_boxed_bottom_subtitles",
+      "verdict": "pass",
+      "screen_state": "人物素材卡片和预览窗口，匹配角色资产统一。",
+      "tool_state": "人物素材卡片和预览窗口，匹配角色资产统一。"
+    },
+    {
+      "id": "mc-08",
+      "cue_indices": [
+        22,
+        23,
+        24
+      ],
+      "script_span": {
+        "start": 208,
+        "end": 236
+      },
+      "audio_span": {
+        "start": 32.248,
+        "end": 37.187
+      },
+      "visual_span": {
+        "start": 32.248,
+        "end": 37.187
+      },
+      "primary_category": "aigc_content",
+      "visual_role": "style_showcase",
+      "source_file": "影像内容/微信视频2026-06-21_220234_765.mp4",
+      "segment_id": "content-01-s04",
+      "source_start": 11.0,
+      "source_end": 15.07,
+      "selection_reason": "多元画风切换用成片角色特写承托风格与结果质感。",
+      "transition_policy": "hard_cut_with_reference_rhythm",
+      "category_evidence": "白衣角色特写与冷蓝符阵光效，匹配画风和结果展示。",
+      "subtitle_risk": "medium_bottom_margin",
+      "verdict": "pass",
+      "semantic_match": "白衣角色特写与冷蓝符阵光效，匹配画风和结果展示。",
+      "visual_rhythm_reason": "多元画风切换用成片角色特写承托风格与结果质感。"
+    },
+    {
+      "id": "mc-09",
+      "cue_indices": [
+        25,
+        26
+      ],
+      "script_span": {
+        "start": 237,
+        "end": 256
+      },
+      "audio_span": {
+        "start": 37.197,
+        "end": 40.332
+      },
+      "visual_span": {
+        "start": 37.197,
+        "end": 40.332
+      },
+      "primary_category": "tool_display",
+      "visual_role": "cloud_export_proof",
+      "source_file": "工具使用/1.mp4",
+      "segment_id": "tool-01-s04",
+      "source_start": 38.0,
+      "source_end": 48.0,
+      "selection_reason": "云端算力和配置无要求用节点参数/生成状态收束画面证明流程托管。",
+      "transition_policy": "hard_cut_with_reference_rhythm",
+      "category_evidence": "节点参数/生成状态区域，可见工具工作流收束。",
+      "subtitle_risk": "high_ui_text_boxed_bottom_subtitles",
+      "verdict": "pass",
+      "screen_state": "节点参数/生成状态区域，可见工具工作流收束。",
+      "tool_state": "节点参数/生成状态区域，可见工具工作流收束。"
+    },
+    {
+      "id": "mc-10",
+      "cue_indices": [
+        27,
+        28
+      ],
+      "script_span": {
+        "start": 257,
+        "end": 278
+      },
+      "audio_span": {
+        "start": 40.342,
+        "end": 43.56
+      },
+      "visual_span": {
+        "start": 40.342,
+        "end": 43.56
+      },
+      "primary_category": "operation_demo",
+      "visual_role": "tail_proof",
+      "source_file": "操作展示/微信视频2026-06-21_220316_527.mp4",
+      "segment_id": "operation-01-s04",
+      "source_start": 8.4,
+      "source_end": 11.267,
+      "selection_reason": "一键导出和工具汇总用继续浏览相关候选素材作为结尾证据。",
+      "transition_policy": "hard_cut_with_reference_rhythm",
+      "category_evidence": "review_related_assets：继续查看相关候选，可自然收束到工具整理。",
+      "subtitle_risk": "high_ui_text_boxed_bottom_subtitles",
+      "verdict": "pass",
+      "operation_state": "review_related_assets：继续查看相关候选，可自然收束到工具整理。",
+      "action_phase": "review_related_assets：继续查看相关候选，可自然收束到工具整理。",
+      "step_label": "一键导出和工具汇总用继续浏览相关候选素材作为结尾"
+    }
+  ]
+}
