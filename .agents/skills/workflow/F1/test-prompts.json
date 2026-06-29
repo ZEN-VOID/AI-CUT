@@ -2,12 +2,17 @@
   {
     "id": "full-auto-edit-with-reference",
     "prompt": "使用 $F1：参考 projects/测试/示例，用 projects/测试/素材/视频/a.mp4、文案 b.md、旁白 c.mp3，输出到 projects/测试/结果。",
-    "expected": "先锁定输入并写 PRP；分析参考节奏；生成卡点 master.srt、dialogue_alignment*.json 和 subtitle_style*.json；未指定样式时默认 720p 字号 20、中文单行约 14-16 字；渲染 final MP4；执行解码、ffprobe、SRT 结构、字幕台词对齐、字幕样式、抽帧和报告落盘。"
+    "expected": "先锁定输入并写 PRP；分析参考节奏；生成卡点 master.srt、dialogue_alignment*.json 和 subtitle_style*.json；dialogue_alignment 必须含 ASR word/char span 与 ASR/文案内容匹配率，或逐 cue 人工听看确认；未指定样式时默认 720p 全片锁定字号 30、font_size_lock=true、font_size_scope=global、auto_shrink=false、max_lines=1、line_break_policy=single-line、中文单行约 14-16 字且不得显式换行；渲染 final MP4；执行解码、ffprobe、SRT 结构、字幕单行、字幕台词对齐、字幕样式、抽帧和报告落盘。"
+  },
+  {
+    "id": "project-initialization-default-date",
+    "prompt": "使用 $F1 初始化项目。",
+    "expected": "路由到 project_initialization，只执行 N0 -> N8；默认用当日 MMDD 在 projects/ 下创建项目根，若同名已存在则追加 -2、-3；只创建 示例、素材、素材/音频、素材/图片、素材/文案、素材/视频、素材/视频/操作展示、素材/视频/工具使用、素材/视频/影像内容、结果 10 个目录；不得创建 README、MEMORY、CONTEXT、.gitkeep、project.md、视频说明.yaml、PRP、报告、结果/文案xx、结果/最终交付、素材/视频/video_manifest_work 或任何文件；完成后返回 project root、后缀选择记录和目录验证结果。"
   },
   {
     "id": "subtitle-sync-repair",
     "prompt": "使用 $F1 修复 projects/测试/结果/final.mp4，字幕和旁白不太卡点。",
-    "expected": "路由到 repair_sync；备份旧 final；检查旧 SRT 来源和 dialogue_alignment 证据；若无 ASR 则用真实 speech interval 绑定语义字幕并生成 dialogue_alignment*.json；重渲染并验证。"
+    "expected": "路由到 repair_sync；备份旧 final；检查旧 SRT 来源、dialogue_alignment 证据和 ASR/文案内容匹配率；优先重建 ASR word/char 时间轴；若无 ASR，speech interval 只能作为 draft 定位线，必须逐 cue 人工听看确认并写入 strict sync evidence；重渲染后运行 validate_dialogue_alignment.py --strict。"
   },
   {
     "id": "plan-only-prp",
@@ -17,12 +22,27 @@
   {
     "id": "asr-unavailable-fallback",
     "prompt": "使用 $F1 自动剪辑，但当前没有火山 ASR 和 OpenAI 凭证。",
-    "expected": "明确记录 ASR 凭证缺失；禁止用全片比例字幕作为 final；使用文案语义分块加 silencedetect 停顿边界生成 SRT，并生成每条 cue 对应 speech interval 与 script span 的 dialogue_alignment*.json。"
+    "expected": "明确记录 ASR 凭证缺失；禁止用全片比例字幕、silencedetect 停顿边界或 speech interval 作为 final 完成口径；最多生成 draft SRT 和人工听看定位线。只有逐 cue 人工听看确认并在 dialogue_alignment*.json 写入 strict sync evidence 后，才能继续 final；否则输出阻断/待审报告。"
   },
   {
     "id": "dialogue-alignment-gate",
     "prompt": "使用 $F1 审查已有 final：SRT validator 通过，final 时长也贴近旁白，但用户说字幕和音频台词不是一回事。",
-    "expected": "不得因 SRT 结构和时长通过而判定完成；必须检查或生成 dialogue_alignment*.json，逐条核对 cue text、audio_span、script_span、source_method 和 verdict；缺失、乱序、重复或落在错误发声区间时路由回 N4。"
+    "expected": "不得因 SRT 结构和时长通过而判定完成；必须检查或生成 dialogue_alignment*.json，逐条核对 cue text、audio_span、script_span、source_method、ASR word/char span、ASR/文案内容匹配率或人工听看确认和 verdict；必须运行 validate_dialogue_alignment.py --strict；缺失、低匹配率、乱序、重复、落在错误发声区间或只有 fallback 来源时路由回 N4。"
+  },
+  {
+    "id": "strict-sync-required",
+    "prompt": "使用 $F1：严格同步是必须的，不能接受字幕和台词大概对上。",
+    "expected": "把严格同步作为 P0 完成门：N4 必须生成 ASR word/char timestamps 和 ASR/文案内容匹配率，或逐 cue 人工听看确认；silencedetect、speech interval、SRT 结构、时长贴近和抽帧可读都不能单独放行 final。N7 必须运行 validate_srt.py --strict-boundaries 和 validate_dialogue_alignment.py --strict；任一 cue 缺 strict sync evidence、缺内容匹配率、低于门槛或出现半词/半模型名/句尾字粘连边界错误时阻断交付并回到 N4。"
+  },
+  {
+    "id": "dialogue-content-match-ratio",
+    "prompt": "使用 $F1：已有 ASR word span，但用户说有几句字幕和台词根本不匹配。",
+    "expected": "不能只因 ASR span 存在而放行；必须检查 dialogue_alignment*.json 的 ASR/文案内容匹配率。低于默认门槛、缺 match_ratio、或 cue 串到相邻发声段时，回到 N4 用 ASR segment/word 边界重建字幕；只有逐 cue 人工听看确认后才能覆盖低匹配率。"
+  },
+  {
+    "id": "subtitle-boundary-strictness",
+    "prompt": "使用 $F1：字幕和声音大体同步，但字幕把 GPTImages2 切成两半，还出现“地现在”“提/供”这种断词。",
+    "expected": "不能把这类输出判成 final；N4 必须重切 cue 边界，保留英文/模型名 token、中文词和句尾字边界；N7 运行 validate_srt.py --strict-boundaries，阻断半词、半模型名和句尾字粘连后再重渲染。"
   },
   {
     "id": "video-description-manifest-selection",
@@ -40,14 +60,39 @@
     "expected": "N5 必须生成 material_composition[]，按 dialogue cue/audio_span 排序，而不是按目录顺序或固定比例拼接。结果/钩子和尾钩 cue 优先 aigc_content；工具参数 cue 优先 tool_display；操作步骤 cue 优先 operation_demo。每个 composition 条目记录 primary_category、visual_role、cue_indices、audio_span、visual_span、source_file/segment_id、selection_reason、transition_policy、category_evidence、subtitle_risk 和 verdict。N6 按该计划渲染一条主视觉轨；N7 校验 final 顺序与 material_composition[] 一致。"
   },
   {
+    "id": "background-music-material-mix",
+    "prompt": "使用 $F1：项目里还提供了 projects/0624/素材/音频/BGM.mp4，BGM 也要节选后匹配画面节奏，一起成片，但不能盖住旁白。",
+    "expected": "N1 必须把显式路径或 素材/音频/BGM.* 识别为 background_music 输入并 ffprobe 音频流；N3/N5 记录 BGM 可用段、beat/drop/rise 和画面节奏关系；N5 生成 bgm_mix_plan*.json 或 audio_mix_plan*.json.background_music，包含 source_file、source_start/source_end、target_start/target_end、selection_reason、visual_sync_points、rhythm_match、fade_in/out、loop_policy、ducking、volume_db、voiceover_priority=true 和 verdict=pass；N6 以旁白为主时钟混入 BGM，做 ducking、淡入淡出和必要 loop/intentional gap；N7 运行 validate_bgm_mix_plan.py --require-bgm，并抽听/记录 final 音轨中 BGM 不硬切、不爆音、不整段乱铺、不压旁白。"
+  },
+  {
+    "id": "image-material-manifest-routing",
+    "prompt": "使用 $F1：项目里有 projects/测试/素材/视频/视频说明.yaml，也有 projects/测试/素材/图片/图片说明.yaml。文案需要穿插结果截图、工具界面截图和对比图。",
+    "expected": "N1 必须分别读取 视频说明.yaml 和 图片说明.yaml，不能把图片条目混进 videos[]。N5 使用 images[] 时必须生成 primary_category=image_asset 的 material_composition 条目，记录 image_id、file、role、cue_indices、audio_span、visual_span、presentation_policy、selection_reason、category_evidence.image_match、subtitle_risk 和 verdict；不得按图片文件名、目录顺序或创建时间直接铺图。N6 派生裁切/缩放/背景版时不得覆盖 素材/图片 原文件；N7 抽图片段 final 帧确认图片语义、裁切、字幕安全区和遮挡风险。"
+  },
+  {
     "id": "video-to-manifest-satellite-generation",
     "prompt": "使用 $F1：先为 projects/0622/素材/视频 生成或更新 视频说明.yaml，然后再用于后续自动剪辑。",
-    "expected": "N1 不直接进入 final 渲染；先路由到 video-to-manifest/ 卫星，生成 material-evidence.json、抽帧、LLM-authored 视频级和 segments[] 字段、validation report 与 canonical 视频说明.yaml；回接 F1 时报告 manifest_path、manifest_status、validation verdict 和残余 warnings。"
+    "expected": "N1 不直接进入 final 渲染；先路由到 _shared/video-to-manifest/ 共享卫星，生成 material-evidence.json、抽帧、LLM-authored 视频级和 segments[] 字段、validation report 与 canonical 视频说明.yaml；回接 F1 时报告 manifest_path、manifest_status、validation verdict 和残余 warnings。"
   },
   {
     "id": "subtitle-style-customization",
-    "prompt": "使用 $F1 自动剪辑，字幕改成 PingFang SC，字号 22，黄色字，黑色粗描边，底部安全区，单行不超过 12 个字，必要时加半透明黑底。",
-    "expected": "N1/N2 把字体、字号、颜色、描边、位置、行宽和底盒要求写入 PRP；N6 生成 subtitle_style*.json 并通过 validate_subtitle_style.py；渲染时只能从该 JSON 投影 ASS/libass 样式；N7 抽查最长 cue 和高风险背景帧，报告字体 fallback、样式验收和残余风险。"
+    "prompt": "使用 $F1 自动剪辑，字幕改成 PingFang SC，字号 22，黄色字，黑色粗描边，底部安全区，单行不超过 12 个字，不要跳行，必要时加半透明黑底。",
+    "expected": "N1/N2 把字体、字号、颜色、描边、位置、单行行宽、不跳行和底盒要求写入 PRP；用户指定的字号 22 必须成为全片锁定字号；N6 生成 subtitle_style*.json，必须包含 font_size=22、font_size_lock=true、font_size_scope=global 或等价全片范围、auto_shrink=false、max_lines=1 和 line_break_policy=single-line/no-explicit-breaks，并通过 validate_subtitle_style.py；不得写入 font_size_overrides/per_cue_font_size/cue_font_sizes；渲染时只能从该 JSON 投影 ASS/libass 样式；N7 抽查最长 cue 和高风险背景帧，报告字体 fallback、固定字号、单行样式验收和残余风险。"
+  },
+  {
+    "id": "subtitle-single-line-no-breaks",
+    "prompt": "使用 $F1 自动剪辑，输出字幕文字要一行，不要跳行。",
+    "expected": "N1/N2 将单行字幕和全片固定字号作为硬约束写入计划；N4 生成 master.srt 时每个 cue 只能一行文本，且不得含 ASS \\\\N、HTML <br> 或 SRT 多文本行；内容过多时按 ASR word span 或同一 speech interval 内说话时间拆成多个单行 cue；N6 subtitle_style*.json 必须 font_size_lock=true、font_size_scope=global 或等价全片范围、auto_shrink=false、max_lines=1、line_break_policy=single-line/no-explicit-breaks，且不得含逐 cue 字号覆盖；N7 运行 validate_srt.py、validate_subtitle_style.py 和 dialogue_alignment 校验，并抽帧确认最终字幕未跳行、字号未变化。"
+  },
+  {
+    "id": "subtitle-long-line-split-by-speech-time",
+    "prompt": "使用 $F1 自动剪辑，字幕必须一行显示；如果一句话太长，就按说话时间切成多个字幕，但仍然要和旁白台词一致。",
+    "expected": "N4 不允许把长字幕写成两行，也不得通过自动缩小或逐 cue 改字号塞入同一画面；ASR 可用时按词级时间戳拆成多个单行 cue；ASR 不可用时先由 LLM/人工把同一真实发声区间内的台词拆成连续子块，再用 speech interval 内时间投影。每个拆分 cue 都必须有独立 audio_span、script_span、source_method 和 verdict=pass；subtitle_style*.json 必须锁定全片字号并禁用 auto_shrink；validate_srt.py 通过单行校验，validate_subtitle_style.py 通过固定字号校验，validate_dialogue_alignment.py 确认拆分后的 cue 数与 SRT 一致。"
+  },
+  {
+    "id": "subtitle-font-size-lock-no-wrap",
+    "prompt": "使用 $F1：字幕字号固定，不能为了长句变小，也不能换行。",
+    "expected": "N1/N2 将字幕全片固定字号和不换行作为硬约束；N6 subtitle_style*.json 必须包含 font_size、font_size_lock=true、font_size_scope=global 或等价全片范围、auto_shrink=false、max_lines=1、line_break_policy=single-line/no-explicit-breaks，且不得包含 font_size_overrides/per_cue_font_size/cue_font_sizes；长句回 N4 按 ASR word span 或 speech interval 内说话时间拆为多个单行 cue，每个拆分 cue 保留 audio_span、script_span 和 dialogue verdict；N7 validate_subtitle_style.py 必须阻断自动缩小和逐 cue 字号覆盖，抽帧确认字幕字号一致且未换行。"
   },
   {
     "id": "tool-screen-subtitle-alignment",
@@ -55,13 +100,43 @@
     "expected": "N5 必须识别工具段并生成 visual_alignment_plan*.json.tool_screen_alignment[]；每个工具条目绑定 cue_indices、audio_span、script_span、visual_span、source_file、segment_id、screen_state、spoken_topic 和 match_evidence；不能只用泛化工具录屏。N7 运行视觉计划校验并抽工具段 final 帧。"
   },
   {
+    "id": "picture-in-picture-reference-style",
+    "prompt": "使用 $F1 自动剪辑，参考视频里会把结果预览或局部效果以画中画压在工具界面/主画面上，后续也要按这种方式处理；不要挡字幕，也不要把参考视频内容直接拿来用。",
+    "expected": "N3 记录参考样片只提供 PiP 构图、节奏范式和触发密度，不直接复用参考内容；N5 必须判断 PiP 触发候选并生成 visual_alignment_plan*.json.pip_density_policy 与 picture_in_picture[]。pip_density_policy 记录 density_mode、triggerable_cue_count、target_count、actual_count、density_basis、cadence_sec 或 target_screen_time_ratio、min_video_duration_sec>=4、min_image_duration_sec>=3、duration_policy、overuse_guardrail；每个画中画条目记录 trigger_source、pip_type、pip_role、pip_media_type、duration_policy、cue_indices、script_span、audio_span、visual_span、base_layer_ref 或 material_composition_id、overlay_source、content_evidence、placement_decision 或 layout_decision、position_strategy、layout、style/presentation、motion、safe_zone、layer_order=before_hard_subtitles 或等价低于硬字幕层、selection_reason 和 verdict。视频 PiP visual_span 至少 4 秒，图片 PiP 至少 3 秒；若 cue 短于门槛，visual_span 必须仍与 audio_span 有交集并记录停留策略。类型可在 hero_pip_preview、corner_pip、tool_detail_zoom、before_after_comparison、result_preview、reference_style_echo、process_context 中按语义选择；position_strategy 必须说明受控随机/轮换候选区、选中区、randomization_seed、碰撞检查和重复位置理由；参考视频内容不得作为 overlay_source，除非用户明确授权。N6 先渲染 PiP overlay 再烧硬字幕；N7 运行 validate_visual_alignment_plan.py --require-pip --min-pip-video-duration 4 --min-pip-image-duration 3 --require-pip-duration-policy 并抽 PiP 区间 final 帧，确认密度、停留时长、位置变化、入场方式、来源匹配且不遮挡硬字幕、关键 UI、脸部或主体动作。"
+  },
+  {
+    "id": "picture-in-picture-density-random-position",
+    "prompt": "使用 $F1 强化画中画：画中画出现位置要随机，触发密度加大，触发数量增加，但不要挡字幕和关键 UI。",
+    "expected": "路由到 repair_picture_in_picture 或 full_auto_edit 的 N5。必须先建立 PiP 触发候选池，覆盖结果预览、局部放大、前后对比、工具上下文保留、效果证明、关键 UI/参数放大、导出/成片结果等 cue；生成 pip_density_policy，用户要求加密/增加/随机时 density_mode 默认 high，记录 triggerable_cue_count、target_count、actual_count、density_basis、cadence_sec 或 target_screen_time_ratio、min_video_duration_sec>=4、min_image_duration_sec>=3、duration_policy、overuse_guardrail，素材不足或安全区冲突时写 fallback_reason。每个 PiP 条目必须有 pip_media_type、duration_policy 和 position_strategy：mode 可用 weighted_safe_random/seeded_safe_random/rotating_safe_zone/reference_style_weighted/source_tethered，记录 candidate_zones、selected_zone、randomization_seed 或 seed_basis、collision_checks、rejected_zones 和 selection_reason；视频 PiP 停留至少 4 秒，图片 PiP 停留至少 3 秒；相邻 PiP 不得无理由重复同一 layout_zone，3 个窗口内至少 2 种位置策略或布局区，tool_detail_zoom 因源区域锁定时必须写 position_lock_reason。N7 必须用 validate_visual_alignment_plan.py --require-pip --min-pip-video-duration 4 --min-pip-image-duration 3 --require-pip-duration-policy 校验 density policy、时长和 position strategy，并抽帧确认数量、停留时长、位置变化、字幕/关键 UI/脸部/主体动作避让。"
+  },
+  {
+    "id": "picture-in-picture-aligned-three-cue-related-group",
+    "prompt": "使用 $F1 修复画中画：多个画中画出现的位置要整齐一点，一般默认 3 个一组，而且内容要和当前讲述中的文案有关联。",
+    "expected": "路由到 repair_picture_in_picture 的 N5/N6/N7。必须保留或重建 PiP 触发组，并在 pip_density_policy 中记录 default_group_size/default_frames_per_trigger=3、group_layout_policy、content_relevance_policy、min_video_duration_sec>=4、min_image_duration_sec>=3、duration_policy、target_count、actual_count、trigger_group_count 和 overuse_guardrail；同一 cluster_id 下默认 3 个 picture_in_picture 条目，每个条目写 cue_indices、cue_text、content_evidence、pip_media_type、duration_policy、overlay_source、base_layer_ref/material_composition_id、visual/audio/script span、layout_group(group_id/layout_mode/alignment_axis/group_size/slot/slot_count)、position_strategy、layout、safe_zone、presentation/motion、layer_order 和 render_evidence。视频 PiP visual_span 至少 4 秒，图片 PiP 至少 3 秒；组内布局必须左中右整齐对齐；若大字报占用上方主强调带，切换到下方对齐行并记录碰撞避让。N6 重新渲染 final；N7 运行 validate_visual_alignment_plan.py --expected-pip-group-size 3 --require-pip-aligned-groups --require-pip-cue-text-evidence --min-pip-video-duration 4 --min-pip-image-duration 3 --require-pip-duration-policy --require-render-parity，并抽每个 trigger group 的 final 帧确认三窗整齐、停留达标、内容贴当前文案且不遮挡字幕/大字报/关键 UI。"
+  },
+  {
+    "id": "visual-transition-strengthening-reference-style",
+    "prompt": "使用 $F1 强化转场：参考视频切得很密，有闪白、黑场重置、工具到结果的快速切换和动作连击感；视频拼接时转场特效要更丰富一点，请解析参考视频并把这种节奏用到成片里，但不要挡字幕。",
+    "expected": "路由到 repair_visual_transition 或 full_auto_edit 的 N3/N5。N3 必须解析参考视频的时长、场景切点、强切点、切点簇、闪白/黑场/快速推拉/工具到结果/动作连击等观察；若参考视频类似 40 秒内 20+ 个切点且没有长静音，转场触发应以视觉切点、素材类别边界、语义阶段、BGM/旁白强拍为主，不得依赖静音边界。N5 必须建立转场候选池，覆盖 material_category_switch、semantic_phase_change、tool_context_switch、result_reveal、beat_sync、action_continuity、hook_punch 和 tail_hook；生成 transition_density_policy，用户要求强化、参考高频或要求拼接特效更丰富时 density_mode 默认 high/reference_high_frequency，记录 candidate_boundary_count、target_count、actual_count、density_basis、target_interval_sec 或 cadence_sec、overuse_guardrail、effect_palette 和 richness_policy，素材不足或 overlay 冲突时写 fallback_reason。每个 visual_transitions[] 条目必须记录 trigger_source、transition_type、transition_role、cue_indices、script_span、audio_span、visual_span、duration_sec、from_material_composition_id、to_material_composition_id、selection_reason、rhythm_sync、effect_style/effect_profile、safe_zone、layer_order 和 verdict；effect_style/effect_profile 必须包含 effect_family、style_preset、parameters、intensity、variation_reason 或 variant_seed。类型可在 hard_cut_on_beat、match_cut、motion_match_cut、whip_pan_blur、zoom_push、speed_ramp_cut、flash_cut、black_flash、glitch_snap、light_sweep、parallax_push、radial_blur_zoom、film_burn、particle_wipe、ink_wipe、datamosh_snap、rgb_split_glitch 中按前后素材关系选择；tool_display -> aigc_content 可优先 tool_glitch_snap/result_flash_reveal/zoom_depth_push，operation_demo -> tool_display 可优先 beat_punch_cut/mask_ui_wipe，aigc_content -> aigc_content 可优先 whip_motion_bridge/speed_ramp_impact/film_burn_reveal，image_asset 与视频之间可优先 parallax_slide_depth/luma_magic_wipe。soft_crossfade 只能作有理由的 fallback smoothing。相邻转场不得无理由重复同一 transition_type 或同一 effect_family；N6 在主视觉层或 overlay 之前完成转场，硬字幕最后烧录；N7 运行 validate_visual_alignment_plan.py --require-transitions 并抽关键转场边界 final 帧或短预览，确认节奏、类型/效果族/预设/参数多样性、层级和字幕安全。"
+  },
+  {
     "id": "title-card-cue-alignment",
-    "prompt": "使用 $F1 自动剪辑，把开头钩子和结尾结论做成大字报，大字报内容要跟字幕和旁白对齐。",
-    "expected": "N5 根据用户圈定或自动强调规则生成 title_card_plan*.json 或 visual_alignment_plan*.json.title_cards[]；每张大字报记录 trigger_source、card_type、text_policy、card_text、source_text、cue_indices、script_span、audio_span、visual_span、duration_policy、layout、safe_zone、style_ref、subtitle_text、subtitle_display_policy、layer_order=before_hard_subtitles、selection_reason 和 verdict；自动压缩必须记录 compression_reason，不得新增脚本外信息；N6 先叠大字报视觉层再烧字幕，N7 抽对应帧验证遮挡、安全区和 cue 对齐。"
+    "prompt": "使用 $F1 自动剪辑，把开头钩子和结尾结论做成当前画面里的大字报特效文字，大字报内容要跟字幕和旁白对齐。",
+    "expected": "N5 根据用户圈定或自动强调规则生成 title_card_plan*.json 或 visual_alignment_plan*.json.title_cards[]；每张大字报记录 trigger_source、card_type、text_policy、text_determination、card_text、source_text、supporting_sources、cue_indices、script_span、audio_span、visual_span、presentation_timing、duration_policy、layout、safe_zone、style_ref、effect_style、subtitle_text、subtitle_display_policy、layer_order=before_hard_subtitles、selection_reason 和 verdict；effect_style 必须包含 entrance_effect 和 entrance_effect_reason / entrance_fit_reason；自动压缩必须记录 analysis_basis 和 compression_reason，不得新增已有文案和已加载资料无法支撑的信息；N6 先叠当前画面特效文字视觉层再烧字幕，N7 抽对应帧验证遮挡、安全区、入场效果、文字特效和 cue 对齐。"
   },
   {
     "id": "title-card-processing-detail",
-    "prompt": "使用 $F1 自动剪辑，可以自动加大字报，但不要满屏乱飞，也不要挡住底部字幕或工具界面。",
-    "expected": "N5 必须按 Title Card Processing Detail Contract 判断是否触发大字报；自动强调默认克制，过密触发要记录 density_reason。每张卡必须声明 card_type、text_policy、source_text、duration_policy、safe_zone、subtitle_display_policy 和 layer_order=before_hard_subtitles；工具/操作画面上的 callout_label 必须避开关键 UI，full_frame_card 必须记录 background_policy。N7 校验 title card processing verdict，并抽帧确认不遮挡最终硬字幕、关键 UI 或主体动作。"
+    "prompt": "使用 $F1 自动剪辑，可以自动加大字报特效文字，但要明确写什么、什么时候出现、用什么文字特效和尺寸，并给一个合适的入场效果，不要满屏乱飞，也不要挡住底部字幕或工具界面。",
+    "expected": "N5 必须按 Title Card Processing Detail Contract 判断是否触发大字报；自动强调默认克制，过密触发要记录 density_reason。每张卡必须声明 text_determination、supporting_sources、presentation_timing、layout、effect_style、text_policy、source_text、duration_policy、safe_zone、subtitle_display_policy 和 layer_order=before_hard_subtitles；effect_style 必须包含尺寸/字号策略、文字特效或动效策略、entrance_effect、entrance_effect_selection 以及入场适配理由；emphasis_overlay 默认 layout_zone=hero_emphasis_band，720p font_size_min>=90，入场效果从 kinetic_pop、zoom_blur_in、light_sweep_reveal、wipe_stretch_in、slam_bounce、glitch_snap、parallax_push_in、typewriter_snap、shimmer_scale_in 或等价 custom 中按 cue_role、semantic_energy、visual_motion、background_complexity 和 diversity_check 选择；工具/操作画面上的 callout_label 必须避开关键 UI，full_frame_card 只能作为 fallback 并记录 background_policy。N7 校验 title card processing verdict，并抽帧确认入场效果合适且不遮挡最终硬字幕、关键 UI 或主体动作。"
+  },
+  {
+    "id": "title-card-blue-box-hero-layout",
+    "prompt": "使用 $F1 修复已有成片：截图里大字报现在在红框顶部小黑条位置，我要移到蓝框这种画面中部偏上的宽幅位置，文字更大，并加更炫酷的入场特效。",
+    "expected": "路由到 repair_title_card 并回到 N5/N6；不得只改 ffmpeg 坐标。必须重建或更新 title_card_plan*.json / visual_alignment_plan*.json.title_cards[]：emphasis_overlay 默认 layout.layout_zone=hero_emphasis_band，720p 横屏约 x=12%-88%、y=30%-56%，记录 anchor、x_pct、y_pct、width_pct、height_pct、safe_margin_bottom_to_subtitle_px>=120、collision_avoidance；effect_style.font_size_min>=90，短强词推荐 108-128 或更大；entrance_effect 从 kinetic_pop、zoom_blur_in、light_sweep_reveal、wipe_stretch_in、slam_bounce、glitch_snap、parallax_push_in、typewriter_snap、shimmer_scale_in 或等价 custom 中选择，并写入 entrance_effect_reason 和 entrance_effect_selection。若因主体/UI冲突回退到顶部或局部区域，必须有 layout_fallback_reason 和抽帧证据；否则红框式 top_banner/top_center、小字号、普通 fade_in 或静态黑底黄字均判定失败。"
+  },
+  {
+    "id": "title-card-entrance-effect-selection-diversity",
+    "prompt": "使用 $F1 修复大字报：入场特效不要千篇一律，要有点选择机制，不要每个都是同一个弹出。",
+    "expected": "路由到 repair_title_card 并回到 N5。每张 hero 大字报必须写入 effect_style.entrance_effect_selection，至少包含 cue_role、semantic_energy、visual_motion、background_complexity、candidate_effects、selected_effect、rejected_effects、selection_reason 和 diversity_check。选择遵循矩阵：短钩子/痛点可用 kinetic_pop/slam_bounce，工具/参数可用 typewriter_snap/glitch_snap，飞行/纵深可用 parallax_push_in/zoom_blur_in，结果质感可用 light_sweep_reveal/shimmer_scale_in，步骤切换可用 wipe_stretch_in。相邻 hero 大字报不得重复同一个主 entrance_effect；3 张窗口内至少 2 种主效果。若为了连续节奏重复，必须记录 repetition_reason 和 variation_detail；否则 validator 判定失败。"
   }
 ]

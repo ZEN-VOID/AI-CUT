@@ -1,82 +1,0 @@
-Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/Volumes/AIGC/AI-CUT/projects/0622/结果/文案4/auto-edit/edit/visual_no_subtitles.mp4':
-  Metadata:
-    major_brand     : isom
-    minor_version   : 512
-    compatible_brands: isomiso2avc1mp41
-    encoder         : Lavf62.3.100
-  Duration: 00:00:37.77, start: 0.000000, bitrate: 3201 kb/s
-  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 1280x720 [SAR 1:1 DAR 16:9], 3198 kb/s, 30 fps, 30 tbr, 15360 tbn (default)
-    Metadata:
-      handler_name    : VideoHandler
-      vendor_id       : [0][0][0][0]
-      encoder         : Lavc62.11.100 libx264
-Input #1, mp3, from '/Volumes/AIGC/AI-CUT/projects/0622/素材/音频/文案4-音频.mp3':
-  Metadata:
-    AIGC            : {"Label":"1","ContentProducer":"MiniMax","ProduceID":"0687f4180458a024876b28c87b1d5030","ReservedCode1":"{\"SecurityData\":{\"Type\":\"TC260PG\",\"Version\":1,\"PubSD\":[{\"Type\":\"DS\",\"AlgID\":\"1.2.156.10197.1.501\",\"TBSData\":{\"Type\":\"LabelMataD
-    encoder         : Lavf59.27.100
-  Duration: 00:00:37.80, start: 0.016531, bitrate: 128 kb/s
-  Stream #1:0: Audio: mp3 (mp3float), 32000 Hz, mono, fltp, 128 kb/s, start 0.016531
-[Parsed_ass_0 @ 0x9b0c39380] libass API version: 0x1704000
-[Parsed_ass_0 @ 0x9b0c39380] libass source: tarball: 0.17.4
-[Parsed_ass_0 @ 0x9b0c39380] Shaper: FriBidi 1.0.16 (SIMPLE) HarfBuzz-ng 12.1.0 (COMPLEX)
-[Parsed_ass_0 @ 0x9b0c39380] Using font provider coretext
-[Parsed_ass_0 @ 0x9b0c39380] Added subtitle file: '/Volumes/AIGC/AI-CUT/projects/0622/结果/文案4/auto-edit/edit/master.ass' (2 styles, 24 events)
-Stream mapping:
-  Stream #0:0 -> #0:0 (h264 (native) -> h264 (libx264))
-  Stream #1:0 -> #0:1 (mp3 (mp3float) -> aac (native))
-Press [q] to stop, [?] for help
-[Parsed_ass_0 @ 0x9b0d88cc0] libass API version: 0x1704000
-[Parsed_ass_0 @ 0x9b0d88cc0] libass source: tarball: 0.17.4
-[Parsed_ass_0 @ 0x9b0d88cc0] Shaper: FriBidi 1.0.16 (SIMPLE) HarfBuzz-ng 12.1.0 (COMPLEX)
-[Parsed_ass_0 @ 0x9b0d88cc0] Using font provider coretext
-[Parsed_ass_0 @ 0x9b0d88cc0] Added subtitle file: '/Volumes/AIGC/AI-CUT/projects/0622/结果/文案4/auto-edit/edit/master.ass' (2 styles, 24 events)
-[libx264 @ 0x9b0c6d180] using SAR=1/1
-[libx264 @ 0x9b0c6d180] using cpu capabilities: ARMv8 NEON DotProd I8MM
-[libx264 @ 0x9b0c6d180] profile High, level 3.1, 4:2:0, 8-bit
-[libx264 @ 0x9b0c6d180] 264 - core 165 r3222 b35605a - H.264/MPEG-4 AVC codec - Copyleft 2003-2025 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=15 lookahead_threads=2 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=25 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=18.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
-Output #0, mp4, to '/Volumes/AIGC/AI-CUT/projects/0622/结果/文案4/文案4_final.mp4':
-  Metadata:
-    major_brand     : isom
-    minor_version   : 512
-    compatible_brands: isomiso2avc1mp41
-    encoder         : Lavf62.3.100
-  Stream #0:0(und): Video: h264 (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 1280x720 [SAR 1:1 DAR 16:9], q=2-31, 30 fps, 15360 tbn (default)
-    Metadata:
-      encoder         : Lavc62.11.100 libx264
-      handler_name    : VideoHandler
-      vendor_id       : [0][0][0][0]
-    Side data:
-      cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
-  Stream #0:1: Audio: aac (LC) (mp4a / 0x6134706D), 32000 Hz, mono, fltp, 192 kb/s
-    Metadata:
-      encoder         : Lavc62.11.100 aac
-[Parsed_ass_0 @ 0x9b0d88cc0] Error opening font: '/System/Library/PrivateFrameworks/FontServices.framework/Resources/Reserved/PingFangUI.ttc', 0
-[Parsed_ass_0 @ 0x9b0d88cc0] Error opening font: '/System/Library/PrivateFrameworks/FontServices.framework/Resources/Reserved/PingFangUI.ttc', 0
-[Parsed_ass_0 @ 0x9b0d88cc0] Error opening font: '/System/Library/PrivateFrameworks/FontServices.framework/Resources/Reserved/PingFangUI.ttc', 0
-[Parsed_ass_0 @ 0x9b0d88cc0] Error opening font: '/System/Library/PrivateFrameworks/FontServices.framework/Resources/Reserved/PingFangUI.ttc', 0
-[Parsed_ass_0 @ 0x9b0d88cc0] Error opening font: '/System/Library/PrivateFrameworks/FontServices.framework/Resources/Reserved/PingFangUI.ttc', 0
-[Parsed_ass_0 @ 0x9b0d88cc0] Error opening font: '/System/Library/PrivateFrameworks/FontServices.framework/Resources/Reserved/PingFangUI.ttc', 0
-[Parsed_ass_0 @ 0x9b0d88cc0] fontselect: (PingFang SC, 400, 0) -> /System/Library/AssetsV2/com_apple_MobileAsset_Font8/86ba2c91f017a3749571a82f2c6d890ac7ffb2fb.asset/AssetData/PingFang.ttc, -1, PingFangSC-Regular
-frame=    4 fps=0.0 q=24.0 size=       0KiB time=00:00:00.06 bitrate=   5.8kbits/s speed=0.133x elapsed=0:00:00.50    frame=   52 fps= 52 q=24.0 size=     768KiB time=00:00:01.66 bitrate=3775.1kbits/s speed=1.66x elapsed=0:00:01.00    frame=   90 fps= 60 q=24.0 size=    1280KiB time=00:00:02.93 bitrate=3574.8kbits/s speed=1.95x elapsed=0:00:01.50    frame=  123 fps= 61 q=24.0 size=    1792KiB time=00:00:04.03 bitrate=3639.8kbits/s speed=   2x elapsed=0:00:02.01    frame=  167 fps= 66 q=24.0 size=    2560KiB time=00:00:05.50 bitrate=3813.1kbits/s speed=2.19x elapsed=0:00:02.51    frame=  202 fps= 67 q=24.0 size=    2816KiB time=00:00:06.66 bitrate=3460.4kbits/s speed=2.21x elapsed=0:00:03.01    frame=  264 fps= 75 q=24.0 size=    3584KiB time=00:00:08.73 bitrate=3361.9kbits/s speed=2.48x elapsed=0:00:03.51    frame=  332 fps= 83 q=24.0 size=    4352KiB time=00:00:11.00 bitrate=3241.1kbits/s speed=2.74x elapsed=0:00:04.01    frame=  398 fps= 88 q=24.0 size=    5120KiB time=00:00:13.20 bitrate=3177.5kbits/s speed=2.92x elapsed=0:00:04.52    frame=  453 fps= 90 q=24.0 size=    5888KiB time=00:00:15.03 bitrate=3208.5kbits/s speed=2.99x elapsed=0:00:05.02    frame=  503 fps= 91 q=24.0 size=    6656KiB time=00:00:16.70 bitrate=3265.1kbits/s speed=3.02x elapsed=0:00:05.52    frame=  552 fps= 92 q=24.0 size=    7168KiB time=00:00:18.33 bitrate=3202.9kbits/s speed=3.04x elapsed=0:00:06.03    frame=  608 fps= 93 q=24.0 size=    7936KiB time=00:00:20.20 bitrate=3218.4kbits/s speed=3.09x elapsed=0:00:06.53    frame=  642 fps= 91 q=24.0 size=    8448KiB time=00:00:21.33 bitrate=3244.1kbits/s speed=3.03x elapsed=0:00:07.04    frame=  714 fps= 95 q=24.0 size=    9216KiB time=00:00:23.73 bitrate=3181.1kbits/s speed=3.15x elapsed=0:00:07.54    frame=  808 fps=100 q=24.0 size=   10240KiB time=00:00:29.12 bitrate=2880.7kbits/s speed=3.62x elapsed=0:00:08.04    frame=  881 fps=103 q=24.0 size=   10752KiB time=00:00:31.52 bitrate=2794.4kbits/s speed=3.69x elapsed=0:00:08.55    frame=  964 fps=106 q=24.0 size=   12032KiB time=00:00:34.30 bitrate=2873.3kbits/s speed=3.79x elapsed=0:00:09.05    frame= 1011 fps=106 q=24.0 size=   13056KiB time=00:00:35.90 bitrate=2978.9kbits/s speed=3.76x elapsed=0:00:09.56    frame= 1045 fps=104 q=24.0 size=   13824KiB time=00:00:37.02 bitrate=3058.7kbits/s speed=3.68x elapsed=0:00:10.06    frame= 1092 fps=103 q=24.0 size=   14592KiB time=N/A bitrate=N/A speed=N/A elapsed=0:00:10.56    [out#0/mp4 @ 0x9b0c39080] video:14485KiB audio:619KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.192489%
-frame= 1133 fps=103 q=-1.0 Lsize=   15132KiB time=00:00:37.70 bitrate=3288.2kbits/s speed=3.44x elapsed=0:00:10.96    
-[libx264 @ 0x9b0c6d180] frame I:11    Avg QP:11.95  size: 64730
-[libx264 @ 0x9b0c6d180] frame P:336   Avg QP:18.38  size: 27161
-[libx264 @ 0x9b0c6d180] frame B:786   Avg QP:22.17  size:  6353
-[libx264 @ 0x9b0c6d180] consecutive B-frames:  3.6%  9.4%  6.9% 80.1%
-[libx264 @ 0x9b0c6d180] mb I  I16..4: 41.3% 23.3% 35.4%
-[libx264 @ 0x9b0c6d180] mb P  I16..4:  5.6% 14.2%  5.5%  P16..4: 20.2% 11.6%  6.3%  0.0%  0.0%    skip:36.6%
-[libx264 @ 0x9b0c6d180] mb B  I16..4:  0.9%  2.3%  0.8%  B16..8: 23.6%  6.5%  1.1%  direct: 2.3%  skip:62.5%  L0:41.7% L1:43.1% BI:15.2%
-[libx264 @ 0x9b0c6d180] 8x8 transform intra:53.8% inter:48.2%
-[libx264 @ 0x9b0c6d180] coded y,uvDC,uvAC intra: 52.8% 42.3% 12.9% inter: 9.8% 7.3% 0.9%
-[libx264 @ 0x9b0c6d180] i16 v,h,dc,p: 38% 39% 12% 12%
-[libx264 @ 0x9b0c6d180] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 18% 35% 23%  3%  4%  3%  5%  4%  6%
-[libx264 @ 0x9b0c6d180] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 22% 36% 14%  3%  6%  5%  6%  4%  5%
-[libx264 @ 0x9b0c6d180] i8c dc,h,v,p: 52% 29% 16%  3%
-[libx264 @ 0x9b0c6d180] Weighted P-Frames: Y:8.3% UV:1.5%
-[libx264 @ 0x9b0c6d180] ref P L0: 72.2% 12.1% 11.3%  4.3%  0.2%
-[libx264 @ 0x9b0c6d180] ref B L0: 89.6%  8.8%  1.6%
-[libx264 @ 0x9b0c6d180] ref B L1: 97.2%  2.8%
-[libx264 @ 0x9b0c6d180] kb/s:3141.70
-[aac @ 0x9b0d14380] Qavg: 65435.949
-ffmpeg -hide_banner -y -i /Volumes/AIGC/AI-CUT/projects/0622/结果/文案4/auto-edit/edit/visual_no_subtitles.mp4 -i /Volumes/AIGC/AI-CUT/projects/0622/素材/音频/文案4-音频.mp3 -vf ass=/Volumes/AIGC/AI-CUT/projects/0622/结果/文案4/auto-edit/edit/master.ass -map 0:v:0 -map 1:a:0 -c:v libx264 -preset medium -crf 18 -c:a aac -b:a 192k -shortest /Volumes/AIGC/AI-CUT/projects/0622/结果/文案4/文案4_final.mp4
-

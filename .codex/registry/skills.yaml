@@ -1,6 +1,6 @@
 version: 1
 repo: AIGC-FILM
-last_updated: 2026-06-04
+last_updated: 2026-06-25
 
 active_skills:
   - id: aigc
@@ -850,18 +850,79 @@ active_skills:
       work_root: "<result_dir>/auto-edit/edit/"
       output_carrier: "<result_dir>/<project-or-script-name>_final.mp4"
       mirror_policy: "F1 不创建项目 canonical runtime；单次运行产物写入用户指定结果目录，过程报告写入 PRPs/ 与 reports/。"
-  - id: workflow-f1-video-to-manifest
-    path: .agents/skills/workflow/F1/video-to-manifest
+  - id: workflow-f2-hyperframes-reference-video
+    path: .agents/skills/workflow/F2
     owner_office: shangshu
-    purpose: "F1 卫星技能：从单个视频或视频目录生成、更新、修复、校验 `视频说明.yaml`，为 F1 的素材选段、字幕避让和 EDL 计划提供结构化素材索引。"
+    purpose: "F2：完全基于 `.agents/skills/hyperframes/` 的参考节奏视频工作流，用 Codex 视频/图像理解建立素材证据和创作裁决，再由 HyperFrames composition、preview、validation 与 render 输出可审计成片。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/workflow/F2/"
+      hyperframes_skill_root: ".agents/skills/hyperframes/"
+      default_work_root: "videos/<project-slug>/"
+      result_dir_work_root: "<result_dir>/f2-hyperframes/<project-slug>/"
+      aigc_project_work_root: "projects/aigc/<项目名>/workflow/F2/<run_id>/"
+      output_carrier: "<work_root>/renders/<project-slug>_f2_final.mp4"
+      mirror_policy: "F2 不创建独立项目 canonical runtime；单次运行产物写入用户指定 result_dir、AIGC 项目 workflow/F2 运行区或 HyperFrames `videos/` 工程目录。F2 不依赖 F1 scripts；共享 video-to-manifest 仅可作为 optional evidence input，不替代 F2 asset_evidence。"
+  - id: workflow-shared-video-to-manifest
+    path: .agents/skills/workflow/_shared/video-to-manifest
+    owner_office: shangshu
+    purpose: "workflow 共享卫星技能：从单个视频或视频目录生成、更新、修复、校验 `视频说明.yaml`，为 F1、F2 和后续视频工作流提供结构化素材索引与 consumer handoff。"
     contract_mode: active
     route_role: satellite
-    parent_skill: workflow-f1-reference-voiceover-auto-edit
+    supported_consumers: [workflow-f1-reference-voiceover-auto-edit, workflow-f2-hyperframes-reference-video]
     runtime_control:
-      canonical_skill_root: ".agents/skills/workflow/F1/video-to-manifest/"
+      canonical_skill_root: ".agents/skills/workflow/_shared/video-to-manifest/"
       output_carrier: "<source_video_dir>/视频说明.yaml"
       work_root: "<source_video_dir>/video_manifest_work/"
       mirror_policy: "该卫星不创建项目 runtime，不生成 final MP4；单次运行只写 manifest、证据包、校验报告和 sidecar 报告。"
+  - id: hyperframes
+    path: .agents/skills/hyperframes
+    owner_office: shangshu
+    purpose: "HyperFrames by HeyGen repo-local 视频创作入口：用 HTML/CSS/JS、Tailwind、GSAP、Lottie、Three.js、字幕、配音和网页捕获生成可预览、可渲染的视频 composition。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/hyperframes/"
+      project_runtime: "由 HyperFrames CLI 初始化目录或用户指定工作目录承载；不创建 AIGC/story 项目 canonical runtime。"
+      mirror_policy: "该能力作为通用视频 composition 工具链使用；任务产物写入用户指定项目目录、output/ 或 HyperFrames CLI scaffold 目录。"
+    skill_family:
+      core:
+        - id: hyperframes-core
+          path: .agents/skills/hyperframes/hyperframes-core
+        - id: hyperframes-animation
+          path: .agents/skills/hyperframes/hyperframes-animation
+        - id: hyperframes-creative
+          path: .agents/skills/hyperframes/hyperframes-creative
+        - id: hyperframes-cli
+          path: .agents/skills/hyperframes/hyperframes-cli
+        - id: hyperframes-media
+          path: .agents/skills/hyperframes/hyperframes-media
+        - id: hyperframes-registry
+          path: .agents/skills/hyperframes/hyperframes-registry
+      workflows:
+        - id: general-video
+          path: .agents/skills/hyperframes/general-video
+        - id: product-launch-video
+          path: .agents/skills/hyperframes/product-launch-video
+        - id: website-to-video
+          path: .agents/skills/hyperframes/website-to-video
+        - id: faceless-explainer
+          path: .agents/skills/hyperframes/faceless-explainer
+        - id: pr-to-video
+          path: .agents/skills/hyperframes/pr-to-video
+        - id: embedded-captions
+          path: .agents/skills/hyperframes/embedded-captions
+        - id: graphic-overlays
+          path: .agents/skills/hyperframes/graphic-overlays
+        - id: motion-graphics
+          path: .agents/skills/hyperframes/motion-graphics
+        - id: remotion-to-hyperframes
+          path: .agents/skills/hyperframes/remotion-to-hyperframes
+        - id: media-use
+          path: .agents/skills/hyperframes/media-use
+        - id: music-to-video
+          path: .agents/skills/hyperframes/music-to-video
+        - id: slideshow
+          path: .agents/skills/hyperframes/slideshow
 
 planned_skills:
   - id: film-suite

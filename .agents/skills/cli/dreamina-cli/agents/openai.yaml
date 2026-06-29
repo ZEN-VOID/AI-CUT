@@ -1,4 +1,0 @@
-interface:
-  display_name: "Dreamina CLI"
-  short_description: "安装、登录并驱动即梦 CLI 的生成、查询、排队清单维护与排障工作流"
-  default_prompt: "使用 $dreamina-cli 安装并登录即梦 CLI，或提交、轮询、查询并维护 Dreamina 生成任务的排队清单。"

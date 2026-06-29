@@ -1,0 +1,4 @@
+interface:
+  display_name: "F2"
+  short_description: "HyperFrames-native reference video workflow"
+  default_prompt: "Use $F2 to build a HyperFrames-native reference-rhythm video from script, voiceover or transcript, source media, optional reference clips, and a target output directory."

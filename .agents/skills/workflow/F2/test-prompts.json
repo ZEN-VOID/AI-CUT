@@ -1,0 +1,77 @@
+[
+  {
+    "id": "f2-full-hyperframes-edit",
+    "prompt": "使用 $F2：用我的文案、旁白音频、素材视频目录和参考样片，基于 HyperFrames 输出一个 final MP4。",
+    "expected": "路由到 full_hyperframes_edit；加载 hyperframes、core、cli、media、animation、creative；生成素材证据、旁白主时钟、storyboard、composition plan、HyperFrames project；preview validate 后 render；报告 final path、验证证据和残余风险。"
+  },
+  {
+    "id": "f2-plan-only",
+    "prompt": "使用 $F2 先只做 PRP 和 storyboard，不要渲染。",
+    "expected": "路由到 plan_only；不执行 render；输出 F2 PRP、reference rhythm、asset evidence 摘要、dialogue clock 策略和 HyperFrames composition plan 草案。"
+  },
+  {
+    "id": "f2-hyperframes-project-no-render",
+    "prompt": "用 F2 把这个讲解脚本和素材做成可预览的 HyperFrames 工程，先别出最终视频。",
+    "expected": "因为用户明确说先别出最终视频，路由到 hyperframes_project_build；完成 N1-N7；输出可预览工程、snapshot/inspect 证据和报告；completion gate 停在 C6，并在报告中写明 no-render 豁免。"
+  },
+  {
+    "id": "f2-default-final-render",
+    "prompt": "使用 .agents/skills/workflow/F2，针对这个项目执行一轮任务，每个文案一条。",
+    "expected": "在有文案、旁白音频和素材池时默认路由到 full_hyperframes_edit；每条文案必须按默认 16:9、1920x1080 完成 preview validation 后 render final MP4；不能因为用户没有额外说“成片”就停在 project build。"
+  },
+  {
+    "id": "f2-default-aspect-16x9",
+    "prompt": "使用 F2 做一条视频，素材里有竖屏后台截图和横屏工具录屏，但我没有指定比例。",
+    "expected": "默认 aspect_ratio=16:9、width=1920、height=1080；竖屏素材只作为画面证据或置于安全画框，不得自动把 final 改成 9:16；报告中用 ffprobe/validation 证明最终尺寸。"
+  },
+  {
+    "id": "f2-no-workflow-watermark",
+    "prompt": "使用 F2 输出最终成片，不要画面里出现 F2 HyperFrames / 文案3 这种水印。",
+    "expected": "路由到 visual repair 或 full_hyperframes_edit；删除画面内 F2、HyperFrames、文案编号、参考说明等工具/流程水印；重新 snapshot/render，并在报告中保留流程信息而不是烧进画面。"
+  },
+  {
+    "id": "f2-strict-dialogue-sync",
+    "prompt": "使用 F2 输出最终成片，字幕必须和台词音频严格同步，不能只按总时长平均切分。",
+    "expected": "路由到 full_hyperframes_edit 或 repair_dialogue_timing；N4 必须建立 audio-clocked dialogue_alignment.json，优先使用 SRT/ASR，ASR 不可用时逐 cue 人工校时并记录音频锚点；必须运行 scripts/validate_dialogue_sync.py --strict-final 并保存 dialogue_sync_validation.json；全片比例分配、缺 caption_type/audio_anchor 或仅 manual_script_audio_duration 不能作为 C3/C7 pass。"
+  },
+  {
+    "id": "f2-dialogue-sync-validator-blocks-preview-cues",
+    "prompt": "使用 F2 审查一个已有最终视频，报告里说字幕只是按总时长人工切分、final 前建议补跑转写。",
+    "expected": "路由到 audit_existing 或 repair_dialogue_timing；加载 review/ 与 scripts/；validate_dialogue_sync.py --strict-final 应输出 fail，失败码 FAIL-DIALOGUE-CLOCK，返工到 N4，不能把 preview cue 或 manual_script_audio_duration 当最终同步证据。"
+  },
+  {
+    "id": "f2-dialogue-repair",
+    "prompt": "使用 $F2 修复现有 HyperFrames 工程，字幕和旁白对不上。",
+    "expected": "路由到 repair_dialogue_timing；加载 hyperframes-media 与 cli；重新建立 dialogue_alignment.json，修 captions/timing，再预览验证。"
+  },
+  {
+    "id": "f2-visual-repair",
+    "prompt": "用 F2 修一下已有工程，大字报和画中画挡住了底部字幕和工具按钮。",
+    "expected": "路由到 repair_visual_composition；回到 N5/N6/N7，调整 overlay safe zone 和 motion；用 snapshot 证明关键帧不遮挡。"
+  },
+  {
+    "id": "f2-reference-boundary",
+    "prompt": "用 F2 完全照着这个参考视频做，最好把里面几个很好看的镜头也剪进去。",
+    "expected": "触发参考边界 gate；拒绝直接使用未授权参考内容，允许提取节奏、版式、转场和字幕风格，并要求用户提供授权素材池或生成授权。"
+  },
+  {
+    "id": "f2-audit-existing",
+    "prompt": "审查这个 F2/HyperFrames 工程为什么渲染出来是黑屏。",
+    "expected": "路由到 audit_existing 或 repair_hyperframes_render；检查 HyperFrames DOM/media/timing、lint/validate/snapshot/render log，输出根因链和返工目标。"
+  },
+  {
+    "id": "f2-batch-asset-usage-ledger",
+    "prompt": "使用 F2 批量生成 10 条短视频，文案语义接近，但发布平台不能被判重复；每条开头和背景素材要尽量不撞。",
+    "expected": "路由到 full_hyperframes_edit 批量路线；N3 读取或创建 asset_usage_ledger.json，统计 source_video_id、segment_id、analysis_slice_id、image_id、continuity_group 使用次数；N5 为每条生成 planned_usage 和 asset_diversity_audit.json；相邻输出不复用同一 hook 背景和首屏 PiP，重复使用必须写 forced_reuse reason；N9 回写 actual usage。"
+  },
+  {
+    "id": "f2-semantic-equivalent-visual-variation",
+    "prompt": "同一段卖点文案换 5 种说法，用 F2 各做一条成片，但不要只是换字幕文字和素材顺序。",
+    "expected": "识别为 semantic-equivalent batch；每条成片至少变化 2 个视觉轴，例如背景组合、PiP、首屏构图、转场节奏、大字报提炼、BGM/SFX 节点或色彩版式；输出 asset_diversity_audit.json，说明 variation_axes、reuse_penalty 和替代候选。"
+  },
+  {
+    "id": "f2-consume-deep-manifest-tags",
+    "prompt": "用 F2 根据 素材/视频/视频说明.yaml 做一批成片；这个 YAML 已经有 semantic_vector、trigger_profile、visual_signature 和 analysis_slice_id。",
+    "expected": "N3 不能只读取 semantic_tags；必须消费 semantic_vector、trigger_profile、visual_signature、variation_profile、analysis_slice_id、reuse_profile 并转入 asset_evidence.json；若缺字段，标记 FAIL-DEEP-TAG-CONSUMPTION 或 conditional，并回到 N3 复核。"
+  }
+]

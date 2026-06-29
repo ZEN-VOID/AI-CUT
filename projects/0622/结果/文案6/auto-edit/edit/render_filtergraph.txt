@@ -1,8 +1,0 @@
-[0:v]trim=start=0:end=4.34,setpts=PTS-STARTPTS,scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,setsar=1,fps=30,format=yuv420p[v0];
-[1:v]trim=start=0:end=4.43,setpts=PTS-STARTPTS,scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,setsar=1,fps=30,format=yuv420p[v1];
-[2:v]trim=start=0:end=4.65,setpts=PTS-STARTPTS,scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2:black,setsar=1,fps=30,format=yuv420p[v2];
-[3:v]trim=start=12.0:end=15.85,setpts=PTS-STARTPTS,scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,setsar=1,fps=30,format=yuv420p[v3];
-[4:v]trim=start=5.2:end=10.18,setpts=PTS-STARTPTS,scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2:black,setsar=1,fps=30,format=yuv420p[v4];
-[5:v]trim=start=11.0:end=12.114,setpts=PTS-STARTPTS,scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,setsar=1,fps=30,format=yuv420p[v5];
-[v0][v1][v2][v3][v4][v5]concat=n=6:v=1:a=0[vcat];
-[vcat]subtitles='projects/0622/结果/文案6/auto-edit/edit/master.srt':force_style='FontName=PingFang SC,FontSize=24,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BackColour=&H80000000,BorderStyle=3,Outline=3,Shadow=1,Alignment=2,MarginV=44,MarginL=48,MarginR=48'[vout]

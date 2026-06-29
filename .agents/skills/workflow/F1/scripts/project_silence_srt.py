@@ -14,6 +14,13 @@ import sys
 from pathlib import Path
 
 
+HTML_BREAK_RE = re.compile(r"<br\s*/?>", re.IGNORECASE)
+
+
+def has_explicit_line_break(text: str) -> bool:
+    return "\n" in text or "\r" in text or r"\N" in text or HTML_BREAK_RE.search(text) is not None
+
+
 def run_silencedetect(audio: Path, noise: str, duration: float) -> tuple[float, list[tuple[float, float, float]]]:
     voice_duration = float(
         subprocess.check_output(
@@ -79,6 +86,68 @@ def build_intervals(voice_duration: float, silences: list[tuple[float, float, fl
     return intervals
 
 
+def group_chunks_by_interval(chunks: object, interval_count: int) -> tuple[list[list[str]], str]:
+    if not isinstance(chunks, list) or not chunks:
+        raise ValueError("chunks.json must be a non-empty JSON array")
+
+    if all(isinstance(item, str) for item in chunks):
+        if len(chunks) != interval_count:
+            raise ValueError(
+                "string chunks require one chunk per speech interval; "
+                "use objects with text and interval_index to split one interval into multiple cues"
+            )
+        groups = [[item] for item in chunks]
+        method = "one_chunk_per_speech_interval"
+    elif all(isinstance(item, dict) for item in chunks):
+        groups = [[] for _ in range(interval_count)]
+        previous_interval = 0
+        for source_index, item in enumerate(chunks, 1):
+            text = item.get("text")
+            interval_index = item.get("interval_index", item.get("speech_interval_index"))
+            if not isinstance(text, str) or not text.strip():
+                raise ValueError(f"chunk {source_index}: missing text")
+            if not isinstance(interval_index, int) or isinstance(interval_index, bool):
+                raise ValueError(f"chunk {source_index}: missing integer interval_index")
+            if interval_index < 1 or interval_index > interval_count:
+                raise ValueError(f"chunk {source_index}: interval_index outside 1-{interval_count}")
+            if interval_index < previous_interval:
+                raise ValueError(f"chunk {source_index}: interval_index must be nondecreasing")
+            previous_interval = interval_index
+            groups[interval_index - 1].append(text)
+        missing = [str(index) for index, texts in enumerate(groups, 1) if not texts]
+        if missing:
+            raise ValueError(f"missing chunks for speech interval(s): {', '.join(missing)}")
+        method = "llm_approved_subchunks_by_speech_interval"
+    else:
+        raise ValueError("chunks.json must contain either all strings or all objects with text and interval_index")
+
+    for interval_index, texts in enumerate(groups, 1):
+        for part_index, text in enumerate(texts, 1):
+            if has_explicit_line_break(text):
+                raise ValueError(
+                    f"speech interval {interval_index} chunk {part_index} contains an explicit line break; "
+                    "F1 subtitles must be single-line"
+                )
+    return groups, method
+
+
+def split_interval_by_text_weight(start: float, end: float, texts: list[str]) -> list[tuple[float, float, str, int, int]]:
+    if len(texts) == 1:
+        return [(start, end, texts[0], 1, 1)]
+    duration = end - start
+    weights = [max(1, len(text.strip())) for text in texts]
+    total_weight = float(sum(weights))
+    parts: list[tuple[float, float, str, int, int]] = []
+    cursor = start
+    elapsed_weight = 0.0
+    for part_index, (text, weight) in enumerate(zip(texts, weights), 1):
+        elapsed_weight += weight
+        part_end = end if part_index == len(texts) else start + duration * (elapsed_weight / total_weight)
+        parts.append((cursor, part_end, text, part_index, len(texts)))
+        cursor = part_end
+    return parts
+
+
 def main(argv: list[str]) -> int:
     if len(argv) < 4:
         print(
@@ -90,31 +159,47 @@ def main(argv: list[str]) -> int:
     chunks = json.loads(Path(argv[2]).read_text(encoding="utf-8"))
     out_srt = Path(argv[3])
     out_timing = Path(argv[4]) if len(argv) > 4 else out_srt.with_suffix(".timing.json")
-    if not isinstance(chunks, list) or not all(isinstance(item, str) for item in chunks):
-        print("chunks.json must be a JSON array of strings", file=sys.stderr)
-        return 2
     voice_duration, silences = run_silencedetect(audio, "-35dB", 0.08)
     intervals = build_intervals(voice_duration, silences, 0.18)
-    if len(intervals) != len(chunks):
-        print(f"chunk/interval mismatch: {len(chunks)} chunks vs {len(intervals)} intervals", file=sys.stderr)
+    try:
+        interval_chunks, chunk_method = group_chunks_by_interval(chunks, len(intervals))
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
         return 1
+
+    base_cues: list[tuple[float, float, str, int, int, int]] = []
+    for interval_index, ((start, end), texts) in enumerate(zip(intervals, interval_chunks), 1):
+        for part_start, part_end, text, part_index, part_count in split_interval_by_text_weight(start, end, texts):
+            base_cues.append((part_start, part_end, text, interval_index, part_index, part_count))
+
     lines: list[str] = []
     records = []
-    for index, ((start, end), text) in enumerate(zip(intervals, chunks), 1):
+    for index, (start, end, text, interval_index, part_index, part_count) in enumerate(base_cues, 1):
         cue_start = max(0.0, start - 0.045)
         cue_end = min(voice_duration, end + 0.07)
-        if index < len(intervals):
-            next_start = max(0.0, intervals[index][0] - 0.045)
+        if index < len(base_cues):
+            next_start = max(0.0, base_cues[index][0] - 0.045)
             cue_end = min(cue_end, next_start - 0.01)
         lines.extend([str(index), f"{timestamp(cue_start)} --> {timestamp(cue_end)}", text, ""])
-        records.append({"index": index, "start": round(cue_start, 3), "end": round(cue_end, 3), "text": text})
+        records.append(
+            {
+                "index": index,
+                "start": round(cue_start, 3),
+                "end": round(cue_end, 3),
+                "text": text,
+                "source_interval_index": interval_index,
+                "interval_part": part_index,
+                "interval_part_count": part_count,
+                "split_within_speech_interval": part_count > 1,
+            }
+        )
     out_srt.write_text("\n".join(lines), encoding="utf-8")
     out_timing.write_text(
         json.dumps(
             {
                 "voice_duration": voice_duration,
                 "cue_count": len(records),
-                "method": "silencedetect n=-35dB d=0.08; min_pause=0.18",
+                "method": f"silencedetect n=-35dB d=0.08; min_pause=0.18; {chunk_method}",
                 "cues": records,
             },
             ensure_ascii=False,

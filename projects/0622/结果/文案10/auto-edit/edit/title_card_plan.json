@@ -1,5 +1,0 @@
-{
-  "enabled": false,
-  "title_cards": [],
-  "reason": "No user-specified title cards; automatic title cards disabled to avoid adding non-script emphasis and to preserve subtitle readability on dense UI material."
-}
