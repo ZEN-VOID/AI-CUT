@@ -1,9 +1,0 @@
-task_id: TASK-YYYYMMDD-001
-title: ""
-request_summary: ""
-mode: bootstrap|upgrade|execution|audit
-source:
-  repo: AIGC-FILM
-  heritage_source: ""
-constraints: []
-success_definition: []

@@ -1,7 +1,0 @@
-display_name: "F1 Reference-Rhythm Auto Edit"
-short_description: "Sync voiceover video with hard subtitles and optional BGM"
-interface:
-  short_description: "Sync voiceover video with hard subtitles and optional BGM"
-  default_prompt: "Use $F1 to plan, execute, verify, and report a reference-rhythm voiceover auto edit. Keep voiceover as the master timeline, generate synced hard subtitles, discover optional BGM from 素材/音频/BGM.* when present, and preserve auditable artifacts."
-  input_summary: "reference_dir, source_video, script_text, voiceover_audio, optional_background_music, result_dir"
-  output_summary: "final MP4, master.srt, EDL/render plan, optional BGM mix plan, PRP/report, verification frames"

@@ -840,38 +840,34 @@ active_skills:
       canonical_skill_root: ".agents/skills/team/aigc/动漫组/井上雄彦/"
       research_carrier: ".agents/skills/team/aigc/动漫组/井上雄彦/references/research/"
       mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
-  - id: workflow-f1-reference-voiceover-auto-edit
-    path: .agents/skills/workflow/F1
+  - id: workflow-hyperframes-reference-video
+    path: .agents/skills/workflow
     owner_office: shangshu
-    purpose: "参考样片节奏 + 用户视频 + 文案 + 已有旁白 -> 字幕卡点硬字幕成片的 workflow skill，负责 PRP、字幕时间轴、渲染、验证与报告闭环。"
+    purpose: "workflow 直属 HyperFrames 参考节奏视频工作流，用 Codex 视频/图像理解建立素材证据和创作裁决，再由 HyperFrames composition、preview、validation 与 render 输出可审计成片。"
     contract_mode: active
     runtime_control:
-      canonical_skill_root: ".agents/skills/workflow/F1/"
-      work_root: "<result_dir>/auto-edit/edit/"
-      output_carrier: "<result_dir>/<project-or-script-name>_final.mp4"
-      mirror_policy: "F1 不创建项目 canonical runtime；单次运行产物写入用户指定结果目录，过程报告写入 PRPs/ 与 reports/。"
-  - id: workflow-f2-hyperframes-reference-video
-    path: .agents/skills/workflow/F2
-    owner_office: shangshu
-    purpose: "F2：完全基于 `.agents/skills/hyperframes/` 的参考节奏视频工作流，用 Codex 视频/图像理解建立素材证据和创作裁决，再由 HyperFrames composition、preview、validation 与 render 输出可审计成片。"
-    contract_mode: active
-    runtime_control:
-      canonical_skill_root: ".agents/skills/workflow/F2/"
+      canonical_skill_root: ".agents/skills/workflow/"
       hyperframes_skill_root: ".agents/skills/hyperframes/"
-      default_work_root: "videos/<project-slug>/"
-      result_dir_work_root: "<result_dir>/f2-hyperframes/<project-slug>/"
-      aigc_project_work_root: "projects/aigc/<项目名>/workflow/F2/<run_id>/"
-      output_carrier: "<work_root>/renders/<project-slug>_f2_final.mp4"
-      mirror_policy: "F2 不创建独立项目 canonical runtime；单次运行产物写入用户指定 result_dir、AIGC 项目 workflow/F2 运行区或 HyperFrames `videos/` 工程目录。F2 不依赖 F1 scripts；共享 video-to-manifest 仅可作为 optional evidence input，不替代 F2 asset_evidence。"
+      default_work_root: "projects/output/<日期>/过程/<project-slug>/"
+      batch_work_root: "projects/output/<日期>/过程/<batch-id>/"
+      process_root: "projects/output/<日期>/过程/"
+      single_final_root: "projects/output/<日期>/"
+      batch_final_root: "projects/output/<日期>/成片/"
+      shared_asset_roots: ["projects/素材/", "projects/示例/"]
+      result_dir_work_root: "<result_dir>/<日期>/过程/<project-slug>/"
+      output_carrier: "<work_root>/renders/<project-slug>_workflow_final.mp4"
+      single_output_carrier: "projects/output/<日期>/<project-slug>_workflow_final.mp4"
+      batch_output_carrier: "projects/output/<日期>/成片/<project-slug>_workflow_final.mp4"
+      mirror_policy: "workflow 不创建独立项目 canonical runtime；单次运行的工程、日志、快照、验证报告和中间工件默认写入 `projects/output/<日期>/过程/` 下的工作目录，单条 final 验证后移动/归集到 `projects/output/<日期>/`，批量任务在 final 验证后把最终视频移动/归集到 `projects/output/<日期>/成片/`。`projects/素材/` 与 `projects/示例/` 是外层可累积通用素材池，只读消费，不承载当日输出。workflow 不依赖已移除的旧 F1 scripts；video-to-manifest 仅可作为 optional evidence input，不替代 workflow asset_evidence。"
   - id: workflow-shared-video-to-manifest
-    path: .agents/skills/workflow/_shared/video-to-manifest
+    path: .agents/skills/workflow/video-to-manifest
     owner_office: shangshu
-    purpose: "workflow 共享卫星技能：从单个视频或视频目录生成、更新、修复、校验 `视频说明.yaml`，为 F1、F2 和后续视频工作流提供结构化素材索引与 consumer handoff。"
+    purpose: "workflow 共享卫星技能：从单个视频或视频目录生成、更新、修复、校验 `视频说明.yaml`，为 workflow 和后续视频工作流提供结构化素材索引与 consumer handoff。"
     contract_mode: active
     route_role: satellite
-    supported_consumers: [workflow-f1-reference-voiceover-auto-edit, workflow-f2-hyperframes-reference-video]
+    supported_consumers: [workflow-hyperframes-reference-video]
     runtime_control:
-      canonical_skill_root: ".agents/skills/workflow/_shared/video-to-manifest/"
+      canonical_skill_root: ".agents/skills/workflow/video-to-manifest/"
       output_carrier: "<source_video_dir>/视频说明.yaml"
       work_root: "<source_video_dir>/video_manifest_work/"
       mirror_policy: "该卫星不创建项目 runtime，不生成 final MP4；单次运行只写 manifest、证据包、校验报告和 sidecar 报告。"

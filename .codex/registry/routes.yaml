@@ -315,15 +315,12 @@ route_policies:
   - id: team-anime-takehiko-inoue-entry
     trigger: 命中井上雄彦视角、井上雄彦会怎么画、Takehiko Inoue perspective、井上雄彦式分镜、灌篮高手感、SLAM DUNK 式运动、REAL 式痛感、浪客行式笔墨，或动漫组需要处理体育漫画、身体运动、人物成长、痛感与复原、青年群像、漫画改动画/电影、墨笔大画面与现场取材型创作
     rule: "进入 `.agents/skills/team/aigc/动漫组/井上雄彦/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，创作型问题必须输出身体真实、视点选择、人物缺口、现场取材、画面节奏、媒介重写与不要做清单。"
-  - id: workflow-f1-reference-voiceover-auto-edit-entry
-    trigger: 命中 `$F1`、`workflow/F1`、参考样片自动剪辑、参考节奏剪辑、配音字幕成片、已有旁白加字幕、字幕和音频卡点修复，或用户同时提供参考目录、主视频、文案和旁白音频并要求输出 final MP4
-    rule: "进入 `.agents/skills/workflow/F1/SKILL.md`；按 Skill 2.0 runtime-spine 执行 `N1 输入锁定 -> N2 PRP/计划 -> N3 参考节奏 -> N4 字幕时间轴 -> N5 画面映射 -> N6 硬字幕渲染 -> N7 验证 -> N8 报告写回`。旁白音频是主时钟，文案是字幕真源；ASR 不可用时必须用 `silencedetect` 停顿边界 fallback，不得把全片比例字幕作为 final 完成口径。"
-  - id: workflow-f2-hyperframes-reference-video-entry
-    trigger: 命中 `$F2`、`workflow/F2`、F2、HyperFrames 版 F1、用 HyperFrames 重做 F1、完全基于 HyperFrames 的参考节奏剪辑、HyperFrames 配音字幕成片，或用户要求用 Codex 视频理解 + HyperFrames 从文案/旁白/素材/参考样片生成可预览或可渲染 final MP4
-    rule: "进入 `.agents/skills/workflow/F2/SKILL.md`；F2 是 F1 业务目标的 HyperFrames-native 新工作流，按 `N1 输入锁定 -> N2 HyperFrames 模块加载 -> N3 Codex 素材证据 -> N4 旁白/字幕主时钟 -> N5 storyboard/composition plan -> N6 HyperFrames authoring -> N7 preview/validate -> N8 render/verify -> N9 report` 执行。F2 只能把 F1 作为目标迁移参照，不得依赖 F1 scripts、MoviePy 或 ffmpeg filter graph 作为主 runtime；`workflow/_shared/video-to-manifest` 只可作为可选素材证据输入，不替代 F2 `asset_evidence.json`。"
+  - id: workflow-hyperframes-reference-video-entry
+    trigger: 命中 `$workflow`、`workflow`、完全基于 HyperFrames 的参考节奏剪辑、HyperFrames 配音字幕成片，或用户要求用 Codex 视频理解 + HyperFrames 从文案/旁白/素材/参考样片生成可预览或可渲染 final MP4
+    rule: "进入 `.agents/skills/workflow/SKILL.md`；workflow 是直属 HyperFrames-native 视频工作流，按 `N1 输入锁定 -> N2 HyperFrames 模块加载 -> N3 Codex 素材证据 -> N4 旁白/字幕主时钟 -> N5 storyboard/composition plan -> N6 HyperFrames authoring -> N7 preview/validate -> N8 render/verify -> N9 report` 执行。默认过程根为 `projects/output/<日期>/过程/`；单条 final 验证后移动/归集到 `projects/output/<日期>/`；批量任务 final 验证后统一移动/归集到 `projects/output/<日期>/成片/`；`projects/素材/` 与 `projects/示例/` 是外层可累积通用素材池，只读消费，不作为当日输出目录。workflow 不再分 F1/F2，不依赖已移除的旧 F1 scripts、MoviePy 或 ffmpeg filter graph 作为主 runtime；`workflow/video-to-manifest` 只可作为可选素材证据输入，不替代 workflow `asset_evidence.json`。"
   - id: workflow-shared-video-to-manifest-entry
-    trigger: 命中 `$video-to-manifest`、`workflow/_shared/video-to-manifest`、生成视频说明、更新视频说明、修复视频说明、校验视频说明、从视频生成 `视频说明.yaml`、为 F1/F2 生成素材说明、或需要把视频目录整理成视频工作流可消费的素材索引
-    rule: "进入 `.agents/skills/workflow/_shared/video-to-manifest/SKILL.md`；先做 ffprobe 与抽帧机械取证，再由 LLM 基于证据逐条填写视频级和片段级字段，输出 canonical `视频说明.yaml`、material evidence、validation report 和 consumer handoff。该共享卫星不生成 final MP4、SRT、EDL、F2 storyboard 或 HyperFrames composition，不替代下游工作流的最终选材裁决。"
+    trigger: 命中 `$video-to-manifest`、`workflow/video-to-manifest`、生成视频说明、更新视频说明、修复视频说明、校验视频说明、从视频生成 `视频说明.yaml`，或需要把视频目录整理成 workflow 可消费的素材索引
+    rule: "进入 `.agents/skills/workflow/video-to-manifest/SKILL.md`；先做 ffprobe 与抽帧机械取证，再由 LLM 基于证据逐条填写视频级和片段级字段，输出 canonical `视频说明.yaml`、material evidence、validation report 和 consumer handoff。该直属卫星不生成 final MP4、SRT、EDL、storyboard 或 HyperFrames composition，不替代 workflow 的最终选材裁决。"
   - id: hyperframes-video-entry
     trigger: 命中 `$hyperframes`、HyperFrames、HTML 转视频、HTML video composition、网页转视频、website-to-video、motion graphics、product launch video、captioned video、用 HTML/CSS/JS 生成 MP4，或需要通过 HyperFrames CLI 预览/渲染视频
     rule: "进入 `.agents/skills/hyperframes/SKILL.md`；由 HyperFrames 入口技能按已安装的 core/workflow skills 路由到 `.agents/skills/hyperframes/` 下的 `hyperframes-*`、`general-video`、`website-to-video`、`product-launch-video`、`motion-graphics` 等子技能。HyperFrames 任务不默认写入 `projects/aigc/` 或 `projects/story/`；除非用户指定项目路径，否则使用用户指定目录、`output/` 或 HyperFrames CLI 初始化目录承载 composition 与渲染产物。"
