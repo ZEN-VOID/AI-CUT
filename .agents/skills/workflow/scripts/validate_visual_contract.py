@@ -269,6 +269,105 @@ def mask_is_none(value: Any) -> bool:
     return token in {"none", "no_mask", "disabled", "off", "false", "transparent_none", "无", "不用", "不加蒙版"}
 
 
+def opacity_is_full(value: Any) -> bool:
+    if value in (None, ""):
+        return True
+    if isinstance(value, bool):
+        return value is True
+    token = normalize_ws(str(value)).lower()
+    if token in {"1", "1.0", "100", "100%", "full", "opaque", "none", "normal", "default", "不透明"}:
+        return True
+    if token in {"0", "0%", "false", "transparent", "translucent", "semi_transparent", "半透明", "透明"}:
+        return False
+    try:
+        if token.endswith("%"):
+            return float(token[:-1].strip()) >= 99.9
+        return float(token) >= 0.999
+    except ValueError:
+        return False
+
+
+def transparency_is_none(value: Any) -> bool:
+    if value in (None, "", False):
+        return True
+    token = normalize_ws(str(value)).lower()
+    if token in {"none", "0", "0.0", "0%", "false", "disabled", "off", "无", "不透明"}:
+        return True
+    try:
+        if token.endswith("%"):
+            return float(token[:-1].strip()) <= 0.1
+        return float(token) <= 0.001
+    except ValueError:
+        return False
+
+
+def style_value(style: str, property_name: str) -> str | None:
+    pattern = re.compile(rf"(?:^|;)\s*{re.escape(property_name)}\s*:\s*([^;]+)", re.IGNORECASE)
+    match = pattern.search(style or "")
+    if not match:
+        return None
+    return normalize_ws(match.group(1))
+
+
+def extract_opacity_values(value: Any) -> list[tuple[str, Any]]:
+    values: list[tuple[str, Any]] = []
+    if isinstance(value, dict):
+        for key in ("opacity", "alpha", "background_opacity", "layer_opacity", "video_opacity"):
+            if key in value:
+                values.append((key, value.get(key)))
+        for key in ("transparency", "background_transparency", "layer_transparency"):
+            if key in value and not transparency_is_none(value.get(key)):
+                values.append((key, f"transparency={value.get(key)}"))
+        style = value.get("style") or value.get("css")
+        if isinstance(style, str):
+            opacity = style_value(style, "opacity")
+            if opacity is not None:
+                values.append(("style.opacity", opacity))
+            filter_value = style_value(style, "filter")
+            if filter_value:
+                match = re.search(r"opacity\(([^)]+)\)", filter_value, re.IGNORECASE)
+                if match:
+                    values.append(("style.filter.opacity", match.group(1)))
+        for key in ("effects", "filters", "background_effects"):
+            nested = value.get(key)
+            if isinstance(nested, dict):
+                values.extend((f"{key}.{name}", item) for name, item in extract_opacity_values(nested))
+    return values
+
+
+def extract_mask_values(value: Any) -> list[tuple[str, Any]]:
+    values: list[tuple[str, Any]] = []
+    if isinstance(value, dict):
+        for key in ("mask", "mask_mode", "masking", "clip_path", "clipPath"):
+            if key in value:
+                values.append((key, value.get(key)))
+        style = value.get("style") or value.get("css")
+        if isinstance(style, str):
+            for property_name in ("mask", "-webkit-mask", "mask-image", "-webkit-mask-image", "clip-path"):
+                mask_value = style_value(style, property_name)
+                if mask_value is not None:
+                    values.append((f"style.{property_name}", mask_value))
+    return values
+
+
+def validate_background_surface(value: Any, path: str, scope: str) -> list[Finding]:
+    findings: list[Finding] = []
+    for field, mask_value in extract_mask_values(value):
+        if not mask_is_none(mask_value):
+            findings.append(Finding("fail", f"{scope}_uses_mask", "background video must not use a mask", f"{path}.{field}"))
+    for field, opacity_value in extract_opacity_values(value):
+        if not opacity_is_full(opacity_value):
+            findings.append(
+                Finding(
+                    "fail",
+                    f"{scope}_uses_opacity",
+                    "background video must be fully opaque; opacity/transparency effects are not allowed",
+                    f"{path}.{field}",
+                )
+            )
+    return findings
+
+
 def collect_segment_layers(segment: dict[str, Any]) -> tuple[set[str], dict[str, Any]]:
     layers: set[str] = set()
     details: dict[str, Any] = {}
@@ -393,6 +492,21 @@ def is_semantic_pip(element: Element) -> bool:
     return element.purpose == "semantic_pip" or "pip" in element.classes or element.element_id.lower().startswith("pip")
 
 
+def is_background_video(element: Element) -> bool:
+    if element.purpose == "background_video":
+        return True
+    class_text = " ".join(element.classes).lower()
+    ident = element.element_id.lower()
+    return (
+        "background_video" in class_text
+        or "background-video" in class_text
+        or "video_background" in class_text
+        or "video-bg" in class_text
+        or ident.startswith("background")
+        or ident.startswith("bg-video")
+    )
+
+
 def is_visible_text_candidate(element: Element) -> bool:
     if not element.text:
         return False
@@ -435,6 +549,23 @@ def validate_text_hygiene(elements: list[Element], html_path: Path, *, allow_wor
                             element.locator(html_path),
                         )
                     )
+    return findings
+
+
+def validate_background_html(backgrounds: list[Element], html_path: Path) -> list[Finding]:
+    findings: list[Finding] = []
+    for element in backgrounds:
+        locator = element.locator(html_path)
+        payload = {
+            "mask": element.attrs.get("data-mask") or element.attrs.get("mask"),
+            "mask_mode": element.attrs.get("data-mask-mode"),
+            "clip_path": element.attrs.get("data-clip-path"),
+            "opacity": element.attrs.get("data-opacity") or element.attrs.get("opacity"),
+            "alpha": element.attrs.get("data-alpha"),
+            "transparency": element.attrs.get("data-transparency"),
+            "style": element.attrs.get("style", ""),
+        }
+        findings.extend(validate_background_surface(payload, locator, "background_html"))
     return findings
 
 
@@ -636,9 +767,7 @@ def validate_composition_plan(
                     str(plan_path),
                 )
             )
-        mask_value = throughline.get("mask") or throughline.get("mask_mode") or throughline.get("masking")
-        if not mask_is_none(mask_value):
-            findings.append(Finding("fail", "background_throughline_uses_mask", "background throughline must not use a mask", str(plan_path)))
+        findings.extend(validate_background_surface(throughline, str(plan_path), "background_throughline"))
         source_hint = " ".join(iter_text_values(throughline))
         if source_hint and not re.search(r"漫剧素材|纯漫剧素材|comic_drama|pure_comic", source_hint, re.IGNORECASE):
             findings.append(
@@ -669,9 +798,7 @@ def validate_composition_plan(
 
         background = details.get("background_video")
         if isinstance(background, dict):
-            mask_value = background.get("mask") or background.get("mask_mode") or background.get("masking")
-            if not mask_is_none(mask_value):
-                findings.append(Finding("fail", "background_video_uses_mask", "background video layer must not use a mask", path))
+            findings.extend(validate_background_surface(background, path, "background_video"))
 
         overlay_text = overlay_summary_text(details.get("editorial_overlay") or segment.get("editorial_overlay") or segment.get("big_text"))
         if strict_social_ad and "editorial_overlay" in layers and not overlay_text:
@@ -764,11 +891,13 @@ def validate_project(
     captions = [item for item in elements if is_dialogue_caption(item)]
     overlays = [item for item in elements if is_editorial_overlay(item)]
     pips = [item for item in elements if is_semantic_pip(item)]
+    backgrounds = [item for item in elements if is_background_video(item)]
     metrics = {
         "project_root": str(project_root),
         "dialogue_caption_count": len(captions),
         "editorial_overlay_count": len(overlays),
         "semantic_pip_count": len(pips),
+        "background_video_element_count": len(backgrounds),
     }
 
     findings.extend(validate_text_hygiene(elements, html_path, allow_workflow_labels=allow_workflow_labels))
@@ -782,6 +911,7 @@ def validate_project(
         )
     )
     findings.extend(validate_pip_html(pips, html_path, min_pip_slots=min_pip_slots, strict_social_ad=strict_social_ad))
+    findings.extend(validate_background_html(backgrounds, html_path))
 
     assignment_path = project_root / "workflow_assignment.json"
     if not assignment_path.exists():

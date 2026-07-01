@@ -22,6 +22,12 @@ field_model:
     - "id: 稳定素材 ID，EDL 和报告中引用。"
     - "file: 相对 base_dir 的真实文件名。"
     - "category: operation_demo、tool_display、aigc_content、reference_only 或 other。"
+    - "material_branch: 素材池分支，例如 opening_hook、revenue_proof、workflow_demo、comic_drama、private_traffic_cta。"
+    - "branch_path: 命中的素材分支相对路径。"
+    - "workflow_role_hint: hook_opening、content_body、proof_point、process_proof、private_traffic_cta、transition 等候选角色。"
+    - "layer_affinity: background_video、semantic_pip、editorial_overlay、transition、hook_visual 等画面层倾向。"
+    - "content_subtype_fit: 更细素材用途，例如 high_energy_opening、revenue_video、pure_comic_drama。"
+    - "selection_constraints: 路径提示边界、必须复核项、禁用条件。"
     - "media: duration_sec、fps、resolution、codec、has_audio。"
     - "content_profile: 视频整体画面、角色、场景、色彩、信息密度和动作强度。"
     - "selection_profile: 适用文案、避用文案、关键词触发和优先级。"
@@ -39,6 +45,9 @@ field_model:
     - "trigger_profile: positive/negative triggers、hook/proof/transition/CTA fit。"
     - "visual_signature: 主体、动作、构图、色彩、界面状态、运动轨迹和重复风险。"
     - "variation_profile: 可替换性、相似片段、freshness_score、reuse_cooldown。"
+    - "segment_role_fit: 该片段适合的工作流角色，例如 hook_opening/content_body/proof_point/private_traffic_cta。"
+    - "content_subtype_fit: 该片段适合承载的细分类素材语义。"
+    - "selection_constraints: 片段级禁用 cue、复核要求、字幕/画幅/复用限制。"
     - "analysis_slice_id: 长素材来源分析切片 ID。"
     - "shot_type/motion/action_intensity: 拼接节奏判断字段。"
     - "text_overlay: 画面文字/字幕情况。"
@@ -87,11 +96,29 @@ global_editing_policy:
     - "同一语义段内优先连续使用同 category，避免工具段和剧情段频繁硬切。"
     - "短强视觉点优先放在旁白重音、反转句、承诺句和尾钩。"
 
+material_pool_profile:
+  classification_model: "two_layer_path_hint_plus_visual_confirmation"
+  path_hint_authority: "candidate_pool_only"
+  final_semantic_authority: "LLM/operator visual understanding from per-video evidence"
+  branch_manifest_policy: "projects/素材/ 可维护各分支 视频说明.yaml，并用顶层 素材索引.yaml 登记分支 manifest；registry 不替代分支 manifest。"
+  random_selection_policy: "只允许在高分、同角色、同约束通过的候选片段之间做 tie-break，不允许只按目录随机抽取。"
+
 directory_category_mapping:
-  "操作展示": "operation_demo"
-  "工具使用": "tool_display"
-  "影像内容": "aigc_content"
-  conflict_policy: "目录映射是项目分类信号；若抽帧证据与目录类型冲突，写 category_mismatch_reason 并进入复核。"
+  legacy_category_directories:
+    "操作展示": "operation_demo"
+    "工具使用": "tool_display"
+    "影像内容": "aigc_content"
+  current_material_branches:
+    "开头素材": { material_branch: "opening_hook", workflow_role_hint: "hook_opening", layer_affinity: ["background_video", "hook_visual"], content_subtype_hint: "high_energy_opening" }
+    "收益素材/收益视频": { material_branch: "revenue_proof", workflow_role_hint: "proof_point", layer_affinity: ["semantic_pip", "background_video"], content_subtype_hint: "revenue_video" }
+    "工作流素材": { material_branch: "workflow_demo", workflow_role_hint: "process_proof", layer_affinity: ["semantic_pip", "background_video"], content_subtype_hint: "workflow_process" }
+    "引流素材": { material_branch: "private_traffic_cta", workflow_role_hint: "private_traffic_cta", layer_affinity: ["semantic_pip", "editorial_overlay"], content_subtype_hint: "cta_material" }
+    "漫剧素材/纯漫剧素材": { material_branch: "pure_comic_drama", workflow_role_hint: "content_body", layer_affinity: ["background_video"], content_subtype_hint: "pure_comic_drama" }
+    "大字报": { material_branch: "editorial_overlay", workflow_role_hint: "editorial_emphasis", layer_affinity: ["editorial_overlay"], content_subtype_hint: "big_text_card" }
+    "转场素材": { material_branch: "transition", workflow_role_hint: "transition", layer_affinity: ["transition"], content_subtype_hint: "transition_effect" }
+    "核心关键词": { material_branch: "keyword_trigger", workflow_role_hint: "keyword_anchor", layer_affinity: ["editorial_overlay", "semantic_pip"], content_subtype_hint: "keyword_trigger" }
+    "资产图": { material_branch: "asset_image_reference", workflow_role_hint: "semantic_pip", layer_affinity: ["semantic_pip"], content_subtype_hint: "asset_reference" }
+  conflict_policy: "目录和分支映射是候选池信号；若抽帧证据与路径类型冲突，写 category_mismatch_reason 或 branch_mismatch_reason 并进入复核。"
 
 renames: []
 
@@ -100,6 +127,16 @@ videos:
     file: "<relative-video-path.mp4>"
     category: "aigc_content"
     role: "<LLM 根据视频证据填写>"
+    material_branch: "<opening_hook/revenue_proof/workflow_demo/comic_drama/private_traffic_cta/editorial_overlay/transition/other>"
+    branch_path: "<相对素材分支路径>"
+    workflow_role_hint: "<hook_opening/content_body/proof_point/process_proof/private_traffic_cta/transition>"
+    layer_affinity: ["background_video"]
+    content_subtype_fit: ["<细分类素材用途>"]
+    selection_constraints:
+      path_hint_only: true
+      requires_llm_visual_confirmation: true
+      negative_triggers: []
+      notes: "<路径提示不能替代画面理解>"
     media:
       duration_sec: 0.0
       fps: "30/1"
@@ -151,6 +188,11 @@ videos:
       observation_status: "llm_authored"
       llm_observation_summary: "<简述关键证据>"
       directory_category_hint: "<operation_demo/tool_display/aigc_content/none>"
+      material_branch_hint: "<path-derived branch hint>"
+      workflow_role_hint: "<path-derived role hint>"
+      layer_affinity: []
+      content_subtype_hint: "<path-derived subtype hint>"
+      classification_boundary: "Path-derived hints only; final category and semantic fields require LLM/operator visual confirmation."
     analysis_slices:
       - slice_id: "content-01-a01"
         source_file: "<relative-video-path.mp4>"
@@ -194,6 +236,14 @@ videos:
           similar_segments: []
           freshness_score: 0.7
           reuse_cooldown: "avoid_same_batch"
+        segment_role_fit: ["content_body"]
+        content_subtype_fit: ["<细分类素材用途>"]
+        selection_constraints:
+          positive_triggers: []
+          negative_triggers: []
+          layer_fit: ["background_video"]
+          requires_preview_before_use: true
+          notes: "<避免只按目录随机选取>"
         analysis_slice_id: "content-01-a01"
         shot_type: "medium"
         motion: "medium"

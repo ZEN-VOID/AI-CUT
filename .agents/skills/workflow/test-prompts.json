@@ -17,12 +17,17 @@
   {
     "id": "workflow-default-final-render",
     "prompt": "使用 .agents/skills/workflow，针对这个项目执行一轮任务，每个文案一条。",
-    "expected": "在有文案、旁白音频和素材池时默认路由到 full_hyperframes_edit；每条文案必须按默认 16:9、1920x1080 完成 preview validation 后 render final MP4；工程、日志、快照和验证报告默认进入 projects/output/<日期>/过程/；单条 final 验证后归集到 projects/output/<日期>/；不能因为用户没有额外说“成片”就停在 project build。"
+    "expected": "在有文案、旁白音频和素材池时默认路由到 full_hyperframes_edit；每条文案必须按默认 16:9、1920x1080 完成 preview validation 后 render 本地 final MP4；工程、日志、快照和验证报告默认进入 projects/output/<日期>/过程/；单条 final 验证后归集到 projects/output/<日期>/；不能因为用户没有额外说“成片”就停在 project build 或网页预览。"
   },
   {
     "id": "workflow-projects-output-and-shared-assets",
     "prompt": "使用 workflow 批量生成今天的 6 条成片，素材从 projects/素材 和 projects/示例 里选，最后我想方便查看。",
     "expected": "N1 将 projects/素材/ 和 projects/示例/ 记录为只读通用素材池，不把它们当作当日内置素材副本或输出目录；默认 batch_root 为 projects/output/<日期>/过程/<batch-id>/；N9 在 final 验证后把 6 条最终视频移动/归集到 projects/output/<日期>/成片/，并同步 execution report 与 asset_usage_ledger.json.final_path。"
+  },
+  {
+    "id": "workflow-current-script-audio-pairing",
+    "prompt": "使用 workflow 根据 projects/内容/文案 和 projects/内容/音频 批量生成成片；每个文案都有同名 mp3，音频目录里还有 BGM.mp4。",
+    "expected": "N1 扫描 projects/内容/文案/*.txt 和 projects/内容/音频/*.mp3，按 stem 建立 script_audio_pair_map 和 selected_script_audio_pair，例如 文案17.txt -> 文案17.mp3；BGM.mp4 只作为 BGM 候选，不作为 audio_clock；N4 的 dialogue_alignment.json 记录 source_script/source_audio/script_audio_stem，缺同名音频时请求 TTS 或人工授权，不得跨编号随机配对，也不得自行生成替代文案或旁白；final 校验使用 validate_dialogue_sync.py --strict-final --require-script-audio-pair。"
   },
   {
     "id": "workflow-default-aspect-16x9",
@@ -67,7 +72,12 @@
   {
     "id": "workflow-batch-asset-usage-ledger",
     "prompt": "使用 workflow 批量生成 10 条短视频，文案语义接近，但发布平台不能被判重复；每条开头和背景素材要尽量不撞。",
-    "expected": "路由到 full_hyperframes_edit 批量路线；N3 读取或创建 asset_usage_ledger.json，统计 source_video_id、segment_id、analysis_slice_id、image_id、continuity_group 使用次数；N5 为每条生成 planned_usage 和 asset_diversity_audit.json；相邻输出不复用同一 hook 背景和首屏 PiP，重复使用必须写 forced_reuse reason；N9 回写 actual usage。"
+    "expected": "路由到 full_hyperframes_edit 批量路线；N3 读取或创建 asset_usage_ledger.json 与 projects/素材使用监控.csv，统计 source_video_id、segment_id、analysis_slice_id、image_id、continuity_group 使用次数；N5 为每条生成 planned_usage 和 asset_diversity_audit.json；相邻输出不复用同一 hook 背景和首屏 PiP，重复使用必须写 forced_reuse reason；N9 回写 actual usage，并在 final 验证后更新 projects/素材使用监控.csv。"
+  },
+  {
+    "id": "workflow-material-usage-monitor-csv",
+    "prompt": "使用 workflow 生成一批成片时，需要把相关素材的使用情况落到 projects/素材使用监控.csv，字段为 素材名 文件路径 使用次数 使用程度，使用程度只能是 全片 或 部分切片。",
+    "expected": "路由到 workflow source-upgrade / full_hyperframes_edit 约束更新；N3 在选材前读取或初始化 projects/素材使用监控.csv；N9 只能在本地 final MP4 验证通过、asset_usage_ledger.json 写入 actual usage 后运行 update_asset_usage_monitor.py 更新 CSV；CSV 表头固定为 素材名,文件路径,使用次数,使用程度，使用次数为整数，使用程度只能是 全片 或 部分切片；preview、失败 render 或网页端输出不得计入使用次数。"
   },
   {
     "id": "workflow-semantic-equivalent-visual-variation",
@@ -82,7 +92,12 @@
   {
     "id": "workflow-layered-rhythm-assembly",
     "prompt": "针对 .agents/skills/workflow 的视频拼接逻辑重构：不要只按文案随机拼素材，要有背景视频拉通、画中画、字幕、大字报，并分成爆款开头、内容部分和引流私域。",
-    "expected": "路由到 workflow source-upgrade / repair_visual_composition；SKILL.md 必须定义 Layered Rhythm Assembly：N3 识别开头、纯漫剧背景、工具、收益、引流、资产图和大字报候选，N5 在 workflow_composition_plan.json 写 background_throughline 与 timeline_segments，覆盖 hook_opening、content_body、private_traffic_cta，每段声明 background_video、semantic_pip、dialogue_caption、editorial_overlay；content_body 覆盖或解释 comic_drama/tool_demo/revenue_proof；validate_visual_contract.py --strict-social-ad 必须机械检查缺段、缺层、背景非连续/加蒙版、缺大字报核心词并输出 FAIL-LAYERED-ASSEMBLY 或 FAIL-QUANT-VISUAL-CONTRACT。"
+    "expected": "路由到 workflow source-upgrade / repair_visual_composition；SKILL.md 必须定义 Layered Rhythm Assembly：N3 识别开头、纯漫剧背景、工具、收益、引流、资产图和大字报候选，N5 在 workflow_composition_plan.json 写 background_throughline 与 timeline_segments，覆盖 hook_opening、content_body、private_traffic_cta，每段声明 background_video、semantic_pip、dialogue_caption、editorial_overlay；content_body 覆盖或解释 comic_drama/tool_demo/revenue_proof；background_throughline 和 background_video 必须 mask=none、opacity=1；validate_visual_contract.py --strict-social-ad 必须机械检查缺段、缺层、背景非连续/加蒙版/降低 opacity、缺大字报核心词并输出 FAIL-LAYERED-ASSEMBLY 或 FAIL-QUANT-VISUAL-CONTRACT。"
+  },
+  {
+    "id": "workflow-regression-latest-run-failures",
+    "prompt": "最新 workflow 成片出现三个问题：没有使用 projects/内容/文案 + projects/内容/音频 的同名路径而自行生成文案/音频；背景层有蒙版和不透明度；只停在网页端没有下载本地。",
+    "expected": "路由到 source-upgrade / repair workflow；N1/N4 必须把当前文案音频池的 selected_script_audio_pair、source_script、source_audio、script_audio_stem 作为硬门禁，缺失则 FAIL-DIALOGUE-CLOCK；N5/N6/N7 必须拒绝 background mask、clip-path、opacity<1 或 transparency；N8/N9 必须要求本地 canonical MP4，网页预览不能算 final。"
   },
   {
     "id": "workflow-visual-contract-validator",

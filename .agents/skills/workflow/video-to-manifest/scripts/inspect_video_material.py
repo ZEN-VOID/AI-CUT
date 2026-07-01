@@ -4,8 +4,10 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
+import re
 import shutil
 import subprocess
 from datetime import datetime
@@ -23,6 +25,160 @@ DIRECTORY_CATEGORY_HINTS = {
     "操作展示": "operation_demo",
     "工具使用": "tool_display",
     "影像内容": "aigc_content",
+}
+MATERIAL_BRANCH_HINTS = {
+    "操作展示": {
+        "material_branch": "legacy_operation_demo",
+        "workflow_role_hint": "process_proof",
+        "layer_affinity": ["background_video", "semantic_pip"],
+        "content_subtype_hint": "operation_demo",
+        "category_hint": "operation_demo",
+        "category_confidence": "strong",
+    },
+    "工具使用": {
+        "material_branch": "legacy_tool_display",
+        "workflow_role_hint": "tool_proof",
+        "layer_affinity": ["semantic_pip", "background_video"],
+        "content_subtype_hint": "tool_display",
+        "category_hint": "tool_display",
+        "category_confidence": "strong",
+    },
+    "影像内容": {
+        "material_branch": "legacy_aigc_content",
+        "workflow_role_hint": "content_body",
+        "layer_affinity": ["background_video"],
+        "content_subtype_hint": "aigc_content",
+        "category_hint": "aigc_content",
+        "category_confidence": "strong",
+    },
+    "开头素材": {
+        "material_branch": "opening_hook",
+        "workflow_role_hint": "hook_opening",
+        "layer_affinity": ["background_video", "hook_visual"],
+        "content_subtype_hint": "high_energy_opening",
+        "category_hint": "aigc_content",
+        "category_confidence": "weak",
+    },
+    "收益素材": {
+        "material_branch": "revenue_proof",
+        "workflow_role_hint": "proof_point",
+        "layer_affinity": ["semantic_pip", "background_video", "editorial_overlay"],
+        "content_subtype_hint": "revenue_evidence",
+        "category_hint": None,
+        "category_confidence": "none",
+    },
+    "收益视频": {
+        "material_branch": "revenue_proof",
+        "workflow_role_hint": "proof_point",
+        "layer_affinity": ["semantic_pip", "background_video"],
+        "content_subtype_hint": "revenue_video",
+        "category_hint": None,
+        "category_confidence": "none",
+    },
+    "工作流素材": {
+        "material_branch": "workflow_demo",
+        "workflow_role_hint": "process_proof",
+        "layer_affinity": ["semantic_pip", "background_video"],
+        "content_subtype_hint": "workflow_process",
+        "category_hint": "operation_demo",
+        "category_confidence": "weak",
+    },
+    "工作流实拍": {
+        "material_branch": "workflow_demo",
+        "workflow_role_hint": "process_proof",
+        "layer_affinity": ["background_video", "semantic_pip"],
+        "content_subtype_hint": "workflow_real_shot",
+        "category_hint": "operation_demo",
+        "category_confidence": "weak",
+    },
+    "工作流网上素材": {
+        "material_branch": "workflow_demo",
+        "workflow_role_hint": "tool_proof",
+        "layer_affinity": ["semantic_pip", "background_video"],
+        "content_subtype_hint": "workflow_reference",
+        "category_hint": "tool_display",
+        "category_confidence": "weak",
+    },
+    "引流素材": {
+        "material_branch": "private_traffic_cta",
+        "workflow_role_hint": "private_traffic_cta",
+        "layer_affinity": ["semantic_pip", "editorial_overlay", "background_video"],
+        "content_subtype_hint": "cta_material",
+        "category_hint": None,
+        "category_confidence": "none",
+    },
+    "提示词方向": {
+        "material_branch": "prompt_cta",
+        "workflow_role_hint": "private_traffic_cta",
+        "layer_affinity": ["editorial_overlay", "semantic_pip"],
+        "content_subtype_hint": "prompt_offer",
+        "category_hint": None,
+        "category_confidence": "none",
+    },
+    "课程方向": {
+        "material_branch": "course_cta",
+        "workflow_role_hint": "private_traffic_cta",
+        "layer_affinity": ["editorial_overlay", "semantic_pip"],
+        "content_subtype_hint": "course_offer",
+        "category_hint": None,
+        "category_confidence": "none",
+    },
+    "漫剧素材": {
+        "material_branch": "comic_drama",
+        "workflow_role_hint": "content_body",
+        "layer_affinity": ["background_video"],
+        "content_subtype_hint": "comic_drama",
+        "category_hint": "aigc_content",
+        "category_confidence": "weak",
+    },
+    "纯漫剧素材": {
+        "material_branch": "pure_comic_drama",
+        "workflow_role_hint": "content_body",
+        "layer_affinity": ["background_video"],
+        "content_subtype_hint": "pure_comic_drama",
+        "category_hint": "aigc_content",
+        "category_confidence": "strong",
+    },
+    "漫剧账号录屏": {
+        "material_branch": "comic_account_recording",
+        "workflow_role_hint": "proof_point",
+        "layer_affinity": ["semantic_pip", "background_video"],
+        "content_subtype_hint": "account_recording",
+        "category_hint": "tool_display",
+        "category_confidence": "weak",
+    },
+    "大字报": {
+        "material_branch": "editorial_overlay",
+        "workflow_role_hint": "editorial_emphasis",
+        "layer_affinity": ["editorial_overlay"],
+        "content_subtype_hint": "big_text_card",
+        "category_hint": None,
+        "category_confidence": "none",
+    },
+    "转场素材": {
+        "material_branch": "transition",
+        "workflow_role_hint": "transition",
+        "layer_affinity": ["transition"],
+        "content_subtype_hint": "transition_effect",
+        "category_hint": "aigc_content",
+        "category_confidence": "weak",
+    },
+    "核心关键词": {
+        "material_branch": "keyword_trigger",
+        "workflow_role_hint": "keyword_anchor",
+        "layer_affinity": ["editorial_overlay", "semantic_pip"],
+        "content_subtype_hint": "keyword_trigger",
+        "category_hint": None,
+        "category_confidence": "none",
+    },
+    "资产图": {
+        "material_branch": "asset_image_reference",
+        "workflow_role_hint": "semantic_pip",
+        "layer_affinity": ["semantic_pip"],
+        "content_subtype_hint": "asset_reference",
+        "category_hint": "reference_only",
+        "category_confidence": "weak",
+    },
 }
 
 
@@ -62,6 +218,46 @@ def category_hint_from_path(path: Path) -> str | None:
         if part in DIRECTORY_CATEGORY_HINTS:
             return DIRECTORY_CATEGORY_HINTS[part]
     return None
+
+
+def material_branch_profile_from_path(path: Path) -> dict[str, Any]:
+    profile: dict[str, Any] = {}
+    matched_parts: list[str] = []
+    parts = path.parts
+    for part in parts:
+        branch_hint = MATERIAL_BRANCH_HINTS.get(part)
+        if branch_hint:
+            profile.update(branch_hint)
+            matched_parts.append(part)
+    if "引流素材" in parts and "工具" in parts:
+        profile.update(
+            {
+                "material_branch": "tool_cta",
+                "workflow_role_hint": "private_traffic_cta",
+                "layer_affinity": ["semantic_pip", "editorial_overlay"],
+                "content_subtype_hint": "tool_cta",
+                "category_hint": "tool_display",
+                "category_confidence": "weak",
+            }
+        )
+        matched_parts.append("工具")
+    if not profile:
+        return {}
+    profile["branch_path"] = "/".join(matched_parts)
+    profile["branch_source"] = matched_parts[-1]
+    strong_category = category_hint_from_path(path)
+    if strong_category:
+        profile["category_hint"] = strong_category
+        profile["category_confidence"] = "strong"
+    return profile
+
+
+def evidence_path_slug(relative_path: Path) -> str:
+    raw = "/".join(relative_path.parts) or relative_path.name
+    safe = re.sub(r"[^A-Za-z0-9._-]+", "-", raw).strip("-._")
+    safe = safe[:80] or "video"
+    digest = hashlib.sha1(raw.encode("utf-8")).hexdigest()[:10]
+    return f"{safe}-{digest}"
 
 
 def ffprobe(path: Path) -> dict[str, Any]:
@@ -187,7 +383,7 @@ def build_analysis_slices(
     threshold_sec: float,
     max_slice_sec: float,
     slice_sample_count: int,
-    frames_dir: Path,
+    frame_root: Path,
     base_dir: Path,
     clips_dir: Path | None,
 ) -> list[dict[str, Any]]:
@@ -196,7 +392,7 @@ def build_analysis_slices(
         slice_id = f"{video_id}-a{index:02d}"
         frames = []
         for ts in sample_timestamps_in_range(start, end, slice_sample_count):
-            frame_path = frames_dir / video.stem / "analysis_slices" / f"a{index:02d}" / f"{timestamp_label(ts)}.jpg"
+            frame_path = frame_root / "analysis_slices" / f"a{index:02d}" / f"{timestamp_label(ts)}.jpg"
             frames.append(extract_frame(video, ts, frame_path))
         slices.append(
             {
@@ -334,6 +530,15 @@ def build_skeleton(
                 "category": "needs_llm",
                 "role": "needs_llm",
                 "media": item["media"],
+                "material_branch": item.get("material_branch_hint") or "needs_llm",
+                "branch_path": item.get("branch_path") or "needs_llm",
+                "workflow_role_hint": item.get("workflow_role_hint") or "needs_llm",
+                "layer_affinity": item.get("layer_affinity") or [],
+                "content_subtype_fit": [item.get("content_subtype_hint")] if item.get("content_subtype_hint") else [],
+                "selection_constraints": {
+                    "path_hint_only": True,
+                    "requires_llm_visual_confirmation": True,
+                },
                 "content_profile": {
                     "visual_summary": "needs_llm",
                     "setting": [],
@@ -384,6 +589,12 @@ def build_skeleton(
                     "sample_frames": [frame["path"] for frame in item.get("sample_frames", []) if frame.get("ok")],
                     "observation_status": "needs_llm_semantic_completion",
                     "directory_category_hint": item.get("directory_category_hint"),
+                    "material_branch_hint": item.get("material_branch_hint"),
+                    "branch_path": item.get("branch_path"),
+                    "workflow_role_hint": item.get("workflow_role_hint"),
+                    "layer_affinity": item.get("layer_affinity"),
+                    "content_subtype_hint": item.get("content_subtype_hint"),
+                    "classification_boundary": "Path-derived hints only; final category and semantic fields require LLM/operator visual confirmation.",
                 },
                 "analysis_slices": item.get("analysis_slices", []),
                 "segments": [],
@@ -415,6 +626,10 @@ def build_skeleton(
                 "file",
                 "category",
                 "role",
+                "material_branch",
+                "branch_path",
+                "workflow_role_hint",
+                "layer_affinity",
                 "media",
                 "content_profile",
                 "selection_profile",
@@ -433,6 +648,9 @@ def build_skeleton(
                 "trigger_profile",
                 "visual_signature",
                 "variation_profile",
+                "segment_role_fit",
+                "content_subtype_fit",
+                "selection_constraints",
                 "analysis_slice_id",
                 "shot_type/motion/action_intensity",
                 "text_overlay",
@@ -473,6 +691,12 @@ def build_skeleton(
                 "AI 工具、提示词、生成流程、剪辑软件、导入导出、资产证明：优先 tool_display。",
                 "剧情、打斗、玄幻、角色冲突、爆发、尾钩：优先 aigc_content。",
             ],
+        },
+        "material_pool_profile": {
+            "classification_model": "two_layer_path_hint_plus_visual_confirmation",
+            "path_hint_authority": "candidate_pool_only",
+            "final_semantic_authority": "LLM/operator visual understanding from per-video evidence",
+            "branch_manifest_policy": "projects/素材/ may use branch-level 视频说明.yaml files plus an optional top-level 素材索引.yaml registry.",
         },
         "renames": [],
         "videos": skeleton_videos,
@@ -525,23 +749,43 @@ def main() -> int:
     errors: list[dict[str, str]] = []
     for video_index, video in enumerate(videos, 1):
         rel = video.relative_to(base_dir) if video.is_relative_to(base_dir) else video.name
+        rel_path = Path(str(rel))
+        evidence_slug = evidence_path_slug(rel_path)
+        frame_root = frames_dir / evidence_slug
+        branch_profile = material_branch_profile_from_path(rel_path) or material_branch_profile_from_path(video)
         evidence_video_id = f"video-{video_index:02d}"
         item: dict[str, Any] = {
             "evidence_id": evidence_video_id,
             "file": str(rel),
             "absolute_path": str(video),
+            "evidence_slug": evidence_slug,
         }
-        item["directory_category_hint"] = category_hint_from_path(Path(str(rel))) or category_hint_from_path(video)
+        category_hint = (
+            category_hint_from_path(rel_path)
+            or category_hint_from_path(video)
+            or branch_profile.get("category_hint")
+        )
+        item["directory_category_hint"] = category_hint
+        item["material_branch_hint"] = branch_profile.get("material_branch")
+        item["branch_path"] = branch_profile.get("branch_path")
+        item["branch_source"] = branch_profile.get("branch_source")
+        item["workflow_role_hint"] = branch_profile.get("workflow_role_hint")
+        item["layer_affinity"] = branch_profile.get("layer_affinity", [])
+        item["content_subtype_hint"] = branch_profile.get("content_subtype_hint")
+        item["category_hint_confidence"] = branch_profile.get("category_confidence", "none")
+        item["classification_boundary"] = (
+            "Path-derived hints narrow candidate pools only; final category/role/tags require visual evidence."
+        )
         try:
             probe = ffprobe(video)
             item["media"] = probe["media"]
-            ffprobe_path = work_dir / "ffprobe" / f"{video.stem}.json"
+            ffprobe_path = work_dir / "ffprobe" / f"{evidence_slug}.json"
             ffprobe_path.parent.mkdir(parents=True, exist_ok=True)
             ffprobe_path.write_text(json.dumps(probe["raw"], ensure_ascii=False, indent=2), encoding="utf-8")
             item["ffprobe_json"] = str(ffprobe_path)
             frames = []
             for ts in sample_timestamps(probe["media"].get("duration_sec"), args.sample_count):
-                frame_path = frames_dir / video.stem / f"{timestamp_label(ts)}.jpg"
+                frame_path = frame_root / f"{timestamp_label(ts)}.jpg"
                 frames.append(extract_frame(video, ts, frame_path))
             item["sample_frames"] = frames
             item["analysis_slices"] = build_analysis_slices(
@@ -552,7 +796,7 @@ def main() -> int:
                 threshold_sec=args.pre_slice_threshold_sec,
                 max_slice_sec=args.max_analysis_slice_sec,
                 slice_sample_count=args.slice_sample_count,
-                frames_dir=frames_dir,
+                frame_root=frame_root,
                 base_dir=base_dir,
                 clips_dir=clips_dir,
             )
@@ -581,6 +825,12 @@ def main() -> int:
             ),
             "physical_proxy_clips": bool(args.write_analysis_clips),
             "analysis_clips_dir": str(clips_dir) if clips_dir else None,
+        },
+        "material_pool_hint_policy": {
+            "supported_branch_roots": sorted(MATERIAL_BRANCH_HINTS),
+            "path_hint_authority": "candidate_pool_only",
+            "final_semantic_authority": "LLM/operator visual understanding from per-video evidence",
+            "collision_safe_evidence_paths": True,
         },
         "authorship_boundary": "This packet contains mechanical evidence only. LLM/operator must author final semantic manifest fields.",
     }

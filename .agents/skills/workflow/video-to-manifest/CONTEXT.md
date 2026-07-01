@@ -30,6 +30,8 @@ last_checked_at: 2026-06-29
 | workflow 批量视频重复率高、平台判重限流 | 标签深度层 | 补 `semantic_vector`、`trigger_profile`、`visual_signature`、`variation_profile`、`reuse_profile`，让下游能按同义不同画面选材 | manifest 不只输出宽泛 `semantic_tags`；面向 workflow consumer 时 validator warning 提醒标签深度不足 | workflow `asset_evidence.json` 能引用深标签和重复风险，不再只按文件路径轮换 |
 | 长视频素材总是被选中同一小段 | 长素材覆盖层 | 先生成 `analysis_slices[]`，每个 slice 默认 ≤60 秒，再由 LLM 对 slice/segment 逐段精读 | `inspect_video_material.py` 输出 analysis_slices；SKILL 完成门要求长视频不能只靠整条摘要 | `视频说明.yaml` 中长素材有 slice map，segment 可回指 `analysis_slice_id` |
 | 用户要求“拆成短视频”但只得到 `analysis_slices[]` | 物理代理切片语义层 | 补生成 `work_dir/analysis_clips/` 物理代理短视频，并在 `analysis_slices[].proxy_clip` 回指 | 区分逻辑切片、抽帧证据和物理代理短视频；用户明确说“短视频/物理切片”时必须打开代理切片路径 | 代理 clip 数量等于 slice 数量，最长时长不超过 60 秒容差，validator 仍 pass |
+| 当前 `projects/素材/` 高度细分后选材变成盲随机 | 分支语义边界层 | 把路径写成 `material_branch/workflow_role_hint/layer_affinity` 候选提示，再由 LLM 基于抽帧补 `segment_role_fit/content_subtype_fit/selection_constraints` | 目录分支只能缩小候选池，不能替代视频理解；workflow-batch 校验应提升缺深标签和缺分支字段的严重性 | validator 使用 `--consumer workflow-batch` 时缺分支匹配字段为 fatal，报告说明 random 只允许同分候选 tie-break |
+| 同名视频在不同素材分支下覆盖 ffprobe 或抽帧证据 | 证据隔离层 | 证据落盘路径使用相对路径 slug + hash，而不是单独 `video.stem` | `inspect_video_material.py` 对 ffprobe、frames、analysis_slices 统一采用 collision-safe slug | evidence JSON 中 `evidence_slug` 唯一，frame/ffprobe 路径不因同名文件混入 |
 
 ## Repair Playbook
 
@@ -46,6 +48,8 @@ last_checked_at: 2026-06-29
 11. 若下游反馈“同义文案成片重复”，不要只在 workflow 端随机换素材；先修 manifest 深标签，让每个 segment 具备触发条件、视觉签名、可替换关系和复用风险。
 12. 超过 60 秒的素材不要只做整条摘要；先做 `analysis_slices[]`，再写 segments。整条摘要适合归类，不足以支撑批量去重。
 13. 若用户说“拆成短视频”“切成短素材”或质疑“没有将长视频拆成短视频”，不要只解释 `analysis_slices[]`；应补 `analysis_clips/` 物理代理切片并回写 `proxy_clip`，同时说明原视频仍保持只读。
+14. 若目标是当前 `projects/素材/`，先识别分支候选池，再做逐视频理解；不要把 `开头素材/收益素材/引流素材/漫剧素材` 目录名当成最终 `visual_content` 或直接随机拼接依据。
+15. 若给 workflow 批量短视频使用，校验时优先加 `--consumer workflow-batch`；普通 warning 里的深标签、分支角色、长素材切片缺口在批量模式下应返工。
 
 ## Reusable Heuristics
 
@@ -60,10 +64,12 @@ last_checked_at: 2026-06-29
 - 对 workflow 来说，`semantic_tags` 是入口，不是差异化答案；真正帮助避重的是 `visual_signature` 和 `variation_profile`，因为它们能告诉下游“同义但长得不同”的替代选项。
 - `analysis_slices[]` 不应被理解成改动原素材，它是把长素材拆成可观察证据窗口，减少 LLM 用一个粗标签概括整条视频。
 - `proxy_clip` 才表示已经产出可打开的物理代理短视频；没有 `proxy_clip` 时，只能称为逻辑切片或切片证据，不能对用户说“已拆成短视频”。
+- `material_branch` 是素材池组织方式，`category` 是视频可见内容类型，二者都不能单独决定入剪；最终匹配要看 segment 的触发条件、画面签名、层适配和避用条件。
+- 路径随机抽取只能作为高分候选之间的打散机制；如果还没完成分支字段和视频理解，随机会放大错配和重复风险。
 
 ## Promotion Backlog
 
 - 为 `validate_video_manifest.py` 增加 JSON Schema 输出，方便 workflow N3 机械读取。
 - 增加 contact sheet 生成，减少长目录逐帧查看成本。
 - 增加真实小 fixture，覆盖单视频 skeleton、目录更新和 manifest repair。
-- 为 `validate_video_manifest.py` 增加更强的 consumer profile 模式，例如 `--consumer workflow-batch` 时把深标签 warning 升为 fatal。
+- 为真实素材池增加小型 fixture，覆盖 `开头素材/收益素材/工作流素材/引流素材/漫剧素材` 的 branch-aware skeleton 和 strict validator。

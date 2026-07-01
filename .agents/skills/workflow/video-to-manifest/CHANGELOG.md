@@ -1,5 +1,12 @@
 # Changelog: video-to-manifest
 
+## 2026-07-01
+
+- Added branch-aware `projects/素材/` material-pool support: path hints now map to `material_branch`, `workflow_role_hint`, `layer_affinity`, and `content_subtype_hint` without replacing LLM/operator visual understanding.
+- Updated manifest schema guidance, template, README, report template, context, and regression prompts for branch-level `视频说明.yaml` plus optional top-level `素材索引.yaml` registry.
+- Updated `inspect_video_material.py` to emit branch candidate hints and collision-safe evidence slugs for ffprobe, frames, and analysis slices.
+- Updated `validate_video_manifest.py` with `--consumer workflow-batch|workflow-social-ad` profiles that promote missing branch matching fields, deep diversity tags, and long-material slice coverage to fatal errors.
+
 ## 2026-06-30
 
 - Promoted the package to `.agents/skills/workflow/video-to-manifest` as a workflow satellite skill.

@@ -24,6 +24,9 @@ TOP_LEVEL_REQUIRED = [
     "global_editing_policy",
     "videos",
 ]
+TOP_LEVEL_RECOMMENDED = [
+    "material_pool_profile",
+]
 
 VIDEO_REQUIRED = [
     "id",
@@ -68,6 +71,17 @@ RECOMMENDED_DIVERSITY_FIELDS = [
     "visual_signature",
     "variation_profile",
 ]
+BRANCH_VIDEO_FIELDS = [
+    "material_branch",
+    "branch_path",
+    "workflow_role_hint",
+    "layer_affinity",
+]
+BRANCH_SEGMENT_FIELDS = [
+    "segment_role_fit",
+    "content_subtype_fit",
+    "selection_constraints",
+]
 GENERIC_TAGS = {
     "工具",
     "展示",
@@ -96,6 +110,161 @@ DIRECTORY_CATEGORY_HINTS = {
     "工具使用": "tool_display",
     "影像内容": "aigc_content",
 }
+MATERIAL_BRANCH_HINTS = {
+    "操作展示": {
+        "material_branch": "legacy_operation_demo",
+        "workflow_role_hint": "process_proof",
+        "layer_affinity": ["background_video", "semantic_pip"],
+        "content_subtype_hint": "operation_demo",
+        "category_hint": "operation_demo",
+        "category_confidence": "strong",
+    },
+    "工具使用": {
+        "material_branch": "legacy_tool_display",
+        "workflow_role_hint": "tool_proof",
+        "layer_affinity": ["semantic_pip", "background_video"],
+        "content_subtype_hint": "tool_display",
+        "category_hint": "tool_display",
+        "category_confidence": "strong",
+    },
+    "影像内容": {
+        "material_branch": "legacy_aigc_content",
+        "workflow_role_hint": "content_body",
+        "layer_affinity": ["background_video"],
+        "content_subtype_hint": "aigc_content",
+        "category_hint": "aigc_content",
+        "category_confidence": "strong",
+    },
+    "开头素材": {
+        "material_branch": "opening_hook",
+        "workflow_role_hint": "hook_opening",
+        "layer_affinity": ["background_video", "hook_visual"],
+        "content_subtype_hint": "high_energy_opening",
+        "category_hint": "aigc_content",
+        "category_confidence": "weak",
+    },
+    "收益素材": {
+        "material_branch": "revenue_proof",
+        "workflow_role_hint": "proof_point",
+        "layer_affinity": ["semantic_pip", "background_video", "editorial_overlay"],
+        "content_subtype_hint": "revenue_evidence",
+        "category_hint": None,
+        "category_confidence": "none",
+    },
+    "收益视频": {
+        "material_branch": "revenue_proof",
+        "workflow_role_hint": "proof_point",
+        "layer_affinity": ["semantic_pip", "background_video"],
+        "content_subtype_hint": "revenue_video",
+        "category_hint": None,
+        "category_confidence": "none",
+    },
+    "工作流素材": {
+        "material_branch": "workflow_demo",
+        "workflow_role_hint": "process_proof",
+        "layer_affinity": ["semantic_pip", "background_video"],
+        "content_subtype_hint": "workflow_process",
+        "category_hint": "operation_demo",
+        "category_confidence": "weak",
+    },
+    "工作流实拍": {
+        "material_branch": "workflow_demo",
+        "workflow_role_hint": "process_proof",
+        "layer_affinity": ["background_video", "semantic_pip"],
+        "content_subtype_hint": "workflow_real_shot",
+        "category_hint": "operation_demo",
+        "category_confidence": "weak",
+    },
+    "工作流网上素材": {
+        "material_branch": "workflow_demo",
+        "workflow_role_hint": "tool_proof",
+        "layer_affinity": ["semantic_pip", "background_video"],
+        "content_subtype_hint": "workflow_reference",
+        "category_hint": "tool_display",
+        "category_confidence": "weak",
+    },
+    "引流素材": {
+        "material_branch": "private_traffic_cta",
+        "workflow_role_hint": "private_traffic_cta",
+        "layer_affinity": ["semantic_pip", "editorial_overlay", "background_video"],
+        "content_subtype_hint": "cta_material",
+        "category_hint": None,
+        "category_confidence": "none",
+    },
+    "提示词方向": {
+        "material_branch": "prompt_cta",
+        "workflow_role_hint": "private_traffic_cta",
+        "layer_affinity": ["editorial_overlay", "semantic_pip"],
+        "content_subtype_hint": "prompt_offer",
+        "category_hint": None,
+        "category_confidence": "none",
+    },
+    "课程方向": {
+        "material_branch": "course_cta",
+        "workflow_role_hint": "private_traffic_cta",
+        "layer_affinity": ["editorial_overlay", "semantic_pip"],
+        "content_subtype_hint": "course_offer",
+        "category_hint": None,
+        "category_confidence": "none",
+    },
+    "漫剧素材": {
+        "material_branch": "comic_drama",
+        "workflow_role_hint": "content_body",
+        "layer_affinity": ["background_video"],
+        "content_subtype_hint": "comic_drama",
+        "category_hint": "aigc_content",
+        "category_confidence": "weak",
+    },
+    "纯漫剧素材": {
+        "material_branch": "pure_comic_drama",
+        "workflow_role_hint": "content_body",
+        "layer_affinity": ["background_video"],
+        "content_subtype_hint": "pure_comic_drama",
+        "category_hint": "aigc_content",
+        "category_confidence": "strong",
+    },
+    "漫剧账号录屏": {
+        "material_branch": "comic_account_recording",
+        "workflow_role_hint": "proof_point",
+        "layer_affinity": ["semantic_pip", "background_video"],
+        "content_subtype_hint": "account_recording",
+        "category_hint": "tool_display",
+        "category_confidence": "weak",
+    },
+    "大字报": {
+        "material_branch": "editorial_overlay",
+        "workflow_role_hint": "editorial_emphasis",
+        "layer_affinity": ["editorial_overlay"],
+        "content_subtype_hint": "big_text_card",
+        "category_hint": None,
+        "category_confidence": "none",
+    },
+    "转场素材": {
+        "material_branch": "transition",
+        "workflow_role_hint": "transition",
+        "layer_affinity": ["transition"],
+        "content_subtype_hint": "transition_effect",
+        "category_hint": "aigc_content",
+        "category_confidence": "weak",
+    },
+    "核心关键词": {
+        "material_branch": "keyword_trigger",
+        "workflow_role_hint": "keyword_anchor",
+        "layer_affinity": ["editorial_overlay", "semantic_pip"],
+        "content_subtype_hint": "keyword_trigger",
+        "category_hint": None,
+        "category_confidence": "none",
+    },
+    "资产图": {
+        "material_branch": "asset_image_reference",
+        "workflow_role_hint": "semantic_pip",
+        "layer_affinity": ["semantic_pip"],
+        "content_subtype_hint": "asset_reference",
+        "category_hint": "reference_only",
+        "category_confidence": "weak",
+    },
+}
+STRICT_CONSUMERS = {"workflow-batch", "workflow-social-ad"}
 
 
 def parse_time(value: Any) -> float:
@@ -157,12 +326,55 @@ def category_hint_from_path(file_value: str) -> str | None:
     return None
 
 
+def material_branch_profile_from_path(file_value: str) -> dict[str, Any]:
+    profile: dict[str, Any] = {}
+    matched_parts: list[str] = []
+    parts = Path(file_value).parts
+    for part in parts:
+        branch_hint = MATERIAL_BRANCH_HINTS.get(part)
+        if branch_hint:
+            profile.update(branch_hint)
+            matched_parts.append(part)
+    if "引流素材" in parts and "工具" in parts:
+        profile.update(
+            {
+                "material_branch": "tool_cta",
+                "workflow_role_hint": "private_traffic_cta",
+                "layer_affinity": ["semantic_pip", "editorial_overlay"],
+                "content_subtype_hint": "tool_cta",
+                "category_hint": "tool_display",
+                "category_confidence": "weak",
+            }
+        )
+        matched_parts.append("工具")
+    if not profile:
+        return {}
+    profile["branch_path"] = "/".join(matched_parts)
+    profile["branch_source"] = matched_parts[-1]
+    strong_category = category_hint_from_path(file_value)
+    if strong_category:
+        profile["category_hint"] = strong_category
+        profile["category_confidence"] = "strong"
+    return profile
+
+
 def has_category_mismatch_note(video: dict[str, Any]) -> bool:
     evidence = video.get("evidence") if isinstance(video.get("evidence"), dict) else {}
     note_fields = [
         video.get("category_mismatch_reason"),
         video.get("classification_notes"),
         evidence.get("category_mismatch_reason"),
+        evidence.get("classification_notes"),
+    ]
+    return any(bool(value) for value in note_fields)
+
+
+def has_branch_mismatch_note(video: dict[str, Any]) -> bool:
+    evidence = video.get("evidence") if isinstance(video.get("evidence"), dict) else {}
+    note_fields = [
+        video.get("branch_mismatch_reason"),
+        video.get("classification_notes"),
+        evidence.get("branch_mismatch_reason"),
         evidence.get("classification_notes"),
     ]
     return any(bool(value) for value in note_fields)
@@ -183,20 +395,44 @@ def has_mapping_value(value: Any) -> bool:
     return isinstance(value, dict) and any(item not in (None, "", [], "needs_llm") for item in value.values())
 
 
+def has_list_value(value: Any) -> bool:
+    return isinstance(value, list) and any(item not in (None, "", [], "needs_llm") for item in value)
+
+
+def has_structured_value(value: Any) -> bool:
+    if isinstance(value, dict):
+        return has_mapping_value(value)
+    if isinstance(value, list):
+        return has_list_value(value)
+    return value not in (None, "", "needs_llm")
+
+
+def add_quality_issue(errors: list[str], warnings: list[str], message: str, fatal: bool) -> None:
+    if fatal:
+        errors.append(message)
+    else:
+        warnings.append(message)
+
+
 def validate_manifest(
     manifest_path: Path,
     base_dir_override: Path | None,
     tolerance_sec: float,
     skip_media_check: bool,
+    consumer_profile: str,
 ) -> dict[str, Any]:
     errors: list[str] = []
     warnings: list[str] = []
+    strict_consumer = consumer_profile in STRICT_CONSUMERS
 
     data = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
     if not isinstance(data, dict):
         return {"status": "fail", "errors": ["manifest root must be a mapping"], "warnings": warnings}
 
     add_missing(errors, data, TOP_LEVEL_REQUIRED, "manifest")
+    for key in TOP_LEVEL_RECOMMENDED:
+        if key not in data or data.get(key) in (None, "", []):
+            warnings.append(f"manifest.{key} recommended for branch-aware projects/素材 material pools")
     if data.get("schema_version") != 2:
         warnings.append("manifest.schema_version is not 2")
 
@@ -236,6 +472,51 @@ def validate_manifest(
                 f"{prefix}.category {category!r} conflicts with directory hint {category_hint!r}; "
                 "add category_mismatch_reason or correct the category"
             )
+        branch_profile = material_branch_profile_from_path(file_value)
+        if branch_profile:
+            expected_branch = branch_profile.get("material_branch")
+            actual_branch = video.get("material_branch")
+            for field in BRANCH_VIDEO_FIELDS:
+                if field == "layer_affinity":
+                    present = has_list_value(video.get(field))
+                else:
+                    present = has_structured_value(video.get(field))
+                if not present:
+                    add_quality_issue(
+                        errors,
+                        warnings,
+                        f"{prefix}.{field} recommended for branch-aware material pool path {branch_profile.get('branch_path')!r}",
+                        fatal=strict_consumer,
+                    )
+            if actual_branch and actual_branch != expected_branch and not has_branch_mismatch_note(video):
+                add_quality_issue(
+                    errors,
+                    warnings,
+                    f"{prefix}.material_branch {actual_branch!r} conflicts with path hint {expected_branch!r}; "
+                    "add branch_mismatch_reason or correct the branch",
+                    fatal=strict_consumer,
+                )
+            expected_role = branch_profile.get("workflow_role_hint")
+            actual_role = video.get("workflow_role_hint")
+            if actual_role and expected_role and actual_role != expected_role and not has_branch_mismatch_note(video):
+                warnings.append(
+                    f"{prefix}.workflow_role_hint {actual_role!r} differs from path hint {expected_role!r}; "
+                    "keep only with visual or user-hint evidence"
+                )
+            branch_category_hint = branch_profile.get("category_hint")
+            if (
+                branch_category_hint
+                and branch_profile.get("category_confidence") == "strong"
+                and category != branch_category_hint
+                and not has_category_mismatch_note(video)
+            ):
+                add_quality_issue(
+                    errors,
+                    warnings,
+                    f"{prefix}.category {category!r} conflicts with strong material branch category hint "
+                    f"{branch_category_hint!r}",
+                    fatal=strict_consumer,
+                )
 
         media = video.get("media") if isinstance(video.get("media"), dict) else {}
         add_missing(errors, media, MEDIA_REQUIRED, f"{prefix}.media")
@@ -254,8 +535,11 @@ def validate_manifest(
         analysis_slices = video.get("analysis_slices")
         if video_duration is not None and float(video_duration) > LONG_VIDEO_THRESHOLD_SEC:
             if not isinstance(analysis_slices, list) or not analysis_slices:
-                warnings.append(
-                    f"{prefix}.analysis_slices recommended for videos longer than {LONG_VIDEO_THRESHOLD_SEC:.0f}s"
+                add_quality_issue(
+                    errors,
+                    warnings,
+                    f"{prefix}.analysis_slices recommended for videos longer than {LONG_VIDEO_THRESHOLD_SEC:.0f}s",
+                    fatal=strict_consumer,
                 )
             else:
                 for slice_index, analysis_slice in enumerate(analysis_slices):
@@ -324,13 +608,43 @@ def validate_manifest(
                 errors.append(f"{seg_prefix}.time invalid: {exc}")
             effective_tags = effective_semantic_tags(segment.get("semantic_tags"))
             if len(effective_tags) < 3:
-                warnings.append(f"{seg_prefix}.semantic_tags should include at least 3 non-generic tags")
+                add_quality_issue(
+                    errors,
+                    warnings,
+                    f"{seg_prefix}.semantic_tags should include at least 3 non-generic tags",
+                    fatal=strict_consumer,
+                )
             for field in RECOMMENDED_DIVERSITY_FIELDS:
                 if not has_mapping_value(segment.get(field)):
-                    warnings.append(f"{seg_prefix}.{field} recommended for workflow batch diversity")
+                    add_quality_issue(
+                        errors,
+                        warnings,
+                        f"{seg_prefix}.{field} recommended for workflow batch diversity",
+                        fatal=strict_consumer,
+                    )
+            if branch_profile:
+                for field in BRANCH_SEGMENT_FIELDS:
+                    if not has_structured_value(segment.get(field)):
+                        add_quality_issue(
+                            errors,
+                            warnings,
+                            f"{seg_prefix}.{field} recommended for branch-aware workflow matching",
+                            fatal=strict_consumer,
+                        )
+                role_fit = segment.get("segment_role_fit")
+                expected_role = branch_profile.get("workflow_role_hint")
+                if isinstance(role_fit, list) and expected_role and expected_role not in role_fit:
+                    warnings.append(
+                        f"{seg_prefix}.segment_role_fit does not include path role hint {expected_role!r}"
+                    )
             if video_duration is not None and float(video_duration) > LONG_VIDEO_THRESHOLD_SEC:
                 if not segment.get("analysis_slice_id"):
-                    warnings.append(f"{seg_prefix}.analysis_slice_id recommended for long-source videos")
+                    add_quality_issue(
+                        errors,
+                        warnings,
+                        f"{seg_prefix}.analysis_slice_id recommended for long-source videos",
+                        fatal=strict_consumer,
+                    )
             if category == "tool_display" and not segment.get("tool_state"):
                 warnings.append(f"{seg_prefix}.tool_state recommended for tool_display")
             if category == "tool_display" and segment.get("tool_state") == "needs_llm":
@@ -351,6 +665,7 @@ def validate_manifest(
         "warnings": warnings,
         "manifest": str(manifest_path),
         "base_dir": str(base_dir),
+        "consumer_profile": consumer_profile,
     }
 
 
@@ -360,13 +675,19 @@ def main() -> int:
     parser.add_argument("--base-dir", help="Override manifest base_dir")
     parser.add_argument("--tolerance-sec", type=float, default=0.25)
     parser.add_argument("--skip-media-check", action="store_true", help="Validate schema without checking video files.")
+    parser.add_argument(
+        "--consumer",
+        choices=["generic", "workflow", "workflow-batch", "workflow-social-ad"],
+        default="workflow",
+        help="Downstream consumer profile. Batch/social-ad modes promote branch and diversity gaps to fatal errors.",
+    )
     parser.add_argument("--strict", action="store_true", help="Treat warnings as failure.")
     parser.add_argument("--report", help="Write JSON validation report.")
     args = parser.parse_args()
 
     manifest_path = Path(args.manifest).expanduser().resolve()
     base_dir = Path(args.base_dir).expanduser().resolve() if args.base_dir else None
-    result = validate_manifest(manifest_path, base_dir, args.tolerance_sec, args.skip_media_check)
+    result = validate_manifest(manifest_path, base_dir, args.tolerance_sec, args.skip_media_check, args.consumer)
     if args.strict and result["warnings"] and result["status"] == "pass":
         result["status"] = "fail"
         result["errors"].append("strict mode treats warnings as failure")

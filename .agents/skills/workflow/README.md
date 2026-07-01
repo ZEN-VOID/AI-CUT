@@ -32,6 +32,7 @@ workflow/
 │   └── review-contract.md
 ├── scripts/
 │   ├── README.md
+│   ├── update_asset_usage_monitor.py
 │   ├── validate_dialogue_sync.py
 │   └── validate_visual_contract.py
 ├── SKILL.md
@@ -73,6 +74,7 @@ Runtime experience and reusable lessons live in the five-file `CONTEXT/` structu
 
 - `workflow_intake.json`
 - `asset_evidence.json`
+- `projects/素材使用监控.csv` as the global four-column material usage monitor
 - `dialogue_alignment.json`
 - `dialogue_sync_validation.json`
 - `reference_rhythm.json`
@@ -97,13 +99,22 @@ Runtime experience and reusable lessons live in the five-file `CONTEXT/` structu
 
 ## Shared Asset Taxonomy
 
-`projects/素材/` may contain empty preprocessing folders that guide later material filling and workflow selection:
+`projects/素材/` may contain preprocessing folders that guide later material filling and workflow selection:
 
-- Material branches: `开头素材（需要对应到秒数）/`, `收益素材/`, `漫剧素材/`, `大字报/`, `工作流素材/`, `引流素材/`, `资产图/`, `转场素材（效果）/`
+- Visual material branches: `开头素材/`, `收益素材/`, `漫剧素材/`, `大字报/`, `工作流素材/`, `引流素材/`, `资产图/`, `转场素材/`
 - Keyword branch: `核心关键词/`
-- Compatibility raw inputs: `视频/`, `图片/`, `文案/`, `音频/`
+- Legacy raw inputs: historical raw pools should live under `旧/` or another explicitly marked archive.
 
 Empty taxonomy folders are placeholders only. workflow must still use real files, manifests and visual evidence before selecting assets.
+
+`projects/内容/` contains the current content truth and audio-clock pools:
+
+- `文案/` for batch `.txt` scripts.
+- `音频/` for same-stem voiceover audio; `BGM.*` under `音频/` is only a background music candidate.
+
+When both `projects/内容/文案/文案N.txt` and `projects/内容/音频/文案N.mp3` exist, workflow should treat the shared stem as the stable batch item key and must not randomly cross-pair scripts and audio.
+
+`projects/素材使用监控.csv` is the global usage monitor for shared material pools. It must keep exactly four columns: `素材名`, `文件路径`, `使用次数`, `使用程度`; `使用程度` is either `全片` or `部分切片`. Detailed per-output segment evidence stays in `asset_usage_ledger.json`; the CSV is updated only after a local final MP4 has passed verification.
 
 ## Layered Assembly Model
 
@@ -115,7 +126,7 @@ workflow videos should be planned as a rhythm structure before assets are placed
 
 Each segment must declare four visual layers in `workflow_composition_plan.json`:
 
-- `background_video`: a continuous background throughline, usually from `projects/素材/漫剧素材/纯漫剧素材/`, with `mask: none`.
+- `background_video`: a continuous background throughline, usually from `projects/素材/漫剧素材/纯漫剧素材/`, with `mask: none` and `opacity: 1`.
 - `semantic_pip`: cue-bound picture-in-picture evidence matched to the script.
 - `dialogue_caption`: subtitle cues following the script/audio clock.
 - `editorial_overlay`: one core word or short sentence summarizing the segment.
@@ -129,6 +140,7 @@ For actual projects, run the HyperFrames checks that apply to the generated proj
 ```bash
 python3 .agents/skills/workflow/scripts/validate_dialogue_sync.py --strict-final <project-root> --write-report <project-root>/dialogue_sync_validation.json
 python3 .agents/skills/workflow/scripts/validate_visual_contract.py <project-root> --write-report <project-root>/visual_contract_validation.json
+python3 .agents/skills/workflow/scripts/update_asset_usage_monitor.py <batch-or-output-root>
 npx hyperframes lint
 npx hyperframes validate
 npx hyperframes inspect
@@ -137,5 +149,7 @@ npx hyperframes render
 ```
 
 Render is required by default for ordinary workflow tasks. Only explicit plan-only, audit-only, asset-evidence-only, no-render requests, or dependency blockers may stop before final MP4, and the report must state the exception.
+Browser/page preview is not a final output; ordinary workflow tasks must produce a local canonical MP4 under the configured output root.
 
 For dialogue-caption projects, final render cannot pass only on `manual_script_audio_duration`, equal-split timing, or preview cue notes. `dialogue_sync_validation.json` must be pass, or the route returns to `repair_dialogue_timing`.
+For current `projects/内容/文案/` + `projects/内容/音频/` routes, run the dialogue validator with `--require-script-audio-pair` and record `source_script`, `source_audio`, and the shared stem.

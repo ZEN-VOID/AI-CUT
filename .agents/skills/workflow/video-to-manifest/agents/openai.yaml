@@ -1,4 +1,4 @@
 interface:
   display_name: "Video To Manifest"
   short_description: "Generate shared video manifests"
-  default_prompt: "Use $video-to-manifest to generate, update, repair, or validate a workflow 视频说明.yaml manifest from one video or a source-video directory."
+  default_prompt: "Use $video-to-manifest to generate, update, repair, or validate a workflow 视频说明.yaml manifest from one video, a source-video directory, or a branch-aware projects/素材 material pool."

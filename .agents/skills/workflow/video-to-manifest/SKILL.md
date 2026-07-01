@@ -1,6 +1,6 @@
 ---
 name: video-to-manifest
-description: Use when generating, updating, repairing, or validating shared workflow 视频说明.yaml manifests from videos or source-video directories.
+description: Use when generating, updating, repairing, or validating shared workflow 视频说明.yaml manifests from videos, source-video directories, or branch-aware projects/素材 material pools.
 governance_tier: full
 metadata:
   short-description: Generate shared video manifests
@@ -8,7 +8,7 @@ metadata:
 
 # Video To Manifest
 
-`video-to-manifest` 是 workflow 共享素材说明卫星技能。它把指定视频或视频目录转成 workflow 或其他视频工作流可消费的 `视频说明.yaml`，提供可审计的素材事实索引、片段候选、字幕安全区、选材提示和下游 handoff 证据。
+`video-to-manifest` 是 workflow 共享素材说明卫星技能。它把指定视频、视频目录或 `projects/素材/` 分支化素材池转成 workflow 或其他视频工作流可消费的 `视频说明.yaml`，提供可审计的素材事实索引、片段候选、字幕安全区、选材提示和下游 handoff 证据。
 
 本技能只生成或维护素材说明，不渲染 final MP4，不替代任何父级 workflow 的 `asset_evidence.json`、storyboard、EDL 或 HyperFrames composition 裁决。workflow 可以把本技能输出作为可选素材证据输入，但不得把它当作 workflow 必需真源或 runtime 依赖。
 
@@ -98,6 +98,7 @@ metadata:
 | --- | --- | --- |
 | `target_video` | 单个视频文件路径 | 生成或更新该文件所在目录的 `视频说明.yaml`。 |
 | `target_dir` | 视频目录路径 | 扫描目录内视频，默认递归；相对路径写入 `videos[].file`。 |
+| `material_pool_dir` | `projects/素材/` 或其分支目录 | 按素材分支生成/更新 branch-aware `视频说明.yaml`，必要时写顶层 `素材索引.yaml` 作为 manifest registry。 |
 | `existing_manifest` | 已有 `视频说明.yaml` | 用于增量更新、修复、保留稳定 `id/segment_id` 和 `renames[]`。 |
 | `manifest_path` | 用户指定输出路径 | 优先于默认 `<target_dir>/视频说明.yaml`。 |
 | `work_dir` | 证据输出目录 | 默认 `<manifest_dir>/video_manifest_work/`。 |
@@ -142,6 +143,7 @@ metadata:
 | `purpose` | 说明该清单服务下游视频 workflow 的选材、截段、拼接、字幕避让、asset evidence 或 EDL/storyboard 前置证据。 |
 | `consumer_contract` | 必须包含 `primary_consumers`、`read_phase`、`apply_phase`、`verify_phase`、authority、not_authority、fallback；workflow 只能把它作为 `asset_evidence.json` 前的可选证据输入。 |
 | `field_model` | 列出 video-level 和 segment-level 必需字段，便于下游审计。 |
+| `material_pool_profile` | 当输入来自 `projects/素材/` 或类似分支素材池时必填；说明路径分支只是 candidate pool hint、最终语义由逐视频视觉理解确认，并列出 branch manifest / top-level registry 策略。 |
 | `global_editing_policy` | 包含路径解析、音频策略、运行时校验、默认切段长度和选择优先级。 |
 | `global_editing_policy.pre_slice_policy` | 长素材分析切片策略；默认超过 60 秒建立 `analysis_slices[]`，每个切片不超过 60 秒。 |
 | `global_editing_policy.diversity_tag_policy` | 标签深度和重复风险策略；说明 segment 需要哪些可用于 workflow 批量去重的维度。 |
@@ -156,6 +158,12 @@ metadata:
 | `videos[].file` | 相对 `base_dir` 的真实视频路径。 |
 | `videos[].category` | `operation_demo`、`tool_display`、`aigc_content`、`reference_only` 或 `other`；workflow 等下游 workflow 优先使用前三者做素材匹配。 |
 | `videos[].role` | LLM 基于可见内容写出的主要用途说明。 |
+| `videos[].material_branch` | 条件必需：素材位于 `projects/素材/` 分支体系时填写，例如 `opening_hook`、`revenue_proof`、`comic_drama`、`workflow_demo`、`private_traffic_cta`、`editorial_overlay`、`transition`；路径只提供候选，LLM/operator 必须基于画面确认或写 mismatch。 |
+| `videos[].branch_path` | 条件必需：记录命中的素材分支相对路径，例如 `开头素材/高燃画面` 或 `漫剧素材/纯漫剧素材/炸裂`，供下游追踪候选池来源。 |
+| `videos[].workflow_role_hint` | 条件必需：素材分支对 workflow 节奏位置的提示，例如 `hook_opening`、`content_body`、`proof_point`、`process_proof`、`private_traffic_cta`、`transition`；不得替代 `role` 和 segment 证据。 |
+| `videos[].layer_affinity` | 条件必需：建议画面层，例如 `background_video`、`semantic_pip`、`editorial_overlay`、`transition`、`hook_visual`；下游仍需在 storyboard/preview 验证。 |
+| `videos[].content_subtype_fit` | 建议填写：素材更细用途，如 `high_energy_opening`、`revenue_video`、`workflow_process`、`pure_comic_drama`、`tool_cta`。 |
+| `videos[].selection_constraints` | 建议填写：路径提示适用边界、必须复核项、不得随机直用的限制。 |
 | `videos[].media` | 至少含 `duration_sec`、`fps`、`resolution`、`codec`、`has_audio`。 |
 | `videos[].content_profile` | 至少含 `visual_summary`、`setting`、`main_subjects`、`color_palette`、`visual_density`、`motion_level`、`action_intensity`、`text_overlay_density`、`continuity_group`。 |
 | `videos[].selection_profile` | 至少含 `best_for`、`avoid_for`、`keyword_triggers`、`priority`。 |
@@ -179,6 +187,9 @@ metadata:
 | `trigger_profile` | 建议必填：记录触发机制，至少含 `positive_triggers`、`negative_triggers`、`hook_fit`、`proof_fit`、`transition_fit` 或 `cta_fit`。 |
 | `visual_signature` | 建议必填：记录可区分画面特征，例如主体、动作、构图、镜头距离、色彩、界面状态、运动轨迹和重复风险。 |
 | `variation_profile` | 建议必填：记录可替换性与去重策略，例如 `replaceability`、`similar_segments`、`freshness_score`、`reuse_cooldown`。 |
+| `segment_role_fit` | 素材分支体系下建议必填：记录该片段适合的工作流节奏位置，例如 `hook_opening`、`content_body`、`proof_point`、`process_proof`、`private_traffic_cta`、`transition`。 |
+| `content_subtype_fit` | 素材分支体系下建议必填：记录该片段能承载的细分类素材语义，例如 `revenue_evidence`、`pure_comic_drama`、`workflow_process`、`tool_cta`、`keyword_trigger`。 |
+| `selection_constraints` | 素材分支体系下建议必填：记录不可用 cue、必须二次预览、画幅/字幕/复用限制；避免下游只按目录随机抽取。 |
 | `analysis_slice_id` | 长素材来源片段建议填写，回指 `videos[].analysis_slices[].slice_id`。 |
 | `shot_type` / `motion` / `action_intensity` | 拼接节奏判断字段。 |
 | `text_overlay` | 当前片段既有字幕、界面文字或画面文字状态。 |
@@ -214,7 +225,11 @@ metadata:
 - 如果用户关闭前置切片或工具无法生成切片证据，`video-manifest-report.md` 必须记录影响：长素材标签更容易粗化、workflow 批量选材更容易重复、下游需要在 workflow `N3/N5` 追加复核。
 - 如果用户已经明确要求“拆成短视频”，但本轮只生成逻辑 `analysis_slices[]` 而没有 `proxy_clip`，不得判定为完整完成；必须补生成物理代理切片或在报告中说明阻塞原因。
 
-### Directory Category Mapping
+### Directory And Material Branch Mapping
+
+目录映射现在分两层：`category` 仍表示视频可见内容类型；`material_branch/workflow_role_hint/layer_affinity` 表示素材池路径给出的候选用途。路径只缩小候选范围，不替代逐视频理解，也不得成为随机拼接的唯一依据。
+
+#### Legacy Category Directories
 
 | directory signal | canonical category | meaning | conflict policy |
 | --- | --- | --- | --- |
@@ -222,7 +237,21 @@ metadata:
 | `工具使用/` | `tool_display` | 软件/网页/APP/AI 工具界面、按钮、参数、输入输出和生成状态。 | 若只有实拍操作或无界面状态，按证据降级并报告。 |
 | `影像内容/` | `aigc_content` | 剧情、角色、场景、动作、氛围、爽点和成片画面。 | 若实际是工具界面或操作录屏，报告目录-内容冲突。 |
 
-目录映射是项目素材分类信号，不替代可视证据。脚本可以把它写入 evidence 或 skeleton 的 `directory_category_hint`；最终 `videos[].category` 仍必须由 LLM/operator 基于目录信号和抽帧证据确认。
+#### Current `projects/素材/` Branch Hints
+
+| directory signal | material_branch | workflow_role_hint | layer_affinity | content subtype hint |
+| --- | --- | --- | --- | --- |
+| `开头素材/` | `opening_hook` | `hook_opening` | `background_video` / `hook_visual` | `high_energy_opening` |
+| `收益素材/收益视频/` | `revenue_proof` | `proof_point` | `semantic_pip` / `background_video` | `revenue_evidence` / `revenue_video` |
+| `工作流素材/` | `workflow_demo` | `process_proof` 或 `tool_proof` | `semantic_pip` / `background_video` | `workflow_process` / `workflow_reference` |
+| `引流素材/` | `private_traffic_cta` | `private_traffic_cta` | `semantic_pip` / `editorial_overlay` | `cta_material` |
+| `漫剧素材/纯漫剧素材/` | `comic_drama` 或 `pure_comic_drama` | `content_body` | `background_video` | `comic_drama` / `pure_comic_drama` |
+| `大字报/` | `editorial_overlay` | `editorial_emphasis` | `editorial_overlay` | `big_text_card` |
+| `转场素材/` | `transition` | `transition` | `transition` | `transition_effect` |
+| `核心关键词/` | `keyword_trigger` | `keyword_anchor` | `editorial_overlay` / `semantic_pip` | `keyword_trigger` |
+| `资产图/` | `asset_image_reference` | `semantic_pip` | `semantic_pip` | `asset_reference` |
+
+脚本可以把这些写入 evidence 或 skeleton 的 `directory_category_hint`、`material_branch_hint`、`workflow_role_hint`、`layer_affinity`、`content_subtype_hint`。最终 `videos[].category`、`videos[].role`、segment 语义和可入剪判断仍必须由 LLM/operator 基于抽帧证据确认；如果路径与画面冲突，写 `category_mismatch_reason` 或 `branch_mismatch_reason`，不要静默改写。
 
 ### Standard Category Guidance
 
@@ -278,10 +307,10 @@ metadata:
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-INTAKE` | 锁定目标、范围、输出路径和已有状态 | 用户请求、目标视频/目录、现有 manifest、调度方 workflow | 判定路线；列出视频清单；确认 `manifest_path`、`work_dir`、consumer profile、是否递归和是否备份；读取样例 schema 的字段结构 | `intake_manifest`、目标文件列表、旧 manifest 状态、scope checkpoint | `N2` / `N5` / `N6` | 至少 1 个视频或 1 个 manifest 可读；覆盖旧 manifest 前必须计划备份；输入阻断时进入 `N6` 写阻断报告 |
-| `N2-MECHANICAL-EVIDENCE` | 生成媒体事实和逐视频可视证据 | 视频清单 | 运行 `inspect_video_material.py` 或等价流程；每视频 `ffprobe`；抽取覆盖全时长的时间戳帧；超过 60 秒的视频生成 `analysis_slices[]` 和 slice 级抽帧；必要时生成单视频接触表；输出 evidence JSON；必要时生成非最终 skeleton | `material-evidence.json`、抽帧目录、analysis slice map、ffprobe 摘要、逐视频接触表或样张索引、skeleton draft | `N3` / `R1` | 每个待写视频有媒体参数和逐视频证据；默认每视频至少 3 帧，长视频有 ≤60 秒 analysis slices；目录级总览不能替代单视频证据 |
-| `N3-LLM-AUTHORING` | 逐视频精读并填写 manifest 语义字段 | evidence JSON、逐视频抽帧/接触表、analysis slices、目录分类信号、用户 hints、现有 manifest | LLM 逐视频、逐片段观察；裁决 category、role、content_profile、selection_profile、splicing_profile、subtitle_safe_zone、analysis_slices、segments；为每个高可用 segment 写 `semantic_vector`、`trigger_profile`、`visual_signature`、`variation_profile`；对 `operation_demo/tool_display/aigc_content` 填写各自证据字段；写入 observation summary 或 deep_review；保留 `needs_review` 而非臆测 | authored manifest draft、LLM observation summary、deep_review coverage、slice coverage、directory-category map、uncertainty list | `N4` / `R1` | 每个视频至少 1 个 segment；长素材 segment 回指 slice；语义字段有逐视频/逐 slice 证据来源；操作展示段不得缺动作阶段；工具段 screen state 不得只靠工具名 |
-| `N4-MERGE-WRITE` | 合并旧清单并写回唯一 manifest | authored draft、旧 manifest、renames、manifest path | 备份旧 manifest；保留稳定 `id/segment_id`；合并新增视频、修复缺失字段、登记删除/缺失为报告风险；写入 `视频说明.yaml` | final YAML、backup path、merge log、repair log | `N5` / `R1` | 不丢失仍存在视频的稳定 ID；最终只写一个 canonical `视频说明.yaml` |
-| `N5-VALIDATE` | 校验 manifest 可被下游 consumer profile 消费 | final YAML 或现有 YAML | 运行 `validate_video_manifest.py`；检查字段、文件、时长、片段范围、目录-category 一致性、`operation_demo` 动作字段、`tool_display` screen-state 字段和字幕风险；审计 workflow 可选证据边界 | validation JSON、warning list、consumer compatibility verdict | `N6` / `R2` | fatal error 为 0；warnings 必须在报告中有 owner 或保守策略 |
+| `N2-MECHANICAL-EVIDENCE` | 生成媒体事实和逐视频可视证据 | 视频清单 | 运行 `inspect_video_material.py` 或等价流程；每视频 `ffprobe`；抽取覆盖全时长的时间戳帧；超过 60 秒的视频生成 `analysis_slices[]` 和 slice 级抽帧；识别旧三类目录和 `projects/素材/` 分支提示；必要时生成单视频接触表；输出 evidence JSON；必要时生成非最终 skeleton | `material-evidence.json`、抽帧目录、analysis slice map、ffprobe 摘要、material branch hint、逐视频接触表或样张索引、skeleton draft | `N3` / `R1` | 每个待写视频有媒体参数和逐视频证据；默认每视频至少 3 帧，长视频有 ≤60 秒 analysis slices；路径提示只作为 candidate pool，不替代单视频证据 |
+| `N3-LLM-AUTHORING` | 逐视频精读并填写 manifest 语义字段 | evidence JSON、逐视频抽帧/接触表、analysis slices、目录分类信号、material branch hints、用户 hints、现有 manifest | LLM 逐视频、逐片段观察；裁决 category、role、material_branch、workflow_role_hint、layer_affinity、content_profile、selection_profile、splicing_profile、subtitle_safe_zone、analysis_slices、segments；为每个高可用 segment 写 `semantic_vector`、`trigger_profile`、`visual_signature`、`variation_profile`、`segment_role_fit`、`content_subtype_fit`、`selection_constraints`；对 `operation_demo/tool_display/aigc_content` 填写各自证据字段；写入 observation summary 或 deep_review；保留 `needs_review` 而非臆测 | authored manifest draft、LLM observation summary、deep_review coverage、slice coverage、directory-category map、material-branch map、uncertainty list | `N4` / `R1` | 每个视频至少 1 个 segment；长素材 segment 回指 slice；语义字段有逐视频/逐 slice 证据来源；分支提示与画面冲突时有 mismatch reason；操作展示段不得缺动作阶段；工具段 screen state 不得只靠工具名 |
+| `N4-MERGE-WRITE` | 合并旧清单并写回当前目标范围的 canonical manifest | authored draft、旧 manifest、renames、manifest path | 备份旧 manifest；保留稳定 `id/segment_id`；合并新增视频、修复缺失字段、登记删除/缺失为报告风险；写入 `视频说明.yaml`，全池任务可同步顶层 `素材索引.yaml` registry | final YAML、backup path、merge log、repair log | `N5` / `R1` | 不丢失仍存在视频的稳定 ID；当前目标范围只有一个 canonical `视频说明.yaml`；全池 registry 不替代分支 manifest |
+| `N5-VALIDATE` | 校验 manifest 可被下游 consumer profile 消费 | final YAML 或现有 YAML | 运行 `validate_video_manifest.py`；检查字段、文件、时长、片段范围、目录-category 一致性、material branch 字段、画面层适配、`operation_demo` 动作字段、`tool_display` screen-state 字段和字幕风险；批量短视频 consumer 使用 `--consumer workflow-batch` 或 `workflow-social-ad` 严格门禁 | validation JSON、warning list、consumer compatibility verdict | `N6` / `R2` | fatal error 为 0；warnings 必须在报告中有 owner 或保守策略；批量 consumer 不允许缺少分支角色和深标签字段 |
 | `N6-CLOSE` | 汇总交付和学习写回 | YAML、证据、校验结果 | 写 sidecar 报告；列出 manifest 路径、证据路径、残余风险、consumer handoff；执行 Source Sync Check；可复用经验写 `CONTEXT.md` | report、final response、context writeback decision | done | 只有一个 canonical manifest；验证结果和残余风险清楚 |
 | `R1-EVIDENCE-REWORK` | 修复证据不足或语义漂移 | validation/warning、抽帧缺口、LLM 不确定项 | 增加抽帧、缩小范围、要求用户提供 hints、重新观察可疑视频 | supplemental frames、updated evidence | `N3` / `N6` | 不得无证据补语义字段；证据仍不足时进入 `N6` 写阻断报告 |
 | `R2-SCHEMA-REWORK` | 修复 schema 或 consumer profile 适配失败 | validator 失败或 workflow evidence 边界缺口 | 回到 manifest draft 或 merge 步骤补字段、修时间、修路径、修 category | patched YAML、validator rerun | `N5` | fatal error 清零 |
@@ -296,7 +325,7 @@ metadata:
 | `tag_depth` | 面向 workflow 或批量短视频 consumer 的 segment：`semantic_tags` 建议至少 3 个有效标签，且应有 `semantic_vector`、`trigger_profile`、`visual_signature`、`variation_profile`；缺失时 validator 可给 warning，报告必须标出返工。 | `N3,N5` | `FAIL-QUANT-TAG-DEPTH` |
 | `retry_limit` | 证据/字段返工最多 3 轮；仍无法确认时写 `needs_review` 并交付阻断或 conditional manifest，不得假装 pass。 | `R1,R2,N6` | `FAIL-QUANT-RETRY` |
 | `fallback_evidence` | 无法抽帧时只允许写媒体级 skeleton 和阻断报告；无法确认语义时字段写保守描述或 `needs_review`，并列补充证据需求。 | `Review Gate Binding.report_evidence` | `FAIL-QUANT-FALLBACK` |
-| `category_coverage` | `操作展示/工具使用/影像内容` 目录下的视频必须映射到 `operation_demo/tool_display/aigc_content` 或记录目录-内容冲突；对应 category 的片段证据字段不得空缺。 | `N3,N5` | `FAIL-QUANT-CATEGORY-COVERAGE` |
+| `category_coverage` | `操作展示/工具使用/影像内容` 目录下的视频必须映射到 `operation_demo/tool_display/aigc_content` 或记录目录-内容冲突；`projects/素材/` 分支下的视频必须记录 `material_branch/workflow_role_hint/layer_affinity` 或 mismatch reason；对应 category 和分支角色的片段证据字段不得空缺。 | `N3,N5` | `FAIL-QUANT-CATEGORY-COVERAGE` |
 
 ## Attention Concentration Protocol
 
@@ -334,7 +363,8 @@ metadata:
 
 - 单视频生成 manifest。
 - 目录增量更新 manifest。
-- `操作展示/工具使用/影像内容` 三类目录到 `operation_demo/tool_display/aigc_content` 的映射和类别专属证据。
+- `操作展示/工具使用/影像内容` 三类 legacy 目录到 `operation_demo/tool_display/aigc_content` 的映射和类别专属证据。
+- 当前 `projects/素材/` 分支目录到 `material_branch/workflow_role_hint/layer_affinity/content_subtype_fit` 的提示和 mismatch 处理。
 - 修复已有视频级摘要但缺 `segments[]` 的 manifest。
 - 只校验已有 manifest。
 
@@ -375,9 +405,9 @@ metadata:
 | --- | --- | --- | --- | --- |
 | `C1-INPUTS-LOCKED` | 目标视频/目录或 manifest 可读；输出路径可写；覆盖前有备份策略 | 视频缺失、目录无视频、输出不可写、覆盖无备份 | intake manifest、target list | `N1` |
 | `C2-EVIDENCE-READY` | 每个待写视频有 ffprobe 摘要、最低抽帧证据和逐视频精读入口 | 无媒体参数、无可视证据、抽帧失败未记录、只看目录级总览即进入语义定稿 | material evidence、frame paths、deep review/contact sheet index | `N2/R1` |
-| `C3-MANIFEST-WRITTEN` | 已写唯一 `视频说明.yaml`，字段覆盖 top-level/video-level/segment-level，旧 ID 合理保留，并能回指逐视频精读证据 | 多个输出真源、只有视频级摘要、稳定 ID 丢失、脚本语义生成、语义字段无法回指单视频证据 | final YAML、merge log、deep_review coverage | `N3/N4/R2` |
+| `C3-MANIFEST-WRITTEN` | 已写当前目标范围的 canonical `视频说明.yaml`，字段覆盖 top-level/video-level/segment-level，旧 ID 合理保留，并能回指逐视频精读证据；全池 registry 只索引分支 manifest | 多个同范围输出真源、只有视频级摘要、稳定 ID 丢失、脚本语义生成、语义字段无法回指单视频证据 | final YAML、merge log、deep_review coverage | `N3/N4/R2` |
 | `C4-VALIDATION-PASS` | validator fatal error 为 0；warnings 已记录保守策略或 owner | YAML parse 失败、必需字段缺失、文件不存在、时间越界 | validation JSON、warning list | `N5/R2` |
-| `C5-FINAL-OUTPUT` | final response 只指向一个 canonical manifest，并提供证据包、报告和 consumer handoff | 残余风险无说明、报告缺路径、调度方无法消费 | sidecar report、final manifest path | `N6` |
+| `C5-FINAL-OUTPUT` | final response 指向当前目标范围的 canonical manifest；全池任务同时列出 registry 和分支 manifests，并提供证据包、报告和 consumer handoff | 残余风险无说明、报告缺路径、调度方无法消费 | sidecar report、final manifest path、optional registry path | `N6` |
 | `C6-BUSINESS-LOCKED` | 业务目标、对象、约束、成功标准、复杂度和拓扑适配理由完整 | 业务画像缺字段或拓扑无 3 个理由 | business profile、topology fit | `Business Requirement Analysis Contract` |
 | `C7-QUANTIFIED` | 范围、证据量、时长容差、重试和 fallback 全部可执行 | 只有方向性规则，无法判断做多少或何时停止 | quant criteria audit | `Quantifiable Execution Criteria Contract` |
 | `C8-ATTENTION-BOUND` | 注意力锚点、漂移检测和再集中入口均可定位 | 发现漂移但继续扩写局部文本 | attention audit | `Attention Concentration Protocol` |
@@ -450,7 +480,8 @@ stateDiagram-v2
 | 是否遵守 LLM-first 视频理解？ | 脚本或模板批量生成 `semantic_tags/visual_content/best_for` 等最终字段即失败 | `FAIL-SCRIPT-OVERREACH` | `LLM-First Video Understanding Contract` | script scope audit、authorship notes |
 | manifest schema 是否满足调度方 consumer profile？ | 缺 top-level、video-level、segment-level 必需字段，或只有视频级摘要即失败 | `FAIL-MANIFEST-SCHEMA` | `Manifest Schema Contract` / `R2` | validation JSON、missing fields |
 | 标签粒度是否足以支撑批量差异化？ | 面向 workflow/批量短视频时，segment 只有泛化标签、缺 semantic/trigger/visual/variation 维度、无法判断替代关系或重复风险，即失败或 warning | `FAIL-TAG-DEPTH-DIVERSITY` | `N3-LLM-AUTHORING` | tag depth audit、segment evidence、consumer handoff |
-| 三类标准素材目录是否映射正确？ | `操作展示/工具使用/影像内容` 与 `category` 冲突且无 mismatch 说明，或最终 category 仍为 `needs_llm` 即失败或 warning | `FAIL-MATERIAL-CATEGORY-MAP` | `Manifest Schema Contract` / `N3` | directory-category map、validation JSON、uncertainty list |
+| 目录和素材分支映射是否正确？ | `操作展示/工具使用/影像内容` 与 `category` 冲突且无 mismatch 说明，或 `projects/素材/` 分支下缺 `material_branch/workflow_role_hint/layer_affinity`，或最终 category 仍为 `needs_llm` 即失败或 warning；批量 consumer 下可升级为 fatal | `FAIL-MATERIAL-CATEGORY-MAP` | `Manifest Schema Contract` / `N3` | directory-category map、material-branch map、validation JSON、uncertainty list |
+| 分支路径是否被误当成最终语义？ | 只凭 `开头素材/收益素材/引流素材/漫剧素材` 路径随机选段、未写 segment 触发条件/避用条件/视觉签名/画面层适配，即失败或 warning | `FAIL-BRANCH-RANDOM-MATCHING` | `N3-LLM-AUTHORING` / `R2-SCHEMA-REWORK` | segment_role_fit、content_subtype_fit、selection_constraints、evidence_frames |
 | 媒体参数是否与真实视频一致？ | 文件不存在、duration 与 ffprobe 差异超过 0.25 秒且无解释即失败 | `FAIL-MEDIA-MISMATCH` | `N2` / `R2` | ffprobe JSON、mismatch report |
 | segment 时间是否可截取？ | start/end 越界、duration 不匹配、segment_id 不稳定即失败 | `FAIL-SEGMENT-RANGE` | `N3` / `R2` | validator segment report |
 | 操作展示片段是否有动作阶段证据？ | `operation_demo` 只写“操作展示”、无 `operation_state/action_phase` 或可见步骤证据即失败或 warning | `FAIL-OPERATION-STATE-EVIDENCE` | `N3-LLM-AUTHORING` | operation state map、evidence frames |
@@ -468,6 +499,7 @@ stateDiagram-v2
 
 - 下游选不到片段：workflow `N3/N5` -> `视频说明.yaml` 缺 `segments[]` 或 tags 粗糙 -> 本技能 `N3/R2` -> 补片段级字段和 evidence。
 - 批量 workflow 成片重复率高：workflow `N5` asset diversity fail -> manifest segment 标签过粗、缺触发/视觉签名/可替换关系或长素材未切片精读 -> 本技能 `N2/N3` -> 补 `analysis_slices[]`、`semantic_vector`、`trigger_profile`、`visual_signature`、`variation_profile`。
+- 当前素材池匹配变成盲随机：workflow 选材失败 -> manifest 只有路径分支、缺 `material_branch/workflow_role_hint/layer_affinity` 或 segment 级 `segment_role_fit/content_subtype_fit/selection_constraints` -> 本技能 `N3/R2` -> 用逐视频证据补分支角色和片段匹配字段。
 - 操作展示与文案步骤对不上：workflow asset/storyboard 失败 -> manifest `operation_demo` 缺 `operation_state/action_phase` 或目录-category 冲突 -> 本技能 `N3` -> 重新观察操作帧并补步骤状态。
 - 工具画面对不上字幕：workflow storyboard 失败 -> manifest `tool_display` 缺 `tool_state` -> 本技能 `N3` -> 重新观察工具帧并补 screen state。
 - 字幕遮挡风险漏报：final 抽帧失败 -> manifest `subtitle_safe_zone` 过于乐观 -> 本技能 `N3/R2` -> 高风险 notes 和 recommended position。
@@ -488,7 +520,7 @@ stateDiagram-v2
 | `FIELD-VTM-08` | `CONTEXT.md` | manifest 生成经验、修复手册、启发式 | `FAIL-CONTEXT` |
 | `FIELD-VTM-09` | `test-prompts.json` | 至少 4 个典型 prompt | `FAIL-TEST-PROMPTS` |
 | `FIELD-VTM-10` | `agents/openai.yaml` | 默认提示显式提到 `$video-to-manifest` | `FAIL-AGENT-METADATA` |
-| `FIELD-VTM-11` | `SKILL.md.Directory Category Mapping` | `操作展示/工具使用/影像内容` 到 `operation_demo/tool_display/aigc_content` 的映射、冲突处理和下游回接规则 | `FAIL-MATERIAL-CATEGORY-MAP` |
+| `FIELD-VTM-11` | `SKILL.md.Directory And Material Branch Mapping` | legacy category 目录与当前 `projects/素材/` 分支到 `category/material_branch/workflow_role_hint/layer_affinity` 的映射、冲突处理和下游回接规则 | `FAIL-MATERIAL-CATEGORY-MAP` |
 
 ## Pass Table
 
@@ -504,24 +536,24 @@ stateDiagram-v2
 | `FIELD-VTM-08` | 经验层不写流水账、不改主合同 | `CONTEXT.md` |
 | `FIELD-VTM-09` | prompts 覆盖单视频、目录更新、修复、只校验 | `Evaluation Prompt Contract` |
 | `FIELD-VTM-10` | agent metadata 可被索引且默认提示正确 | `agents/openai.yaml` |
-| `FIELD-VTM-11` | 能为三类标准视频目录生成下游可消费 category，并保留目录信号与可视证据冲突的审计口径 | `Manifest Schema Contract` |
+| `FIELD-VTM-11` | 能为 legacy 三类目录和当前分支素材池生成下游可消费 category、material branch、role hint 和 layer hint，并保留路径信号与可视证据冲突的审计口径 | `Manifest Schema Contract` |
 
 ## Output Contract
 
-- Required output: 一个 canonical `视频说明.yaml`，除非用户明确选择只审计/只校验。
-- Output path: 默认 `<target_video_dir>/视频说明.yaml` 或 `<target_dir>/视频说明.yaml`；用户指定 `manifest_path` 时以用户路径为准。
+- Required output: 目标范围内一个 canonical `视频说明.yaml`，除非用户明确选择只审计/只校验；当目标是 `projects/素材/` 全池时，可同时维护各素材分支的 canonical `视频说明.yaml` 和顶层 `素材索引.yaml` registry。
+- Output path: 默认 `<target_video_dir>/视频说明.yaml` 或 `<target_dir>/视频说明.yaml`；素材分支默认写入对应分支目录的 `视频说明.yaml`，顶层素材池可写 `素材索引.yaml` 记录分支 manifest；用户指定 `manifest_path` 时以用户路径为准。
 - Supporting outputs:
 - `<work_dir>/material-evidence.json`
 - `<work_dir>/frames/` 或等价抽帧目录
 - `<work_dir>/slice-map.json` 或 `material-evidence.json.videos[].analysis_slices[]`（当存在超过 60 秒素材时）
   - `<work_dir>/analysis_clips/`（当用户要求物理拆分长视频时必需；每个代理切片默认不超过 60 秒，并由 `analysis_slices[].proxy_clip` 回指）
   - `<work_dir>/deep_review/`、逐视频接触表或等价精读证据索引（目录刷新和高影响写回默认需要）
-  - `<work_dir>/video-manifest-validation.json`
+  - `<work_dir>/video-manifest-validation.json`（批量短视频素材池应使用 `--consumer workflow-batch` 或 `--consumer workflow-social-ad`）
   - `<work_dir>/video-manifest-report.md`
   - 已有 manifest 备份：`视频说明.backup.<YYYYMMDD-HHMMSS>.yaml`
   - 可选 skeleton：`<work_dir>/视频说明.skeleton.yaml`，不得作为 final pass manifest。
 - Output format: YAML `schema_version: 2`，字段遵守 `Manifest Schema Contract`。
-- Naming convention: manifest 固定中文文件名 `视频说明.yaml`；视频 ID 建议 `operation-01`、`tool-01`、`content-01` 或基于用户命名的稳定 slug；片段 ID 建议 `<video_id>-sNN`。
+- Naming convention: 分支 manifest 固定中文文件名 `视频说明.yaml`；素材池 registry 固定中文文件名 `素材索引.yaml`；视频 ID 建议 `operation-01`、`tool-01`、`content-01` 或基于用户命名/素材分支的稳定 slug；片段 ID 建议 `<video_id>-sNN`。
 - Completion gate: final YAML 存在；validator fatal error 为 0；每个写入视频有媒体证据、逐视频精读证据和至少 1 个 segment；报告列出 warnings、uncertainty、逐视频覆盖口径和 consumer handoff。
 - Exception report: 若无法抽帧、无法确认语义或视频不可读，输出阻断报告和当前 evidence，不把 manifest 判定为 pass。
 

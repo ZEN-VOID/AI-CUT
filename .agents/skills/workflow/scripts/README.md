@@ -8,6 +8,7 @@ workflow intentionally relies on HyperFrames CLI and HyperFrames media tooling i
 - schema validation for workflow JSON artifacts;
 - final-ready dialogue sync evidence validation;
 - visual contract validation for audience-visible text, captions, overlays, PiP evidence, and batch ledgers;
+- project-wide material usage monitor CSV maintenance;
 - file existence and path audits;
 - diff/report assembly;
 - non-creative manifest checks;
@@ -22,6 +23,8 @@ Scripts in this directory must not generate creative text, storyboard decisions,
 Validates that `dialogue_alignment.json` is final-ready for dialogue captions:
 
 - rejects total-duration, proportional, equal-split, preview-only or draft timing;
+- rejects missing or mismatched `source_script` / `source_audio` / shared stem when `--require-script-audio-pair` is used for current `projects/内容/文案` + `projects/内容/音频` routes;
+- rejects `BGM.*` as the dialogue audio clock;
 - requires each `dialogue_caption` cue to declare timing, script anchor, caption type, sync method, audio anchor and tolerance evidence;
 - compares cue timing against per-cue audio anchors;
 - compares HyperFrames `index.html` caption `data-start` / `data-duration` values against `dialogue_alignment.json`;
@@ -31,6 +34,12 @@ Typical final gate:
 
 ```bash
 python3 .agents/skills/workflow/scripts/validate_dialogue_sync.py --strict-final <project_root> --write-report <project_root>/dialogue_sync_validation.json
+```
+
+Current material-pool route:
+
+```bash
+python3 .agents/skills/workflow/scripts/validate_dialogue_sync.py --strict-final --require-script-audio-pair <project_root> --write-report <project_root>/dialogue_sync_validation.json
 ```
 
 This validator cannot prove spoken phonemes by itself. It proves that the final
@@ -54,7 +63,8 @@ composition gates exposed by recent failures:
 - rejects editorial overlays that duplicate the current dialogue caption;
 - requires `semantic_pip` slots to carry timing, `cue_id` and `match_reason`;
 - checks `workflow_composition_plan.json` for `hook_opening`, `content_body` and `private_traffic_cta` segments;
-- checks that strict social-ad plans declare a continuous no-mask `background_throughline`, per-segment background/PiP/caption/editorial overlay layers, and short editorial overlay summaries;
+- checks that strict social-ad plans declare a continuous no-mask, fully opaque `background_throughline`, per-segment background/PiP/caption/editorial overlay layers, and short editorial overlay summaries;
+- rejects background `mask`, `clip-path`, opacity below 1, transparency or inline background opacity styles on authored HTML elements;
 - checks content body coverage for comic-drama, tool/workflow and revenue/proof material, unless the plan records an explicit exception;
 - in `--strict-social-ad` mode, requires enough cue-bound PiP slots and checks `workflow_assignment.json`;
 - checks PiP `video_manifest_hint.segment_id` and `match_score` so a formal 0-score reference cannot pass as manifest consumption;
@@ -75,6 +85,42 @@ python3 .agents/skills/workflow/scripts/validate_visual_contract.py <batch_root>
 This validator cannot judge aesthetics or invent better visual matches. It only
 blocks missing evidence, unsafe text, caption/PiP contract drift and batch audit
 inconsistency. Creative repair still returns to `N3/N5/N6/N7`.
+
+### `update_asset_usage_monitor.py`
+
+Maintains `projects/素材使用监控.csv` from final usage evidence. The CSV is intentionally
+simple and must keep exactly four columns:
+
+```csv
+素材名,文件路径,使用次数,使用程度
+```
+
+`使用程度` must be `全片` or `部分切片`. Detailed segment IDs, time ranges,
+layers and final paths stay in `asset_usage_ledger.json`.
+
+Initialize or validate the monitor:
+
+```bash
+python3 .agents/skills/workflow/scripts/update_asset_usage_monitor.py
+python3 .agents/skills/workflow/scripts/update_asset_usage_monitor.py --validate-only
+```
+
+Update after final verification from a batch/output root or ledger:
+
+```bash
+python3 .agents/skills/workflow/scripts/update_asset_usage_monitor.py <batch_root>
+python3 .agents/skills/workflow/scripts/update_asset_usage_monitor.py <project_root>/asset_usage_ledger.json
+```
+
+Rebuild idempotently from all discovered output ledgers:
+
+```bash
+python3 .agents/skills/workflow/scripts/update_asset_usage_monitor.py --rebuild projects/output
+```
+
+This helper must not be run to count planned usage, failed renders, browser-only
+previews or unverified drafts. Final close should count actual usage only after
+the local canonical MP4 exists.
 
 ## Review Gate Mapping
 

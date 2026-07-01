@@ -1,6 +1,9 @@
 {
   "schema": "workflow_dialogue_alignment.v2",
   "audio_path": "assets/voiceover.mp3",
+  "source_script": "projects/内容/文案/voiceover.txt",
+  "source_audio": "projects/内容/音频/voiceover.mp3",
+  "script_audio_stem": "voiceover",
   "duration_s": 3.0,
   "sync_method": "manual_per_cue_audio_anchor",
   "sync_tolerance_ms": 150,

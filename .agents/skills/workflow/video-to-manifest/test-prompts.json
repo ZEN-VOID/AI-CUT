@@ -15,6 +15,11 @@
     "expected": "路由到 update_directory；机械 evidence 记录 directory_category_hint；LLM/operator 基于抽帧确认 category：操作展示 -> operation_demo、工具使用 -> tool_display、影像内容 -> aigc_content；operation_demo 片段补 operation_state/action_phase，tool_display 片段补 tool_state/screen_state，aigc_content 片段补 semantic_tags/visual_content；validate_video_manifest.py 报告目录-category 一致性和类别专属 warnings。"
   },
   {
+    "id": "current-material-pool-branch-update",
+    "prompt": "使用 $video-to-manifest：为 projects/素材/ 当前分支素材池生成或更新视频说明，目录包含 开头素材、收益素材、工作流素材、引流素材、漫剧素材、转场素材。",
+    "expected": "路由到 update_directory 或 material_pool_dir；机械 evidence 记录 material_branch_hint、branch_path、workflow_role_hint、layer_affinity、content_subtype_hint；LLM/operator 基于抽帧确认最终 category、role、material_branch 和片段语义；segment 补 segment_role_fit、content_subtype_fit、selection_constraints、visual_signature；全池可维护分支 视频说明.yaml，并用顶层 素材索引.yaml 记录 registry；不得只按目录随机抽取。"
+  },
+  {
     "id": "repair-video-level-only-manifest",
     "prompt": "使用 $video-to-manifest 修复一个只有 videos[].content_profile.visual_summary、没有 segments[] 的 视频说明.yaml。",
     "expected": "路由到 repair_manifest；判定只有视频级摘要不能支撑 workflow EDL 或 asset evidence；补抽帧证据，LLM 逐段生成 segments[].segment_id/start/end/visual_content/semantic_tags/best_for/avoid_for/splice_notes，再校验通过。"
@@ -48,5 +53,10 @@
     "id": "workflow-batch-diversity-tags",
     "prompt": "使用 $video-to-manifest 为 workflow 批量成片准备 视频说明.yaml，要求标签颗粒更细，避免同义文案总选到同一段素材。",
     "expected": "N3 不只填写 semantic_tags，还要给高可用 segment 填 semantic_vector、trigger_profile、visual_signature、variation_profile 和视频 reuse_profile；semantic_tags 至少 3 个非泛化标签；报告说明这些字段如何交给 workflow asset_usage_ledger 和 asset_diversity_audit 使用。"
+  },
+  {
+    "id": "workflow-batch-strict-validator",
+    "prompt": "使用 $video-to-manifest 校验 projects/素材/开头素材/视频说明.yaml，目标是 workflow 批量短视频，不要让缺少分支角色或深标签的 manifest 通过。",
+    "expected": "运行 validate_video_manifest.py --consumer workflow-batch；缺 material_branch、workflow_role_hint、layer_affinity、segment_role_fit、content_subtype_fit、selection_constraints、semantic_vector、trigger_profile、visual_signature、variation_profile 或长素材 analysis_slices 时应升级为 fatal；报告说明 random 只允许在高分同角色候选之间 tie-break。"
   }
 ]

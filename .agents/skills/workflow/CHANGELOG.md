@@ -1,5 +1,14 @@
 # Changelog: workflow
 
+## 2026-07-01
+
+- Added the global material usage monitor `projects/素材使用监控.csv` and `scripts/update_asset_usage_monitor.py`; final close now records actual material usage as `素材名,文件路径,使用次数,使用程度`.
+- Hardened the latest-run regression gates: current `projects/内容/文案` + `projects/内容/音频` routes now require explicit same-stem source paths, background layers must be no-mask and fully opaque, and browser/page preview no longer counts as final output.
+- Added `validate_dialogue_sync.py --require-script-audio-pair` and expanded `validate_visual_contract.py` background checks for opacity/transparency/mask evidence.
+- Updated the shared asset taxonomy: `projects/素材/` remains the visual/keyword material pool, while `projects/内容/文案/` and `projects/内容/音频/` are the current batch script and same-stem voiceover pools.
+- Added script/audio pairing rules: `文案N.txt` must pair with `文案N.mp3`, while `BGM.*` is treated only as background music, not the narration clock.
+- Synced README, context memories, positive/negative examples and regression prompts so batch workflows build `script_audio_pair_map` before dialogue timing.
+
 ## 2026-06-30
 
 - Removed the split F1/F2 workflow package topology and promoted the HyperFrames-native workflow contract to `.agents/skills/workflow/`.

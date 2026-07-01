@@ -40,6 +40,26 @@ PREVIEW_MARKERS = (
 
 ALLOWED_CAPTION_TYPES = {"dialogue_caption", "editorial_overlay"}
 
+SCRIPT_SOURCE_KEYS = (
+    "source_script",
+    "script_path",
+    "content_truth",
+    "content_truth_path",
+    "script_source",
+)
+AUDIO_SOURCE_KEYS = (
+    "source_audio",
+    "audio_clock_path",
+    "paired_audio",
+    "paired_audio_path",
+)
+STEM_SOURCE_KEYS = (
+    "script_audio_stem",
+    "batch_stem",
+    "content_stem",
+    "stem",
+)
+
 
 @dataclass
 class Finding:
@@ -190,6 +210,140 @@ def collect_audio_path(data: dict[str, Any]) -> str:
     return ""
 
 
+def collect_source_field(data: dict[str, Any], keys: tuple[str, ...]) -> str:
+    direct = first_present(data, keys, "")
+    if direct:
+        return str(direct)
+    for container_key in ("alignment_basis", "source_pair", "script_audio_pair", "source"):
+        container = data.get(container_key)
+        if isinstance(container, dict):
+            value = first_present(container, keys, "")
+            if value:
+                return str(value)
+    return ""
+
+
+def path_stem(value: str) -> str:
+    if not value:
+        return ""
+    return Path(value).stem.strip()
+
+
+def is_bgm_path(value: str) -> bool:
+    if not value:
+        return False
+    return path_stem(value).lower() == "bgm"
+
+
+def path_mentions_material_pool(value: str) -> bool:
+    if not value:
+        return False
+    normalized = value.replace("\\", "/")
+    return "projects/内容/文案/" in normalized or "projects/内容/音频/" in normalized
+
+
+def collect_pair_map(data: dict[str, Any]) -> Any:
+    for key in ("script_audio_pair_map", "script_audio_pairs", "batch_pairs"):
+        value = data.get(key)
+        if value:
+            return value
+    basis = data.get("alignment_basis")
+    if isinstance(basis, dict):
+        for key in ("script_audio_pair_map", "script_audio_pairs", "batch_pairs"):
+            value = basis.get(key)
+            if value:
+                return value
+    return None
+
+
+def validate_script_audio_pair(
+    data: dict[str, Any],
+    *,
+    audio_path: str,
+    strict_final: bool,
+    require_script_audio_pair: bool,
+) -> tuple[list[Finding], dict[str, Any]]:
+    findings: list[Finding] = []
+    metrics: dict[str, Any] = {}
+    source_script = collect_source_field(data, SCRIPT_SOURCE_KEYS)
+    source_audio = collect_source_field(data, AUDIO_SOURCE_KEYS)
+    declared_stem = collect_source_field(data, STEM_SOURCE_KEYS)
+    pair_map = collect_pair_map(data)
+    pair_required = (
+        require_script_audio_pair
+        or isinstance(pair_map, (dict, list))
+        or path_mentions_material_pool(source_script)
+        or path_mentions_material_pool(source_audio)
+        or path_mentions_material_pool(audio_path)
+    )
+
+    metrics["source_script"] = source_script
+    metrics["source_audio"] = source_audio
+    metrics["script_audio_stem"] = declared_stem
+    metrics["script_audio_pair_required"] = pair_required
+
+    if strict_final and is_bgm_path(audio_path):
+        findings.append(Finding("fail", "bgm_as_audio_clock", "BGM.* must not be used as the dialogue audio clock", "audio_path"))
+    if strict_final and is_bgm_path(source_audio):
+        findings.append(Finding("fail", "bgm_as_source_audio", "BGM.* must not be used as source_audio for dialogue", "source_audio"))
+
+    if not pair_required:
+        return findings, metrics
+
+    if not source_script:
+        findings.append(
+            Finding(
+                "fail",
+                "missing_source_script",
+                "script/audio pair route must record source_script from projects/内容/文案/",
+            )
+        )
+    if not source_audio:
+        findings.append(
+            Finding(
+                "fail",
+                "missing_source_audio",
+                "script/audio pair route must record source_audio from projects/内容/音频/",
+            )
+        )
+    if not declared_stem:
+        findings.append(
+            Finding(
+                "fail",
+                "missing_script_audio_stem",
+                "script/audio pair route must record the shared source stem",
+            )
+        )
+
+    script_stem = path_stem(source_script)
+    audio_stem = path_stem(source_audio)
+    if script_stem and audio_stem and script_stem != audio_stem:
+        findings.append(
+            Finding(
+                "fail",
+                "script_audio_stem_mismatch",
+                f"source_script stem {script_stem!r} does not match source_audio stem {audio_stem!r}",
+            )
+        )
+    if declared_stem and script_stem and declared_stem != script_stem:
+        findings.append(
+            Finding(
+                "fail",
+                "declared_stem_mismatch",
+                f"script_audio_stem {declared_stem!r} does not match source_script stem {script_stem!r}",
+            )
+        )
+    if declared_stem and audio_stem and declared_stem != audio_stem:
+        findings.append(
+            Finding(
+                "fail",
+                "declared_stem_audio_mismatch",
+                f"script_audio_stem {declared_stem!r} does not match source_audio stem {audio_stem!r}",
+            )
+        )
+    return findings, metrics
+
+
 def normalize_cue(raw: dict[str, Any], index: int, global_method: str, default_tolerance_ms: float) -> NormalizedCue:
     start = parse_float(first_present(raw, ("start_s", "start", "from_s", "from")))
     end = parse_float(first_present(raw, ("end_s", "end", "to_s", "to")))
@@ -293,6 +447,7 @@ def validate_alignment(
     strict_final: bool,
     default_tolerance_ms: float,
     require_dialogue_captions: bool,
+    require_script_audio_pair: bool,
 ) -> tuple[list[NormalizedCue], list[Finding], dict[str, Any]]:
     findings: list[Finding] = []
     metrics: dict[str, Any] = {}
@@ -306,6 +461,14 @@ def validate_alignment(
     metrics["cue_count"] = len(cues)
     metrics["duration_s"] = duration
     metrics["audio_path"] = audio_path
+    pair_findings, pair_metrics = validate_script_audio_pair(
+        data,
+        audio_path=audio_path,
+        strict_final=strict_final,
+        require_script_audio_pair=require_script_audio_pair,
+    )
+    metrics.update(pair_metrics)
+    findings.extend(pair_findings)
 
     if not audio_path:
         findings.append(Finding("fail", "missing_audio_clock", "missing audio clock path/source"))
@@ -512,6 +675,11 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--alignment", type=Path, help="dialogue_alignment.json path; defaults to project_root/dialogue_alignment.json")
     parser.add_argument("--html", type=Path, help="HyperFrames HTML path; defaults to project_root/index.html")
     parser.add_argument("--strict-final", action="store_true", help="fail preview/draft or total-duration timing evidence")
+    parser.add_argument(
+        "--require-script-audio-pair",
+        action="store_true",
+        help="require source_script/source_audio/shared stem evidence for projects/内容/文案 + projects/内容/音频 routes",
+    )
     parser.add_argument("--no-html", action="store_true", help="skip HTML caption timeline comparison")
     parser.add_argument("--require-dialogue-captions", action="store_true", default=True, help="require at least one dialogue_caption cue")
     parser.add_argument("--allow-no-dialogue-captions", action="store_false", dest="require_dialogue_captions")
@@ -536,6 +704,7 @@ def main(argv: list[str] | None = None) -> int:
             strict_final=args.strict_final,
             default_tolerance_ms=args.tolerance_ms,
             require_dialogue_captions=args.require_dialogue_captions,
+            require_script_audio_pair=args.require_script_audio_pair,
         )
         findings.extend(alignment_findings)
         findings.extend(validate_audio_duration(project_root, metrics.get("audio_path", ""), metrics.get("duration_s")))
@@ -555,6 +724,7 @@ def main(argv: list[str] | None = None) -> int:
         "alignment_path": str(alignment_path),
         "html_path": str(html_path) if not args.no_html else None,
         "strict_final": args.strict_final,
+        "require_script_audio_pair": args.require_script_audio_pair,
         "verdict": "pass" if fail_count == 0 else "fail",
         "fail_count": fail_count,
         "warn_count": warn_count,
