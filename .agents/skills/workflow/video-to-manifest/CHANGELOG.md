@@ -4,6 +4,8 @@
 
 - Promoted the package to `.agents/skills/workflow/video-to-manifest` as a workflow satellite skill.
 - Updated manifest templates, script defaults, README, prompts and consumer contract language so workflow is the active consumer; legacy F1 mentions remain only as historical changelog or compatibility field context.
+- Synced parent workflow context loading references to the new workflow `CONTEXT/` five-file structure while keeping this satellite's own local `CONTEXT.md` unchanged.
+- Normalized satellite script references to `video-to-manifest/scripts/...` so workflow package-level smoke tests resolve them from the parent skill root.
 
 ## 2026-06-29
 

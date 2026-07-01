@@ -11,12 +11,14 @@
 | Reference | 参考视频是否只用于 rhythm/style？ | 参考画面或素材进入成片候选 | `N3-MEDIA-EVIDENCE` |
 | Evidence | 每个进入成片的素材是否有视觉证据和用途？ | 无 source anchor 或用途不清 | `N3-MEDIA-EVIDENCE` |
 | Dialogue | 台词字幕 cue 是否能追踪到音频/脚本，并满足同步容差或有逐 cue 人工校时证据，且 `validate_dialogue_sync.py --strict-final` 通过？ | 全片比例分配、语义错配、缺 `caption_type`/`audio_anchor`/脚本锚点、仅按总时长手工分配却声称严格同步、validator fail | `N4-DIALOGUE-CLOCK` |
-| Plan | storyboard 是否覆盖字幕、主视觉、PiP、大字报、转场和 BGM？ | 计划缺段落或缺证据 | `N5-STORYBOARD-PLAN` |
+| Plan | storyboard 是否覆盖 hook/content/CTA 三段、背景 throughline、字幕、主视觉、PiP、大字报、转场和 BGM？ | 计划缺段落、缺四层、背景拉通证据不足或缺素材/字幕 cue 证据 | `N5-STORYBOARD-PLAN` |
 | Composition | DOM timing、media 引用、assets、captions 是否可定位？ | HyperFrames core 合同断裂 | `N6-HYPERFRAMES-AUTHOR` |
-| Visual Contract | `validate_visual_contract.py` 是否通过，且报告覆盖观众可见文本、主字幕、大字报、PiP 和批量 ledger/audit？ | 内部提示可见、字幕缺失/叠显/省略号/换行、大字报整句重复字幕、PiP 太少/无 cue 依据/0 分 manifest 回指、批量 audit 不一致 | `N4/N5/N6/N7` |
+| Visual Contract | `validate_visual_contract.py` 是否通过，且报告覆盖观众可见文本、主字幕、大字报、PiP、三段四层 assembly 和批量 ledger/audit？ | 内部提示可见、缺 hook/content/CTA、缺背景/PiP/字幕/大字报层、背景 throughline 非连续或加蒙版、字幕缺失/叠显/省略号/换行、大字报整句重复字幕、PiP 太少/无 cue 依据/0 分 manifest 回指、批量 audit 不一致 | `N4/N5/N6/N7` |
 | Preview | snapshot 是否非空、叠层不挡字幕和核心 UI？ | 空画面、遮挡、validate 失败或 visual contract fail | `N7-PREVIEW-VALIDATE` |
 | Render | final 是否非空、可播放、有音轨、时长合理？ | final 缺失或不可验收 | `N8-RENDER-VERIFY` |
 | Output Topology | 是否把 `projects/素材/` 和 `projects/示例/` 保持为只读通用素材池，过程文件写入 `projects/output/<日期>/过程/`，单条 final 写入 `projects/output/<日期>/`，批量 final 归集到 `projects/output/<日期>/成片/`？ | 输出写入通用素材池，过程文件散落在日期根，单条 final 留在 `过程/` 作为唯一交付，或批量 final 未归集到 `成片/` 且无显式豁免 | `N1/N9` |
+| Directory Routing | `Directory Structure & Detail Routing Contract`、README 目录树、Module Loading Matrix 和真实文件结构是否一致？ | 真实目录存在但未授权、README 漂移、卫星技能边界不清、`CONTEXT/` 未出现在目录路由中 | `Directory Structure & Detail Routing Contract` / `C10` |
+| Context Semantics | `CONTEXT/` 是否包含五个固定文件，且旧 `CONTEXT.md` 已移除？ | 缺五文件、旧 `CONTEXT.md` 仍存在、好/坏示例和正/负经验混写、没有写回分流 | `CONTEXT/ File Semantics Contract` / `Learning / Context Writeback` |
 | Report | 是否包含路径、验证、残余风险和 Source Sync Check？ | 缺证据矩阵或多 final 口径 | `N9-CLOSE` |
 
 ## Report Evidence Requirements
@@ -26,6 +28,9 @@
 - `output_topology`: shared asset roots、output date root、process root、single final root、batch final collection root、canonical final path。
 - `dialogue_sync_validation`: final route must include validator command, JSON report path, verdict and fail/warn count.
 - `visual_contract_validation`: social-ad, batch, visual repair and final routes must include validator command, JSON report path, verdict and fail/warn count.
+- `layered_assembly`: `workflow_composition_plan.json` must include `background_throughline` and `timeline_segments` evidence for hook/content/CTA and the four visual layers.
+- `directory_routing_audit`: true file listing, README tree, Module Loading Matrix and registry context carriers must agree.
+- `context_semantics_audit`: `CONTEXT/` five-file list, migrated content landing and absence of legacy `CONTEXT.md`.
 - `reference_execution_matrix`: 每个被加载 reference 的触发、适用、证据和 N/A。
 - `rule_evidence_map`: 将 review gate 映射到具体 artifact 或截图/CLI 证据。
 - `repair_log`: 返工原因、失败码、修复目标、重新验证结果。
@@ -46,4 +51,7 @@
 | Are all blocking findings routed to a node? | Any blocking issue without `return_to` fails | `FAIL-REVIEW-RETURN` | `Thinking-Action Node Map` | checklist row |
 | Does the report include direct evidence? | Only generic statements without artifact paths or CLI/snapshot evidence fail | `FAIL-REVIEW-EVIDENCE` | `N9-CLOSE` | report evidence section |
 | Did visual contract validation run when required? | Missing or failing `visual_contract_validation.json` fails social-ad/batch/visual final routes | `FAIL-QUANT-VISUAL-CONTRACT` | `N5/N6/N7` | validator JSON |
+| Does the composition plan implement layered rhythm assembly? | Missing hook/content/CTA, missing background/PiP/caption/editorial overlay layers, non-continuous/masked background throughline, or missing content subtypes fails social-ad/batch visual routes | `FAIL-LAYERED-ASSEMBLY` | `N3/N5/N6/N7` | `workflow_composition_plan.json`, validator JSON |
 | Does output topology match the workflow contract? | Outputs under shared asset roots, process files outside `projects/output/<日期>/过程/`, single final trapped in process root, or missing batch final collection fail | `FAIL-BATCH-FINAL-COLLECTION` / `FAIL-OUTPUT-CONTRACT` | `N1/N9` | path map, process root listing, final collection listing, ledger final_path |
+| Does directory routing match the real package? | Directory tree, README, Module Matrix, registry or satellite boundary drift fails | `FAIL-DIRECTORY-ROUTING` | `Directory Structure & Detail Routing Contract` | file listing, README tree, registry row |
+| Does `CONTEXT/` satisfy Skill 2.0 semantics? | Missing five files, legacy `CONTEXT.md`, or unclear writeback routing fails | `FAIL-CONTEXT-SEMANTICS` | `CONTEXT/ File Semantics Contract` | context file list and writeback map |

@@ -44,8 +44,8 @@ Project-standard video directories map to shared material categories:
 ## Helper Commands
 
 ```bash
-python3 scripts/inspect_video_material.py <video-or-dir> --work-dir <work-dir>
-python3 scripts/validate_video_manifest.py <path/to/视频说明.yaml> --report <work-dir>/video-manifest-validation.json
+python3 video-to-manifest/scripts/inspect_video_material.py <video-or-dir> --work-dir <work-dir>
+python3 video-to-manifest/scripts/validate_video_manifest.py <path/to/视频说明.yaml> --report <work-dir>/video-manifest-validation.json
 ```
 
 Default output is one canonical `视频说明.yaml` in the source video directory unless the user provides another `manifest_path`.

@@ -5,8 +5,11 @@
 - Removed the split F1/F2 workflow package topology and promoted the HyperFrames-native workflow contract to `.agents/skills/workflow/`.
 - Renamed active route, templates, prompts, output artifacts and metadata from F2 to workflow; legacy F1/F2 references now exist only as migration background or old-runtime guardrails.
 - Moved `video-to-manifest` into `.agents/skills/workflow/video-to-manifest` as a workflow satellite and updated registry/routes to point at the new topology.
-- Updated workflow output topology: `projects/素材/` and `projects/示例/` are cumulative shared asset pools, workflow outputs default to `projects/output/<日期>/`, and batch final videos are collected under `projects/output/<日期>/成片/`.
+- Updated workflow output topology: `projects/素材/` and `projects/示例/` are cumulative shared asset pools, workflow outputs live under the `projects/output/<日期>/` namespace, and batch final videos are collected under `projects/output/<日期>/成片/`.
 - Added the process-file boundary: workflow project files, logs, snapshots, validation reports and intermediate artifacts now default to `projects/output/<日期>/过程/`, while final videos stay outside `过程/`.
+- Added the shared asset preprocessing taxonomy for `projects/素材/`: material branches for opening, revenue, comic-drama, big text overlays, workflow, traffic, asset images and transitions, plus the mirrored `核心关键词/` branch.
+- Upgraded workflow toward Skill 2.0 runtime-spine compliance: added `Directory Structure & Detail Routing Contract`, split the legacy `CONTEXT.md` knowledge base into the five-file `CONTEXT/` structure, removed the legacy single-file context entry, and synchronized module loading, review gates, registry context carriers and README structure.
+- Added Layered Rhythm Assembly for video stitching: hook/content/CTA segment roles, continuous no-mask background throughline, semantic PiP, dialogue captions and core-word editorial overlays are now part of `workflow_composition_plan.json` and `validate_visual_contract.py --strict-social-ad`.
 
 ## 2026-06-29
 

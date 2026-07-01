@@ -19,7 +19,12 @@ workflow/
 ├── agents/
 │   └── openai.yaml
 ├── CHANGELOG.md
-├── CONTEXT.md
+├── CONTEXT/
+│   ├── 重要记忆.md
+│   ├── 负向经验.md
+│   ├── 正向经验.md
+│   ├── 好的示例.md
+│   └── 坏的示例.md
 ├── README.md
 ├── references/
 │   └── legacy-migration-matrix.md
@@ -27,18 +32,42 @@ workflow/
 │   └── review-contract.md
 ├── scripts/
 │   ├── README.md
-│   └── validate_dialogue_sync.py
+│   ├── validate_dialogue_sync.py
+│   └── validate_visual_contract.py
 ├── SKILL.md
 ├── templates/
 │   ├── execution-report.md
 │   ├── output-template.md
 │   └── prp.md
 ├── test-prompts.json
-└── types/
+├── types/
     ├── default/
     │   └── default.md
     └── type-map.md
+└── video-to-manifest/
+    ├── agents/
+    │   └── openai.yaml
+    ├── CHANGELOG.md
+    ├── CONTEXT.md
+    ├── README.md
+    ├── SKILL.md
+    ├── scripts/
+    │   ├── README.md
+    │   ├── inspect_video_material.py
+    │   └── validate_video_manifest.py
+    ├── templates/
+    │   ├── manifest-template.yaml
+    │   └── output-template.md
+    └── test-prompts.json
 ```
+
+Runtime experience and reusable lessons live in the five-file `CONTEXT/` structure required by Skill 2.0:
+
+- `重要记忆.md`: durable boundaries, Context Health and writeback policy.
+- `负向经验.md`: failure modes, root causes and repair playbook.
+- `正向经验.md`: reusable heuristics and successful patterns.
+- `好的示例.md`: short examples that can be copied as execution patterns.
+- `坏的示例.md`: counterexamples tied to fail codes.
 
 ## Typical Outputs
 
@@ -66,12 +95,40 @@ workflow/
 - User `result_dir`: process files under `<result_dir>/<日期>/过程/<project-slug>/` or `<result_dir>/<日期>/过程/<batch-id>/`; final files under `<result_dir>/<日期>/` or `<result_dir>/<日期>/成片/`
 - Shared cumulative assets: `projects/素材/` and `projects/示例/` are read-only source pools, not daily output roots.
 
+## Shared Asset Taxonomy
+
+`projects/素材/` may contain empty preprocessing folders that guide later material filling and workflow selection:
+
+- Material branches: `开头素材（需要对应到秒数）/`, `收益素材/`, `漫剧素材/`, `大字报/`, `工作流素材/`, `引流素材/`, `资产图/`, `转场素材（效果）/`
+- Keyword branch: `核心关键词/`
+- Compatibility raw inputs: `视频/`, `图片/`, `文案/`, `音频/`
+
+Empty taxonomy folders are placeholders only. workflow must still use real files, manifests and visual evidence before selecting assets.
+
+## Layered Assembly Model
+
+workflow videos should be planned as a rhythm structure before assets are placed. For social ads, viral openings and batch videos, the default structure is:
+
+- `hook_opening`: viral opening material that establishes the first 3-5 seconds.
+- `content_body`: the main content, with comic-drama, tool/workflow and revenue/proof material all covered or explicitly marked unavailable.
+- `private_traffic_cta`: private-domain or next-action traffic segment.
+
+Each segment must declare four visual layers in `workflow_composition_plan.json`:
+
+- `background_video`: a continuous background throughline, usually from `projects/素材/漫剧素材/纯漫剧素材/`, with `mask: none`.
+- `semantic_pip`: cue-bound picture-in-picture evidence matched to the script.
+- `dialogue_caption`: subtitle cues following the script/audio clock.
+- `editorial_overlay`: one core word or short sentence summarizing the segment.
+
+The plan should expose `background_throughline` and `timeline_segments` so `validate_visual_contract.py --strict-social-ad` can check that the video is not just random script-driven asset rotation.
+
 ## Validation
 
 For actual projects, run the HyperFrames checks that apply to the generated project:
 
 ```bash
 python3 .agents/skills/workflow/scripts/validate_dialogue_sync.py --strict-final <project-root> --write-report <project-root>/dialogue_sync_validation.json
+python3 .agents/skills/workflow/scripts/validate_visual_contract.py <project-root> --write-report <project-root>/visual_contract_validation.json
 npx hyperframes lint
 npx hyperframes validate
 npx hyperframes inspect

@@ -1,6 +1,6 @@
 {
   "skill_dir": "/Volumes/AIGC/AI-CUT/.agents/skills/workflow",
-  "timestamp": "2026-06-25T06:44:35.675722",
+  "timestamp": "2026-06-30T06:27:32.079411",
   "validation_mode": "delivery",
   "verdict": "accept",
   "conditions": [],
@@ -14,11 +14,19 @@
   },
   "loading_simulation": {
     "context_loaded": true,
+    "context_files_present": 5,
     "types_module_present": true,
     "types_loaded": true,
-    "module_matrix_rows": 14,
+    "module_matrix_rows": 15,
     "module_matrix_incomplete": [],
     "ref_guide_entries": [
+      "CONTEXT/重要记忆.md",
+      "CONTEXT/负向经验.md",
+      "CONTEXT/正向经验.md",
+      "CONTEXT/好的示例.md",
+      "CONTEXT/坏的示例.md",
+      "references/legacy-migration-matrix.md",
+      "review/review-contract.md",
       "agents/openai.yaml"
     ],
     "ref_guide_broken": [],
@@ -55,13 +63,13 @@
     "mode_routes_checked": 0,
     "mode_route_misses": [],
     "required_node_misses": [],
-    "module_loads_checked": 11,
+    "module_loads_checked": 13,
     "module_load_misses": [],
-    "module_trigger_rows": 15,
+    "module_trigger_rows": 21,
     "module_trigger_incomplete": [],
     "module_trigger_misses": [],
     "module_trigger_fail_code_misses": [],
-    "convergence_rows": 9,
+    "convergence_rows": 10,
     "convergence_incomplete": []
   },
   "guardrail_compliant": true

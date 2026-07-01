@@ -53,6 +53,9 @@ composition gates exposed by recent failures:
 - rejects caption ellipsis, newline wrapping, overwide caption text and overlapping dialogue cues;
 - rejects editorial overlays that duplicate the current dialogue caption;
 - requires `semantic_pip` slots to carry timing, `cue_id` and `match_reason`;
+- checks `workflow_composition_plan.json` for `hook_opening`, `content_body` and `private_traffic_cta` segments;
+- checks that strict social-ad plans declare a continuous no-mask `background_throughline`, per-segment background/PiP/caption/editorial overlay layers, and short editorial overlay summaries;
+- checks content body coverage for comic-drama, tool/workflow and revenue/proof material, unless the plan records an explicit exception;
 - in `--strict-social-ad` mode, requires enough cue-bound PiP slots and checks `workflow_assignment.json`;
 - checks PiP `video_manifest_hint.segment_id` and `match_score` so a formal 0-score reference cannot pass as manifest consumption;
 - checks batch `asset_diversity_audit.json` and `asset_usage_ledger.json` when they exist.

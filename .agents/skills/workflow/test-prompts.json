@@ -80,6 +80,11 @@
     "expected": "N3 不能只读取 semantic_tags；必须消费 semantic_vector、trigger_profile、visual_signature、variation_profile、analysis_slice_id、reuse_profile 并转入 asset_evidence.json；若缺字段，标记 FAIL-DEEP-TAG-CONSUMPTION 或 conditional，并回到 N3 复核。"
   },
   {
+    "id": "workflow-layered-rhythm-assembly",
+    "prompt": "针对 .agents/skills/workflow 的视频拼接逻辑重构：不要只按文案随机拼素材，要有背景视频拉通、画中画、字幕、大字报，并分成爆款开头、内容部分和引流私域。",
+    "expected": "路由到 workflow source-upgrade / repair_visual_composition；SKILL.md 必须定义 Layered Rhythm Assembly：N3 识别开头、纯漫剧背景、工具、收益、引流、资产图和大字报候选，N5 在 workflow_composition_plan.json 写 background_throughline 与 timeline_segments，覆盖 hook_opening、content_body、private_traffic_cta，每段声明 background_video、semantic_pip、dialogue_caption、editorial_overlay；content_body 覆盖或解释 comic_drama/tool_demo/revenue_proof；validate_visual_contract.py --strict-social-ad 必须机械检查缺段、缺层、背景非连续/加蒙版、缺大字报核心词并输出 FAIL-LAYERED-ASSEMBLY 或 FAIL-QUANT-VISUAL-CONTRACT。"
+  },
+  {
     "id": "workflow-visual-contract-validator",
     "prompt": "使用 workflow 批量生成社媒广告视频，之前出现过括号内提示露出、字幕重复、省略号截断和画中画太少的问题，这次交付前必须自动拦住。",
     "expected": "路由到 full_hyperframes_edit 或 repair_visual_composition；N7 必须运行 scripts/validate_visual_contract.py --strict-social-ad 并保存 visual_contract_validation.json；若出现 internal_prompt_visible、caption_truncated_or_wrapped、overlay_duplicates_caption、pip_underfilled、pip_missing_manifest_hint 或 pip_weak_manifest_match，必须回 N4/N5/N6/N7 返工，C6/C7/C8 不得 pass。"
@@ -88,5 +93,10 @@
     "id": "workflow-pip-zero-score-blocked",
     "prompt": "使用 workflow 做一批视频，workflow_assignment.json 里每个 PiP 都有 segment_id，但 match_score 都是 0。",
     "expected": "不能把 segment_id 形式化回指当作已消费视频说明；validate_visual_contract.py 应输出 FAIL-QUANT-VISUAL-CONTRACT / pip_weak_manifest_match，返工到 N3/N5 重做 cue-level match 或补充素材证据。"
+  },
+  {
+    "id": "workflow-skill-2-context-split-upgrade",
+    "prompt": "遵循 skill-2.0 审计并升级 .agents/skills/workflow：保留现有 CONTEXT.md 的高质量内容，但拆分为新的 CONTEXT/ 五文件，并同步主合同。",
+    "expected": "路由到 source-upgrade/audit；删除旧 CONTEXT.md 入口并保留其内容迁移结果；把 Type Map 和 Repair Playbook 迁入 CONTEXT/负向经验.md，把 Reusable Heuristics 迁入 CONTEXT/正向经验.md，把长期边界和 Context Health 迁入 CONTEXT/重要记忆.md，并补齐好的示例/坏的示例；SKILL.md 必须包含 Directory Structure & Detail Routing Contract、CONTEXT/ File Semantics Contract、Module Loading Matrix/Trigger Matrix、Review Gate、Field Mapping、Learning Writeback 的同步更新；README、registry、CHANGELOG 也必须同步。"
   }
 ]

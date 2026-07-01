@@ -14,11 +14,11 @@ metadata:
 
 ## Context Loading Contract
 
-- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 每次命中 `$workflow`、`workflow` 或本技能描述时，还必须加载本 `SKILL.md`。
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT/` 五文件：`重要记忆.md`、`负向经验.md`、`正向经验.md`、`好的示例.md`、`坏的示例.md`。
 - 先读取本 `SKILL.md` 的 runtime spine，再按 `Module Loading Matrix` 加载 HyperFrames 子技能、templates、references、review 或 types；目录存在本身不等于自动全量读取。
 - 若任务绑定 `projects/aigc/<项目名>/`，且项目根存在 `MEMORY.md` 或 `CONTEXT/`，必须同时加载项目上下文；缺失时报告缺口，不得编造长期记忆。
-- 冲突优先级：用户显式请求 > 系统/安全规则 > 仓库 `AGENTS.md` > 本 `SKILL.md` > HyperFrames 被加载技能合同 > 本 `Module Loading Matrix` 授权模块 > `CONTEXT.md`。
+- 冲突优先级：用户显式请求 > 系统/安全规则 > 仓库 `AGENTS.md` > 本 `SKILL.md` > HyperFrames 被加载技能合同 > 本 `Module Loading Matrix` 授权模块 > `CONTEXT/` 五文件。
 
 ## Context Processing Contract
 
@@ -29,7 +29,17 @@ metadata:
 | `missing_context_policy` | 对缺少旁白、脚本、素材、参考片或目标路径分别给出继续、降级、阻断或追问策略。 | intake decision |
 | `context_conflict_map` | 当用户偏好、legacy F1/F2 兼容规则、HyperFrames 合同冲突时，记录裁决依据。 | decision trace |
 | `context_application` | 明确哪些上下文进入脚本、时间轴、素材选择、视觉风格、音频混合或报告。 | composition plan |
-| `context_writeback_decision` | 可复用经验写本技能 `CONTEXT.md`；项目长期偏好写项目 `MEMORY.md`；一次性过程写报告。 | final report |
+| `context_writeback_decision` | 可复用经验按语义写本技能 `CONTEXT/` 五文件；项目长期偏好写项目 `MEMORY.md`；一次性过程写报告。 | final report |
+
+## CONTEXT/ File Semantics Contract
+
+| context_file | represents | write_when | must_not_contain | promotion_signal |
+| --- | --- | --- | --- | --- |
+| `CONTEXT/重要记忆.md` | 长期边界、稳定规范、经验层健康状态和写回分流 | workflow 级长期规则候选、稳定目录/输出边界、Context Health 更新 | 一次性执行流水、单项目偏好、未验证失败猜测 | 多次复发且影响执行入口、路由、门禁或输出时晋升 `SKILL.md` / registry |
+| `CONTEXT/负向经验.md` | 失败类型、根因、修复手册和回归预防经验 | 新 failure mode、复用 repair playbook、validator finding 对应修复 | 泛泛抱怨、未定位根因的日志、完整私密推理链 | 同一失败阻断 final 或需机械验收时晋升 Review Gate / validator |
+| `CONTEXT/正向经验.md` | 可复用启发、成功模式、稳定做法 | 多次有效的选材、字幕、PiP、输出或验证策略 | 单次过程记录、未经验证的偏好、项目私有记忆 | 成为默认执行标准时晋升节点动作、量化标准或 Output Contract |
+| `CONTEXT/好的示例.md` | 可模仿的短样例和正确路径 | 出现可复用、可审计、可迁移的 workflow 执行样例 | 大段流水日志、完整项目过程稿、不可复用个案 | 样例抽象为规则后晋升 `SKILL.md` 或模板 |
+| `CONTEXT/坏的示例.md` | 不可模仿的反例、失败症状和对应 fail code | 反复出现的误用、错误路径、典型审查失败 | 羞辱性表述、无法回到 fail code 的抱怨、未证实归因 | 反例可机械检测时晋升 validator 或 Review Gate |
 
 ## Runtime Spine Contract
 
@@ -51,6 +61,81 @@ metadata:
 | `B11` | `Field Mapping` | 标注主合同字段落点和失败码 |
 | `B12` | `Output Contract` | 约束 final MP4、HyperFrames project、计划和报告的唯一交付口径 |
 | `B13` | `Learning / Context Writeback` | 定义经验沉淀、项目记忆和源层同步边界 |
+| `B14` | `Directory Structure & Detail Routing Contract` | 固定 workflow 真实目录树、细节 owner 和模块读取边界 |
+| `B15` | `CONTEXT/ File Semantics Contract` | 固定五文件经验层的代表含义、写入触发、禁止内容和晋升信号 |
+
+## Directory Structure & Detail Routing Contract
+
+workflow 的目录树是运行时合同的一部分。目录存在不代表自动加载；只有本表和 `Module Loading Matrix` 授权的模块才可参与本轮执行。
+
+```text
+workflow/
+├── agents/
+│   └── openai.yaml
+├── CHANGELOG.md
+├── CONTEXT/
+│   ├── 重要记忆.md
+│   ├── 负向经验.md
+│   ├── 正向经验.md
+│   ├── 好的示例.md
+│   └── 坏的示例.md
+├── README.md
+├── references/
+│   └── legacy-migration-matrix.md
+├── review/
+│   └── review-contract.md
+├── scripts/
+│   ├── README.md
+│   ├── validate_dialogue_sync.py
+│   └── validate_visual_contract.py
+├── SKILL.md
+├── templates/
+│   ├── execution-report.md
+│   ├── output-template.md
+│   └── prp.md
+├── test-prompts.json
+├── types/
+│   ├── default/
+│   │   └── default.md
+│   └── type-map.md
+└── video-to-manifest/
+    ├── agents/
+    │   └── openai.yaml
+    ├── CHANGELOG.md
+    ├── CONTEXT.md
+    ├── README.md
+    ├── SKILL.md
+    ├── scripts/
+    │   ├── README.md
+    │   ├── inspect_video_material.py
+    │   └── validate_video_manifest.py
+    ├── templates/
+    │   ├── manifest-template.yaml
+    │   └── output-template.md
+    └── test-prompts.json
+```
+
+| path | runtime_role | detail_loading_rule | forbidden_use |
+| --- | --- | --- | --- |
+| `SKILL.md` | 主入口、路由、节点、门禁、输出合同 | 每次调用必读，负责唯一 runtime spine | 退化成目录导航或把主链迁到 `steps/` / scripts |
+| `CONTEXT/` | 五文件经验层 | 每次调用加载，用于经验、反例、启发和长期记忆 | 改写 `SKILL.md` 的入口、节点、gate 或输出合同 |
+| `CONTEXT/重要记忆.md` | 长期记忆和 Context Health | 每次调用加载，长期边界和健康状态写回时更新 | 写入一次性日志或项目私有偏好 |
+| `CONTEXT/负向经验.md` | 失败类型和修复手册 | 每次调用加载，新增失败模式或 repair playbook 时更新 | 写入未定位根因的抱怨或完整私密推理链 |
+| `CONTEXT/正向经验.md` | 可复用启发和成功模式 | 每次调用加载，新增稳定成功做法时更新 | 写入单次流水或未经验证的偏好 |
+| `CONTEXT/好的示例.md` | 可模仿的正确执行样例 | 每次调用加载，新增高复用样例时更新 | 写入完整项目过程稿 |
+| `CONTEXT/坏的示例.md` | 不可模仿的反例 | 每次调用加载，新增典型失败反例时更新 | 写入无法回到 fail code 的泛化表述 |
+| `references/` | 授权参考模块目录 | 仅在迁移、审计或兼容解释时加载被触发文件 | 作为默认第二规则源 |
+| `references/legacy-migration-matrix.md` | legacy F1/F2 迁移映射 | 仅在迁移、审计或兼容解释时加载 | 把旧 F1 runtime 变成 workflow 依赖 |
+| `review/` | 授权审查模块目录 | audit、repair、final close 或 fail code 定位时加载被触发文件 | 替代 `Review Gate Binding` 作最终裁决 |
+| `review/review-contract.md` | 审查细则 | audit、repair、final close 或 fail code 定位时加载 | 替代 `Review Gate Binding` 作最终裁决 |
+| `scripts/` | 机械验证脚本 | 台词同步、视觉合同、证据一致性和报告辅助 | 生成创作正文、字幕语义、选材决策或渲染主链 |
+| `templates/` | 输出模板 | 执行报告、PRP 和输出摘要格式 | 另立输出路径、命名规范或完成门禁 |
+| `types/` | 类型扩展 | 复杂路由、审计或类型画像展开 | 替代 `Type Routing Matrix` |
+| `video-to-manifest/` | 卫星素材索引技能 | 用户点名或需要视频 manifest 证据时可选加载 | 替代 workflow `asset_evidence.json` 或成为必需 side input |
+| `agents/openai.yaml` | 产品入口元数据 | UI/display metadata | 隐藏执行规则或重定义 runtime |
+| `README.md` | 用户概览 | 人类可读目录、边界、命令和输出说明 | 成为第二规则源 |
+| `CHANGELOG.md` | 变更记录 | 按需追溯变更 | 作为运行时上下文默认全量加载 |
+| `test-prompts.json` | dry-run / regression prompt 集合 | source upgrade、review 或达尔文检查时加载 | 替代真实验证或写入未替换 TODO |
 
 ## Core Task Contract
 
@@ -107,6 +192,10 @@ metadata:
 
 - `projects/素材/` 和 `projects/示例/` 是外层可累积的通用素材池，不再作为某个日期运行目录里的内置素材副本。
 - workflow 可从这些目录读取视频、图片、文案、音频、manifest 和示例证据，但默认只读；单次运行需要使用的资产应复制/adopt 到本轮 work root 或在 evidence 中记录只读引用。
+- `projects/素材/` 默认按素材预处理树组织：`开头素材（需要对应到秒数）/`、`收益素材/`、`漫剧素材/`、`大字报/`、`工作流素材/`、`引流素材/`、`资产图/`、`转场素材（效果）/` 是素材分支；`核心关键词/` 是关键词分支，用于承载收益、工作流、解锁、步骤、软件、引流和形象相关关键词资产。
+- `projects/素材/漫剧素材/纯漫剧素材/` 是背景视频拉通层的默认候选池：只在存在真实文件、manifest 或本轮视觉复核证据时进入 `background_throughline`，且默认不加蒙版；不存在时必须记录素材缺口或替代原因。
+- 上述预处理目录可以为空；空目录只代表候选落位，不得让 workflow 虚构素材存在。实际选材仍以可读文件、manifest、视觉证据和本轮 LLM/Codex 复核为准。
+- 既有 `projects/素材/视频/`、`projects/素材/图片/`、`projects/素材/文案/`、`projects/素材/音频/` 可作为兼容原始素材入口保留；不得在未获授权时自动搬迁到新预处理分支。
 - 不得把 `projects/素材/` 或 `projects/示例/` 当作当日输出目录、批量任务临时目录或 final 成片归档目录。
 - 修改、重命名或清理通用素材池内文件时必须有用户明确授权，并同步更新引用、manifest 和使用台账。
 
@@ -160,6 +249,52 @@ metadata:
 - final/project close 前必须运行 `scripts/validate_visual_contract.py` 检查观众可见文本、主字幕单行完整性、字幕和大字报去重、PiP cue 绑定、PiP manifest hint、批量 ledger/audit；社媒广告或批量任务使用 `--strict-social-ad`，并保存为 `visual_contract_validation.json`。该校验 fail 时 `C6-PREVIEW-VALIDATED`、`C7-RENDER-VERIFIED` 和 `C8-FINAL-OUTPUT` 不得 pass。
 - 画面内禁止默认出现工具链、工作流、文案编号、执行阶段、logo-like pipeline 字样和其他非用户品牌水印。
 - `STORYBOARD.md` 与 `workflow_composition_plan.json` 必须区分 `dialogue_caption`、`editorial_overlay`、`background_layer`、`background_video`、`image_background_fallback`、`pip_asset` 和 `brand_or_cta`，并给出它们的安全区、素材依据与降级理由。
+
+### Layered Rhythm Assembly Contract
+
+workflow 的视频拼接不能只是按文案句子随机组合素材。社媒广告、爆款口播、批量获客成片必须先建立“分段节奏骨架”，再在每个段落上投影背景视频、画中画、字幕和大字报四层。
+
+| assembly_layer | default_behavior | evidence |
+| --- | --- | --- |
+| `background_throughline` | 背景视频默认拉通全片或跨主要段落连续承托，优先从 `projects/素材/漫剧素材/纯漫剧素材/` 或等价漫剧影像证据中选择；不加蒙版。若某段改用工具录屏、收益视频或静态 fallback，必须写明段落级理由。 | `workflow_composition_plan.json.background_throughline`、background selection map |
+| `semantic_pip` | 画中画随文案 cue 出现，用图片、工具截图、收益证明、角色/场景资产或视频 segment hint 解释当前句子，不得固定装饰轮播。 | `pip_selection_map`、`workflow_assignment.json.pip_slots` |
+| `dialogue_caption` | 主字幕跟随文案/旁白主时钟，只承载台词字幕，不承担大字报或完整正文常驻展示。 | `dialogue_alignment.json`、HTML `dialogue_caption` track |
+| `editorial_overlay` | 大字报是编辑性提炼，用一个词或一句短句概括当前段落核心词、反差、结果或 CTA；不得逐句复述字幕。 | `timeline_segments[].layers.editorial_overlay.core_word/core_phrase`、HTML `editorial_overlay` |
+
+内容结构必须至少覆盖以下段落角色：
+
+| segment_role | purpose | asset_bias |
+| --- | --- | --- |
+| `hook_opening` | 爆款开头，3-5 秒内建立反差、结果或强利益点。 | `projects/素材/开头素材（需要对应到秒数）/`，同时用背景漫剧 throughline 承托。 |
+| `content_body` | 内容部分，按文案推进解释“漫剧、工具、收益”三个内容支点；素材不足时必须记录缺口或例外。 | `漫剧素材/`、`工作流素材/`、`收益素材/` 与对应 manifest segment。 |
+| `private_traffic_cta` | 引流部分，引导到私域或下一步动作，画面语言应清楚但不暴露内部流程话术。 | `引流素材/`、品牌/CTA 资产、平台或私域证据窗。 |
+
+`workflow_composition_plan.json` 必须把上述结构落成可检查字段：
+
+```json
+{
+  "background_throughline": {
+    "mode": "continuous",
+    "source_category": "projects/素材/漫剧素材/纯漫剧素材",
+    "mask": "none"
+  },
+  "timeline_segments": [
+    {
+      "segment_role": "hook_opening",
+      "start": 0,
+      "end": 4,
+      "layers": {
+        "background_video": {"segment_id": "...", "mask": "none"},
+        "semantic_pip": {"cue_id": "...", "match_reason": "..."},
+        "dialogue_caption": {"cue_ids": ["..."]},
+        "editorial_overlay": {"core_word": "..."}
+      }
+    }
+  ]
+}
+```
+
+社媒广告和批量路线的 `visual_contract_validation.json` 必须检查：三类 `segment_role` 是否齐全、内容段是否覆盖或解释 `comic_drama/tool_demo/revenue_proof`、每段是否声明四层、背景 throughline 是否连续且无蒙版、大字报是否短而非字幕复述。
 
 ### Asset Diversity And Platform Dedup Contract
 
@@ -241,13 +376,13 @@ summary:
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-INTAKE` | 锁定任务类型、输入、输出路径、画幅和 render 意图 | 用户请求、文件路径、项目上下文 | 形成 `workflow_intake.json`；判定 route；保护原素材只读；记录 `projects/素材/`、`projects/示例/` 为通用素材池；记录缺失项；未指定输出时写入默认 `work_root=projects/output/<日期>/过程/<project-slug>/` 与 `single_final_root=projects/output/<日期>/`，批量任务写入 `batch_root=projects/output/<日期>/过程/<batch-id>/` 与 `final_collection_root=projects/output/<日期>/成片/`；未指定画幅时写入默认 `aspect_ratio=16:9`、`width=1920`、`height=1080`；workflow 默认 `render_requested=true`，除非用户明确禁止渲染或路线是 plan/audit/evidence | 输入清单、route、work_root、process_root、shared_asset_roots、single_final_root、final_collection_root、aspect_ratio、render_requested | `N2` / `R1` / `N9` | full build 至少有内容真源、主时钟方案、素材池或生成授权；过程根在 `projects/output/<日期>/过程/` 或用户显式覆盖；非 16:9 必须有显式依据 |
 | `N2-HYPERFRAMES-LOAD` | 加载并约束 HyperFrames 实现底座 | Type route、Module Matrix | 加载 `hyperframes` 入口和所需子技能；确认 CLI/media/core/animation 职责 | loaded module list、capability decision | `N3` / `R2` | 所有 module_load 都是真实路径并在本表授权 |
-| `N3-MEDIA-EVIDENCE` | 建立素材和参考证据 | source_media、reference_media、项目上下文 | 用 Codex 视觉理解/抽样观察生成 `asset_evidence.json`；从 `projects/素材/`、`projects/示例/` 读取的内容按通用素材池处理，不写回或移动；若存在 `projects/素材/视频/视频说明.yaml`、运行局部 `素材/视频/视频说明.yaml` 或等价结构化索引，读取 segment 级 tags/best_for/avoid_for/safe zone 以及 `semantic_vector/trigger_profile/visual_signature/variation_profile/analysis_slice_id/reuse_profile` 作为选材辅助；若存在 `projects/素材/图片/图片说明.yaml`、运行局部 `素材/图片/图片说明.yaml` 或等价结构化索引，读取图片 role/tags/best_for/avoid_for/text overlay/safe zone 作为 PiP 与证据窗选材辅助；批量任务读取既有 `asset_usage_ledger.json` 并生成候选重复惩罚；参考片只提取节奏/布局/转场，不抽取内容 | asset evidence、reference rhythm、风险清单、shared asset usage notes、manifest usage notes、usage ledger snapshot、candidate diversity score | `N4` / `N5` / `R3` | 每个进入成片候选的素材必须有语义用途、时间/画面证据、差异化字段和禁用边界；通用素材池只读；结构化索引存在时不得静默忽略；批量任务必须知道候选历史使用情况 |
+| `N3-MEDIA-EVIDENCE` | 建立素材和参考证据 | source_media、reference_media、项目上下文 | 用 Codex 视觉理解/抽样观察生成 `asset_evidence.json`；从 `projects/素材/`、`projects/示例/` 读取的内容按通用素材池处理，不写回或移动；按 Layered Rhythm Assembly 识别 `开头素材（需要对应到秒数）/`、`漫剧素材/纯漫剧素材/`、`工作流素材/`、`收益素材/`、`引流素材/`、`资产图/` 与 `大字报/` 的真实候选，分别标记为 hook、background_throughline、tool_demo、revenue_proof、private_traffic_cta、semantic_pip 和 editorial_overlay 证据；若存在 `projects/素材/视频/视频说明.yaml`、运行局部 `素材/视频/视频说明.yaml` 或等价结构化索引，读取 segment 级 tags/best_for/avoid_for/safe zone 以及 `semantic_vector/trigger_profile/visual_signature/variation_profile/analysis_slice_id/reuse_profile` 作为选材辅助；若存在 `projects/素材/图片/图片说明.yaml`、运行局部 `素材/图片/图片说明.yaml` 或等价结构化索引，读取图片 role/tags/best_for/avoid_for/text overlay/safe zone 作为 PiP 与证据窗选材辅助；批量任务读取既有 `asset_usage_ledger.json` 并生成候选重复惩罚；参考片只提取节奏/布局/转场，不抽取内容 | asset evidence、reference rhythm、风险清单、layered assembly candidate map、shared asset usage notes、manifest usage notes、usage ledger snapshot、candidate diversity score | `N4` / `N5` / `R3` | 每个进入成片候选的素材必须有语义用途、时间/画面证据、分段角色、层级归属、差异化字段和禁用边界；通用素材池只读；结构化索引存在时不得静默忽略；批量任务必须知道候选历史使用情况 |
 | `N4-DIALOGUE-CLOCK` | 建立旁白主时钟和严格字幕 cue | audio_clock、content_truth | 使用现有转写/SRT，或通过 HyperFrames media 转写/TTS；ASR 不可用时逐 cue 人工校时；LLM 复核字幕语义；生成 `dialogue_alignment.json` 和 captions；先清洗输入元信息，确保字幕 cue 不含文案头、括号风格标签或内部提示；过长字幕按可读宽度拆成后续 cue，不得省略号截断或换行；final 路线运行 `scripts/validate_dialogue_sync.py --strict-final` | transcript、cue map、sync notes、per-cue audio anchors、`dialogue_sync_validation.json` | `N5` / `R4` | final cue 必须可追踪到音频/脚本并满足同步容差；不得用“全片比例分配”或仅 `manual_script_audio_duration` 冒充严对齐；校验脚本不得有 fail；不得缺主字幕、字幕省略号截断/换行或把完整正文常驻显示为字幕 |
-| `N5-STORYBOARD-PLAN` | 形成音画计划和创作裁决 | content_truth、asset evidence、dialogue clock、reference rhythm、usage ledger snapshot | 由 LLM 写 `STORYBOARD.md`、`workflow_composition_plan.json`、background layer/PiP/editorial overlay/transition/BGM 计划；社媒广告型任务默认逐段选择 `video_background`，并按 cue 语义匹配 segment，尽量降低同源/同段重复；批量任务按 usage ledger 对已用 segment/image/continuity_group 加冷却惩罚，并预写本条 `planned_usage`；同义文案至少变化 2 个 visual axes；PiP 按字幕 cue、图片角色/标签/用途/避用说明和视频 segment manifest hint 共同匹配，社媒广告/批量任务默认每条至少 4 个 cue-bound slot，并降低同图、同角色在单片和批量中的重复；仅在设计/技术原因成立时使用 `image_background` 并记录 fallback | storyboard、composition plan、decision trace、background selection map、pip selection map、asset_diversity_audit、planned_usage patch | `N6` / `R5` | 每个镜头/段落必须回指 cue、素材证据或生成授权；大字报不得复述主字幕或暴露内部思考路径；`dialogue_caption` 与 `editorial_overlay` 必须分层；图片背景 fallback 必须有逐段理由；背景和 PiP 素材重复应有可解释原因；批量任务不得缺 ledger、diversity audit 和 PiP cue-level match evidence |
-| `N6-HYPERFRAMES-AUTHOR` | 创建或修改 HyperFrames composition | plan、assets、HyperFrames core/animation/media | 初始化/更新工程；写 `index.html`、style、timing data、tracks、captions、audio、overlays；复制/adopt assets；字幕层与大字报层使用不同 DOM class/track，观众可见文本必须通过清洗；主字幕轨按 cue 顺序互斥，editorial overlay 避开字幕安全区且不用台词原句；PiP DOM 必须从 `pip_selection_map` 投影为多个 `semantic_pip` slot，而不是单张固定装饰图 | changed files、composition root、asset manifest | `N7` / `R6` | DOM 时间轴、media 引用、字幕、叠层、PiP slot 和音频轨都在工程内可定位；画面内不得出现输入元信息、括号风格提示、字幕重叠、字幕-大字报整句重复、完整正文常驻小字层或无 cue 依据的固定 PiP |
-| `N7-PREVIEW-VALIDATE` | 预览并验证工程 | HyperFrames project | 运行 `npx hyperframes lint/validate/inspect/snapshot` 中可用检查；运行 `scripts/validate_visual_contract.py`，社媒广告/批量任务加 `--strict-social-ad`；抽查关键帧、字幕安全区、字幕 cue 互斥、字幕-大字报文本去重、字幕无省略号/无换行/无溢出、PiP slot 数量和 cue/manifest 匹配证据、非空画面和音轨 | CLI output、snapshot、inspection notes、`visual_contract_validation.json` | `N8` / `R6` / `R7` | lint/validate 通过；snapshot 非空；`visual_contract_validation.json` 为 pass；关键 overlay 不挡字幕和核心 UI；字幕没有叠显、换行、省略号截断或与大字报整句重复；社媒广告/批量任务 PiP 不少于默认 slot 数且有匹配证据 |
+| `N5-STORYBOARD-PLAN` | 形成音画计划和创作裁决 | content_truth、asset evidence、dialogue clock、reference rhythm、usage ledger snapshot | 由 LLM 写 `STORYBOARD.md`、`workflow_composition_plan.json`、background layer/PiP/editorial overlay/transition/BGM 计划；先锁定 `hook_opening -> content_body -> private_traffic_cta` 三段节奏骨架，再为每个 `timeline_segments[]` 声明 `background_video`、`semantic_pip`、`dialogue_caption`、`editorial_overlay` 四层；`background_throughline` 默认从 `projects/素材/漫剧素材/纯漫剧素材/` 或等价证据拉通且 `mask=none`；内容段必须覆盖或解释 `comic_drama/tool_demo/revenue_proof`；大字报为每段写 `core_word` 或短句；社媒广告型任务默认逐段选择 `video_background`，并按 cue 语义匹配 segment，尽量降低同源/同段重复；批量任务按 usage ledger 对已用 segment/image/continuity_group 加冷却惩罚，并预写本条 `planned_usage`；同义文案至少变化 2 个 visual axes；PiP 按字幕 cue、图片角色/标签/用途/避用说明和视频 segment manifest hint 共同匹配，社媒广告/批量任务默认每条至少 4 个 cue-bound slot，并降低同图、同角色在单片和批量中的重复；仅在设计/技术原因成立时使用 `image_background` 并记录 fallback | storyboard、composition plan、decision trace、video structure map、background_throughline、background selection map、pip selection map、asset_diversity_audit、planned_usage patch | `N6` / `R5` | 每个镜头/段落必须回指 cue、素材证据或生成授权；三段结构和四层计划必须完整；背景拉通无蒙版，缺素材或改用 fallback 必须有逐段理由；大字报不得复述主字幕或暴露内部思考路径；`dialogue_caption` 与 `editorial_overlay` 必须分层；图片背景 fallback 必须有逐段理由；背景和 PiP 素材重复应有可解释原因；批量任务不得缺 ledger、diversity audit 和 PiP cue-level match evidence |
+| `N6-HYPERFRAMES-AUTHOR` | 创建或修改 HyperFrames composition | plan、assets、HyperFrames core/animation/media | 初始化/更新工程；写 `index.html`、style、timing data、tracks、captions、audio、overlays；复制/adopt assets；按 `background_throughline` 建立连续背景视频 track，不加蒙版；按 `timeline_segments[]` 投影 hook/content/CTA 段落和四层 DOM；字幕层与大字报层使用不同 DOM class/track，观众可见文本必须通过清洗；主字幕轨按 cue 顺序互斥，editorial overlay 避开字幕安全区且不用台词原句；PiP DOM 必须从 `pip_selection_map` 投影为多个 `semantic_pip` slot，而不是单张固定装饰图 | changed files、composition root、asset manifest、workflow_assignment.json、workflow_composition_plan.json | `N7` / `R6` | DOM 时间轴、media 引用、背景 throughline、字幕、叠层、PiP slot 和音频轨都在工程内可定位；画面内不得出现输入元信息、括号风格提示、字幕重叠、字幕-大字报整句重复、完整正文常驻小字层或无 cue 依据的固定 PiP |
+| `N7-PREVIEW-VALIDATE` | 预览并验证工程 | HyperFrames project | 运行 `npx hyperframes lint/validate/inspect/snapshot` 中可用检查；运行 `scripts/validate_visual_contract.py`，社媒广告/批量任务加 `--strict-social-ad`；抽查关键帧、三段结构、背景拉通无蒙版、字幕安全区、字幕 cue 互斥、字幕-大字报文本去重、字幕无省略号/无换行/无溢出、PiP slot 数量和 cue/manifest 匹配证据、非空画面和音轨 | CLI output、snapshot、inspection notes、`visual_contract_validation.json`、composition plan metrics | `N8` / `R6` / `R7` | lint/validate 通过；snapshot 非空；`visual_contract_validation.json` 为 pass；三段结构和四层计划通过机械检查；关键 overlay 不挡字幕和核心 UI；字幕没有叠显、换行、省略号截断或与大字报整句重复；社媒广告/批量任务 PiP 不少于默认 slot 数且有匹配证据 |
 | `N8-RENDER-VERIFY` | 渲染并验证 final MP4 | render_requested、validated project | workflow 默认运行 render；检查 final 文件、时长、音轨、可播放性；final 前后确认 `dialogue_sync_validation.json` 和 `visual_contract_validation.json` 仍为 pass；必要时重新预览修复；普通工程、日志、快照和 render 过程文件位于 `projects/output/<日期>/过程/` 下的 work root；只有显式禁止渲染或阻断降级时才跳过 | final mp4、ffprobe/file evidence、render log、dialogue sync validation、visual contract validation | `N9` / `R7` | final 存在、大小非零、时长与主时钟/计划容差合理、音轨存在、台词同步校验通过、视觉合同校验通过，且未落在通用素材池 |
-| `N9-CLOSE` | 收束交付、报告和学习 | all artifacts | 写执行报告；列出路径、验证、残余风险、Source Sync Check；单条任务在 final 验证后把最终视频移动/归集到 `projects/output/<日期>/<project-slug>_workflow_final.mp4`；批量任务在 final 验证后把最终渲染好的视频统一移动/归集到 `projects/output/<日期>/成片/`，并把该路径作为 canonical final；批量任务把实际使用结果和 moved final path 回写 `asset_usage_ledger.json`；必要时写 CONTEXT/MEMORY | execution report、final response、final path、final collection path、usage ledger after writeback、writeback decision | done | 只有一个 canonical 交付口径；未完成项有 owner 和下一步；单条 final 位于日期输出根，批量 ledger 与 `projects/output/<日期>/成片/` 实际 final 一致 |
+| `N9-CLOSE` | 收束交付、报告和学习 | all artifacts | 写执行报告；列出路径、验证、残余风险、Source Sync Check；单条任务在 final 验证后把最终视频移动/归集到 `projects/output/<日期>/<project-slug>_workflow_final.mp4`；批量任务在 final 验证后把最终渲染好的视频统一移动/归集到 `projects/output/<日期>/成片/`，并把该路径作为 canonical final；批量任务把实际使用结果和 moved final path 回写 `asset_usage_ledger.json`；必要时按语义写 `CONTEXT/` 或项目 `MEMORY.md` | execution report、final response、final path、final collection path、usage ledger after writeback、writeback decision | done | 只有一个 canonical 交付口径；未完成项有 owner 和下一步；单条 final 位于日期输出根，批量 ledger 与 `projects/output/<日期>/成片/` 实际 final 一致 |
 | `R1-INPUT-REWORK` | 修复输入或范围阻断 | `FAIL-TYPE-*`、缺输入 | 请求最小必要输入，或降级到 plan/audit；不得伪造素材 | updated intake | `N1` / `N9` | 阻断项明确 |
 | `R2-MODULE-REWORK` | 修复模块加载或路由漂移 | module fail | 回到 Module Matrix/Trigger Matrix；不绕过 HyperFrames | patched route/module list | `N2` | 加载路径真实可读 |
 | `R3-EVIDENCE-REWORK` | 修复素材证据不足 | ambiguous assets | 重新观察、抽样或要求素材；标记禁用候选 | revised asset evidence | `N3` | 成片候选有证据 |
@@ -266,7 +401,8 @@ summary:
 | `retry_limit` | 同一 render/validation 错误连续返工 2 次仍失败，停止并报告根因、临时护栏和最小可复现线索。 | route_out | `FAIL-QUANT-RETRY` |
 | `fallback_evidence` | CLI 不可用时可以生成 plan/project 并报告未渲染；不能把未验证 project 宣称为 final。 | Review evidence | `FAIL-QUANT-FALLBACK` |
 | `asset_diversity` | 批量或同义文案任务必须有 `asset_usage_ledger.json` 和 `asset_diversity_audit.json`；单条 final 中同一 source_video 背景时长默认 ≤ 40%，同一 segment 不重复做背景；社媒广告/批量任务默认每条至少 4 个 cue-bound PiP/证据窗；批量相邻输出的 hook 背景和首屏 PiP 不重复；重复使用必须记录替代候选和强语义理由。 | `N3,N5,N9` | `FAIL-QUANT-ASSET-DIVERSITY` |
-| `visual_contract` | final/project close 前必须有 `visual_contract_validation.json`；观众可见文本无内部提示/流程水印，主字幕存在且单行完整，字幕不叠显、不用省略号/换行，editorial overlay 不与当前字幕整句重复，PiP slot 有 cue/image/reason/manifest hint，批量 audit 与 ledger 一致。 | `N6,N7,N8,N9` | `FAIL-QUANT-VISUAL-CONTRACT` |
+| `layered_assembly` | 社媒广告/爆款口播/批量路线必须在 `workflow_composition_plan.json` 中有 `background_throughline` 和 `timeline_segments`；三段角色覆盖 hook_opening、content_body、private_traffic_cta；每段声明 background_video、semantic_pip、dialogue_caption、editorial_overlay；内容段覆盖或解释 comic_drama/tool_demo/revenue_proof；背景 throughline 连续且 `mask=none`；大字报有短核心词/短句。 | `N5,N6,N7` | `FAIL-LAYERED-ASSEMBLY` |
+| `visual_contract` | final/project close 前必须有 `visual_contract_validation.json`；观众可见文本无内部提示/流程水印，主字幕存在且单行完整，字幕不叠显、不用省略号/换行，editorial overlay 不与当前字幕整句重复，PiP slot 有 cue/image/reason/manifest hint，三段四层 assembly 检查通过，批量 audit 与 ledger 一致。 | `N6,N7,N8,N9` | `FAIL-QUANT-VISUAL-CONTRACT` |
 
 ## Attention Concentration Protocol
 
@@ -311,7 +447,7 @@ summary:
 
 | module | load_when | authority | forbidden_use | rework_target |
 | --- | --- | --- | --- | --- |
-| `CONTEXT.md` | 每次调用 workflow | 经验层、失败模式、可复用 heuristic | 重定义 workflow 主合同或 HyperFrames 子技能合同 | `Learning / Context Writeback` |
+| `CONTEXT/` | 每次调用 workflow | 五文件经验层：重要记忆、负向经验、正向经验、好的示例、坏的示例 | 重定义 workflow 主合同、节点、gate、输出合同或 HyperFrames 子技能合同 | `CONTEXT/ File Semantics Contract` |
 | `hyperframes` | 每次执行 workflow | HyperFrames 总入口和路由边界 | 替代 workflow 的业务路由和输出合同 | `N2-HYPERFRAMES-LOAD` |
 | `hyperframes-core` | 需要 author/edit composition、DOM timeline、media tracks | composition contract、data timing、media ownership | 生成 workflow storyboard 或创作裁决 | `N6-HYPERFRAMES-AUTHOR` |
 | `hyperframes-cli` | 初始化、lint、validate、inspect、snapshot、preview、render | CLI 命令和验证/render 流程 | 在未验证时宣称 final；绕过 workflow gates | `N7-PREVIEW-VALIDATE` |
@@ -324,27 +460,32 @@ summary:
 | `types/` | 类型路由复杂或审计 route 覆盖 | 类型扩展说明 | 替代 Type Routing Matrix | `Type Routing Matrix` |
 | `templates/` | 需要输出摘要、PRP 或执行报告格式 | 输出格式样板 | 另立输出路径或完成门禁 | `Output Contract` |
 | `scripts/` | 需要机械校验 workflow JSON 证据、台词同步、文件存在或报告辅助 | `validate_dialogue_sync.py` 等机械 validator；只检查证据和时间线一致性 | 创建 F1 兼容脚本、渲染器、ASR 创作器或字幕语义生成器 | `Runtime Guardrails` |
+| `workflow/video-to-manifest` | 用户点名该卫星技能，或需要从视频目录生成/修复/校验 `视频说明.yaml` 作为素材证据 | 可选素材索引、manifest 验证和 consumer handoff | 替代 workflow `asset_evidence.json`、storyboard、composition plan 或成为必需 runtime | `N3-MEDIA-EVIDENCE` |
 | `agents/` | 产品入口元数据 | UI/display metadata | 隐藏执行规则 | `agents/openai.yaml` |
 
 ## Module Trigger Matrix
 
 | trigger_signal | required_modules | load_phase | return_gate | mechanical_check |
 | --- | --- | --- | --- | --- |
-| `$workflow` / `workflow` / `FAIL-WORKFLOW-HYPERFRAMES-ONLY` | `hyperframes`, `review/`, `CONTEXT.md` | `N1,N2` | `C1-INPUT-LOCKED` | skill files readable and no F1 runtime dependency |
+| `$workflow` / `workflow` / `FAIL-WORKFLOW-HYPERFRAMES-ONLY` | `hyperframes`, `review/`, `CONTEXT/` | `N1,N2` | `C1-INPUT-LOCKED` | skill files readable, CONTEXT five-file structure exists, and no F1 runtime dependency |
 | `project_initialization` / `FAIL-TYPE-INIT` | `hyperframes`, `hyperframes-cli`, `templates/` | `N1,N2,N9` | `C8-FINAL-OUTPUT` | work root and output template checked |
 | `plan_only` / `FAIL-TYPE-PLAN` | `hyperframes`, `hyperframes-core`, `templates/`, `references/` | `N2-N5` | `C4-PLAN-LOCKED` | plan artifact existence |
 | `full_hyperframes_edit` / `FAIL-TYPE-FULL` | `hyperframes`, `hyperframes-core`, `hyperframes-cli`, `hyperframes-media`, `hyperframes-animation`, `hyperframes-creative`, `templates/`, `scripts/` | `N2-N8` | `C7-RENDER-VERIFIED` | lint/validate/snapshot/dialogue-sync-validator/visual-contract-validator/render where available |
 | `hyperframes_project_build` / `FAIL-TYPE-PROJECT` | `hyperframes`, `hyperframes-core`, `hyperframes-cli`, `hyperframes-animation`, `templates/` | `N2-N7` | `C6-PREVIEW-VALIDATED` | project files and preview evidence; only valid as explicit no-render route or render-blocked downgrade |
 | `repair_dialogue_timing` / `FAIL-TYPE-TIMING` / `FAIL-DIALOGUE-CLOCK` | `hyperframes`, `hyperframes-media`, `hyperframes-cli`, `review/`, `scripts/` | `N4,N7` | `C3-DIALOGUE-CLOCKED` | transcript/cue evidence plus `validate_dialogue_sync.py --strict-final` |
-| `repair_visual_composition` / `FAIL-TYPE-VISUAL` / `FAIL-SAFE-ZONE` / `FAIL-COMPOSITION-PLAN` / `FAIL-HYPERFRAMES-CORE` / `FAIL-PREVIEW-VALIDATION` / `FAIL-QUANT-VISUAL-CONTRACT` | `hyperframes`, `hyperframes-core`, `hyperframes-animation`, `hyperframes-cli`, `review/`, `scripts/` | `N5-N7` | `C6-PREVIEW-VALIDATED` | snapshot, DOM inspection and visual contract validation |
+| `repair_visual_composition` / `FAIL-TYPE-VISUAL` / `FAIL-SAFE-ZONE` / `FAIL-COMPOSITION-PLAN` / `FAIL-HYPERFRAMES-CORE` / `FAIL-PREVIEW-VALIDATION` / `FAIL-QUANT-VISUAL-CONTRACT` / `FAIL-WORKFLOW-WATERMARK` / `FAIL-DECK-LIKE-AD` / `FAIL-LAYERED-ASSEMBLY` / `FAIL-BACKGROUND-LAYER-TYPE` / `FAIL-BACKGROUND-DIVERSITY-MATCH` / `FAIL-EDITORIAL-OVERLAY` | `hyperframes`, `hyperframes-core`, `hyperframes-animation`, `hyperframes-cli`, `review/`, `scripts/` | `N5-N7` | `C6-PREVIEW-VALIDATED` | snapshot, DOM inspection, layered composition plan and visual contract validation |
 | `asset_evidence_only` / `FAIL-TYPE-EVIDENCE` / `FAIL-ASSET-EVIDENCE` | `hyperframes`, `types/`, `templates/` | `N3` | `C2-EVIDENCE-READY` | asset evidence file exists |
+| `video-to-manifest` / `FAIL-DEEP-TAG-CONSUMPTION` | `workflow/video-to-manifest`, `types/`, `templates/`, `review/` | `N3` | `C2-EVIDENCE-READY` | manifest exists, validates, and remains optional seed evidence |
 | `audit_existing` / `FAIL-TYPE-AUDIT` / `FAIL-REVIEW-*` | `hyperframes`, `hyperframes-cli`, `review/`, `types/` | `N7,N9` | `C5-GATES-MAPPED` | review gate coverage |
 | `FAIL-INPUT-MINIMUM` | `templates/`, `review/` | `N1` | `C1-INPUT-LOCKED` | intake minimum fields checked |
+| `FAIL-ASPECT-RATIO` | `hyperframes`, `templates/`, `review/` | `N1,N6,N8` | `C1-INPUT-LOCKED` | intake aspect lock and ffprobe dimension evidence |
 | `FAIL-REFERENCE-COPY` | `references/`, `review/` | `N3` | `C2-EVIDENCE-READY` | reference-only evidence and banned asset list |
 | `FAIL-ASSET-USAGE-LEDGER` / `FAIL-PLATFORM-DEDUP-DIVERSITY` / `FAIL-DEEP-TAG-CONSUMPTION` / `FAIL-PIP-DIVERSITY-MATCH` | `templates/`, `review/`, `types/`, `scripts/` | `N3-N5,N9` | `C4-PLAN-LOCKED` | usage ledger, asset diversity audit, deep tag consumption notes, visual contract validation |
 | `FAIL-RENDER-FINAL` | `hyperframes-cli`, `review/`, `templates/` | `N8` | `C7-RENDER-VERIFIED` | render log and file check |
 | `FAIL-BATCH-FINAL-COLLECTION` | `templates/`, `review/` | `N9` | `C8-FINAL-OUTPUT` | batch final files under `projects/output/<日期>/成片/` and ledger final_path updated |
 | `FAIL-MODULE-DRIFT` / `FAIL-MODULE-TRIGGER` | `review/` | `R2` | `C5-GATES-MAPPED` | module list matches matrix |
+| `FAIL-DIRECTORY-ROUTING` | `review/`, `templates/`, `references/` | `R2,N9` | `C10-SKILL-2-RUNTIME-READY` | Directory Structure, README tree and Module Matrix match real files |
+| `FAIL-CONTEXT-BASELINE` / `FAIL-CONTEXT-SEMANTICS` | `CONTEXT/`, `review/` | `N1,N9` | `C10-SKILL-2-RUNTIME-READY` | five context files exist, no legacy context file remains, writeback map is explicit |
 | `FAIL-OUTPUT-CONTRACT` | `templates/`, `review/` | `N9` | `C8-FINAL-OUTPUT` | output five-field audit |
 | `FAIL-CHECKPOINT-DARWIN` | `test-prompts.json`, `review/` | `N9` | `C9-EVALUATION-READY` | prompt schema and dry-run |
 
@@ -355,12 +496,13 @@ summary:
 | `C1-INPUT-LOCKED` | route、work_root、content/audio/media/aspect ratio/render intent 已记录；缺失项有处理策略；默认过程根为 `projects/output/<日期>/过程/`；批量任务有 `final_collection_root=projects/output/<日期>/成片/` | full build 缺主时钟且无 TTS 授权；输出覆盖风险未处理；默认产出落到 `projects/素材/` 或 `projects/示例/`；非 16:9 缺显式依据 | `workflow_intake.json`、execution report | `N1-INTAKE` |
 | `C2-EVIDENCE-READY` | 成片候选素材、参考节奏、禁用边界、通用素材池只读边界和批量使用历史都有证据；结构化 manifest 粗标签已被补充或标为风险 | 无证据选材、参考内容复制、素材授权不明、把通用素材池当输出目录、批量任务未读取 usage ledger、长素材/粗标签未经复核 | `asset_evidence.json`、reference rhythm、shared asset usage notes、usage ledger snapshot、manifest tag-depth notes | `N3-MEDIA-EVIDENCE` |
 | `C3-DIALOGUE-CLOCKED` | 字幕 cue、脚本 span、音频/转写依据形成主时钟；台词字幕满足同步容差或有人工逐 cue 校时证据；final 路线 `validate_dialogue_sync.py --strict-final` 通过 | 全片比例分配、字幕语义和旁白不一致、无主时钟、只有 `manual_script_audio_duration` 却声称严格同步，或同步校验脚本有 fail | `dialogue_alignment.json`、captions、sync audit notes、`dialogue_sync_validation.json` | `N4-DIALOGUE-CLOCK` |
-| `C4-PLAN-LOCKED` | storyboard 和 composition plan 覆盖全部内容段、素材、叠层、音频、转场；批量任务包含 planned usage、差异化审计和 cue-level `pip_selection_map` | 计划项缺 cue/素材/生成授权证据；同义文案复用同一组视觉资产却无变化轴；批量任务缺 planned usage、diversity audit 或 PiP cue/manifest 匹配证据 | `STORYBOARD.md`、`workflow_composition_plan.json`、`asset_diversity_audit.json`、`pip_selection_map` | `N5-STORYBOARD-PLAN` |
+| `C4-PLAN-LOCKED` | storyboard 和 composition plan 覆盖全部内容段、素材、叠层、音频、转场；`timeline_segments` 至少覆盖 hook/content/CTA 三段，且每段声明 background/PiP/caption/editorial overlay 四层；批量任务包含 planned usage、差异化审计和 cue-level `pip_selection_map` | 计划项缺 cue/素材/生成授权证据；缺三段结构、背景 throughline、四层计划、内容段 comic_drama/tool_demo/revenue_proof 说明或大字报核心词；同义文案复用同一组视觉资产却无变化轴；批量任务缺 planned usage、diversity audit 或 PiP cue/manifest 匹配证据 | `STORYBOARD.md`、`workflow_composition_plan.json`、`background_throughline`、`asset_diversity_audit.json`、`pip_selection_map` | `N5-STORYBOARD-PLAN` |
 | `C5-GATES-MAPPED` | 所有关键信息有 review gate、fail code、返工目标和报告证据 | gate 只能自我声明、fail code 无返工路径 | review table、report matrix | `Review Gate Binding` |
 | `C6-PREVIEW-VALIDATED` | HyperFrames 工程 lint/validate/snapshot/inspect 可用检查通过，关键帧非空，`visual_contract_validation.json` 为 pass | CLI 阻断错误、空画面、media 引用断裂、叠层遮挡、观众可见文本/字幕/PiP/overlay/批量差异化机械校验失败 | CLI output、snapshot、visual contract validation | `N6-HYPERFRAMES-AUTHOR` / `N7-PREVIEW-VALIDATE` |
 | `C7-RENDER-VERIFIED` | workflow 默认 16:9 final MP4 存在、非空、可播放、音轨/时长/尺寸合理，且位于 `projects/output/<日期>/` 体系内或用户显式指定目录；过程文件位于 `projects/output/<日期>/过程/`；台词字幕项目的 `dialogue_sync_validation.json` 仍为 pass；`visual_contract_validation.json` 仍为 pass；显式 no-render/plan/audit/evidence 路线必须说明豁免 | render 失败、final 缺音轨、文件为空、时长严重漂移、过程文件落入日期根散放或通用素材池、普通任务 final 不是 16:9 且无豁免、普通 workflow 任务停在 project 而无阻断说明、final 前台词同步校验失败或视觉合同校验失败 | render log、file/ffprobe dimension evidence、dialogue sync validation、visual contract validation | `N8-RENDER-VERIFY` |
 | `C8-FINAL-OUTPUT` | 最终只指向一个 canonical output，并列出残余风险；单条任务 canonical final 位于 `projects/output/<日期>/` 日期输出根；批量任务 canonical final 位于 `projects/output/<日期>/成片/` 且 ledger/report 同步 | 多个 final 口径、单条 final 留在 `过程/` 内作为唯一交付、批量 final 未归集到 `成片/` 且无显式豁免、报告缺验证或路径 | final response、execution report、final collection listing、usage ledger final_path | `N9-CLOSE` |
 | `C9-EVALUATION-READY` | test prompts schema 完整，dry-run/full-test 结果记录 | prompts 缺失、expected 为空、eval_mode 不明 | prompt ids、eval summary | `Evaluation Prompt Contract` |
+| `C10-SKILL-2-RUNTIME-READY` | `Directory Structure & Detail Routing Contract`、真实目录、README、Module Matrix、`CONTEXT/` 五文件和 writeback 规则一致 | 缺五文件、遗留旧 `CONTEXT.md`、目录树漂移、可选模块未授权或 README 不同步 | file listing、README tree、context file list、module matrix audit | `Directory Structure & Detail Routing Contract` / `CONTEXT/ File Semantics Contract` |
 
 ## Multi-Subskill Continuous Workflow
 
@@ -374,7 +516,7 @@ summary:
 - 任何子技能输出都必须回接 workflow 的 `workflow_composition_plan.json`、HyperFrames project 或 execution report；不得形成第二份 final workflow。
 - workflow 普通任务默认自动 render final MP4；`C6-PREVIEW-VALIDATED` 是 render 前置门，不是普通完成门。
 - 只有用户明确要求 plan-only、audit-only、asset-evidence-only，或明确禁止渲染，workflow 才可不自动 render final MP4；报告必须写明该豁免。
-- 每个被调度的子技能包仍必须加载自身 `SKILL.md + CONTEXT.md`。
+- 每个被调度的子技能包仍必须加载自身 `SKILL.md + CONTEXT/`；尚未迁移到 `CONTEXT/` 的旧包至少加载其 `CONTEXT.md`。
 
 ## Visual Maps
 
@@ -412,16 +554,16 @@ flowchart LR
 
 ## Execution Contract
 
-1. 加载本 `SKILL.md + CONTEXT.md`；如绑定项目，加载项目 `MEMORY.md` 和相关 `CONTEXT/`。
-2. 按 `Input Contract` 和 `Type Routing Matrix` 锁定 route、work_root、aspect ratio 和 render intent；未指定时默认 16:9、1920x1080。
+1. 加载本 `SKILL.md + CONTEXT/` 五文件；如绑定项目，加载项目 `MEMORY.md` 和相关 `CONTEXT/`。
+2. 按 `Input Contract` 和 `Type Routing Matrix` 锁定 route、work_root、process_root、final root、aspect ratio 和 render intent；未指定时默认过程根为 `projects/output/<日期>/过程/`，画幅为 16:9、1920x1080。
 3. 按 `Module Trigger Matrix` 加载 HyperFrames 子技能；未列入矩阵的模块不得参与本轮裁决。
-4. 对 full build/repair，先建立 `asset_evidence.json` 和严格 `dialogue_alignment.json`，再写 storyboard 和 composition plan；批量或同义文案任务必须先读取/创建 `asset_usage_ledger.json`，并在计划阶段生成 `asset_diversity_audit.json`；final 路线必须运行 `scripts/validate_dialogue_sync.py --strict-final <project_root>` 并保存校验结果。
+4. 对 full build/repair，先建立 `asset_evidence.json` 和严格 `dialogue_alignment.json`，再写 storyboard 和 composition plan；composition plan 必须把背景拉通、hook/content/CTA 分段、四层画面和大字报核心词落到 `background_throughline` 与 `timeline_segments`；批量或同义文案任务必须先读取/创建 `asset_usage_ledger.json`，并在计划阶段生成 `asset_diversity_audit.json`；final 路线必须运行 `scripts/validate_dialogue_sync.py --strict-final <project_root>` 并保存校验结果。
 5. 由 LLM/Codex 直接做创作判断；脚本、CLI、转写和抽帧只提供证据或投影。
 6. Authoring 阶段必须遵守 HyperFrames core：composition 使用 DOM/timing/media contract，media 引用可追踪，render 不依赖运行时外部网络。
 7. Preview 阶段必须运行可用 HyperFrames lint/validate/inspect/snapshot；不可用时报告阻断，不得宣称已验证；若 HTML caption 时间线已生成，必须确认其与 `dialogue_alignment.json` 的台词 cue 一致。
 8. Render 是 workflow 普通任务的默认步骤；render 前必须通过 preview gate 和台词同步 validator。只有用户明确禁止渲染、只要求 plan/audit/evidence，或依赖/输入阻断时才可降级，并必须报告原因。
-9. Close 阶段写 execution report，包含 Reference Execution Matrix、Rule Evidence Map、N/A Justification、Repair Log 和 Source Sync Check；批量任务将最终成片移动/归集到 `projects/output/<日期>/成片/` 后，回写 `asset_usage_ledger.json` 的 actual usage 和 canonical final path。
-10. 对可复用失败/成功模式，写入最窄有效 `CONTEXT.md`；对项目长期偏好写项目 `MEMORY.md`。
+9. Close 阶段写 execution report，包含 Reference Execution Matrix、Rule Evidence Map、N/A Justification、Repair Log 和 Source Sync Check；单条任务将最终成片移动/归集到 `projects/output/<日期>/`，批量任务将最终成片移动/归集到 `projects/output/<日期>/成片/` 后，回写 `asset_usage_ledger.json` 的 actual usage 和 canonical final path。
+10. 对可复用失败/成功模式，按语义写入最窄有效 `CONTEXT/` 分文件；对项目长期偏好写项目 `MEMORY.md`。
 
 ## Review Gate Binding
 
@@ -432,6 +574,7 @@ flowchart LR
 | 输出比例是否符合默认合同？ | 普通 workflow 未指定比例却输出非 16:9，或非 16:9 缺用户/项目显式依据即失败 | `FAIL-ASPECT-RATIO` | `Input Contract` / `N1` / `N6` / `N8` | `workflow_intake.json`、composition data、ffprobe dimensions |
 | 成片是否含工具/流程水印？ | 未经用户要求出现 `workflow`、`HyperFrames`、文案编号、参考只取节奏等流程标识即失败 | `FAIL-WORKFLOW-WATERMARK` | `N5` / `N6` / `N7` | snapshot/frame check |
 | 社媒广告型画面是否退化为动态 PPT？ | 有可用影像/工具/结果视频却整片主要由静态卡片、内部标题、图文网格和会议式段落构成，或把视频背景全局降级为图片而没有逐段 fallback 理由，即失败 | `FAIL-DECK-LIKE-AD` | `N3` / `N5` / `N6` | storyboard、composition plan、snapshot/frame check |
+| 视频拼接是否有分段节奏和四层画面？ | 社媒广告、爆款口播或批量成片缺 `hook_opening/content_body/private_traffic_cta` 三段结构，缺背景拉通、画中画、字幕、大字报任一层，内容段未覆盖或解释漫剧/工具/收益支点，或背景 throughline 不是连续无蒙版，即失败 | `FAIL-LAYERED-ASSEMBLY` | `N3` / `N5` / `N6` / `N7` | `workflow_composition_plan.json`、background_throughline、timeline_segments、`visual_contract_validation.json` |
 | 背景层类型选择是否符合机制？ | 社媒广告型任务未优先使用 `video_background`，或 `image_background` 缺少设计/技术 fallback reason 即失败 | `FAIL-BACKGROUND-LAYER-TYPE` | `N3` / `N5` / `N6` / `N7` | storyboard、composition plan、asset evidence、render/inspect notes |
 | 背景视频是否多样且贴合台词？ | 存在结构化视频索引却未使用，或背景段大量重复同一少数素材、无 segment 语义匹配证据，即失败 | `FAIL-BACKGROUND-DIVERSITY-MATCH` | `N3` / `N5` / `N6` | `视频说明.yaml` usage notes、background selection map、asset evidence、storyboard |
 | 画中画是否多样且贴合台词？ | 存在结构化图片/视频索引却未使用，或 PiP 太少、退化为单张常驻装饰图、大量固定轮播少数图片、截图/角色/场景/风格图和 cue 语义不匹配、无图片选择理由、无视频 manifest hint、manifest hint 0 分/缺 match terms，即失败 | `FAIL-PIP-DIVERSITY-MATCH` | `N3` / `N5` / `N6` | `图片说明.yaml` usage notes、`视频说明.yaml` segment hint、pip selection map、asset evidence、storyboard、`visual_contract_validation.json` |
@@ -448,6 +591,8 @@ flowchart LR
 | Preview 是否足够证明非空且安全？ | snapshot 空白、关键 overlay 挡字幕/核心 UI、CLI validate 失败或视觉合同 validator 失败即失败 | `FAIL-PREVIEW-VALIDATION` | `N7` | snapshots、CLI output、`visual_contract_validation.json` |
 | Final render 是否真实可交付？ | final 缺失、空文件、不可播放、音轨缺失或时长严重漂移即失败 | `FAIL-RENDER-FINAL` | `N8` | render log、file/ffprobe evidence |
 | 输出是否唯一并带审计报告？ | 多个 final 口径、报告缺验证矩阵或残余风险即失败 | `FAIL-OUTPUT-CONTRACT` | `N9` / `Output Contract` | execution report |
+| 技能目录和细节路由是否同步？ | 真实目录、README 目录树、`Directory Structure & Detail Routing Contract`、`Module Loading Matrix` 或 registry 任一漂移即失败 | `FAIL-DIRECTORY-ROUTING` | `Directory Structure & Detail Routing Contract` / `C10` | file listing、README tree、module matrix audit、registry row |
+| `CONTEXT/` 五文件经验层是否完整？ | 缺任一五文件、五文件语义混写、旧 `CONTEXT.md` 遗留、写回规则不清即失败 | `FAIL-CONTEXT-SEMANTICS` | `CONTEXT/ File Semantics Contract` / `Learning / Context Writeback` | context file list、writeback map |
 
 ## Root-Cause Execution Contract
 
@@ -481,11 +626,12 @@ flowchart LR
 | `FIELD-WORKFLOW-08` | `Convergence Contract` | 每个汇流点的 pass/fail/evidence/rework | `FAIL-CONVERGENCE` |
 | `FIELD-WORKFLOW-09` | `Review Gate Binding` | review question、gate、fail code、rework target、report evidence | `FAIL-REVIEW-BINDING` |
 | `FIELD-WORKFLOW-10` | `Output Contract` | Required output、format、path、naming、completion gate | `FAIL-OUTPUT-CONTRACT` |
-| `FIELD-WORKFLOW-11` | `CONTEXT.md` | Type Map、Repair Playbook、Reusable Heuristics、Context Health | `FAIL-CONTEXT-BASELINE` |
+| `FIELD-WORKFLOW-11` | `CONTEXT/` | 五文件齐全；重要记忆、负向经验、正向经验、好的示例、坏的示例语义分离 | `FAIL-CONTEXT-SEMANTICS` |
 | `FIELD-WORKFLOW-12` | `agents/openai.yaml` | display_name、short_description、default_prompt 显式提到 `$workflow` | `FAIL-AGENT-METADATA` |
 | `FIELD-WORKFLOW-13` | `templates/` | 输出模板映射 Output Contract，不另立完成门禁 | `FAIL-TEMPLATE-DRIFT` |
 | `FIELD-WORKFLOW-14` | `references/` | legacy 迁移映射只作目标对照，不成为 runtime 依赖 | `FAIL-REFERENCE-DRIFT` |
 | `FIELD-WORKFLOW-15` | `test-prompts.json` | 至少 3 条 workflow route/eval prompts | `FAIL-CHECKPOINT-DARWIN` |
+| `FIELD-WORKFLOW-16` | `Directory Structure & Detail Routing Contract` | 真实目录树、detail owner、runtime_use、forbidden_drift 与 Module Matrix 同步 | `FAIL-DIRECTORY-ROUTING` |
 
 ## Pass Table
 
@@ -501,11 +647,17 @@ flowchart LR
 | `FIELD-WORKFLOW-08` | Preview/render/close 不靠自我声明 | `Convergence Contract` |
 | `FIELD-WORKFLOW-09` | review gate 能定位证据和返工节点 | `Review Gate Binding` |
 | `FIELD-WORKFLOW-10` | 只有一个 canonical output，残余风险明确 | `Output Contract` |
+| `FIELD-WORKFLOW-11` | 五文件存在且语义不混写；旧 `CONTEXT.md` 不再存在 | `CONTEXT/ File Semantics Contract` |
+| `FIELD-WORKFLOW-12` | 入口元数据不隐藏规则 | `agents/openai.yaml` |
+| `FIELD-WORKFLOW-13` | 模板只投影 Output Contract | `templates/` |
+| `FIELD-WORKFLOW-14` | legacy reference 不带回旧 runtime | `references/` |
+| `FIELD-WORKFLOW-15` | prompts 覆盖 full、plan、repair/audit、source-upgrade 关键路线 | `Evaluation Prompt Contract` |
+| `FIELD-WORKFLOW-16` | 目录树、README、Module Matrix 和真实文件一致 | `Directory Structure & Detail Routing Contract` |
 
 ## Output Contract
 
 - Required output: workflow 普通任务必须输出 HyperFrames project、默认 16:9 可播放 final MP4 和 execution report；批量任务还必须归集最终视频到 `projects/output/<日期>/成片/`；plan/audit/evidence-only 是用户显式要求或阻断降级时的例外。
-- Output format: `workflow_intake.json`、`asset_evidence.json`、`asset_usage_ledger.json`（批量/同义文案任务）、`asset_diversity_audit.json`（批量/同义文案任务）、`dialogue_alignment.json`、`dialogue_sync_validation.json`、`visual_contract_validation.json`、`reference_rhythm.json`、`STORYBOARD.md`、`workflow_composition_plan.json`、HyperFrames project、snapshot/render logs、execution report。
+- Output format: `workflow_intake.json`、`asset_evidence.json`、`asset_usage_ledger.json`（批量/同义文案任务）、`asset_diversity_audit.json`（批量/同义文案任务）、`dialogue_alignment.json`、`dialogue_sync_validation.json`、`visual_contract_validation.json`、`reference_rhythm.json`、`STORYBOARD.md`、含 `background_throughline` 与 `timeline_segments` 的 `workflow_composition_plan.json`、HyperFrames project、snapshot/render logs、execution report。
 - Output path: 默认使用 `projects/output/<日期>/过程/<project-slug>/` 承载工程和过程文件；单条任务 final 验证后移动/归集到 `projects/output/<日期>/<project-slug>_workflow_final.mp4`；批量任务使用 `projects/output/<日期>/过程/<batch-id>/` 承载工程、日志、验证、台账和中间工件，并使用 `projects/output/<日期>/成片/` 承载统一归集后的 final；用户显式提供 `result_dir` 时仍保留日期层级，过程文件使用 `<result_dir>/<日期>/过程/<project-slug>/` 或 `<result_dir>/<日期>/过程/<batch-id>/`，final 使用 `<result_dir>/<日期>/` 或 `<result_dir>/<日期>/成片/`。
 - Naming convention: 单条 final 默认先渲染到 `<work_root>/renders/<project-slug>_workflow_final.mp4`，验证后移动/归集为 `projects/output/<日期>/<project-slug>_workflow_final.mp4`，画布默认 `1920x1080`；批量 final 验证后移动/归集为 `projects/output/<日期>/成片/<project-slug>_workflow_final.mp4`；计划 `workflow_composition_plan.json`；报告 `reports/workflow-execution-report-YYYYMMDD-HHMM.md`；slug 使用小写 kebab-case。
 - Completion gate: workflow 普通任务必须完成 C7；plan-only 至少完成 C4；显式 no-render project build 或 render-blocked downgrade 至少完成 C6 并写明豁免；所有路线完成 C8 报告收束。
@@ -514,7 +666,7 @@ flowchart LR
 | output_field | contract |
 | --- | --- |
 | `Required output` | workflow 普通任务必须输出 HyperFrames project、默认 16:9 可播放 final MP4 和 execution report；批量任务还必须归集最终视频到 `projects/output/<日期>/成片/`；plan/audit/evidence-only 是用户显式要求或阻断降级时的例外。 |
-| `Output format` | `workflow_intake.json`、`asset_evidence.json`、批量任务的 `asset_usage_ledger.json` / `asset_diversity_audit.json`、`dialogue_alignment.json`、`dialogue_sync_validation.json`、`visual_contract_validation.json`、`reference_rhythm.json`、`STORYBOARD.md`、`workflow_composition_plan.json`、HyperFrames `index.html`/assets、snapshot/render logs、`reports/workflow-*.md`。 |
+| `Output format` | `workflow_intake.json`、`asset_evidence.json`、批量任务的 `asset_usage_ledger.json` / `asset_diversity_audit.json`、`dialogue_alignment.json`、`dialogue_sync_validation.json`、`visual_contract_validation.json`、`reference_rhythm.json`、`STORYBOARD.md`、含 `background_throughline` 与 `timeline_segments` 的 `workflow_composition_plan.json`、HyperFrames `index.html`/assets、snapshot/render logs、`reports/workflow-*.md`。 |
 | `Output path` | 默认使用 `projects/output/<日期>/过程/<project-slug>/` 承载工程和过程文件；单条任务 final 验证后移动/归集到 `projects/output/<日期>/<project-slug>_workflow_final.mp4`；批量任务使用 `projects/output/<日期>/过程/<batch-id>/` 承载工程、日志、验证、台账和中间工件，并使用 `projects/output/<日期>/成片/` 承载统一归集后的 final；用户显式提供 `result_dir` 时仍保留日期层级，过程文件使用 `<result_dir>/<日期>/过程/<project-slug>/` 或 `<result_dir>/<日期>/过程/<batch-id>/`，final 使用 `<result_dir>/<日期>/` 或 `<result_dir>/<日期>/成片/`。 |
 | `Naming convention` | 单条 final 默认先渲染到 `<work_root>/renders/<project-slug>_workflow_final.mp4`，验证后移动/归集为 `projects/output/<日期>/<project-slug>_workflow_final.mp4`，画布默认 `1920x1080`；批量 final 验证后移动/归集为 `projects/output/<日期>/成片/<project-slug>_workflow_final.mp4`；计划 `workflow_composition_plan.json`；报告 `reports/workflow-execution-report-YYYYMMDD-HHMM.md`；slug 使用小写 kebab-case。 |
 | `Completion gate` | workflow 普通任务必须完成 C7；plan-only 至少完成 C4；显式 no-render project build 或 render-blocked downgrade 至少完成 C6 并写明豁免；所有路线完成 C8 报告收束。 |
@@ -532,7 +684,7 @@ flowchart LR
 ### Self-Modification Prohibitions
 
 - 不得在普通 workflow 视频任务中修改本技能 `SKILL.md`、registry 或 HyperFrames skill；只有用户要求创建/升级/修复工作流源层时才可修改。
-- 不得把运行中一次性偏好直接晋升为 workflow 规范；先写报告或 `CONTEXT.md`，稳定复发后再晋升。
+- 不得把运行中一次性偏好直接晋升为 workflow 规范；先写报告或对应 `CONTEXT/` 分文件，稳定复发后再晋升。
 
 ### Anti-Injection Rules
 
@@ -543,8 +695,9 @@ flowchart LR
 
 ## Learning / Context Writeback
 
-- 正向模式：写入本技能 `CONTEXT.md` 的 Reusable Heuristics，说明适用输入、HyperFrames 模块、证据和验证口径。
-- 负向模式：写入 Type Map 或 Repair Playbook，包含症状、根因、修复节点和验证点。
+- 正向模式：写入 `CONTEXT/正向经验.md`，说明适用输入、HyperFrames 模块、证据和验证口径；可复用完整样例写 `CONTEXT/好的示例.md`。
+- 负向模式：写入 `CONTEXT/负向经验.md` 的 Type Map 或 Repair Playbook，包含症状、根因、修复节点和验证点；典型反例写 `CONTEXT/坏的示例.md`。
+- 长期边界和 Context Health：写入 `CONTEXT/重要记忆.md`；旧 `CONTEXT.md` 不再保留，新增经验必须进入五文件结构。
 - 项目长期偏好：用户明确说“以后都按这个来”且任务绑定项目时，写项目 `MEMORY.md`。
-- 一次性执行流水、长日志、render 输出和验证命令写 execution report，不写入 `CONTEXT.md`。
-- 稳定规则多次复发后再晋升本 `SKILL.md` 或 registry/routes；不得只靠 `CONTEXT.md` 修复执行合同缺陷。
+- 一次性执行流水、长日志、render 输出和验证命令写 execution report，不写入 `CONTEXT/`。
+- 稳定规则多次复发后再晋升本 `SKILL.md`、validator、registry/routes 或模板；不得只靠 `CONTEXT/` 修复执行合同缺陷。

@@ -15,7 +15,7 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 若由 workflow 调度或引用，必须先加载 `.agents/skills/workflow/SKILL.md + CONTEXT.md`，并遵守 workflow 的 HyperFrames-only 和 `asset_evidence.json` 真源边界。
+- 若由 workflow 调度或引用，必须先加载 `.agents/skills/workflow/SKILL.md` 和父级 `CONTEXT/` 五文件，并遵守 workflow 的 HyperFrames-only 和 `asset_evidence.json` 真源边界。
 - 若任务绑定 `projects/aigc/<项目名>/` 或 `projects/0622/` 等项目目录，存在项目级 `MEMORY.md` 或 `CONTEXT/` 时按仓库规则加载；缺失时报告，不编造项目记忆。
 - 先读取本 `SKILL.md` 的 runtime spine，再按 `Module Loading Matrix` 加载必要模块；不得因为目录存在而自动全量读取。
 - 冲突优先级：用户显式请求 > 仓库 `AGENTS.md` > 调度方父技能 `SKILL.md`（workflow 或其他视频工作流）> 本 `SKILL.md` > 本 `Module Loading Matrix` 授权模块 > `CONTEXT.md`。
@@ -244,7 +244,7 @@ metadata:
 - 核心理解字段必须由 LLM 逐视频、逐条片段基于可见证据填写：`role`、`visual_summary`、`setting`、`main_subjects`、`semantic_tags`、`tool_state`、`best_for`、`avoid_for`、`splice_notes`、`subtitle_safe_zone.notes`。
 - 若证据不足，字段写 `needs_review` 或保守描述，并在报告列出补充抽帧或人工观察需求；不得用文件名、关键词或旧样例臆测。
 - 模板只提供字段骨架，不能提供套句式最终描述。
-- 最终 `视频说明.yaml` 必须能被 `scripts/validate_video_manifest.py` 校验；但校验通过不等于画面语义绝对正确，下游使用时仍需按自身 workflow 抽帧、preview 或 storyboard gate 复核。
+- 最终 `视频说明.yaml` 必须能被 `video-to-manifest/scripts/validate_video_manifest.py` 校验；但校验通过不等于画面语义绝对正确，下游使用时仍需按自身 workflow 抽帧、preview 或 storyboard gate 复核。
 
 ## Business Requirement Analysis Contract
 
@@ -429,14 +429,14 @@ stateDiagram-v2
 
 ## Execution Contract
 
-1. 加载本 `SKILL.md + CONTEXT.md`；若由 workflow 调度，同时加载对应父 workflow `SKILL.md + CONTEXT.md`。
+1. 加载本 `SKILL.md + CONTEXT.md`；若由 workflow 调度，同时加载对应父 workflow `SKILL.md` 和父级 `CONTEXT/` 五文件。
 2. 按 `Type Routing Matrix` 选择 `generate_single / update_directory / repair_manifest / validate_only / audit_existing`。
 3. 锁定 `target_video_or_dir`、`manifest_path`、`work_dir`、递归范围和覆盖/备份策略。
-4. 对非只校验路线，运行 `scripts/inspect_video_material.py` 或等价机械流程生成 `material-evidence.json` 和抽帧。
+4. 对非只校验路线，运行 `video-to-manifest/scripts/inspect_video_material.py` 或等价机械流程生成 `material-evidence.json` 和抽帧。
 5. LLM 基于逐视频证据逐条视频、逐条片段填写 manifest；脚本生成的 skeleton 只能作为字段骨架，不得作为最终语义真源。目录刷新或高影响写回必须在 `evidence.observation_status` 或 `evidence.deep_review` 中留下逐视频精读证据。
 6. 写回前若已有 manifest，先备份；更新时尽量保留仍存在视频的 `videos[].id` 和 `segments[].segment_id`。
 7. 输出 `schema_version: 2` 的 `视频说明.yaml`，字段按 `Manifest Schema Contract`。
-8. 运行 `scripts/validate_video_manifest.py <manifest>`；若 fatal error 不为 0，按 `R2` 返工；若 warnings 存在，报告保守策略。
+8. 运行 `video-to-manifest/scripts/validate_video_manifest.py <manifest>`；若 fatal error 不为 0，按 `R2` 返工；若 warnings 存在，报告保守策略。
 9. 写 sidecar 执行报告，记录 evidence、validation、uncertainty、manifest path 和 consumer handoff。
 10. 执行 Source Sync Check；可复用失败模式写入 `CONTEXT.md`，稳定规则再晋升本 `SKILL.md` 或脚本。
 

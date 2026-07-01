@@ -1,7 +1,0 @@
-# Project-specific exec policy rules for Codex.
-#
-# Intentionally no custom `prefix_rule()` entries are defined here.
-# Repository guidance belongs in the root `AGENTS.md`; this file is only for
-# Codex exec-policy rules that need valid Starlark syntax.
-
-PROJECT_RULES_NOTE = "No project-specific exec-policy overrides."

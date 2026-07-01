@@ -5,7 +5,7 @@ This validator is intentionally mechanical. It does not generate copy, choose
 assets, infer storyboard intent, or render video. It checks that an authored
 HyperFrames project exposes the evidence needed for workflow visual gates: audience
 text hygiene, dialogue-caption/editorial-overlay separation, caption fit, PiP
-cue binding, and batch diversity ledger consistency.
+cue binding, layered video assembly, and batch diversity ledger consistency.
 """
 
 from __future__ import annotations
@@ -40,6 +40,53 @@ CAPTION_BAD_TEXT_PATTERNS = (
 )
 
 DEFAULT_MAX_CAPTION_UNITS = 42.0
+DEFAULT_MAX_OVERLAY_UNITS = 28.0
+
+SEGMENT_ROLE_ALIASES = {
+    "hook_opening": {
+        "hook_opening",
+        "opening_hook",
+        "opening",
+        "opener",
+        "hook",
+        "爆款开头",
+        "开头",
+        "开头部分",
+    },
+    "content_body": {
+        "content_body",
+        "body",
+        "content",
+        "main_content",
+        "内容",
+        "内容部分",
+        "正片",
+    },
+    "private_traffic_cta": {
+        "private_traffic_cta",
+        "traffic_cta",
+        "cta",
+        "conversion",
+        "private_traffic",
+        "引流",
+        "引流部分",
+        "私域",
+        "私域引流",
+    },
+}
+
+CONTENT_SUBTYPE_ALIASES = {
+    "comic_drama": {"comic_drama", "drama", "manju", "漫剧", "漫剧素材", "纯漫剧"},
+    "tool_demo": {"tool_demo", "tool", "workflow", "operation_demo", "工具", "工作流", "操作演示"},
+    "revenue_proof": {"revenue_proof", "revenue", "income", "result", "收益", "收益素材", "结果证明"},
+}
+
+REQUIRED_SEGMENT_LAYERS = {
+    "background_video",
+    "semantic_pip",
+    "dialogue_caption",
+    "editorial_overlay",
+}
 
 
 @dataclass
@@ -168,6 +215,150 @@ def text_match_score(left: str, right: str) -> float:
     a_chars = set(a)
     b_chars = set(b)
     return len(a_chars & b_chars) / max(len(a_chars | b_chars), 1)
+
+
+def normalize_token(value: Any) -> str:
+    return normalize_ws(str(value or "")).lower().replace("-", "_").replace(" ", "_")
+
+
+def canonical_from_aliases(value: Any, aliases: dict[str, set[str]]) -> str | None:
+    token = normalize_token(value)
+    if not token:
+        return None
+    for canonical, options in aliases.items():
+        normalized_options = {normalize_token(option) for option in options}
+        if token in normalized_options:
+            return canonical
+        if any(option and option in token for option in normalized_options):
+            return canonical
+    return None
+
+
+def iter_text_values(value: Any) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, (int, float, bool)):
+        return [str(value)]
+    if isinstance(value, list):
+        result: list[str] = []
+        for item in value:
+            result.extend(iter_text_values(item))
+        return result
+    if isinstance(value, dict):
+        result = []
+        for item in value.values():
+            result.extend(iter_text_values(item))
+        return result
+    return []
+
+
+def truthy_layer(value: Any) -> bool:
+    if value in (None, False):
+        return False
+    if isinstance(value, str) and normalize_token(value) in {"", "none", "false", "disabled", "off", "n/a", "na"}:
+        return False
+    return True
+
+
+def mask_is_none(value: Any) -> bool:
+    if value in (None, "", False):
+        return True
+    token = normalize_token(value)
+    return token in {"none", "no_mask", "disabled", "off", "false", "transparent_none", "无", "不用", "不加蒙版"}
+
+
+def collect_segment_layers(segment: dict[str, Any]) -> tuple[set[str], dict[str, Any]]:
+    layers: set[str] = set()
+    details: dict[str, Any] = {}
+
+    for container_key in ("layers", "layer_plan", "required_layers", "visual_layers"):
+        container = segment.get(container_key)
+        if isinstance(container, dict):
+            for key, value in container.items():
+                canonical = canonical_layer_name(key, value)
+                if canonical and truthy_layer(value):
+                    layers.add(canonical)
+                    details.setdefault(canonical, value)
+        elif isinstance(container, list):
+            for item in container:
+                if not isinstance(item, dict):
+                    continue
+                raw_name = (
+                    item.get("layer")
+                    or item.get("type")
+                    or item.get("kind")
+                    or item.get("purpose")
+                    or item.get("data-layer-purpose")
+                )
+                canonical = canonical_layer_name(raw_name, item)
+                if canonical and truthy_layer(item.get("enabled", True)):
+                    layers.add(canonical)
+                    details.setdefault(canonical, item)
+
+    for key, canonical in (
+        ("background_video", "background_video"),
+        ("background_layer", "background_video"),
+        ("pip_asset", "semantic_pip"),
+        ("semantic_pip", "semantic_pip"),
+        ("dialogue_caption", "dialogue_caption"),
+        ("captions", "dialogue_caption"),
+        ("editorial_overlay", "editorial_overlay"),
+        ("big_text", "editorial_overlay"),
+        ("poster_text", "editorial_overlay"),
+    ):
+        if truthy_layer(segment.get(key)):
+            layers.add(canonical)
+            details.setdefault(canonical, segment.get(key))
+    return layers, details
+
+
+def canonical_layer_name(raw_name: Any, value: Any = None) -> str | None:
+    token = normalize_token(raw_name)
+    if token in {"background_video", "video_background", "background", "background_layer", "背景视频", "背景层"}:
+        return "background_video"
+    if token in {"semantic_pip", "pip", "pip_asset", "picture_in_picture", "画中画", "证据窗"}:
+        return "semantic_pip"
+    if token in {"dialogue_caption", "caption", "captions", "subtitle", "subtitles", "字幕", "台词字幕"}:
+        return "dialogue_caption"
+    if token in {"editorial_overlay", "overlay", "big_text", "poster_text", "title_card", "大字报", "核心词"}:
+        return "editorial_overlay"
+    if isinstance(value, dict):
+        nested = value.get("data-layer-purpose") or value.get("purpose") or value.get("type")
+        if nested and nested != raw_name:
+            return canonical_layer_name(nested)
+    return None
+
+
+def overlay_summary_text(overlay: Any) -> str:
+    candidates: list[Any] = []
+    if isinstance(overlay, dict):
+        for key in ("core_word", "core_phrase", "summary", "display_text", "text", "copy"):
+            candidates.append(overlay.get(key))
+    elif isinstance(overlay, list):
+        for item in overlay:
+            candidates.append(overlay_summary_text(item))
+    else:
+        candidates.append(overlay)
+    for item in candidates:
+        text = normalize_ws(str(item or ""))
+        if text:
+            return text
+    return ""
+
+
+def content_subtypes_from_segment(segment: dict[str, Any]) -> set[str]:
+    values: list[str] = []
+    for key in ("content_subtype", "content_type", "material_type", "asset_category", "section_type", "purpose"):
+        values.extend(iter_text_values(segment.get(key)))
+    for container_key in ("layers", "layer_plan", "required_layers", "visual_layers"):
+        values.extend(iter_text_values(segment.get(container_key)))
+    return {
+        canonical
+        for value in values
+        if (canonical := canonical_from_aliases(value, CONTENT_SUBTYPE_ALIASES)) is not None
+    }
 
 
 def load_json(path: Path) -> tuple[Any | None, list[Finding]]:
@@ -391,6 +582,141 @@ def validate_assignment(
     return metrics, findings
 
 
+def validate_composition_plan(
+    plan_path: Path,
+    *,
+    strict_social_ad: bool,
+    max_overlay_units: float,
+) -> tuple[dict[str, Any], list[Finding]]:
+    data, findings = load_json(plan_path)
+    metrics: dict[str, Any] = {}
+    if not isinstance(data, dict):
+        if strict_social_ad and not any(item.code == "invalid_json" for item in findings):
+            findings.append(Finding("fail", "missing_composition_plan", "workflow_composition_plan.json is required", str(plan_path)))
+        return metrics, findings
+
+    segments = (
+        data.get("timeline_segments")
+        or data.get("content_segments")
+        or data.get("storyboard_segments")
+        or data.get("segments")
+        or []
+    )
+    if not isinstance(segments, list):
+        findings.append(Finding("fail", "invalid_timeline_segments", "timeline_segments must be a list", str(plan_path)))
+        segments = []
+
+    role_counts = {key: 0 for key in SEGMENT_ROLE_ALIASES}
+    observed_subtypes: set[str] = set()
+    metrics["composition_segment_count"] = len(segments)
+
+    throughline = (
+        data.get("background_throughline")
+        or data.get("background_video_throughline")
+        or data.get("background_continuity")
+        or data.get("background_continuity_map")
+    )
+    if strict_social_ad and not isinstance(throughline, dict):
+        findings.append(
+            Finding(
+                "fail",
+                "missing_background_throughline",
+                "composition plan must declare continuous background video throughline",
+                str(plan_path),
+            )
+        )
+    elif isinstance(throughline, dict):
+        mode_values = " ".join(iter_text_values(throughline.get("mode") or throughline.get("continuity") or throughline.get("strategy")))
+        if not re.search(r"continuous|throughline|full_span|拉通|贯穿", mode_values, re.IGNORECASE):
+            findings.append(
+                Finding(
+                    "fail",
+                    "background_throughline_not_continuous",
+                    "background video throughline must be continuous/throughline",
+                    str(plan_path),
+                )
+            )
+        mask_value = throughline.get("mask") or throughline.get("mask_mode") or throughline.get("masking")
+        if not mask_is_none(mask_value):
+            findings.append(Finding("fail", "background_throughline_uses_mask", "background throughline must not use a mask", str(plan_path)))
+        source_hint = " ".join(iter_text_values(throughline))
+        if source_hint and not re.search(r"漫剧素材|纯漫剧素材|comic_drama|pure_comic", source_hint, re.IGNORECASE):
+            findings.append(
+                Finding(
+                    "warn",
+                    "background_throughline_not_comic_drama_hint",
+                    "background throughline should usually point to projects/素材/漫剧素材/纯漫剧素材 or equivalent evidence",
+                    str(plan_path),
+                )
+            )
+
+    for index, segment in enumerate(segments):
+        if not isinstance(segment, dict):
+            findings.append(Finding("fail", "invalid_timeline_segment", "timeline segment must be an object", f"{plan_path}:timeline_segments[{index}]"))
+            continue
+        path = f"{plan_path}:timeline_segments[{index}]"
+        raw_role = segment.get("segment_role") or segment.get("role") or segment.get("section") or segment.get("phase") or segment.get("type")
+        role = canonical_from_aliases(raw_role, SEGMENT_ROLE_ALIASES)
+        if role:
+            role_counts[role] += 1
+        elif strict_social_ad:
+            findings.append(Finding("fail", "unknown_video_segment_role", "segment must declare hook/content/traffic role", path))
+
+        layers, details = collect_segment_layers(segment)
+        if strict_social_ad:
+            for layer in sorted(REQUIRED_SEGMENT_LAYERS - layers):
+                findings.append(Finding("fail", "segment_missing_layer", f"segment is missing required layer: {layer}", path))
+
+        background = details.get("background_video")
+        if isinstance(background, dict):
+            mask_value = background.get("mask") or background.get("mask_mode") or background.get("masking")
+            if not mask_is_none(mask_value):
+                findings.append(Finding("fail", "background_video_uses_mask", "background video layer must not use a mask", path))
+
+        overlay_text = overlay_summary_text(details.get("editorial_overlay") or segment.get("editorial_overlay") or segment.get("big_text"))
+        if strict_social_ad and "editorial_overlay" in layers and not overlay_text:
+            findings.append(
+                Finding(
+                    "fail",
+                    "editorial_overlay_missing_summary",
+                    "editorial overlay must contain a core word, phrase, or one-sentence summary",
+                    path,
+                )
+            )
+        if overlay_text and display_units(overlay_text) > max_overlay_units:
+            findings.append(
+                Finding(
+                    "fail",
+                    "editorial_overlay_too_long",
+                    f"editorial overlay display width {display_units(overlay_text):.1f} exceeds max {max_overlay_units:.1f}: {overlay_text}",
+                    path,
+                )
+            )
+
+        if role == "content_body":
+            observed_subtypes.update(content_subtypes_from_segment(segment))
+
+    metrics["composition_segment_roles"] = role_counts
+    metrics["composition_content_subtypes"] = sorted(observed_subtypes)
+    if strict_social_ad:
+        for role, count in role_counts.items():
+            if count == 0:
+                findings.append(Finding("fail", "missing_video_segment_role", f"composition plan missing segment role: {role}", str(plan_path)))
+        for subtype in CONTENT_SUBTYPE_ALIASES:
+            if subtype not in observed_subtypes:
+                exception_map = data.get("content_mix_exceptions") if isinstance(data.get("content_mix_exceptions"), dict) else {}
+                if not exception_map.get(subtype):
+                    findings.append(
+                        Finding(
+                            "fail",
+                            "missing_content_subtype",
+                            f"content body missing required material subtype: {subtype}",
+                            str(plan_path),
+                        )
+                    )
+    return metrics, findings
+
+
 def validate_batch_audit(root: Path, *, min_pip_slots: int, require_manifest_hint: bool) -> tuple[dict[str, Any], list[Finding]]:
     metrics: dict[str, Any] = {}
     findings: list[Finding] = []
@@ -426,6 +752,7 @@ def validate_project(
     project_root: Path,
     *,
     max_caption_units: float,
+    max_overlay_units: float,
     min_pip_slots: int,
     min_pip_match_score: float,
     strict_social_ad: bool,
@@ -474,6 +801,15 @@ def validate_project(
     elif strict_social_ad:
         findings.append(Finding("warn", "missing_assignment", "workflow_assignment.json missing; PiP manifest evidence cannot be fully checked", str(project_root)))
 
+    plan_path = project_root / "workflow_composition_plan.json"
+    plan_metrics, plan_findings = validate_composition_plan(
+        plan_path,
+        strict_social_ad=strict_social_ad,
+        max_overlay_units=max_overlay_units,
+    )
+    metrics.update(plan_metrics)
+    findings.extend(plan_findings)
+
     return metrics, findings
 
 
@@ -491,6 +827,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--min-pip-slots", type=int, default=4, help="minimum cue-bound PiP slots per project in strict mode")
     parser.add_argument("--min-pip-match-score", type=float, default=1.0, help="minimum manifest match_score for PiP slots")
     parser.add_argument("--max-caption-units", type=float, default=DEFAULT_MAX_CAPTION_UNITS, help="single-line caption display unit limit")
+    parser.add_argument("--max-overlay-units", type=float, default=DEFAULT_MAX_OVERLAY_UNITS, help="editorial overlay display unit limit")
     parser.add_argument("--allow-workflow-labels", action="store_true", help="allow visible workflow/HyperFrames labels")
     parser.add_argument("--allow-missing-manifest-hint", action="store_true", help="do not fail PiP slots without video manifest hints")
     parser.add_argument("--write-report", type=Path, help="write JSON validation report")
@@ -511,6 +848,7 @@ def main() -> int:
         metrics, findings = validate_project(
             project_root,
             max_caption_units=args.max_caption_units,
+            max_overlay_units=args.max_overlay_units,
             min_pip_slots=args.min_pip_slots,
             min_pip_match_score=args.min_pip_match_score,
             strict_social_ad=args.strict_social_ad,
