@@ -433,7 +433,7 @@ def canonical_layer_name(raw_name: Any, value: Any = None) -> str | None:
 def overlay_summary_text(overlay: Any) -> str:
     candidates: list[Any] = []
     if isinstance(overlay, dict):
-        for key in ("core_word", "core_phrase", "summary", "display_text", "text", "copy"):
+        for key in ("core_title", "core_word", "core_phrase", "summary", "display_text", "text", "copy"):
             candidates.append(overlay.get(key))
     elif isinstance(overlay, list):
         for item in overlay:
@@ -445,6 +445,22 @@ def overlay_summary_text(overlay: Any) -> str:
         if text:
             return text
     return ""
+
+
+def overlay_has_segment_source(overlay: Any) -> bool:
+    if isinstance(overlay, dict):
+        source_cues = overlay.get("source_cue_ids") or overlay.get("cue_ids") or overlay.get("source_cues")
+        source_text = overlay.get("source_text") or overlay.get("source_excerpt") or overlay.get("source_paragraph")
+        reason = overlay.get("match_reason") or overlay.get("extraction_reason") or overlay.get("selection_reason")
+        if isinstance(source_cues, list) and source_cues:
+            return True
+        if normalize_ws(str(source_text or "")):
+            return True
+        if normalize_ws(str(reason or "")):
+            return True
+    if isinstance(overlay, list):
+        return any(overlay_has_segment_source(item) for item in overlay)
+    return False
 
 
 def content_subtypes_from_segment(segment: dict[str, Any]) -> set[str]:
@@ -800,13 +816,23 @@ def validate_composition_plan(
         if isinstance(background, dict):
             findings.extend(validate_background_surface(background, path, "background_video"))
 
-        overlay_text = overlay_summary_text(details.get("editorial_overlay") or segment.get("editorial_overlay") or segment.get("big_text"))
+        overlay_data = details.get("editorial_overlay") or segment.get("editorial_overlay") or segment.get("big_text")
+        overlay_text = overlay_summary_text(overlay_data)
         if strict_social_ad and "editorial_overlay" in layers and not overlay_text:
             findings.append(
                 Finding(
                     "fail",
                     "editorial_overlay_missing_summary",
                     "editorial overlay must contain a core word, phrase, or one-sentence summary",
+                    path,
+                )
+            )
+        if strict_social_ad and overlay_text and not overlay_has_segment_source(overlay_data):
+            findings.append(
+                Finding(
+                    "fail",
+                    "editorial_overlay_missing_segment_source",
+                    "editorial overlay must record source_cue_ids/source_text/match_reason for paragraph-level title extraction",
                     path,
                 )
             )

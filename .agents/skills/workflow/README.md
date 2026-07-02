@@ -129,7 +129,7 @@ Each segment must declare four visual layers in `workflow_composition_plan.json`
 - `background_video`: a continuous background throughline, usually from `projects/素材/漫剧素材/纯漫剧素材/`, with `mask: none` and `opacity: 1`.
 - `semantic_pip`: cue-bound picture-in-picture evidence matched to the script.
 - `dialogue_caption`: subtitle cues following the script/audio clock.
-- `editorial_overlay`: one core word or short sentence summarizing the segment.
+- `editorial_overlay`: one semantic paragraph title or short sentence extracted from the segment's own script cues, with source cue/text evidence.
 
 The plan should expose `background_throughline` and `timeline_segments` so `validate_visual_contract.py --strict-social-ad` can check that the video is not just random script-driven asset rotation.
 

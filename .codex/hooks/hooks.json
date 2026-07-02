@@ -1,0 +1,14 @@
+{
+  "UserPromptSubmit": [
+    {
+      "matcher": "*",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PROJECT_DIR:-$PWD}/.codex/hooks/update_version_for_github_push.py\" --hook",
+          "timeout": 10
+        }
+      ]
+    }
+  ]
+}

@@ -110,7 +110,7 @@
 | background_throughline continuous, mask=none and opacity=1 |  |  |
 | content subtypes comic_drama/tool_demo/revenue_proof covered or exception recorded |  |  |
 | every segment declares background/PiP/caption/editorial overlay layers |  |  |
-| editorial overlays are core words or short summaries |  |  |
+| editorial overlays are semantic paragraph titles with source cue/text evidence |  |  |
 
 ## Repair Log
 
