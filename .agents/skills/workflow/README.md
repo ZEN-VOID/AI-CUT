@@ -151,5 +151,5 @@ npx hyperframes render
 Render is required by default for ordinary workflow tasks. Only explicit plan-only, audit-only, asset-evidence-only, no-render requests, or dependency blockers may stop before final MP4, and the report must state the exception.
 Browser/page preview is not a final output; ordinary workflow tasks must produce a local canonical MP4 under the configured output root.
 
-For dialogue-caption projects, final render cannot pass only on `manual_script_audio_duration`, equal-split timing, or preview cue notes. `dialogue_sync_validation.json` must be pass, or the route returns to `repair_dialogue_timing`.
+For dialogue-caption projects, final render cannot pass only on `manual_script_audio_duration`, equal-split timing, preview cue notes, or visually plausible but shuffled subtitle text. `dialogue_sync_validation.json` must be pass, including cue timing, sortable script order, per-cue audio anchors, and HTML `data-cue-id` / timing / text alignment, or the route returns to `repair_dialogue_timing`.
 For current `projects/内容/文案/` + `projects/内容/音频/` routes, run the dialogue validator with `--require-script-audio-pair` and record `source_script`, `source_audio`, and the shared stem.

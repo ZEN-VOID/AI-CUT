@@ -60,6 +60,23 @@ STEM_SOURCE_KEYS = (
     "stem",
 )
 
+SCRIPT_ORDER_KEYS = (
+    "script_order",
+    "source_order",
+    "caption_order",
+    "sequence",
+    "script_index",
+    "source_index",
+    "sentence_index",
+    "line_index",
+    "line_no",
+    "line",
+    "start_char",
+    "char_start",
+    "start_index",
+    "offset_start",
+)
+
 
 @dataclass
 class Finding:
@@ -80,6 +97,7 @@ class NormalizedCue:
     spoken_text: str
     display_text: str
     script_anchor: Any
+    script_order: float | None
     sync_method: str
     audio_anchor: Any
     tolerance_ms: float | None
@@ -88,6 +106,7 @@ class NormalizedCue:
 @dataclass
 class HtmlCaption:
     element_id: str
+    cue_id: str
     start: float
     end: float
     text: str
@@ -109,6 +128,7 @@ class CaptionHTMLParser(HTMLParser):
                 {
                     "depth": 1,
                     "id": element_id,
+                    "cue_id": first_present(attr, ("data-cue-id", "data-cue", "data-caption-id", "data-id"), ""),
                     "start": attr.get("data-start", ""),
                     "duration": attr.get("data-duration", ""),
                     "text_parts": [],
@@ -129,7 +149,7 @@ class CaptionHTMLParser(HTMLParser):
         if start is None or duration is None:
             return
         text = normalize_ws("".join(current["text_parts"]))
-        self.captions.append(HtmlCaption(current["id"], start, start + duration, text))
+        self.captions.append(HtmlCaption(current["id"], current["cue_id"], start, start + duration, text))
 
     def handle_data(self, data: str) -> None:
         if self._stack:
@@ -356,6 +376,9 @@ def normalize_cue(raw: dict[str, Any], index: int, global_method: str, default_t
     display_text = str(first_present(raw, ("display_text", "caption", "subtitle", "text"), ""))
     caption_type = first_present(raw, ("caption_type", "type", "cue_type"), None)
     script_anchor = first_present(raw, ("script_span", "script_anchor", "script_source_span", "source_span"), None)
+    script_order = script_order_from(first_present(raw, SCRIPT_ORDER_KEYS, None))
+    if script_order is None:
+        script_order = script_order_from(script_anchor)
     sync_method = str(first_present(raw, ("sync_method", "clock_method", "method"), global_method or ""))
     audio_anchor = first_present(raw, ("audio_anchor", "audio_anchors", "transcript_anchor", "transcript_segment", "anchor"), None)
     tolerance = parse_float(first_present(raw, ("tolerance_ms", "sync_tolerance_ms", "max_offset_ms"), default_tolerance_ms))
@@ -371,6 +394,7 @@ def normalize_cue(raw: dict[str, Any], index: int, global_method: str, default_t
         spoken_text=spoken_text,
         display_text=display_text,
         script_anchor=script_anchor,
+        script_order=script_order,
         sync_method=sync_method,
         audio_anchor=audio_anchor,
         tolerance_ms=tolerance,
@@ -427,6 +451,23 @@ def anchor_window(anchor: Any) -> tuple[float | None, float | None]:
     return start, end
 
 
+def script_order_from(value: Any) -> float | None:
+    if isinstance(value, list):
+        orders = [script_order_from(item) for item in value]
+        numeric_orders = [item for item in orders if item is not None]
+        return min(numeric_orders) if numeric_orders else None
+    if isinstance(value, dict):
+        direct = first_present(value, SCRIPT_ORDER_KEYS, None)
+        order = parse_float(direct)
+        if order is not None:
+            return order
+        for nested_key in ("span", "script_span", "source_span", "anchor", "range"):
+            order = script_order_from(value.get(nested_key))
+            if order is not None:
+                return order
+    return parse_float(value)
+
+
 def text_match_score(a: str, b: str) -> float:
     left = normalize_text(a)
     right = normalize_text(b)
@@ -481,9 +522,27 @@ def validate_alignment(
     if strict_final and is_preview_only(global_method):
         findings.append(Finding("fail", "preview_only_timing", "alignment metadata says timing is preview/draft or not strict"))
 
+    seen_cue_ids: dict[str, int] = {}
+    for cue in cues:
+        if cue.cue_id in seen_cue_ids:
+            findings.append(
+                Finding(
+                    "fail",
+                    "duplicate_cue_id",
+                    f"cue id {cue.cue_id!r} duplicates cue[{seen_cue_ids[cue.cue_id]}]",
+                    f"cue[{cue.index}]/{cue.cue_id}",
+                )
+            )
+        else:
+            seen_cue_ids[cue.cue_id] = cue.index
+
     previous_end: float | None = None
+    previous_dialogue_script_order: float | None = None
+    previous_audio_anchor_end: float | None = None
     dialogue_count = 0
     editorial_count = 0
+    script_order_count = 0
+    audio_anchor_count = 0
     for cue in cues:
         path = f"cue[{cue.index}]/{cue.cue_id}"
         if cue.start is None or cue.end is None:
@@ -503,6 +562,28 @@ def validate_alignment(
 
         if inferred_dialogue:
             dialogue_count += 1
+            if cue.script_order is None:
+                if strict_final:
+                    findings.append(
+                        Finding(
+                            "fail",
+                            "missing_script_order",
+                            "strict dialogue cue must include sortable script order evidence such as script_order or script_span.start_char",
+                            path,
+                        )
+                    )
+            else:
+                script_order_count += 1
+                if previous_dialogue_script_order is not None and cue.script_order < previous_dialogue_script_order - 0.001:
+                    findings.append(
+                        Finding(
+                            "fail",
+                            "script_order_regression",
+                            f"dialogue cue script order regresses from {previous_dialogue_script_order:g} to {cue.script_order:g}",
+                            path,
+                        )
+                    )
+                previous_dialogue_script_order = cue.script_order
             if not normalize_ws(cue.spoken_text):
                 findings.append(Finding("fail", "missing_spoken_text", "dialogue cue must include spoken_text/text", path))
             if not normalize_ws(cue.display_text):
@@ -520,6 +601,17 @@ def validate_alignment(
                 if anchor_start is None or anchor_end is None:
                     findings.append(Finding("fail", "missing_audio_anchor_time", "audio anchor must include numeric start/end", path))
                 else:
+                    audio_anchor_count += 1
+                    if previous_audio_anchor_end is not None and anchor_start < previous_audio_anchor_end - 0.02:
+                        findings.append(
+                            Finding(
+                                "fail",
+                                "audio_anchor_order_regression",
+                                f"audio anchor starts before the previous dialogue audio anchor ended ({anchor_start:.3f}s < {previous_audio_anchor_end:.3f}s)",
+                                path,
+                            )
+                        )
+                    previous_audio_anchor_end = max(previous_audio_anchor_end if previous_audio_anchor_end is not None else anchor_end, anchor_end)
                     tolerance = cue.tolerance_ms or (100.0 if (cue.end - cue.start) <= 1.5 else default_tolerance_ms)
                     start_delta = abs((cue.start - anchor_start) * 1000.0)
                     end_delta = abs((cue.end - anchor_end) * 1000.0)
@@ -553,6 +645,9 @@ def validate_alignment(
 
     metrics["dialogue_caption_count"] = dialogue_count
     metrics["editorial_overlay_count"] = editorial_count
+    metrics["cue_ids"] = [cue.cue_id for cue in cues]
+    metrics["script_order_count"] = script_order_count
+    metrics["audio_anchor_count"] = audio_anchor_count
     return cues, findings, metrics
 
 
@@ -567,7 +662,13 @@ def parse_html_captions(path: Path) -> tuple[list[HtmlCaption], list[Finding]]:
     return parser.captions, []
 
 
-def validate_html_timeline(cues: list[NormalizedCue], html_captions: list[HtmlCaption], dom_tolerance_ms: float) -> list[Finding]:
+def validate_html_timeline(
+    cues: list[NormalizedCue],
+    html_captions: list[HtmlCaption],
+    dom_tolerance_ms: float,
+    *,
+    require_html_cue_ids: bool,
+) -> list[Finding]:
     findings: list[Finding] = []
     dialogue_cues = [cue for cue in cues if cue.caption_type == "dialogue_caption"]
     if not dialogue_cues:
@@ -584,10 +685,54 @@ def validate_html_timeline(cues: list[NormalizedCue], html_captions: list[HtmlCa
             )
         )
 
-    for cue, caption in zip(dialogue_cues, html_captions):
+    previous_html_start: float | None = None
+    seen_html_cue_ids: dict[str, str] = {}
+    for caption in html_captions:
+        locator = f"html/{caption.element_id or caption.cue_id or 'caption'}"
+        if previous_html_start is not None and caption.start < previous_html_start - 0.02:
+            findings.append(
+                Finding(
+                    "fail",
+                    "html_caption_order_regression",
+                    "HTML caption DOM order is not monotonic by data-start; render order may scramble subtitles",
+                    locator,
+                )
+            )
+        previous_html_start = max(previous_html_start if previous_html_start is not None else caption.start, caption.start)
+        if require_html_cue_ids and not caption.cue_id:
+            findings.append(Finding("fail", "html_missing_cue_id", "strict final captions must include data-cue-id", locator))
+        if caption.cue_id:
+            if caption.cue_id in seen_html_cue_ids:
+                findings.append(
+                    Finding(
+                        "fail",
+                        "duplicate_html_cue_id",
+                        f"HTML cue id {caption.cue_id!r} duplicates {seen_html_cue_ids[caption.cue_id]}",
+                        locator,
+                    )
+                )
+            else:
+                seen_html_cue_ids[caption.cue_id] = locator
+
+    timeline_cues = sorted(
+        [cue for cue in dialogue_cues if cue.start is not None and cue.end is not None],
+        key=lambda cue: (cue.start or 0.0, cue.end or 0.0, cue.index),
+    )
+    timeline_captions = sorted(html_captions, key=lambda caption: (caption.start, caption.end, caption.element_id))
+
+    for cue, caption in zip(timeline_cues, timeline_captions):
         path = f"html/{caption.element_id or cue.cue_id}"
         if cue.start is None or cue.end is None:
             continue
+        if caption.cue_id and caption.cue_id != cue.cue_id:
+            findings.append(
+                Finding(
+                    "fail",
+                    "html_cue_id_mismatch",
+                    f"HTML data-cue-id {caption.cue_id!r} does not match timeline cue id {cue.cue_id!r}",
+                    path,
+                )
+            )
         start_delta = abs((cue.start - caption.start) * 1000.0)
         end_delta = abs((cue.end - caption.end) * 1000.0)
         if start_delta > dom_tolerance_ms or end_delta > dom_tolerance_ms:
@@ -713,13 +858,20 @@ def main(argv: list[str] | None = None) -> int:
         html_captions, html_findings = parse_html_captions(html_path)
         findings.extend(html_findings)
         if not html_findings:
-            findings.extend(validate_html_timeline(cues, html_captions, args.dom_tolerance_ms))
+            findings.extend(
+                validate_html_timeline(
+                    cues,
+                    html_captions,
+                    args.dom_tolerance_ms,
+                    require_html_cue_ids=args.strict_final,
+                )
+            )
             metrics["html_caption_count"] = len(html_captions)
 
     fail_count = sum(1 for finding in findings if finding.severity == "fail")
     warn_count = sum(1 for finding in findings if finding.severity == "warn")
     report = {
-        "schema": "workflow_dialogue_sync_validation.v1",
+        "schema": "workflow_dialogue_sync_validation.v2",
         "project_root": str(project_root),
         "alignment_path": str(alignment_path),
         "html_path": str(html_path) if not args.no_html else None,

@@ -34,8 +34,8 @@
 | asset usage ledger | `asset_usage_ledger.json` | batch / semantic-equivalent scripts require before/after usage records |  |
 | material usage monitor | `projects/素材使用监控.csv` | global four-column monitor: 素材名 / 文件路径 / 使用次数 / 使用程度 |  |
 | asset diversity audit | `asset_diversity_audit.json` | batch / semantic-equivalent scripts require variation axes and reuse exceptions |  |
-| dialogue alignment | `dialogue_alignment.json` | include per-cue audio anchors, script spans, caption type, sync method, and tolerance/conditional notes |  |
-| dialogue sync validation | `dialogue_sync_validation.json` | final route requires `validate_dialogue_sync.py --strict-final` pass; fail returns to `N4` |  |
+| dialogue alignment | `dialogue_alignment.json` | include per-cue audio anchors, script spans, script order, caption type, sync method, and tolerance/conditional notes |  |
+| dialogue sync validation | `dialogue_sync_validation.json` | final route requires `validate_dialogue_sync.py --strict-final` pass for timing, script/audio order, and HTML cue-id mapping; fail returns to `N4` |  |
 | visual contract validation | `visual_contract_validation.json` | final/social-ad/batch routes require audience-visible text, caption, overlay, PiP, layered assembly and ledger checks |  |
 | reference rhythm | `reference_rhythm.json` |  |  |
 | storyboard | `STORYBOARD.md` |  |  |
@@ -71,7 +71,7 @@
 | --- | --- | --- | --- |
 | `C1-INPUT-LOCKED` |  |  |  |
 | `C2-EVIDENCE-READY` |  |  |  |
-| `C3-DIALOGUE-CLOCKED` |  | `dialogue_alignment.json` + `dialogue_sync_validation.json` pass; current素材池 route includes `--require-script-audio-pair` evidence | `N4-DIALOGUE-CLOCK` |
+| `C3-DIALOGUE-CLOCKED` |  | `dialogue_alignment.json` + `dialogue_sync_validation.json` pass, including script order/audio anchor order/HTML cue-id mapping; current素材池 route includes `--require-script-audio-pair` evidence | `N4-DIALOGUE-CLOCK` |
 | `C4-PLAN-LOCKED` |  | `workflow_composition_plan.json` with layered assembly, `background_throughline mask=none opacity=1`, and `asset_diversity_audit.json` for batch / semantic-equivalent scripts | `N5-STORYBOARD-PLAN` |
 | `C6-PREVIEW-VALIDATED` |  |  |  |
 | `C7-RENDER-VERIFIED` |  | local MP4 render evidence plus current dialogue sync and visual contract validation | `N8-RENDER-VERIFY` |

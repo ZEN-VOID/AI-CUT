@@ -45,6 +45,11 @@
     "expected": "路由到 full_hyperframes_edit 或 repair_dialogue_timing；N4 必须建立 audio-clocked dialogue_alignment.json，优先使用 SRT/ASR，ASR 不可用时逐 cue 人工校时并记录音频锚点；必须运行 scripts/validate_dialogue_sync.py --strict-final 并保存 dialogue_sync_validation.json；全片比例分配、缺 caption_type/audio_anchor 或仅 manual_script_audio_duration 不能作为 C3/C7 pass。"
   },
   {
+    "id": "workflow-dialogue-caption-order-hard-gate",
+    "prompt": "使用 workflow 修复成片：声音和字幕不同步，而且字幕顺序错乱，第二句显示成了后面的台词。",
+    "expected": "路由到 repair_dialogue_timing；回 N4 重新建立 dialogue_alignment.json，不只改 HTML 文本；每条 dialogue_caption cue 必须有 caption_type、start/end、spoken_text/display_text、script_anchor、script_order 或 script_span.start_char、sync_method、audio_anchor；N6 的字幕 DOM 必须用 data-cue-id 回指同一 cue；validate_dialogue_sync.py --strict-final 应阻断 script_order_regression、audio_anchor_order_regression、html_cue_id_mismatch、html_caption_order_regression 或 html_text_mismatch，失败时 C3/C7 不得 pass。"
+  },
+  {
     "id": "workflow-dialogue-sync-validator-blocks-preview-cues",
     "prompt": "使用 workflow 审查一个已有最终视频，报告里说字幕只是按总时长人工切分、final 前建议补跑转写。",
     "expected": "路由到 audit_existing 或 repair_dialogue_timing；加载 review/ 与 scripts/；validate_dialogue_sync.py --strict-final 应输出 fail，失败码 FAIL-DIALOGUE-CLOCK，返工到 N4，不能把 preview cue 或 manual_script_audio_duration 当最终同步证据。"

@@ -2,3 +2,7 @@
 __pycache__/
 *.pyc
 /projects/素材/
+/projects/素材使用监控.csv
+/projects/output/
+/PRPs/
+/reports/

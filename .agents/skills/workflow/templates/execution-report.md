@@ -59,7 +59,7 @@
 | asset usage ledger | `asset_usage_ledger.json` | before/after usage counts, planned usage, actual usage |  |
 | material usage monitor | `projects/素材使用监控.csv` | global usage counts by material path and usage degree (`全片` / `部分切片`) updated after final verification |  |
 | platform dedup diversity | `asset_diversity_audit.json` / `workflow_composition_plan.json` | variation axes, reuse penalties, duplicate exceptions |  |
-| dialogue clock | `dialogue_alignment.json` / `dialogue_sync_validation.json` | per-cue anchors, script spans, caption types, validator verdict |  |
+| dialogue clock | `dialogue_alignment.json` / `dialogue_sync_validation.json` | per-cue anchors, script spans, script order, caption types, HTML cue-id mapping, validator verdict |  |
 | visual contract | `visual_contract_validation.json` | audience-visible text, caption integrity, overlay/PiP and ledger checks |  |
 | composition plan |  |  |  |
 | preview validation |  |  |  |

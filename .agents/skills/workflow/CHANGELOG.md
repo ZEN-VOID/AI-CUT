@@ -8,6 +8,7 @@
 - Updated the shared asset taxonomy: `projects/素材/` remains the visual/keyword material pool, while `projects/内容/文案/` and `projects/内容/音频/` are the current batch script and same-stem voiceover pools.
 - Added script/audio pairing rules: `文案N.txt` must pair with `文案N.mp3`, while `BGM.*` is treated only as background music, not the narration clock.
 - Synced README, context memories, positive/negative examples and regression prompts so batch workflows build `script_audio_pair_map` before dialogue timing.
+- Hardened dialogue-caption order gates: strict final sync now requires script-order evidence, per-cue audio-anchor order, HTML `data-cue-id` mapping and monotonic caption timeline checks so shuffled subtitles cannot pass final validation.
 
 ## 2026-06-30
 

@@ -10,7 +10,7 @@
 | Input | full build 是否有内容真源、主时钟方案、素材池或生成授权？ | 缺最小输入且未降级 route | `N1-INTAKE` |
 | Reference | 参考视频是否只用于 rhythm/style？ | 参考画面或素材进入成片候选 | `N3-MEDIA-EVIDENCE` |
 | Evidence | 每个进入成片的素材是否有视觉证据和用途？ | 无 source anchor 或用途不清 | `N3-MEDIA-EVIDENCE` |
-| Dialogue | 台词字幕 cue 是否能追踪到音频/脚本，并满足同步容差或有逐 cue 人工校时证据，且 `validate_dialogue_sync.py --strict-final` 通过？当前 `projects/内容/文案/` 与 `projects/内容/音频/` 批量输入是否按同名 stem 配对并显式记录路径？ | 全片比例分配、语义错配、跨 stem 错配音频、把 `BGM.*` 当旁白主时钟、缺 `selected_script_audio_pair` / `source_script` / `source_audio` / `script_audio_stem`、缺 `caption_type`/`audio_anchor`/脚本锚点、仅按总时长手工分配却声称严格同步、validator fail | `N1/N4-DIALOGUE-CLOCK` |
+| Dialogue | 台词字幕 cue 是否能追踪到音频/脚本，按脚本顺序和音频 anchor 顺序单调推进，HTML 字幕是否用 `data-cue-id` 回指同一 cue，并满足同步容差或有逐 cue 人工校时证据，且 `validate_dialogue_sync.py --strict-final` 通过？当前 `projects/内容/文案/` 与 `projects/内容/音频/` 批量输入是否按同名 stem 配对并显式记录路径？ | 全片比例分配、语义错配、字幕顺序错乱、HTML cue-id/time/text 错配、跨 stem 错配音频、把 `BGM.*` 当旁白主时钟、缺 `selected_script_audio_pair` / `source_script` / `source_audio` / `script_audio_stem`、缺 `caption_type`/`audio_anchor`/脚本锚点/script order、仅按总时长手工分配却声称严格同步、validator fail | `N1/N4-DIALOGUE-CLOCK` |
 | Plan | storyboard 是否覆盖 hook/content/CTA 三段、背景 throughline、字幕、主视觉、PiP、大字报、转场和 BGM？ | 计划缺段落、缺四层、背景拉通证据不足、背景使用蒙版/opacity/半透明遮罩，或缺素材/字幕 cue 证据 | `N5-STORYBOARD-PLAN` |
 | Composition | DOM timing、media 引用、assets、captions 是否可定位？ | HyperFrames core 合同断裂 | `N6-HYPERFRAMES-AUTHOR` |
 | Visual Contract | `validate_visual_contract.py` 是否通过，且报告覆盖观众可见文本、主字幕、大字报、PiP、三段四层 assembly 和批量 ledger/audit？ | 内部提示可见、缺 hook/content/CTA、缺背景/PiP/字幕/大字报层、背景 throughline 非连续/加蒙版/降低 opacity/半透明遮罩、字幕缺失/叠显/省略号/换行、大字报整句重复字幕、PiP 太少/无 cue 依据/0 分 manifest 回指、批量 audit 不一致 | `N4/N5/N6/N7` |
@@ -27,7 +27,7 @@
 - `loaded_modules`: 实际加载的 HyperFrames 子技能和本地模块。
 - `artifact_paths`: work root、process root、composition root、snapshot、render、report。
 - `output_topology`: shared asset roots、output date root、process root、single final root、batch final collection root、canonical final path。
-- `dialogue_sync_validation`: final route must include validator command, JSON report path, verdict and fail/warn count; current `projects/内容/文案/` + `projects/内容/音频/` routes must include `--require-script-audio-pair`.
+- `dialogue_sync_validation`: final route must include validator command, JSON report path, verdict, fail/warn count, script-order evidence, audio-anchor order evidence and HTML cue-id mapping; current `projects/内容/文案/` + `projects/内容/音频/` routes must include `--require-script-audio-pair`.
 - `visual_contract_validation`: social-ad, batch, visual repair and final routes must include validator command, JSON report path, verdict and fail/warn count, including no background mask/opacity findings.
 - `material_usage_monitor`: final routes that use shared assets must include `projects/素材使用监控.csv`, `update_asset_usage_monitor.py` command/output, and confirmation that `使用程度` values are `全片` or `部分切片`.
 - `layered_assembly`: `workflow_composition_plan.json` must include `background_throughline` and `timeline_segments` evidence for hook/content/CTA and the four visual layers.

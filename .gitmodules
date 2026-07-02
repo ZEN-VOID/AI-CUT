@@ -1,6 +1,4 @@
-[submodule ".agents/skills/video-use"]
-	path = .agents/skills/video-use
-	url = https://github.com/browser-use/video-use.git
 [submodule ".agents/skills/video-editing-skill"]
 	path = .agents/skills/video-editing-skill
 	url = https://github.com/maxazure/video-editing-skill.git
+	ignore = untracked

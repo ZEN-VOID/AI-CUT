@@ -26,8 +26,11 @@ Validates that `dialogue_alignment.json` is final-ready for dialogue captions:
 - rejects missing or mismatched `source_script` / `source_audio` / shared stem when `--require-script-audio-pair` is used for current `projects/内容/文案` + `projects/内容/音频` routes;
 - rejects `BGM.*` as the dialogue audio clock;
 - requires each `dialogue_caption` cue to declare timing, script anchor, caption type, sync method, audio anchor and tolerance evidence;
+- requires strict final dialogue cues to expose sortable script order evidence such as `script_order` or `script_span.start_char`;
+- rejects cue/script/audio-anchor order regressions so shuffled subtitles cannot pass as final-ready captions;
 - compares cue timing against per-cue audio anchors;
-- compares HyperFrames `index.html` caption `data-start` / `data-duration` values against `dialogue_alignment.json`;
+- compares HyperFrames `index.html` caption `data-cue-id` / `data-start` / `data-duration` / text values against `dialogue_alignment.json`;
+- rejects missing `data-cue-id`, duplicate cue IDs, cue-id mismatches and non-monotonic HTML caption order in strict final mode;
 - emits JSON and exits non-zero on blocking failures.
 
 Typical final gate:
@@ -43,8 +46,9 @@ python3 .agents/skills/workflow/scripts/validate_dialogue_sync.py --strict-final
 ```
 
 This validator cannot prove spoken phonemes by itself. It proves that the final
-project has the required per-cue evidence and that the composition did not drift
-from that evidence. ASR/SRT or manual listening still happens in `N4`.
+project has the required per-cue evidence, that cue order follows the source
+script/audio anchors, and that the composition did not drift from that evidence.
+ASR/SRT or manual listening still happens in `N4`.
 
 Smoke fixture:
 
