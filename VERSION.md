@@ -1,9 +1,9 @@
 # VERSION
 
-当前版本：`V1.0.1`
+当前版本：`V1.0.2`
 版本状态：期初基线
 初始化日期：2026-07-02
-最后更新：2026-07-02 03:38 UTC
+最后更新：2026-07-03 03:51 UTC
 
 ## 版本语义
 
@@ -30,6 +30,7 @@
 ## 版本记录
 
 <!-- version-hook:history:start -->
+- 2026-07-03 03:51 UTC：`V1.0.1` -> `V1.0.2`（小更新；github-push 自动更新；scope: workflow skill update）。
 - 2026-07-02 03:38 UTC：`V1.0` -> `V1.0.1`（小更新；github-push 自动更新；scope: workflow skill update）。
 - 2026-07-02 03:30 UTC：初始化当前版本为 `V1.0`，建立期初基线和小/中/大跨代规则。
 <!-- version-hook:history:end -->

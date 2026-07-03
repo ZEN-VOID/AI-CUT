@@ -4,6 +4,8 @@ Workflow is a HyperFrames-native workflow for legacy F1/F2-style reference-rhyth
 
 Use workflow when the user wants a script/voiceover/media/reference package turned into a previewable, validated, and finally rendered HyperFrames video, with captions, overlays, PiP, transitions, BGM and final validation handled through `.agents/skills/hyperframes/`.
 
+Default audience is short-video platform C-end viewers or external potential customers, not internal learning, project review, or team training. Audience-visible titles, captions, overlays, PiP labels and CTA copy must read like public-facing video language.
+
 Default video aspect ratio is `16:9` (`1920x1080`). Use another ratio only when the user explicitly asks for it, a named platform/spec requires it, or the project source of truth has already locked that format.
 
 ## Runtime Boundary
@@ -120,16 +122,16 @@ When both `projects/内容/文案/文案N.txt` and `projects/内容/音频/文�
 
 workflow videos should be planned as a rhythm structure before assets are placed. For social ads, viral openings and batch videos, the default structure is:
 
-- `hook_opening`: viral opening material that establishes the first 3-5 seconds.
+- `hook_opening`: opening material from `projects/素材/开头素材/` or equivalent `opening_hook`, shown full-frame for a 5-10 second span while the first 3-5 seconds establish the hook.
 - `content_body`: the main content, with comic-drama, tool/workflow and revenue/proof material all covered or explicitly marked unavailable.
-- `private_traffic_cta`: private-domain or next-action traffic segment.
+- `private_traffic_cta`: private-domain or next-action traffic segment; traffic material should use native-scale/contain framing and must not be enlarged.
 
 Each segment must declare four visual layers in `workflow_composition_plan.json`:
 
 - `background_video`: a continuous background throughline, usually from `projects/素材/漫剧素材/纯漫剧素材/`, with `mask: none` and `opacity: 1`.
-- `semantic_pip`: cue-bound picture-in-picture evidence matched to the script.
+- `semantic_pip`: cue-bound picture-in-picture evidence matched to the script, including at least one simultaneous multi-window grid group for strict social-ad/batch routes.
 - `dialogue_caption`: subtitle cues following the script/audio clock.
-- `editorial_overlay`: one semantic paragraph title or short sentence extracted from the segment's own script cues, with source cue/text evidence.
+- `editorial_overlay`: one semantic paragraph title or short sentence extracted from the segment's own matched script cues, with source cue/text/reason evidence. It must not show internal labels such as 工作流程, 内部学习交流, 项目复盘, pipeline, or workflow as the left-corner/title text.
 
 The plan should expose `background_throughline` and `timeline_segments` so `validate_visual_contract.py --strict-social-ad` can check that the video is not just random script-driven asset rotation.
 

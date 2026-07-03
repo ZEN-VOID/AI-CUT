@@ -4,8 +4,9 @@
 This validator is intentionally mechanical. It does not generate copy, choose
 assets, infer storyboard intent, or render video. It checks that an authored
 HyperFrames project exposes the evidence needed for workflow visual gates: audience
-text hygiene, dialogue-caption/editorial-overlay separation, caption fit, PiP
-cue binding, layered video assembly, and batch diversity ledger consistency.
+text hygiene, internal process-title blocking, dialogue-caption/editorial-overlay
+separation, caption fit, PiP cue binding, layered video assembly, and batch
+diversity ledger consistency.
 """
 
 from __future__ import annotations
@@ -30,7 +31,18 @@ WORKFLOW_WATERMARK_PATTERNS = (
     # Legacy labels should not leak into audience-visible output after the F1/F2 merge.
     re.compile(r"\bF2\b", re.IGNORECASE),
     re.compile(r"\bHyperFrames\b", re.IGNORECASE),
+    re.compile(r"\bworkflow\b", re.IGNORECASE),
     re.compile(r"文案\s*\d+"),
+)
+
+INTERNAL_PROCESS_LABEL_PATTERNS = (
+    re.compile(r"工作流程"),
+    re.compile(r"(?:执行流程|操作流程|项目流程|内部流程|流程步骤|流程说明|流程验证|流程复盘|流程图)"),
+    re.compile(r"(?:内部)?(?:学习交流|内部学习|团队复盘|项目复盘|内部培训)"),
+    re.compile(r"(?:证据推进|痛点爆破|创作节点|审查话术|参考节奏)"),
+    re.compile(r"\bpipeline\b", re.IGNORECASE),
+    re.compile(r"\bN[1-9]\s*[-_]", re.IGNORECASE),
+    re.compile(r"\b(?:hook_opening|content_body|private_traffic_cta|semantic_pip|dialogue_caption|editorial_overlay)\b", re.IGNORECASE),
 )
 
 CAPTION_BAD_TEXT_PATTERNS = (
@@ -41,6 +53,60 @@ CAPTION_BAD_TEXT_PATTERNS = (
 
 DEFAULT_MAX_CAPTION_UNITS = 42.0
 DEFAULT_MAX_OVERLAY_UNITS = 28.0
+DEFAULT_MIN_PIP_WIDTH_PX = 260.0
+DEFAULT_MIN_PIP_HEIGHT_PX = 146.0
+DEFAULT_MIN_SIMULTANEOUS_PIPS = 2
+OPENING_MATERIAL_MIN_DURATION = 5.0
+OPENING_MATERIAL_MAX_DURATION = 10.0
+
+BRANCH_EVIDENCE_KEYS = (
+    "asset",
+    "branch",
+    "category",
+    "file",
+    "material",
+    "path",
+    "pool",
+    "source",
+)
+
+FULL_DISPLAY_TOKENS = {
+    "contain",
+    "fit_contain",
+    "scale_down",
+    "full",
+    "full_frame",
+    "fullframe",
+    "no_crop",
+    "native",
+    "native_scale",
+    "letterbox",
+    "complete",
+    "完整",
+    "完整展示",
+    "全貌",
+    "不裁剪",
+    "原始比例",
+}
+
+CROP_OR_UPSCALE_TOKENS = {
+    "cover",
+    "fill",
+    "crop",
+    "cropped",
+    "pan_scan",
+    "panscan",
+    "zoom",
+    "zoom_in",
+    "punch_in",
+    "upscale",
+    "enlarge",
+    "fill_canvas",
+    "background_cover",
+    "裁剪",
+    "填满",
+    "放大",
+}
 
 SEGMENT_ROLE_ALIASES = {
     "hook_opening": {
@@ -309,6 +375,319 @@ def style_value(style: str, property_name: str) -> str | None:
     return normalize_ws(match.group(1))
 
 
+def parse_time_seconds(value: Any) -> float | None:
+    number = parse_float(value)
+    if number is not None:
+        return number
+    if not isinstance(value, str):
+        return None
+    text = normalize_ws(value)
+    match = re.fullmatch(r"(?:(\d+):)?(\d+):(\d+(?:\.\d+)?)", text)
+    if not match:
+        return None
+    hours = float(match.group(1) or 0)
+    minutes = float(match.group(2))
+    seconds = float(match.group(3))
+    return hours * 3600 + minutes * 60 + seconds
+
+
+def duration_from_payload(value: Any) -> float | None:
+    if not isinstance(value, dict):
+        return None
+    for key in ("duration_sec", "duration", "clip_duration", "selected_duration", "source_duration", "display_duration"):
+        duration = parse_time_seconds(value.get(key))
+        if duration is not None:
+            return duration
+    start = parse_time_seconds(value.get("start") or value.get("start_sec") or value.get("in"))
+    end = parse_time_seconds(value.get("end") or value.get("end_sec") or value.get("out"))
+    if start is not None and end is not None and end >= start:
+        return end - start
+    time_range = value.get("time_range") or value.get("range")
+    if isinstance(time_range, dict):
+        start = parse_time_seconds(time_range.get("start"))
+        end = parse_time_seconds(time_range.get("end"))
+        if start is not None and end is not None and end >= start:
+            return end - start
+        return parse_time_seconds(time_range.get("duration"))
+    return None
+
+
+def parse_dimension(value: Any, viewport_px: float) -> float | None:
+    if value in (None, ""):
+        return None
+    if isinstance(value, (int, float)):
+        number = float(value)
+        return number if not math.isnan(number) and not math.isinf(number) else None
+    text = normalize_ws(str(value)).lower()
+    if text.endswith("%"):
+        try:
+            return viewport_px * float(text[:-1].strip()) / 100.0
+        except ValueError:
+            return None
+    match = re.search(r"(-?\d+(?:\.\d+)?)\s*(?:px)?", text)
+    if not match:
+        return None
+    return float(match.group(1))
+
+
+def parse_transform_scale(style_or_transform: str) -> list[float]:
+    scales: list[float] = []
+    text = style_or_transform or ""
+    for match in re.finditer(r"scale(?:3d|x|y)?\s*\(([^)]+)\)", text, re.IGNORECASE):
+        first = match.group(1).split(",")[0].strip()
+        number = parse_float(first)
+        if number is not None:
+            scales.append(number)
+    return scales
+
+
+def extract_scale_values(value: Any) -> list[tuple[str, float]]:
+    values: list[tuple[str, float]] = []
+    if not isinstance(value, dict):
+        return values
+    for key in ("scale", "max_scale", "zoom", "upscale", "upscale_factor", "resize_scale", "render_scale"):
+        if key in value:
+            number = parse_float(value.get(key))
+            if number is not None:
+                values.append((key, number))
+    style = value.get("style") or value.get("css") or value.get("transform")
+    if isinstance(style, str):
+        for number in parse_transform_scale(style):
+            values.append(("style.transform.scale", number))
+        zoom_value = style_value(style, "zoom")
+        if zoom_value is not None:
+            number = parse_float(zoom_value)
+            if number is not None:
+                values.append(("style.zoom", number))
+        transform_value = style_value(style, "transform")
+        if transform_value:
+            for number in parse_transform_scale(transform_value):
+                values.append(("style.transform.scale", number))
+    return values
+
+
+def extract_fit_values(value: Any) -> list[tuple[str, str]]:
+    values: list[tuple[str, str]] = []
+    if not isinstance(value, dict):
+        return values
+    for key in (
+        "fit",
+        "object_fit",
+        "objectFit",
+        "background_size",
+        "backgroundSize",
+        "display_mode",
+        "crop_mode",
+        "framing",
+        "show_mode",
+        "resize_mode",
+        "render_mode",
+    ):
+        if key in value:
+            values.append((key, normalize_token(value.get(key))))
+    style = value.get("style") or value.get("css")
+    if isinstance(style, str):
+        for property_name in ("object-fit", "background-size"):
+            item = style_value(style, property_name)
+            if item is not None:
+                values.append((f"style.{property_name}", normalize_token(item)))
+    return values
+
+
+def has_full_display_evidence(value: Any) -> bool:
+    if not isinstance(value, dict):
+        return False
+    for key in ("full_display", "full_frame", "show_full_frame", "no_crop", "complete_display"):
+        if key in value and truthy_layer(value.get(key)):
+            return True
+    for field, token in extract_fit_values(value):
+        if token in FULL_DISPLAY_TOKENS:
+            return True
+        if field in {"crop_mode", "framing", "display_mode"} and token in {"none", "no", "false", "off", "disabled", "无", "不裁剪"}:
+            return True
+    return False
+
+
+def has_no_upscale_evidence(value: Any) -> bool:
+    if not isinstance(value, dict):
+        return False
+    for key in ("no_upscale", "avoid_upscale", "native_scale", "preserve_native_resolution"):
+        if key in value and truthy_layer(value.get(key)):
+            return True
+    for key in ("upscale", "allow_upscale"):
+        if key in value and not truthy_layer(value.get(key)):
+            return True
+    scales = extract_scale_values(value)
+    if scales and all(number <= 1.001 for _, number in scales):
+        return True
+    for _, token in extract_fit_values(value):
+        if token in {"contain", "scale_down", "native", "native_scale", "no_upscale", "原始比例", "不放大"}:
+            return True
+    return False
+
+
+def validate_no_upscale(value: Any, path: str, scope: str) -> list[Finding]:
+    findings: list[Finding] = []
+    if not isinstance(value, dict):
+        return findings
+    for field, number in extract_scale_values(value):
+        if number > 1.001:
+            findings.append(Finding("fail", f"{scope}_uses_upscale", "traffic/opening material must not be enlarged above native scale", f"{path}.{field}"))
+    for field, token in extract_fit_values(value):
+        if token in CROP_OR_UPSCALE_TOKENS:
+            findings.append(Finding("fail", f"{scope}_uses_cover_or_crop", "material must use contain/full-frame framing, not cover/crop/zoom", f"{path}.{field}"))
+    return findings
+
+
+def iter_branch_evidence_values(value: Any) -> list[str]:
+    if not isinstance(value, dict):
+        return []
+    result: list[str] = []
+    for key, item in value.items():
+        key_token = normalize_token(key)
+        if any(part in key_token for part in BRANCH_EVIDENCE_KEYS):
+            result.extend(iter_text_values(item))
+        if isinstance(item, dict):
+            result.extend(iter_branch_evidence_values(item))
+        elif isinstance(item, list):
+            for child in item:
+                if isinstance(child, dict):
+                    result.extend(iter_branch_evidence_values(child))
+    return result
+
+
+def has_opening_material_evidence(value: Any) -> bool:
+    text = " ".join(iter_branch_evidence_values(value))
+    return bool(re.search(r"projects/素材/开头素材|素材/开头素材|开头素材|\bopening_hook\b", text, re.IGNORECASE))
+
+
+def has_private_traffic_material_evidence(value: Any) -> bool:
+    text = " ".join(iter_branch_evidence_values(value))
+    return bool(re.search(r"projects/素材/引流素材|素材/引流素材|引流素材|\bprivate_traffic_cta\b|\btraffic_cta\b|\bcta_material\b", text, re.IGNORECASE))
+
+
+def representative_payloads(segment: dict[str, Any], details: dict[str, Any], *extra_keys: str) -> list[tuple[str, Any]]:
+    payloads: list[tuple[str, Any]] = [("segment", segment)]
+    for layer_name, item in details.items():
+        payloads.append((f"layers.{layer_name}", item))
+    for key in extra_keys:
+        if key in segment:
+            payloads.append((key, segment.get(key)))
+    return payloads
+
+
+def element_branch_text(element: Element) -> str:
+    parts: list[str] = []
+    for key, value in element.attrs.items():
+        key_token = normalize_token(key)
+        if any(part in key_token for part in BRANCH_EVIDENCE_KEYS):
+            parts.append(value)
+    return " ".join(parts)
+
+
+def element_has_private_traffic_evidence(element: Element) -> bool:
+    return bool(re.search(r"projects/素材/引流素材|素材/引流素材|引流素材|\bprivate_traffic_cta\b|\btraffic_cta\b|\bcta_material\b", element_branch_text(element), re.IGNORECASE))
+
+
+def element_scale_values(element: Element) -> list[tuple[str, float]]:
+    values: list[tuple[str, float]] = []
+    for key in ("data-scale", "data-max-scale", "scale", "data-zoom", "zoom"):
+        number = parse_float(element.attrs.get(key))
+        if number is not None:
+            values.append((key, number))
+    style = element.attrs.get("style", "")
+    for number in parse_transform_scale(style):
+        values.append(("style.transform.scale", number))
+    transform_value = style_value(style, "transform")
+    if transform_value:
+        for number in parse_transform_scale(transform_value):
+            values.append(("style.transform.scale", number))
+    zoom_value = style_value(style, "zoom")
+    if zoom_value is not None:
+        number = parse_float(zoom_value)
+        if number is not None:
+            values.append(("style.zoom", number))
+    return values
+
+
+def element_fit_values(element: Element) -> list[tuple[str, str]]:
+    values: list[tuple[str, str]] = []
+    for key in ("data-fit", "data-object-fit", "data-display-mode", "data-crop-mode", "object-fit"):
+        if element.attrs.get(key):
+            values.append((key, normalize_token(element.attrs.get(key))))
+    style = element.attrs.get("style", "")
+    for property_name in ("object-fit", "background-size"):
+        item = style_value(style, property_name)
+        if item is not None:
+            values.append((f"style.{property_name}", normalize_token(item)))
+    return values
+
+
+def element_has_no_upscale_evidence(element: Element) -> bool:
+    for key in ("data-no-upscale", "data-native-scale", "data-preserve-native-resolution"):
+        if truthy_layer(element.attrs.get(key)):
+            return True
+    scales = element_scale_values(element)
+    if scales and all(number <= 1.001 for _, number in scales):
+        return True
+    return any(token in {"contain", "scale_down", "native", "native_scale", "no_upscale", "不放大"} for _, token in element_fit_values(element))
+
+
+def validate_element_no_upscale(element: Element, html_path: Path, scope: str) -> list[Finding]:
+    findings: list[Finding] = []
+    locator = element.locator(html_path)
+    for field, number in element_scale_values(element):
+        if number > 1.001:
+            findings.append(Finding("fail", f"{scope}_html_uses_upscale", "traffic material must not be enlarged above native scale", f"{locator}.{field}"))
+    for field, token in element_fit_values(element):
+        if token in CROP_OR_UPSCALE_TOKENS:
+            findings.append(Finding("fail", f"{scope}_html_uses_cover_or_crop", "traffic material must use contain/native framing, not cover/crop/zoom", f"{locator}.{field}"))
+    if not element_has_no_upscale_evidence(element):
+        findings.append(Finding("fail", f"{scope}_html_missing_no_upscale", "traffic material must declare no-upscale/native-scale evidence", locator))
+    return findings
+
+
+def element_dimensions(element: Element) -> tuple[float | None, float | None]:
+    style = element.attrs.get("style", "")
+    width = (
+        parse_dimension(element.attrs.get("data-width"), 1920)
+        or parse_dimension(element.attrs.get("width"), 1920)
+        or parse_dimension(style_value(style, "width"), 1920)
+    )
+    height = (
+        parse_dimension(element.attrs.get("data-height"), 1080)
+        or parse_dimension(element.attrs.get("height"), 1080)
+        or parse_dimension(style_value(style, "height"), 1080)
+    )
+    return width, height
+
+
+def max_simultaneous_elements(elements: list[Element]) -> int:
+    timed = [(item.start, item.end) for item in elements if item.start is not None and item.end is not None]
+    if not timed:
+        return 0
+    points = sorted({point for interval in timed for point in interval if point is not None})
+    if len(points) < 2:
+        return len(timed)
+    max_count = 0
+    for left, right in zip(points, points[1:]):
+        mid = (left + right) / 2
+        count = sum(1 for start, end in timed if start is not None and end is not None and start <= mid < end)
+        max_count = max(max_count, count)
+    return max_count
+
+
+def pip_has_grid_evidence(element: Element) -> bool:
+    if normalize_token(element.attrs.get("data-layout")) == "grid":
+        return True
+    if element.attrs.get("data-grid-slot") or element.attrs.get("data-grid-index"):
+        return True
+    return bool(
+        (element.attrs.get("data-grid-row") or element.attrs.get("data-row"))
+        and (element.attrs.get("data-grid-col") or element.attrs.get("data-col"))
+    )
+
+
 def extract_opacity_values(value: Any) -> list[tuple[str, Any]]:
     values: list[tuple[str, Any]] = []
     if isinstance(value, dict):
@@ -448,19 +827,38 @@ def overlay_summary_text(overlay: Any) -> str:
 
 
 def overlay_has_segment_source(overlay: Any) -> bool:
+    def has_cue_source_and_reason(item: dict[str, Any]) -> bool:
+        source_cues = (
+            item.get("source_cue_ids")
+            or item.get("cue_ids")
+            or item.get("source_cues")
+            or item.get("source_cue_id")
+            or item.get("cue_id")
+        )
+        source_text = (
+            item.get("source_text")
+            or item.get("source_excerpt")
+            or item.get("source_paragraph")
+            or item.get("matched_copy")
+            or item.get("matched_script_text")
+            or item.get("script_text")
+        )
+        reason = item.get("match_reason") or item.get("extraction_reason") or item.get("selection_reason")
+        has_cue = bool(source_cues) if not isinstance(source_cues, list) else bool(source_cues)
+        return has_cue and bool(normalize_ws(str(source_text or ""))) and bool(normalize_ws(str(reason or "")))
+
     if isinstance(overlay, dict):
-        source_cues = overlay.get("source_cue_ids") or overlay.get("cue_ids") or overlay.get("source_cues")
-        source_text = overlay.get("source_text") or overlay.get("source_excerpt") or overlay.get("source_paragraph")
-        reason = overlay.get("match_reason") or overlay.get("extraction_reason") or overlay.get("selection_reason")
-        if isinstance(source_cues, list) and source_cues:
-            return True
-        if normalize_ws(str(source_text or "")):
-            return True
-        if normalize_ws(str(reason or "")):
-            return True
+        return has_cue_source_and_reason(overlay)
     if isinstance(overlay, list):
         return any(overlay_has_segment_source(item) for item in overlay)
     return False
+
+
+def internal_process_label_match(text: str) -> str | None:
+    for pattern in INTERNAL_PROCESS_LABEL_PATTERNS:
+        if pattern.search(text):
+            return pattern.pattern
+    return None
 
 
 def content_subtypes_from_segment(segment: dict[str, Any]) -> set[str]:
@@ -565,6 +963,16 @@ def validate_text_hygiene(elements: list[Element], html_path: Path, *, allow_wor
                             element.locator(html_path),
                         )
                     )
+        process_match = internal_process_label_match(text)
+        if process_match:
+            findings.append(
+                Finding(
+                    "fail",
+                    "internal_process_title_visible",
+                    f"audience-visible text contains an internal process or learning label: {text[:120]}",
+                    element.locator(html_path),
+                )
+            )
     return findings
 
 
@@ -582,6 +990,14 @@ def validate_background_html(backgrounds: list[Element], html_path: Path) -> lis
             "style": element.attrs.get("style", ""),
         }
         findings.extend(validate_background_surface(payload, locator, "background_html"))
+    return findings
+
+
+def validate_private_traffic_html(elements: list[Element], html_path: Path) -> list[Finding]:
+    findings: list[Finding] = []
+    for element in elements:
+        if element_has_private_traffic_evidence(element):
+            findings.extend(validate_element_no_upscale(element, html_path, "private_traffic"))
     return findings
 
 
@@ -647,7 +1063,16 @@ def validate_captions(
     return findings
 
 
-def validate_pip_html(pips: list[Element], html_path: Path, *, min_pip_slots: int, strict_social_ad: bool) -> list[Finding]:
+def validate_pip_html(
+    pips: list[Element],
+    html_path: Path,
+    *,
+    min_pip_slots: int,
+    min_simultaneous_pips: int,
+    min_pip_width_px: float,
+    min_pip_height_px: float,
+    strict_social_ad: bool,
+) -> list[Finding]:
     findings: list[Finding] = []
     if strict_social_ad and len(pips) < min_pip_slots:
         findings.append(
@@ -658,6 +1083,17 @@ def validate_pip_html(pips: list[Element], html_path: Path, *, min_pip_slots: in
                 str(html_path),
             )
         )
+    if strict_social_ad and pips:
+        simultaneous = max_simultaneous_elements(pips)
+        if simultaneous < min_simultaneous_pips:
+            findings.append(
+                Finding(
+                    "fail",
+                    "pip_no_simultaneous_group",
+                    f"semantic PiP must appear in aligned groups; max simultaneous count {simultaneous} is below {min_simultaneous_pips}",
+                    str(html_path),
+                )
+            )
     for pip in pips:
         locator = pip.locator(html_path)
         if pip.start is None or pip.duration is None:
@@ -668,6 +1104,24 @@ def validate_pip_html(pips: list[Element], html_path: Path, *, min_pip_slots: in
             findings.append(Finding("fail", "pip_missing_cue_id", "PiP must reference a cue id", locator))
         if not pip.attrs.get("data-match-reason"):
             findings.append(Finding("fail", "pip_missing_match_reason", "PiP must expose a match reason", locator))
+        if strict_social_ad:
+            if not pip.attrs.get("data-pip-group") and not pip.attrs.get("data-grid-group") and not pip.attrs.get("data-group-id"):
+                findings.append(Finding("fail", "pip_missing_grid_group", "PiP must declare a grid/group id for aligned multi-window layout", locator))
+            if not pip_has_grid_evidence(pip):
+                findings.append(Finding("fail", "pip_missing_grid_position", "PiP must expose grid row/column or grid slot evidence", locator))
+            width, height = element_dimensions(pip)
+            if width is None or height is None:
+                findings.append(Finding("fail", "pip_missing_size", "PiP must expose rendered width and height", locator))
+            else:
+                if width < min_pip_width_px or height < min_pip_height_px:
+                    findings.append(
+                        Finding(
+                            "fail",
+                            "pip_too_small",
+                            f"PiP size {width:.0f}x{height:.0f}px is below minimum {min_pip_width_px:.0f}x{min_pip_height_px:.0f}px",
+                            locator,
+                        )
+                    )
     return findings
 
 
@@ -675,6 +1129,9 @@ def validate_assignment(
     assignment_path: Path,
     *,
     min_pip_slots: int,
+    min_simultaneous_pips: int,
+    min_pip_width_px: float,
+    min_pip_height_px: float,
     min_pip_match_score: float,
     require_manifest_hint: bool,
     strict_social_ad: bool,
@@ -699,11 +1156,24 @@ def validate_assignment(
             )
         )
 
+    timed_slots: list[tuple[float, float]] = []
+    group_counts: dict[str, int] = {}
     for index, slot in enumerate(pip_slots if isinstance(pip_slots, list) else []):
         if not isinstance(slot, dict):
             findings.append(Finding("fail", "invalid_pip_slot", "pip_slots entries must be objects", f"{assignment_path}:pip_slots[{index}]"))
             continue
         path = f"{assignment_path}:pip_slots[{index}]"
+        start = parse_time_seconds(slot.get("start") or slot.get("start_sec") or slot.get("trigger_time"))
+        duration = duration_from_payload(slot)
+        end = parse_time_seconds(slot.get("end") or slot.get("end_sec"))
+        if start is not None and end is None and duration is not None:
+            end = start + duration
+        if start is not None and end is not None and end >= start:
+            timed_slots.append((start, end))
+        group_id = normalize_ws(str(slot.get("group_id") or slot.get("pip_group") or slot.get("grid_group") or slot.get("layout_group") or ""))
+        if group_id:
+            group_counts[group_id] = group_counts.get(group_id, 0) + 1
+
         if not slot.get("cue_id") or not slot.get("cue_text"):
             findings.append(Finding("fail", "pip_slot_missing_cue", "PiP slot must include cue_id and cue_text", path))
         image = slot.get("image") if isinstance(slot.get("image"), dict) else {}
@@ -711,6 +1181,42 @@ def validate_assignment(
             findings.append(Finding("fail", "pip_slot_missing_image_role", "PiP slot must include image_id and role", path))
         if not slot.get("match_reason"):
             findings.append(Finding("fail", "pip_slot_missing_reason", "PiP slot must include match_reason", path))
+        if strict_social_ad:
+            if not group_id:
+                findings.append(Finding("fail", "pip_slot_missing_group", "PiP slot must declare a group_id/grid_group for simultaneous grid layout", path))
+            grid = slot.get("grid") if isinstance(slot.get("grid"), dict) else {}
+            layout = normalize_token(slot.get("layout") or slot.get("layout_mode") or grid.get("layout"))
+            has_grid_position = bool(
+                layout == "grid"
+                or slot.get("grid_slot")
+                or slot.get("grid_index")
+                or ((slot.get("row") or grid.get("row")) and (slot.get("col") or slot.get("column") or grid.get("col") or grid.get("column")))
+            )
+            if not has_grid_position:
+                findings.append(Finding("fail", "pip_slot_missing_grid_position", "PiP slot must expose grid row/column or grid_slot evidence", path))
+            size = slot.get("size") if isinstance(slot.get("size"), dict) else {}
+            bounds = slot.get("bounds") if isinstance(slot.get("bounds"), dict) else {}
+            width = (
+                parse_dimension(slot.get("width"), 1920)
+                or parse_dimension(size.get("width"), 1920)
+                or parse_dimension(bounds.get("width") or bounds.get("w"), 1920)
+            )
+            height = (
+                parse_dimension(slot.get("height"), 1080)
+                or parse_dimension(size.get("height"), 1080)
+                or parse_dimension(bounds.get("height") or bounds.get("h"), 1080)
+            )
+            if width is None or height is None:
+                findings.append(Finding("fail", "pip_slot_missing_size", "PiP slot must expose width and height", path))
+            elif width < min_pip_width_px or height < min_pip_height_px:
+                findings.append(
+                    Finding(
+                        "fail",
+                        "pip_slot_too_small",
+                        f"PiP slot size {width:.0f}x{height:.0f}px is below minimum {min_pip_width_px:.0f}x{min_pip_height_px:.0f}px",
+                        path,
+                    )
+                )
         hint = slot.get("video_manifest_hint") if isinstance(slot.get("video_manifest_hint"), dict) else {}
         if require_manifest_hint and not hint.get("segment_id"):
             findings.append(Finding("fail", "pip_missing_manifest_hint", "PiP slot must include video manifest segment hint", path))
@@ -726,7 +1232,106 @@ def validate_assignment(
                     path,
                 )
             )
+        if has_private_traffic_material_evidence(slot):
+            if not has_no_upscale_evidence(slot):
+                findings.append(Finding("fail", "private_traffic_slot_missing_no_upscale", "traffic PiP slot must declare no-upscale/native-scale evidence", path))
+            findings.extend(validate_no_upscale(slot, path, "private_traffic_slot"))
+
+    if strict_social_ad and isinstance(pip_slots, list) and pip_slots:
+        max_group = max(group_counts.values(), default=0)
+        max_time = 0
+        if timed_slots:
+            points = sorted({point for interval in timed_slots for point in interval})
+            for left, right in zip(points, points[1:]):
+                mid = (left + right) / 2
+                max_time = max(max_time, sum(1 for start, end in timed_slots if start <= mid < end))
+        if max(max_group, max_time) < min_simultaneous_pips:
+            findings.append(
+                Finding(
+                    "fail",
+                    "assignment_pip_no_simultaneous_group",
+                    f"assignment PiP must include at least {min_simultaneous_pips} simultaneous/grid-grouped slots",
+                    str(assignment_path),
+                )
+            )
     return metrics, findings
+
+
+def validate_hook_opening_plan(segment: dict[str, Any], details: dict[str, Any], path: str) -> list[Finding]:
+    findings: list[Finding] = []
+    payloads = representative_payloads(segment, details, "opening_asset", "hook_asset", "hook_visual", "selected_opening_material")
+    if not any(isinstance(payload, dict) and has_opening_material_evidence(payload) for _, payload in payloads):
+        findings.append(
+            Finding(
+                "fail",
+                "hook_opening_missing_opening_asset",
+                "hook_opening must select real material from projects/素材/开头素材",
+                path,
+            )
+        )
+
+    durations = [duration_from_payload(payload) for _, payload in payloads if isinstance(payload, dict)]
+    duration = next((item for item in durations if item is not None), None)
+    if duration is None:
+        findings.append(
+            Finding(
+                "fail",
+                "hook_opening_missing_duration",
+                "selected opening material must record a 5-10 second display/crop duration",
+                path,
+            )
+        )
+    elif duration < OPENING_MATERIAL_MIN_DURATION or duration > OPENING_MATERIAL_MAX_DURATION:
+        findings.append(
+            Finding(
+                "fail",
+                "hook_opening_duration_out_of_range",
+                f"selected opening material duration {duration:.2f}s must be between {OPENING_MATERIAL_MIN_DURATION:.0f}s and {OPENING_MATERIAL_MAX_DURATION:.0f}s",
+                path,
+            )
+        )
+
+    if not any(isinstance(payload, dict) and has_full_display_evidence(payload) for _, payload in payloads):
+        findings.append(
+            Finding(
+                "fail",
+                "hook_opening_missing_full_display",
+                "selected opening material must declare full-frame/no-crop/contain display evidence",
+                path,
+            )
+        )
+    for label, payload in payloads:
+        if isinstance(payload, dict):
+            findings.extend(validate_no_upscale(payload, f"{path}.{label}", "hook_opening"))
+    return findings
+
+
+def validate_private_traffic_plan(segment: dict[str, Any], details: dict[str, Any], path: str) -> list[Finding]:
+    findings: list[Finding] = []
+    payloads = representative_payloads(segment, details, "traffic_asset", "private_traffic_asset", "cta_asset", "selected_traffic_material")
+    relevant_payloads = [(label, payload) for label, payload in payloads if isinstance(payload, dict)]
+    has_branch_evidence = any(has_private_traffic_material_evidence(payload) for _, payload in relevant_payloads)
+    if not has_branch_evidence:
+        findings.append(
+            Finding(
+                "warn",
+                "private_traffic_missing_branch_evidence",
+                "private_traffic_cta should point to projects/素材/引流素材 or equivalent CTA material evidence",
+                path,
+            )
+        )
+    if not any(has_no_upscale_evidence(payload) for _, payload in relevant_payloads):
+        findings.append(
+            Finding(
+                "fail",
+                "private_traffic_missing_no_upscale",
+                "traffic/CTA material must declare no-upscale/native-scale/contain evidence to avoid amplifying blur",
+                path,
+            )
+        )
+    for label, payload in relevant_payloads:
+        findings.extend(validate_no_upscale(payload, f"{path}.{label}", "private_traffic"))
+    return findings
 
 
 def validate_composition_plan(
@@ -816,6 +1421,11 @@ def validate_composition_plan(
         if isinstance(background, dict):
             findings.extend(validate_background_surface(background, path, "background_video"))
 
+        if strict_social_ad and role == "hook_opening":
+            findings.extend(validate_hook_opening_plan(segment, details, path))
+        if strict_social_ad and role == "private_traffic_cta":
+            findings.extend(validate_private_traffic_plan(segment, details, path))
+
         overlay_data = details.get("editorial_overlay") or segment.get("editorial_overlay") or segment.get("big_text")
         overlay_text = overlay_summary_text(overlay_data)
         if strict_social_ad and "editorial_overlay" in layers and not overlay_text:
@@ -832,7 +1442,17 @@ def validate_composition_plan(
                 Finding(
                     "fail",
                     "editorial_overlay_missing_segment_source",
-                    "editorial overlay must record source_cue_ids/source_text/match_reason for paragraph-level title extraction",
+                    "editorial overlay must record matched source_cue_ids, source_text, and match_reason for paragraph-level title extraction",
+                    path,
+                )
+            )
+        process_match = internal_process_label_match(overlay_text)
+        if overlay_text and process_match:
+            findings.append(
+                Finding(
+                    "fail",
+                    "editorial_overlay_internal_process_title",
+                    "editorial overlay title must summarize matched audience copy, not expose workflow/process/learning labels",
                     path,
                 )
             )
@@ -907,6 +1527,9 @@ def validate_project(
     max_caption_units: float,
     max_overlay_units: float,
     min_pip_slots: int,
+    min_simultaneous_pips: int,
+    min_pip_width_px: float,
+    min_pip_height_px: float,
     min_pip_match_score: float,
     strict_social_ad: bool,
     require_manifest_hint: bool,
@@ -936,8 +1559,19 @@ def validate_project(
             require_dialogue_captions=True,
         )
     )
-    findings.extend(validate_pip_html(pips, html_path, min_pip_slots=min_pip_slots, strict_social_ad=strict_social_ad))
+    findings.extend(
+        validate_pip_html(
+            pips,
+            html_path,
+            min_pip_slots=min_pip_slots,
+            min_simultaneous_pips=min_simultaneous_pips,
+            min_pip_width_px=min_pip_width_px,
+            min_pip_height_px=min_pip_height_px,
+            strict_social_ad=strict_social_ad,
+        )
+    )
     findings.extend(validate_background_html(backgrounds, html_path))
+    findings.extend(validate_private_traffic_html(elements, html_path))
 
     assignment_path = project_root / "workflow_assignment.json"
     if not assignment_path.exists():
@@ -948,6 +1582,9 @@ def validate_project(
         assignment_metrics, assignment_findings = validate_assignment(
             assignment_path,
             min_pip_slots=min_pip_slots,
+            min_simultaneous_pips=min_simultaneous_pips,
+            min_pip_width_px=min_pip_width_px,
+            min_pip_height_px=min_pip_height_px,
             min_pip_match_score=min_pip_match_score,
             require_manifest_hint=require_manifest_hint,
             strict_social_ad=strict_social_ad,
@@ -981,6 +1618,9 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("root", type=Path, help="workflow project root or batch root")
     parser.add_argument("--strict-social-ad", action="store_true", help="enforce social-ad/batch PiP and diversity gates")
     parser.add_argument("--min-pip-slots", type=int, default=4, help="minimum cue-bound PiP slots per project in strict mode")
+    parser.add_argument("--min-simultaneous-pips", type=int, default=DEFAULT_MIN_SIMULTANEOUS_PIPS, help="minimum PiP windows that must appear together in strict mode")
+    parser.add_argument("--min-pip-width-px", type=float, default=DEFAULT_MIN_PIP_WIDTH_PX, help="minimum rendered PiP width in strict mode")
+    parser.add_argument("--min-pip-height-px", type=float, default=DEFAULT_MIN_PIP_HEIGHT_PX, help="minimum rendered PiP height in strict mode")
     parser.add_argument("--min-pip-match-score", type=float, default=1.0, help="minimum manifest match_score for PiP slots")
     parser.add_argument("--max-caption-units", type=float, default=DEFAULT_MAX_CAPTION_UNITS, help="single-line caption display unit limit")
     parser.add_argument("--max-overlay-units", type=float, default=DEFAULT_MAX_OVERLAY_UNITS, help="editorial overlay display unit limit")
@@ -1006,6 +1646,9 @@ def main() -> int:
             max_caption_units=args.max_caption_units,
             max_overlay_units=args.max_overlay_units,
             min_pip_slots=args.min_pip_slots,
+            min_simultaneous_pips=args.min_simultaneous_pips,
+            min_pip_width_px=args.min_pip_width_px,
+            min_pip_height_px=args.min_pip_height_px,
             min_pip_match_score=args.min_pip_match_score,
             strict_social_ad=args.strict_social_ad,
             require_manifest_hint=not args.allow_missing_manifest_hint,

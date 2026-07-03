@@ -1,0 +1,73 @@
+{
+  "caption_cues": [
+    {"cue_id": "cue-01"},
+    {"cue_id": "cue-02"},
+    {"cue_id": "cue-03"}
+  ],
+  "pip_slots": [
+    {
+      "cue_id": "cue-01",
+      "cue_text": "开头先给你看一个结果",
+      "start": 1,
+      "duration_sec": 4,
+      "group_id": "g1",
+      "layout": "grid",
+      "row": 1,
+      "col": 1,
+      "width": 320,
+      "height": 180,
+      "image": {"image_id": "opening-proof-01", "role": "result_proof"},
+      "match_reason": "matches the opening result claim",
+      "video_manifest_hint": {"segment_id": "seg-opening-01", "match_score": 1.0, "match_terms": ["result"]}
+    },
+    {
+      "cue_id": "cue-01",
+      "cue_text": "开头先给你看一个结果",
+      "start": 1,
+      "duration_sec": 4,
+      "group_id": "g1",
+      "layout": "grid",
+      "row": 1,
+      "col": 2,
+      "width": 320,
+      "height": 180,
+      "image": {"image_id": "opening-proof-02", "role": "result_proof"},
+      "match_reason": "supports the same opening claim with a second proof window",
+      "video_manifest_hint": {"segment_id": "seg-opening-02", "match_score": 1.0, "match_terms": ["result"]}
+    },
+    {
+      "cue_id": "cue-02",
+      "cue_text": "中间用素材证明这个方法",
+      "start": 7,
+      "duration_sec": 4,
+      "group_id": "g2",
+      "layout": "grid",
+      "row": 1,
+      "col": 1,
+      "width": 320,
+      "height": 180,
+      "image": {"image_id": "tool-proof-01", "role": "tool_demo"},
+      "match_reason": "shows the tool proof mentioned by the cue",
+      "video_manifest_hint": {"segment_id": "seg-tool-01", "match_score": 1.0, "match_terms": ["tool"]}
+    },
+    {
+      "cue_id": "cue-03",
+      "cue_text": "最后引导你去下一步",
+      "start": 7,
+      "duration_sec": 4,
+      "group_id": "g2",
+      "layout": "grid",
+      "row": 1,
+      "col": 2,
+      "width": 320,
+      "height": 180,
+      "source_branch": "projects/素材/引流素材",
+      "no_upscale": true,
+      "scale": 1,
+      "fit": "contain",
+      "image": {"image_id": "cta-proof-01", "role": "private_traffic_cta"},
+      "match_reason": "CTA window is relevant to the private traffic cue",
+      "video_manifest_hint": {"segment_id": "seg-cta-01", "match_score": 1.0, "match_terms": ["CTA"]}
+    }
+  ]
+}

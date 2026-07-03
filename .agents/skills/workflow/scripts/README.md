@@ -7,7 +7,7 @@ workflow intentionally relies on HyperFrames CLI and HyperFrames media tooling i
 
 - schema validation for workflow JSON artifacts;
 - final-ready dialogue sync evidence validation;
-- visual contract validation for audience-visible text, captions, overlays, PiP evidence, and batch ledgers;
+- visual contract validation for audience-visible text, captions, overlays, internal process title leakage, PiP evidence, and batch ledgers;
 - project-wide material usage monitor CSV maintenance;
 - file existence and path audits;
 - diff/report assembly;
@@ -61,13 +61,16 @@ python3 .agents/skills/workflow/scripts/validate_dialogue_sync.py --strict-final
 Validates that an authored workflow/HyperFrames project or batch satisfies the visual
 composition gates exposed by recent failures:
 
-- rejects audience-visible internal prompt metadata, workflow labels and watermark-like workflow/HyperFrames text;
+- rejects audience-visible internal prompt metadata, workflow labels, workflow/HyperFrames watermark text, and internal process/learning labels such as 工作流程 or 内部学习交流;
 - requires a real `dialogue_caption` layer;
 - rejects caption ellipsis, newline wrapping, overwide caption text and overlapping dialogue cues;
-- rejects editorial overlays that duplicate the current dialogue caption;
+- rejects editorial overlays that duplicate the current dialogue caption or use internal process titles instead of matched-copy summary titles;
 - requires `semantic_pip` slots to carry timing, `cue_id` and `match_reason`;
+- requires strict social-ad PiP to include at least one simultaneous multi-window group, grid/group position evidence and readable rendered dimensions;
 - checks `workflow_composition_plan.json` for `hook_opening`, `content_body` and `private_traffic_cta` segments;
-- checks that strict social-ad plans declare a continuous no-mask, fully opaque `background_throughline`, per-segment background/PiP/caption/editorial overlay layers, and short editorial overlay summaries;
+- checks that strict social-ad plans declare a continuous no-mask, fully opaque `background_throughline`, per-segment background/PiP/caption/editorial overlay layers, and short editorial overlay summaries with matched `source_cue_ids`, `source_text`, and `match_reason`;
+- checks that `hook_opening` selects real `projects/素材/开头素材/` or `opening_hook` evidence, uses a 5-10 second opening material span, and records full-frame/no-crop/no-upscale display evidence;
+- checks that `private_traffic_cta` / `projects/素材/引流素材/` material declares no-upscale/native-scale/contain evidence and does not use cover, zoom or scale above 1;
 - rejects background `mask`, `clip-path`, opacity below 1, transparency or inline background opacity styles on authored HTML elements;
 - checks content body coverage for comic-drama, tool/workflow and revenue/proof material, unless the plan records an explicit exception;
 - in `--strict-social-ad` mode, requires enough cue-bound PiP slots and checks `workflow_assignment.json`;

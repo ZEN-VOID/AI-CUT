@@ -1,0 +1,77 @@
+{
+  "background_throughline": {
+    "mode": "continuous",
+    "source_category": "projects/素材/漫剧素材/纯漫剧素材",
+    "mask": "none",
+    "opacity": 1
+  },
+  "timeline_segments": [
+    {
+      "segment_role": "hook_opening",
+      "start": 0,
+      "end": 6,
+      "layers": {
+        "background_video": {
+          "source_path": "projects/素材/开头素材/opening-hook-a.mp4",
+          "material_branch": "opening_hook",
+          "duration_sec": 6,
+          "display_mode": "full_frame",
+          "object_fit": "contain",
+          "no_crop": true,
+          "scale": 1,
+          "mask": "none",
+          "opacity": 1
+        },
+        "semantic_pip": {"cue_id": "cue-01", "match_reason": "opening proof grid"},
+        "dialogue_caption": {"cue_ids": ["cue-01"]},
+        "editorial_overlay": {
+          "core_title": "先看结果",
+          "source_cue_ids": ["cue-01"],
+          "source_text": "开头先给你看一个结果",
+          "match_reason": "semantic paragraph title"
+        }
+      }
+    },
+    {
+      "segment_role": "content_body",
+      "start": 6,
+      "end": 14,
+      "content_subtype": ["comic_drama", "tool_demo", "revenue_proof"],
+      "layers": {
+        "background_video": {"source_path": "projects/素材/漫剧素材/纯漫剧素材/body-a.mp4", "mask": "none", "opacity": 1},
+        "semantic_pip": {"cue_id": "cue-02", "match_reason": "tool and result proof grid"},
+        "dialogue_caption": {"cue_ids": ["cue-02"]},
+        "editorial_overlay": {
+          "core_title": "素材证明",
+          "source_cue_ids": ["cue-02"],
+          "source_text": "中间用素材证明这个方法",
+          "match_reason": "semantic paragraph title"
+        }
+      }
+    },
+    {
+      "segment_role": "private_traffic_cta",
+      "start": 14,
+      "end": 20,
+      "layers": {
+        "background_video": {
+          "source_path": "projects/素材/引流素材/cta-card.mp4",
+          "material_branch": "private_traffic_cta",
+          "object_fit": "contain",
+          "no_upscale": true,
+          "scale": 1,
+          "mask": "none",
+          "opacity": 1
+        },
+        "semantic_pip": {"cue_id": "cue-03", "match_reason": "CTA proof grid"},
+        "dialogue_caption": {"cue_ids": ["cue-03"]},
+        "editorial_overlay": {
+          "core_title": "去下一步",
+          "source_cue_ids": ["cue-03"],
+          "source_text": "最后引导你去下一步",
+          "match_reason": "semantic paragraph title"
+        }
+      }
+    }
+  ]
+}

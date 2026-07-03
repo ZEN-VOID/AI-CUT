@@ -115,6 +115,16 @@
     "expected": "不能把 segment_id 形式化回指当作已消费视频说明；validate_visual_contract.py 应输出 FAIL-QUANT-VISUAL-CONTRACT / pip_weak_manifest_match，返工到 N3/N5 重做 cue-level match 或补充素材证据。"
   },
   {
+    "id": "workflow-opening-traffic-pip-regression",
+    "prompt": "最新一轮 workflow 测试发现：开头没有强制使用 projects/素材/开头素材，开头素材没有完整展现；引流素材本来就模糊还被放大；PiP 仍然只出现一个很小的窗口。",
+    "expected": "路由到 source-upgrade / repair_visual_composition；N3 必须把 projects/素材/开头素材 作为 hook_opening 必选候选池，并标记引流素材的模糊/低清和 no-upscale 约束；N5 的 workflow_composition_plan.json 必须让 hook_opening 选择 开头素材 或 opening_hook，记录 5-10 秒 duration、full_frame/contain/no_crop/scale<=1，并让 private_traffic_cta 使用 no_upscale/native_scale/contain；PiP selection 必须至少有一组同屏 2 个以上、grid group/row/col、width/height、cue_id 和 match_reason；validate_visual_contract.py --strict-social-ad 应阻断 hook_opening_missing_opening_asset、hook_opening_missing_full_display、private_traffic_uses_upscale、pip_no_simultaneous_group、pip_missing_grid_position 或 pip_too_small。"
+  },
+  {
+    "id": "workflow-editorial-overlay-audience-regression",
+    "prompt": "最新一轮 workflow 测试发现：大字报左上角标题显示成“工作流程/内部学习交流”，而不是匹配文案的精华总结；主入口也没有说明成片观众是短视频平台 C 端用户。",
+    "expected": "路由到 source-upgrade / repair_visual_composition；N1 必须写 audience_profile=short_video_c_end_user，明确 final 是给短视频平台 C 端用户/外部潜在客户观看，不是内部学习交流；N5 的 editorial_overlay.core_title/core_phrase 必须从匹配文案 source_cue_ids/source_text 中提炼精华总结，并记录 match_reason；N6/N7 不得把 工作流程、执行流程、内部学习交流、项目复盘、pipeline 或 workflow 展示为左上角标题、大字报、HUD 或 PiP 标签；validate_visual_contract.py --strict-social-ad 应阻断 editorial_overlay_internal_process_title、editorial_overlay_missing_segment_source、internal_process_title_visible 或 workflow_label_visible。"
+  },
+  {
     "id": "workflow-skill-2-context-split-upgrade",
     "prompt": "遵循 skill-2.0 审计并升级 .agents/skills/workflow：保留现有 CONTEXT.md 的高质量内容，但拆分为新的 CONTEXT/ 五文件，并同步主合同。",
     "expected": "路由到 source-upgrade/audit；删除旧 CONTEXT.md 入口并保留其内容迁移结果；把 Type Map 和 Repair Playbook 迁入 CONTEXT/负向经验.md，把 Reusable Heuristics 迁入 CONTEXT/正向经验.md，把长期边界和 Context Health 迁入 CONTEXT/重要记忆.md，并补齐好的示例/坏的示例；SKILL.md 必须包含 Directory Structure & Detail Routing Contract、CONTEXT/ File Semantics Contract、Module Loading Matrix/Trigger Matrix、Review Gate、Field Mapping、Learning Writeback 的同步更新；README、registry、CHANGELOG 也必须同步。"

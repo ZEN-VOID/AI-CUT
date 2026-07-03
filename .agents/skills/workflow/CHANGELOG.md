@@ -2,6 +2,10 @@
 
 ## 2026-07-01
 
+- Clarified the workflow entry audience as short-video platform C-end viewers, not internal learning exchange or project review, and hardened editorial overlay rules so title text must summarize matched copy source cue/text/reason instead of exposing workflow/process labels.
+- Expanded `validate_visual_contract.py` to reject visible internal process/learning labels and strict social-ad overlays such as 工作流程, 内部学习交流, 项目复盘, pipeline, or workflow, plus a regression prompt for left-corner title leakage.
+- Hardened latest visual regression rules: hook openings now require `projects/素材/开头素材/` or `opening_hook` evidence with 5-10s full-frame/no-crop/no-upscale display, traffic CTA material requires no-upscale/native-scale evidence, and strict social-ad PiP requires simultaneous grid groups with readable sizes.
+- Expanded `validate_visual_contract.py` with opening-material, traffic no-upscale, PiP simultaneous/grid/size checks, plus a passing social-ad fixture.
 - Added the global material usage monitor `projects/素材使用监控.csv` and `scripts/update_asset_usage_monitor.py`; final close now records actual material usage as `素材名,文件路径,使用次数,使用程度`.
 - Hardened the latest-run regression gates: current `projects/内容/文案` + `projects/内容/音频` routes now require explicit same-stem source paths, background layers must be no-mask and fully opaque, and browser/page preview no longer counts as final output.
 - Added `validate_dialogue_sync.py --require-script-audio-pair` and expanded `validate_visual_contract.py` background checks for opacity/transparency/mask evidence.
