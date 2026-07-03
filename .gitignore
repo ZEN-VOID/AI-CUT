@@ -1,6 +1,9 @@
 .DS_Store
 __pycache__/
 *.pyc
+node_modules/
+.env*
+!.env.example
 /projects/素材/
 /projects/素材使用监控.csv
 /projects/output/

@@ -1,0 +1,4 @@
+interface:
+  display_name: "版本同步"
+  short_description: "用于维护仓库版本展示页面与每次更新明细记录同步流程"
+  default_prompt: "Use $version-sync to refresh VERSION.md with a detailed version entry."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Text To Speech"
+  short_description: "Sync copy files to MiniMax MP3 audio."
+  default_prompt: "Use $text-to-speech to scan projects/内容/文案, detect missing same-name MP3 files in projects/内容/音频, and generate them with local MiniMax mmx-cli."
