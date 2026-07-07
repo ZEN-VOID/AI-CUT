@@ -7,7 +7,9 @@ operator reviews:
 
 素材名,文件路径,使用次数,使用程度
 
-`使用程度` is restricted to `全片` or `部分切片`.
+`使用程度` is restricted to `全片` or `部分切片`. Normal final close is a
+cumulative add on top of the existing monitor. Rebuild is maintenance-only and
+requires an explicit extra flag so ordinary task close cannot refresh history.
 """
 
 from __future__ import annotations
@@ -23,6 +25,7 @@ from typing import Any
 
 HEADER = ["素材名", "文件路径", "使用次数", "使用程度"]
 USAGE_DEGREES = {"全片", "部分切片"}
+MAX_MATERIAL_USES = 20
 
 PATH_KEYS = (
     "source_file",
@@ -38,6 +41,15 @@ PATH_KEYS = (
     "source_script",
 )
 NAME_KEYS = ("asset_name", "name", "素材名", "source_video_id", "image_id", "asset_id")
+OUTPUT_SCOPE_KEYS = (
+    "output_id",
+    "final_path",
+    "canonical_final_path",
+    "project_slug",
+    "script_audio_stem",
+    "script_stem",
+    "id",
+)
 DEGREE_KEYS = ("usage_degree", "使用程度", "usage_extent", "extent", "scope", "usage_mode")
 PARTIAL_HINT_KEYS = (
     "segment_id",
@@ -136,28 +148,53 @@ def list_from_mapping(mapping: dict[str, Any], key: str) -> list[Any]:
     return []
 
 
-def collect_usage_records(data: Any, repo_root: Path, default_usage_degree: str, include_planned: bool) -> list[tuple[str, str, str]]:
-    records: list[dict[str, Any]] = []
+def output_scope_from_mapping(mapping: dict[str, Any], fallback: str) -> str:
+    for key in OUTPUT_SCOPE_KEYS:
+        value = mapping.get(key)
+        if value:
+            return str(value).strip()
+    return fallback
+
+
+def collect_rows_from_items(
+    items: list[Any], output_scope: str, repo_root: Path, default_usage_degree: str
+) -> list[tuple[str, str, str, str]]:
+    rows: list[tuple[str, str, str, str]] = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        row = usage_record_from_dict(item, repo_root, default_usage_degree)
+        if row:
+            name, file_path, degree = row
+            rows.append((output_scope, name, file_path, degree))
+    return rows
+
+
+def collect_usage_records(
+    data: Any, repo_root: Path, default_usage_degree: str, include_planned: bool
+) -> list[tuple[str, str, str, str]]:
+    usage_rows: list[tuple[str, str, str, str]] = []
     usage_keys = ["used_assets", "actual_usage", "actual_used_assets"]
     if include_planned:
         usage_keys.append("planned_usage")
 
     if isinstance(data, dict):
+        root_scope = output_scope_from_mapping(data, "__top_level__")
         for key in usage_keys:
-            records.extend(item for item in list_from_mapping(data, key) if isinstance(item, dict))
-        for output in list_from_mapping(data, "outputs"):
+            usage_rows.extend(
+                collect_rows_from_items(list_from_mapping(data, key), root_scope, repo_root, default_usage_degree)
+            )
+        for output_index, output in enumerate(list_from_mapping(data, "outputs")):
             if not isinstance(output, dict):
                 continue
+            output_scope = output_scope_from_mapping(output, f"outputs[{output_index}]")
             for key in usage_keys:
-                records.extend(item for item in list_from_mapping(output, key) if isinstance(item, dict))
+                usage_rows.extend(
+                    collect_rows_from_items(list_from_mapping(output, key), output_scope, repo_root, default_usage_degree)
+                )
     elif isinstance(data, list):
-        records.extend(item for item in data if isinstance(item, dict))
+        usage_rows.extend(collect_rows_from_items(data, "__list__", repo_root, default_usage_degree))
 
-    usage_rows: list[tuple[str, str, str]] = []
-    for record in records:
-        row = usage_record_from_dict(record, repo_root, default_usage_degree)
-        if row:
-            usage_rows.append(row)
     return usage_rows
 
 
@@ -202,6 +239,70 @@ def read_monitor(path: Path) -> Counter[tuple[str, str]]:
     return counter
 
 
+def usage_totals_by_material(counter: Counter[tuple[str, str]]) -> Counter[str]:
+    totals: Counter[str] = Counter()
+    for (file_path, _degree), count in counter.items():
+        totals[file_path] += count
+    return totals
+
+
+def counter_from_usage_rows(rows: list[tuple[str, str, str, str]]) -> Counter[tuple[str, str]]:
+    counter: Counter[tuple[str, str]] = Counter()
+    for _output_scope, _name, file_path, degree in rows:
+        counter[(file_path, degree)] += 1
+    return counter
+
+
+def validate_single_use_per_output(rows: list[tuple[str, str, str, str]]) -> None:
+    seen_by_output: dict[str, set[str]] = {}
+    duplicates: list[str] = []
+    for output_scope, _name, file_path, _degree in rows:
+        seen = seen_by_output.setdefault(output_scope, set())
+        if file_path in seen:
+            duplicates.append(f"{output_scope}: {file_path}")
+            continue
+        seen.add(file_path)
+    if duplicates:
+        detail = "; ".join(duplicates[:10])
+        if len(duplicates) > 10:
+            detail += f"; ... +{len(duplicates) - 10} more"
+        raise MonitorError(
+            "single material may be used only once per final; duplicate actual usage rows found: "
+            f"{detail}"
+        )
+
+
+def validate_material_caps(counter: Counter[tuple[str, str]], max_uses: int, context: str) -> None:
+    violations = [
+        f"{file_path}={count}"
+        for file_path, count in sorted(usage_totals_by_material(counter).items())
+        if count > max_uses
+    ]
+    if violations:
+        detail = "; ".join(violations[:10])
+        if len(violations) > 10:
+            detail += f"; ... +{len(violations) - 10} more"
+        raise MonitorError(f"{context} exceeds hard material usage cap {max_uses}: {detail}")
+
+
+def validate_addition_caps(
+    existing: Counter[tuple[str, str]], additions: Counter[tuple[str, str]], max_uses: int
+) -> None:
+    existing_totals = usage_totals_by_material(existing)
+    addition_totals = usage_totals_by_material(additions)
+    violations: list[str] = []
+    for file_path, added_count in sorted(addition_totals.items()):
+        current_count = existing_totals.get(file_path, 0)
+        next_count = current_count + added_count
+        if next_count > max_uses:
+            violations.append(f"{file_path}: current={current_count}, add={added_count}, next={next_count}")
+    if violations:
+        detail = "; ".join(violations[:10])
+        if len(violations) > 10:
+            detail += f"; ... +{len(violations) - 10} more"
+        raise MonitorError(f"material usage update would exceed hard cap {max_uses}: {detail}")
+
+
 def write_monitor(path: Path, counter: Counter[tuple[str, str]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="") as handle:
@@ -232,7 +333,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--rebuild",
         action="store_true",
-        help="Rebuild the monitor from the provided sources instead of adding to existing counts.",
+        help="Maintenance only: rebuild from provided sources instead of adding to existing counts. Requires --allow-rebuild.",
+    )
+    parser.add_argument(
+        "--allow-rebuild",
+        action="store_true",
+        help="Acknowledge that --rebuild refreshes history. Never use this for ordinary final close.",
     )
     parser.add_argument(
         "--include-planned",
@@ -240,6 +346,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
         help="Also count planned_usage entries. Final close should normally omit this.",
     )
     parser.add_argument("--validate-only", action="store_true", help="Validate the existing monitor CSV without writing.")
+    parser.add_argument(
+        "--max-uses",
+        type=int,
+        default=MAX_MATERIAL_USES,
+        help="Hard total usage cap per material path across usage degrees.",
+    )
     return parser
 
 
@@ -253,9 +365,28 @@ def main(argv: list[str] | None = None) -> int:
         monitor_path = repo_root / monitor_path
 
     try:
+        if args.max_uses < 1:
+            raise MonitorError("--max-uses must be a positive integer")
+        if args.rebuild and not args.allow_rebuild:
+            raise MonitorError("--rebuild refreshes history; use --allow-rebuild only for explicit maintenance")
+
         existing = read_monitor(monitor_path)
+        if not args.rebuild or args.validate_only:
+            validate_material_caps(existing, args.max_uses, "existing monitor")
         if args.validate_only:
-            print(json.dumps({"verdict": "pass", "monitor_path": str(monitor_path), "rows": len(existing)}, ensure_ascii=False))
+            print(
+                json.dumps(
+                    {
+                        "verdict": "pass",
+                        "monitor_path": str(monitor_path),
+                        "rows": len(existing),
+                        "total_usage_count": sum(existing.values()),
+                        "material_count": len(usage_totals_by_material(existing)),
+                        "max_material_uses": args.max_uses,
+                    },
+                    ensure_ascii=False,
+                )
+            )
             return 0
 
         source_paths: list[Path] = []
@@ -265,7 +396,7 @@ def main(argv: list[str] | None = None) -> int:
                 source_path = repo_root / source_path
             source_paths.append(source_path)
 
-        new_rows: list[tuple[str, str, str]] = []
+        new_rows: list[tuple[str, str, str, str]] = []
         for source in find_usage_json_sources(source_paths):
             new_rows.extend(collect_usage_records(load_json(source), repo_root, args.usage_degree, args.include_planned))
 
@@ -273,13 +404,18 @@ def main(argv: list[str] | None = None) -> int:
             path_value = normalize_path(asset, repo_root)
             if not path_value:
                 raise MonitorError("--asset cannot be empty")
-            new_rows.append((material_name(path_value), path_value, args.usage_degree))
+            new_rows.append(("__explicit_assets__", material_name(path_value), path_value, args.usage_degree))
 
-        counter: Counter[tuple[str, str]] = Counter() if args.rebuild else existing
-        added = 0
-        for _name, file_path, degree in new_rows:
-            counter[(file_path, degree)] += 1
-            added += 1
+        validate_single_use_per_output(new_rows)
+        additions = counter_from_usage_rows(new_rows)
+        base: Counter[tuple[str, str]] = Counter() if args.rebuild else existing.copy()
+        if args.rebuild:
+            validate_material_caps(additions, args.max_uses, "rebuilt monitor")
+        else:
+            validate_addition_caps(existing, additions, args.max_uses)
+
+        counter = base + additions
+        validate_material_caps(counter, args.max_uses, "updated monitor")
 
         write_monitor(monitor_path, counter)
         print(
@@ -287,9 +423,13 @@ def main(argv: list[str] | None = None) -> int:
                 {
                     "verdict": "pass",
                     "monitor_path": str(monitor_path),
-                    "mode": "rebuild" if args.rebuild else "merge",
+                    "mode": "rebuild_explicit" if args.rebuild else "cumulative_add",
                     "rows": len(counter),
-                    "added_usage_count": added,
+                    "previous_usage_count": 0 if args.rebuild else sum(existing.values()),
+                    "added_usage_count": sum(additions.values()),
+                    "new_usage_count": sum(counter.values()),
+                    "material_count": len(usage_totals_by_material(counter)),
+                    "max_material_uses": args.max_uses,
                 },
                 ensure_ascii=False,
             )

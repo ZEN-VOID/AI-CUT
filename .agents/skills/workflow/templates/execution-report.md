@@ -56,13 +56,13 @@
 | audience profile | `workflow_intake.json.audience_profile` | short-video platform C-end viewers / external potential customers, not internal learning exchange or project review |  |
 | process file boundary | `projects/output/<日期>/过程/` | project files, logs, snapshots, validation reports and intermediate artifacts stay under process root |  |
 | single final output | `projects/output/<日期>/` | single-task final videos are moved/collected out of `过程/` after verification |  |
-| layered rhythm assembly | `workflow_composition_plan.json` | hook_opening/content_body/private_traffic_cta, background_throughline, per-segment background/PiP/caption/editorial overlay layers, background mask=none opacity=1 |  |
+| layered rhythm assembly | `workflow_composition_plan.json` | hook_opening/content_body/private_traffic_cta, background_throughline, per-segment background/caption core layers, optional PiP/editorial overlay only with explicit request evidence, background mask=none opacity=1 |  |
 | deep manifest tags | `asset_evidence.json` / manifest usage notes | semantic_vector, trigger_profile, visual_signature, variation_profile, analysis_slice_id |  |
 | asset usage ledger | `asset_usage_ledger.json` | before/after usage counts, planned usage, actual usage |  |
-| material usage monitor | `projects/素材使用监控.csv` | global usage counts by material path and usage degree (`全片` / `部分切片`) updated after final verification |  |
-| platform dedup diversity | `asset_diversity_audit.json` / `workflow_composition_plan.json` | variation axes, reuse penalties, duplicate exceptions |  |
+| material usage monitor | `projects/素材使用监控.csv` | cumulative global usage counts by material path and usage degree (`全片` / `部分切片`) updated after final verification; hard cap 20 uses per material |  |
+| platform dedup diversity | `asset_diversity_audit.json` / `workflow_composition_plan.json` | variation axes, reuse penalties, single-final material uniqueness, duplicate exceptions |  |
 | dialogue clock | `dialogue_alignment.json` / `dialogue_sync_validation.json` | per-cue anchors, script spans, script order, caption types, HTML cue-id mapping, validator verdict |  |
-| visual contract | `visual_contract_validation.json` | audience-visible text, no internal process/learning titles, caption integrity, opening full-display, traffic no-upscale, PiP grid/size, overlay/PiP and ledger checks |  |
+| visual contract | `visual_contract_validation.json` | audience-visible text, no internal process/learning titles, caption integrity, opening full-display, traffic no-upscale, optional explicit PiP grid/size, optional explicit overlay/PiP and ledger checks |  |
 | composition plan |  |  |  |
 | preview validation |  |  |  |
 | render verification |  | local final MP4, not browser/page preview |  |
@@ -84,7 +84,7 @@
 | final file | file / ffprobe check | local canonical MP4 required |  |
 | process file boundary | directory listing / path audit |  | `projects/output/<日期>/过程/` |
 | batch final collection | directory listing / ledger final_path check |  | `projects/output/<日期>/成片/` |
-| material usage monitor | `python3 .agents/skills/workflow/scripts/update_asset_usage_monitor.py <batch-or-output-root>` / `--validate-only` |  | `projects/素材使用监控.csv` |
+| material usage monitor | `python3 .agents/skills/workflow/scripts/update_asset_usage_monitor.py <batch-or-output-root>` / `--validate-only` | expect `mode=cumulative_add`, no same-final duplicate materials, no material total >20 | `projects/素材使用监控.csv` |
 | directory routing | file listing / README / registry audit |  | `.agents/skills/workflow/` |
 | context semantics | five-file list / writeback map audit |  | `.agents/skills/workflow/CONTEXT/` |
 
@@ -95,9 +95,11 @@
 | usage ledger loaded before planning |  |  |
 | planned usage written before authoring |  |  |
 | actual usage written after final verification |  |  |
-| global material monitor updated |  |  |
+| global material monitor cumulatively updated |  |  |
+| material hard cap <=20 |  |  |
+| single-final material uniqueness |  |  |
 | repeated segment exceptions |  |  |
-| repeated image/PiP exceptions |  |  |
+| repeated image / explicit PiP exceptions |  |  |
 | same-source runtime share |  |  |
 | semantic-equivalent variation axes |  |  |
 | manifest deep-tag consumption |  |  |
@@ -114,10 +116,12 @@
 | private traffic material no-upscale/native-scale evidence |  |  |
 | background_throughline continuous, mask=none and opacity=1 |  |  |
 | content subtypes comic_drama/tool_demo/revenue_proof covered or exception recorded |  |  |
-| every segment declares background/PiP/caption/editorial overlay layers |  |  |
-| editorial overlays are matched-copy summary titles with source cue/text/reason evidence |  |  |
-| editorial overlays do not display workflow/process/learning labels |  |  |
-| PiP has simultaneous multi-window grid group and readable dimensions |  |  |
+| every segment declares background/caption core layers |  |  |
+| editorial overlays are absent unless explicitly requested |  |  |
+| explicit editorial overlays are matched-copy summary titles with source cue/text/reason evidence |  |  |
+| explicit editorial overlays do not display workflow/process/learning labels |  |  |
+| PiP is absent unless explicitly requested |  |  |
+| explicit PiP has simultaneous multi-window grid group and readable dimensions |  |  |
 
 ## Repair Log
 

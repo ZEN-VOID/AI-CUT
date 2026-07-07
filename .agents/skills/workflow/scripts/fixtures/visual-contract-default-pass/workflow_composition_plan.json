@@ -1,0 +1,60 @@
+{
+  "background_throughline": {
+    "mode": "continuous",
+    "source_category": "projects/素材/漫剧素材/纯漫剧素材",
+    "mask": "none",
+    "opacity": 1
+  },
+  "timeline_segments": [
+    {
+      "segment_role": "hook_opening",
+      "start": 0,
+      "end": 6,
+      "layers": {
+        "background_video": {
+          "source_path": "projects/素材/开头素材/opening-hook-a.mp4",
+          "material_branch": "opening_hook",
+          "duration_sec": 6,
+          "display_mode": "full_frame",
+          "object_fit": "contain",
+          "no_crop": true,
+          "scale": 1,
+          "mask": "none",
+          "opacity": 1
+        },
+        "dialogue_caption": {"cue_ids": ["cue-01"]}
+      }
+    },
+    {
+      "segment_role": "content_body",
+      "start": 6,
+      "end": 14,
+      "content_subtype": ["comic_drama", "tool_demo", "revenue_proof"],
+      "layers": {
+        "background_video": {
+          "source_path": "projects/素材/漫剧素材/纯漫剧素材/body-a.mp4",
+          "mask": "none",
+          "opacity": 1
+        },
+        "dialogue_caption": {"cue_ids": ["cue-02"]}
+      }
+    },
+    {
+      "segment_role": "private_traffic_cta",
+      "start": 14,
+      "end": 20,
+      "layers": {
+        "background_video": {
+          "source_path": "projects/素材/引流素材/cta-card.mp4",
+          "material_branch": "private_traffic_cta",
+          "object_fit": "contain",
+          "no_upscale": true,
+          "scale": 1,
+          "mask": "none",
+          "opacity": 1
+        },
+        "dialogue_caption": {"cue_ids": ["cue-03"]}
+      }
+    }
+  ]
+}

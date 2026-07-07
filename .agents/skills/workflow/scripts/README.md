@@ -7,7 +7,7 @@ workflow intentionally relies on HyperFrames CLI and HyperFrames media tooling i
 
 - schema validation for workflow JSON artifacts;
 - final-ready dialogue sync evidence validation;
-- visual contract validation for audience-visible text, captions, overlays, internal process title leakage, PiP evidence, and batch ledgers;
+- visual contract validation for audience-visible text, captions, optional explicit overlays/PiP evidence, internal process title leakage, and batch ledgers;
 - project-wide material usage monitor CSV maintenance;
 - file existence and path audits;
 - diff/report assembly;
@@ -64,16 +64,18 @@ composition gates exposed by recent failures:
 - rejects audience-visible internal prompt metadata, workflow labels, workflow/HyperFrames watermark text, and internal process/learning labels such as 工作流程 or 内部学习交流;
 - requires a real `dialogue_caption` layer;
 - rejects caption ellipsis, newline wrapping, overwide caption text and overlapping dialogue cues;
-- rejects editorial overlays that duplicate the current dialogue caption or use internal process titles instead of matched-copy summary titles;
-- requires `semantic_pip` slots to carry timing, `cue_id` and `match_reason`;
-- requires strict social-ad PiP to include at least one simultaneous multi-window group, grid/group position evidence and readable rendered dimensions;
+- rejects `editorial_overlay` / 大字报 unless `--require-editorial-overlay` is used for an explicit user request;
+- rejects editorial overlays, when present, that duplicate the current dialogue caption or use internal process titles instead of matched-copy summary titles;
+- rejects `semantic_pip` / 画中画 unless `--require-pip` is used for an explicit user request;
+- requires `semantic_pip` slots, when present, to carry timing, `cue_id` and `match_reason`;
+- requires strict social-ad PiP to include at least one simultaneous multi-window group, grid/group position evidence and readable rendered dimensions only when `--require-pip` is used;
 - checks `workflow_composition_plan.json` for `hook_opening`, `content_body` and `private_traffic_cta` segments;
-- checks that strict social-ad plans declare a continuous no-mask, fully opaque `background_throughline`, per-segment background/PiP/caption/editorial overlay layers, and short editorial overlay summaries with matched `source_cue_ids`, `source_text`, and `match_reason`;
+- checks that strict social-ad plans declare a continuous no-mask, fully opaque `background_throughline` and per-segment background/caption core layers; `--require-pip` and `--require-editorial-overlay` additionally require those opt-in layers and their evidence;
 - checks that `hook_opening` selects real `projects/素材/开头素材/` or `opening_hook` evidence, uses a 5-10 second opening material span, and records full-frame/no-crop/no-upscale display evidence;
 - checks that `private_traffic_cta` / `projects/素材/引流素材/` material declares no-upscale/native-scale/contain evidence and does not use cover, zoom or scale above 1;
 - rejects background `mask`, `clip-path`, opacity below 1, transparency or inline background opacity styles on authored HTML elements;
 - checks content body coverage for comic-drama, tool/workflow and revenue/proof material, unless the plan records an explicit exception;
-- in `--strict-social-ad` mode, requires enough cue-bound PiP slots and checks `workflow_assignment.json`;
+- with `--require-pip`, requires enough cue-bound PiP slots and checks `workflow_assignment.json`;
 - checks PiP `video_manifest_hint.segment_id` and `match_score` so a formal 0-score reference cannot pass as manifest consumption;
 - checks batch `asset_diversity_audit.json` and `asset_usage_ledger.json` when they exist.
 
@@ -83,14 +85,23 @@ Typical final gate for a single project:
 python3 .agents/skills/workflow/scripts/validate_visual_contract.py <project_root> --strict-social-ad --write-report <project_root>/visual_contract_validation.json
 ```
 
+When the user explicitly requests PiP / 画中画 / 证据窗, append `--require-pip`. When the user explicitly requests 大字报 / title-card summaries, append `--require-editorial-overlay`.
+
 Typical final gate for a batch root:
 
 ```bash
 python3 .agents/skills/workflow/scripts/validate_visual_contract.py <batch_root> --strict-social-ad --write-report <batch_root>/visual_contract_validation.json
 ```
 
+Smoke fixtures:
+
+```bash
+python3 .agents/skills/workflow/scripts/validate_visual_contract.py .agents/skills/workflow/scripts/fixtures/visual-contract-default-pass --strict-social-ad
+python3 .agents/skills/workflow/scripts/validate_visual_contract.py .agents/skills/workflow/scripts/fixtures/visual-contract-social-pass --strict-social-ad --require-pip --require-editorial-overlay
+```
+
 This validator cannot judge aesthetics or invent better visual matches. It only
-blocks missing evidence, unsafe text, caption/PiP contract drift and batch audit
+blocks missing evidence, unsafe text, caption drift, explicit PiP/overlay contract drift and batch audit
 inconsistency. Creative repair still returns to `N3/N5/N6/N7`.
 
 ### `update_asset_usage_monitor.py`
@@ -103,7 +114,11 @@ simple and must keep exactly four columns:
 ```
 
 `使用程度` must be `全片` or `部分切片`. Detailed segment IDs, time ranges,
-layers and final paths stay in `asset_usage_ledger.json`.
+layers and final paths stay in `asset_usage_ledger.json`. Normal final close
+is cumulative: the script reads the existing CSV and adds only the verified
+task's actual usage on top of history. It fails when a material path would
+exceed the hard 20-use cap, or when the same material path appears more than
+once in a single final video's actual usage.
 
 Initialize or validate the monitor:
 
@@ -119,15 +134,17 @@ python3 .agents/skills/workflow/scripts/update_asset_usage_monitor.py <batch_roo
 python3 .agents/skills/workflow/scripts/update_asset_usage_monitor.py <project_root>/asset_usage_ledger.json
 ```
 
-Rebuild idempotently from all discovered output ledgers:
+Rebuild from all discovered output ledgers only during explicit maintenance.
+Do not use this for ordinary task close, because it refreshes history:
 
 ```bash
-python3 .agents/skills/workflow/scripts/update_asset_usage_monitor.py --rebuild projects/output
+python3 .agents/skills/workflow/scripts/update_asset_usage_monitor.py --rebuild --allow-rebuild projects/output
 ```
 
 This helper must not be run to count planned usage, failed renders, browser-only
 previews or unverified drafts. Final close should count actual usage only after
-the local canonical MP4 exists.
+the local canonical MP4 exists. The normal successful JSON report uses
+`"mode": "cumulative_add"`.
 
 ## Review Gate Mapping
 

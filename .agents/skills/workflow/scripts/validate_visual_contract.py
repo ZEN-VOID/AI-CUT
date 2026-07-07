@@ -4,9 +4,9 @@
 This validator is intentionally mechanical. It does not generate copy, choose
 assets, infer storyboard intent, or render video. It checks that an authored
 HyperFrames project exposes the evidence needed for workflow visual gates: audience
-text hygiene, internal process-title blocking, dialogue-caption/editorial-overlay
-separation, caption fit, PiP cue binding, layered video assembly, and batch
-diversity ledger consistency.
+text hygiene, internal process-title blocking, dialogue caption fit, optional
+editorial-overlay / PiP evidence when those layers are explicitly requested,
+layered video assembly, and batch diversity ledger consistency.
 """
 
 from __future__ import annotations
@@ -147,10 +147,13 @@ CONTENT_SUBTYPE_ALIASES = {
     "revenue_proof": {"revenue_proof", "revenue", "income", "result", "收益", "收益素材", "结果证明"},
 }
 
-REQUIRED_SEGMENT_LAYERS = {
+BASE_REQUIRED_SEGMENT_LAYERS = {
     "background_video",
-    "semantic_pip",
     "dialogue_caption",
+}
+
+OPTIONAL_OPT_IN_SEGMENT_LAYERS = {
+    "semantic_pip",
     "editorial_overlay",
 }
 
@@ -1072,9 +1075,19 @@ def validate_pip_html(
     min_pip_width_px: float,
     min_pip_height_px: float,
     strict_social_ad: bool,
+    require_pip: bool,
 ) -> list[Finding]:
     findings: list[Finding] = []
-    if strict_social_ad and len(pips) < min_pip_slots:
+    if pips and not require_pip:
+        findings.append(
+            Finding(
+                "fail",
+                "pip_unrequested",
+                "semantic PiP / 画中画 is opt-in; remove PiP or rerun with --require-pip only when the user explicitly requested it",
+                str(html_path),
+            )
+        )
+    if require_pip and len(pips) < min_pip_slots:
         findings.append(
             Finding(
                 "fail",
@@ -1083,7 +1096,7 @@ def validate_pip_html(
                 str(html_path),
             )
         )
-    if strict_social_ad and pips:
+    if require_pip and pips:
         simultaneous = max_simultaneous_elements(pips)
         if simultaneous < min_simultaneous_pips:
             findings.append(
@@ -1135,6 +1148,7 @@ def validate_assignment(
     min_pip_match_score: float,
     require_manifest_hint: bool,
     strict_social_ad: bool,
+    require_pip: bool,
 ) -> tuple[dict[str, Any], list[Finding]]:
     data, findings = load_json(assignment_path)
     metrics: dict[str, Any] = {}
@@ -1146,7 +1160,16 @@ def validate_assignment(
     metrics["assignment_caption_count"] = len(captions) if isinstance(captions, list) else 0
     metrics["assignment_pip_slot_count"] = len(pip_slots) if isinstance(pip_slots, list) else 0
 
-    if strict_social_ad and len(pip_slots) < min_pip_slots:
+    if pip_slots and not require_pip:
+        findings.append(
+            Finding(
+                "fail",
+                "assignment_pip_unrequested",
+                "workflow_assignment.json contains PiP slots, but PiP is opt-in and --require-pip was not used",
+                str(assignment_path),
+            )
+        )
+    if require_pip and len(pip_slots) < min_pip_slots:
         findings.append(
             Finding(
                 "fail",
@@ -1237,7 +1260,7 @@ def validate_assignment(
                 findings.append(Finding("fail", "private_traffic_slot_missing_no_upscale", "traffic PiP slot must declare no-upscale/native-scale evidence", path))
             findings.extend(validate_no_upscale(slot, path, "private_traffic_slot"))
 
-    if strict_social_ad and isinstance(pip_slots, list) and pip_slots:
+    if require_pip and isinstance(pip_slots, list) and pip_slots:
         max_group = max(group_counts.values(), default=0)
         max_time = 0
         if timed_slots:
@@ -1339,6 +1362,8 @@ def validate_composition_plan(
     *,
     strict_social_ad: bool,
     max_overlay_units: float,
+    require_pip: bool,
+    require_editorial_overlay: bool,
 ) -> tuple[dict[str, Any], list[Finding]]:
     data, findings = load_json(plan_path)
     metrics: dict[str, Any] = {}
@@ -1414,8 +1439,33 @@ def validate_composition_plan(
 
         layers, details = collect_segment_layers(segment)
         if strict_social_ad:
-            for layer in sorted(REQUIRED_SEGMENT_LAYERS - layers):
+            for layer in sorted(BASE_REQUIRED_SEGMENT_LAYERS - layers):
                 findings.append(Finding("fail", "segment_missing_layer", f"segment is missing required layer: {layer}", path))
+            if "semantic_pip" in layers and not require_pip:
+                findings.append(
+                    Finding(
+                        "fail",
+                        "segment_unrequested_pip_layer",
+                        "segment declares semantic_pip, but PiP is opt-in and --require-pip was not used",
+                        path,
+                    )
+                )
+            if "editorial_overlay" in layers and not require_editorial_overlay:
+                findings.append(
+                    Finding(
+                        "fail",
+                        "segment_unrequested_editorial_overlay",
+                        "segment declares editorial_overlay, but 大字报 is opt-in and --require-editorial-overlay was not used",
+                        path,
+                    )
+                )
+            opt_in_required_layers = set()
+            if require_pip:
+                opt_in_required_layers.add("semantic_pip")
+            if require_editorial_overlay:
+                opt_in_required_layers.add("editorial_overlay")
+            for layer in sorted(opt_in_required_layers - layers):
+                findings.append(Finding("fail", "segment_missing_opt_in_layer", f"segment is missing explicitly requested layer: {layer}", path))
 
         background = details.get("background_video")
         if isinstance(background, dict):
@@ -1490,7 +1540,7 @@ def validate_composition_plan(
     return metrics, findings
 
 
-def validate_batch_audit(root: Path, *, min_pip_slots: int, require_manifest_hint: bool) -> tuple[dict[str, Any], list[Finding]]:
+def validate_batch_audit(root: Path, *, min_pip_slots: int, require_manifest_hint: bool, require_pip: bool) -> tuple[dict[str, Any], list[Finding]]:
     metrics: dict[str, Any] = {}
     findings: list[Finding] = []
     audit_path = root / "asset_diversity_audit.json"
@@ -1506,13 +1556,14 @@ def validate_batch_audit(root: Path, *, min_pip_slots: int, require_manifest_hin
         metrics.update({f"audit_{key}": value for key, value in checks.items()})
         if audit.get("verdict") != "pass":
             findings.append(Finding("fail", "asset_diversity_audit_not_pass", "asset_diversity_audit verdict must be pass", str(audit_path)))
-        if checks.get("pip_min_per_target", min_pip_slots) < min_pip_slots:
+        pip_placement_count = checks.get("pip_image_placement_count")
+        if require_pip and checks.get("pip_min_per_target", min_pip_slots) < min_pip_slots:
             findings.append(Finding("fail", "batch_pip_underfilled", "batch audit reports too few PiP slots per target", str(audit_path)))
-        if require_manifest_hint and checks.get("pip_manifest_hint_count") != checks.get("pip_image_placement_count"):
+        if require_manifest_hint and pip_placement_count and checks.get("pip_manifest_hint_count") != pip_placement_count:
             findings.append(Finding("fail", "batch_pip_manifest_hint_gap", "not every PiP placement has manifest hint", str(audit_path)))
-        if audit.get("pip_underfilled_targets"):
+        if require_pip and audit.get("pip_underfilled_targets"):
             findings.append(Finding("fail", "batch_pip_underfilled_targets", "batch audit lists underfilled targets", str(audit_path)))
-        if audit.get("pip_missing_manifest_hint"):
+        if pip_placement_count and audit.get("pip_missing_manifest_hint"):
             findings.append(Finding("fail", "batch_pip_missing_manifest_hint", "batch audit lists PiP without manifest hints", str(audit_path)))
 
     if isinstance(ledger, dict):
@@ -1532,6 +1583,8 @@ def validate_project(
     min_pip_height_px: float,
     min_pip_match_score: float,
     strict_social_ad: bool,
+    require_pip: bool,
+    require_editorial_overlay: bool,
     require_manifest_hint: bool,
     allow_workflow_labels: bool,
 ) -> tuple[dict[str, Any], list[Finding]]:
@@ -1550,6 +1603,15 @@ def validate_project(
     }
 
     findings.extend(validate_text_hygiene(elements, html_path, allow_workflow_labels=allow_workflow_labels))
+    if overlays and not require_editorial_overlay:
+        findings.append(
+            Finding(
+                "fail",
+                "editorial_overlay_unrequested",
+                "editorial overlay / 大字报 is opt-in; remove it or rerun with --require-editorial-overlay only when the user explicitly requested it",
+                str(html_path),
+            )
+        )
     findings.extend(
         validate_captions(
             captions,
@@ -1568,6 +1630,7 @@ def validate_project(
             min_pip_width_px=min_pip_width_px,
             min_pip_height_px=min_pip_height_px,
             strict_social_ad=strict_social_ad,
+            require_pip=require_pip,
         )
     )
     findings.extend(validate_background_html(backgrounds, html_path))
@@ -1588,10 +1651,11 @@ def validate_project(
             min_pip_match_score=min_pip_match_score,
             require_manifest_hint=require_manifest_hint,
             strict_social_ad=strict_social_ad,
+            require_pip=require_pip,
         )
         metrics.update(assignment_metrics)
         findings.extend(assignment_findings)
-    elif strict_social_ad:
+    elif require_pip:
         findings.append(Finding("warn", "missing_assignment", "workflow_assignment.json missing; PiP manifest evidence cannot be fully checked", str(project_root)))
 
     plan_path = project_root / "workflow_composition_plan.json"
@@ -1599,6 +1663,8 @@ def validate_project(
         plan_path,
         strict_social_ad=strict_social_ad,
         max_overlay_units=max_overlay_units,
+        require_pip=require_pip,
+        require_editorial_overlay=require_editorial_overlay,
     )
     metrics.update(plan_metrics)
     findings.extend(plan_findings)
@@ -1616,11 +1682,13 @@ def finding_to_dict(finding: Finding) -> dict[str, str]:
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Validate workflow visual composition contract evidence.")
     parser.add_argument("root", type=Path, help="workflow project root or batch root")
-    parser.add_argument("--strict-social-ad", action="store_true", help="enforce social-ad/batch PiP and diversity gates")
-    parser.add_argument("--min-pip-slots", type=int, default=4, help="minimum cue-bound PiP slots per project in strict mode")
-    parser.add_argument("--min-simultaneous-pips", type=int, default=DEFAULT_MIN_SIMULTANEOUS_PIPS, help="minimum PiP windows that must appear together in strict mode")
-    parser.add_argument("--min-pip-width-px", type=float, default=DEFAULT_MIN_PIP_WIDTH_PX, help="minimum rendered PiP width in strict mode")
-    parser.add_argument("--min-pip-height-px", type=float, default=DEFAULT_MIN_PIP_HEIGHT_PX, help="minimum rendered PiP height in strict mode")
+    parser.add_argument("--strict-social-ad", action="store_true", help="enforce social-ad/batch structure, background, caption, opening, traffic and diversity gates")
+    parser.add_argument("--require-pip", action="store_true", help="require cue-bound semantic PiP slots; use only when the user explicitly asks for PiP/画中画/证据窗")
+    parser.add_argument("--require-editorial-overlay", action="store_true", help="require editorial overlay / 大字报 layers; use only when the user explicitly asks for them")
+    parser.add_argument("--min-pip-slots", type=int, default=4, help="minimum cue-bound PiP slots per project when --require-pip is used")
+    parser.add_argument("--min-simultaneous-pips", type=int, default=DEFAULT_MIN_SIMULTANEOUS_PIPS, help="minimum PiP windows that must appear together when --require-pip is used")
+    parser.add_argument("--min-pip-width-px", type=float, default=DEFAULT_MIN_PIP_WIDTH_PX, help="minimum rendered PiP width when PiP exists")
+    parser.add_argument("--min-pip-height-px", type=float, default=DEFAULT_MIN_PIP_HEIGHT_PX, help="minimum rendered PiP height when PiP exists")
     parser.add_argument("--min-pip-match-score", type=float, default=1.0, help="minimum manifest match_score for PiP slots")
     parser.add_argument("--max-caption-units", type=float, default=DEFAULT_MAX_CAPTION_UNITS, help="single-line caption display unit limit")
     parser.add_argument("--max-overlay-units", type=float, default=DEFAULT_MAX_OVERLAY_UNITS, help="editorial overlay display unit limit")
@@ -1651,6 +1719,8 @@ def main() -> int:
             min_pip_height_px=args.min_pip_height_px,
             min_pip_match_score=args.min_pip_match_score,
             strict_social_ad=args.strict_social_ad,
+            require_pip=args.require_pip,
+            require_editorial_overlay=args.require_editorial_overlay,
             require_manifest_hint=not args.allow_missing_manifest_hint,
             allow_workflow_labels=args.allow_workflow_labels,
         )
@@ -1659,7 +1729,12 @@ def main() -> int:
 
     batch_metrics: dict[str, Any] = {}
     if (root / "asset_diversity_audit.json").exists() or (root / "asset_usage_ledger.json").exists():
-        batch_metrics, batch_findings = validate_batch_audit(root, min_pip_slots=args.min_pip_slots, require_manifest_hint=not args.allow_missing_manifest_hint)
+        batch_metrics, batch_findings = validate_batch_audit(
+            root,
+            min_pip_slots=args.min_pip_slots,
+            require_manifest_hint=not args.allow_missing_manifest_hint,
+            require_pip=args.require_pip,
+        )
         all_findings.extend(batch_findings)
 
     fail_count = sum(1 for item in all_findings if item.severity == "fail")

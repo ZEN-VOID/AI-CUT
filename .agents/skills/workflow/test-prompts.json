@@ -2,7 +2,7 @@
   {
     "id": "workflow-full-hyperframes-edit",
     "prompt": "使用 $workflow：用我的文案、旁白音频、素材视频目录和参考样片，基于 HyperFrames 输出一个 final MP4。",
-    "expected": "路由到 full_hyperframes_edit；加载 hyperframes、core、cli、media、animation、creative；生成素材证据、旁白主时钟、storyboard、composition plan、HyperFrames project；preview validate 后 render；报告 final path、验证证据和残余风险。"
+    "expected": "路由到 full_hyperframes_edit；加载 hyperframes、core、cli、media、animation、creative；生成素材证据、旁白主时钟、storyboard、composition plan、HyperFrames project；默认聚焦最佳视频素材匹配、文案字幕处理、音画同步和必要转场，不主动生成大字报或画中画；preview validate 后 render；报告 final path、验证证据和残余风险。"
   },
   {
     "id": "workflow-plan-only",
@@ -33,6 +33,11 @@
     "id": "workflow-default-aspect-16x9",
     "prompt": "使用 workflow 做一条视频，素材里有竖屏后台截图和横屏工具录屏，但我没有指定比例。",
     "expected": "默认 aspect_ratio=16:9、width=1920、height=1080；竖屏素材只作为画面证据或置于安全画框，不得自动把 final 改成 9:16；报告中用 ffprobe/validation 证明最终尺寸。"
+  },
+  {
+    "id": "workflow-default-no-pip-overlay",
+    "prompt": "使用 workflow 做一条社媒广告成片，帮我从素材里选最合适的视频，字幕要跟旁白同步。",
+    "expected": "路由到 full_hyperframes_edit；默认 composition plan 只要求 background_video 与 dialogue_caption 核心层，重点检查视频素材语义匹配、字幕清洗、cue 时间和音画同步；不得自动规划或生成 semantic_pip / editorial_overlay；visual validator 使用 --strict-social-ad，但不追加 --require-pip 或 --require-editorial-overlay。"
   },
   {
     "id": "workflow-no-workflow-watermark",
@@ -77,17 +82,22 @@
   {
     "id": "workflow-batch-asset-usage-ledger",
     "prompt": "使用 workflow 批量生成 10 条短视频，文案语义接近，但发布平台不能被判重复；每条开头和背景素材要尽量不撞。",
-    "expected": "路由到 full_hyperframes_edit 批量路线；N3 读取或创建 asset_usage_ledger.json 与 projects/素材使用监控.csv，统计 source_video_id、segment_id、analysis_slice_id、image_id、continuity_group 使用次数；N5 为每条生成 planned_usage 和 asset_diversity_audit.json；相邻输出不复用同一 hook 背景和首屏 PiP，重复使用必须写 forced_reuse reason；N9 回写 actual usage，并在 final 验证后更新 projects/素材使用监控.csv。"
+    "expected": "路由到 full_hyperframes_edit 批量路线；N3 读取或创建 asset_usage_ledger.json 与 projects/素材使用监控.csv，统计 source_video_id、segment_id、analysis_slice_id、image_id、continuity_group 和规范化素材路径使用次数，并剔除已达 20 次或本轮会超 20 次的素材；N5 为每条生成 planned_usage 和 asset_diversity_audit.json，单条 final 内同一素材路径只能出现一次，不得切多段重复播放或跨层复用；相邻输出不复用同一 hook 背景，重复使用必须写替代候选和强语义理由，但不得豁免 20 次硬上限或单片一次规则；只有显式 PiP 路线才检查首屏 PiP 不重复；N9 回写 actual usage，并在 final 验证后以 cumulative_add 更新 projects/素材使用监控.csv。"
   },
   {
     "id": "workflow-material-usage-monitor-csv",
     "prompt": "使用 workflow 生成一批成片时，需要把相关素材的使用情况落到 projects/素材使用监控.csv，字段为 素材名 文件路径 使用次数 使用程度，使用程度只能是 全片 或 部分切片。",
-    "expected": "路由到 workflow source-upgrade / full_hyperframes_edit 约束更新；N3 在选材前读取或初始化 projects/素材使用监控.csv；N9 只能在本地 final MP4 验证通过、asset_usage_ledger.json 写入 actual usage 后运行 update_asset_usage_monitor.py 更新 CSV；CSV 表头固定为 素材名,文件路径,使用次数,使用程度，使用次数为整数，使用程度只能是 全片 或 部分切片；preview、失败 render 或网页端输出不得计入使用次数。"
+    "expected": "路由到 workflow source-upgrade / full_hyperframes_edit 约束更新；N3 在选材前读取或初始化 projects/素材使用监控.csv；N9 只能在本地 final MP4 验证通过、asset_usage_ledger.json 写入 actual usage 后运行 update_asset_usage_monitor.py 更新 CSV；更新必须在历史记录之上 cumulative_add，不得普通收口 --rebuild/刷新覆盖；CSV 表头固定为 素材名,文件路径,使用次数,使用程度，使用次数为整数，使用程度只能是 全片 或 部分切片；单素材跨使用程度合计最多 20 次，单条 final 内同素材只计一次且不得重复播放；preview、失败 render 或网页端输出不得计入使用次数。"
+  },
+  {
+    "id": "workflow-material-cap-and-single-final-once",
+    "prompt": "使用 workflow 做成片时，单个素材最多只能用 20 次，而且同一个素材在一条视频里只能出现一次，projects/素材使用监控.csv 不能被覆盖刷新。",
+    "expected": "路由到 source-upgrade / full_hyperframes_edit 约束；N3 必须读取 projects/素材使用监控.csv，按规范化文件路径跨 全片/部分切片 合计使用次数，排除当前已达 20 次或本轮新增会超过 20 次的素材；N5 的 planned_usage 和 asset_diversity_audit.json 必须证明每条 final 内同一素材路径只出现一次，不切多段重复播放、不跨背景/PiP/证据窗复用；N9 在 final 验证通过后运行 update_asset_usage_monitor.py 默认累计追加，输出 mode=cumulative_add；普通任务不得使用 --rebuild，脚本发现 same-final duplicate 或超过 20 次必须 fail 并回 N3/N5/N6。"
   },
   {
     "id": "workflow-semantic-equivalent-visual-variation",
     "prompt": "同一段卖点文案换 5 种说法，用 workflow 各做一条成片，但不要只是换字幕文字和素材顺序。",
-    "expected": "识别为 semantic-equivalent batch；每条成片至少变化 2 个视觉轴，例如背景组合、PiP、首屏构图、转场节奏、大字报提炼、BGM/SFX 节点或色彩版式；输出 asset_diversity_audit.json，说明 variation_axes、reuse_penalty 和替代候选。"
+    "expected": "识别为 semantic-equivalent batch；每条成片至少变化 2 个视觉轴，例如背景组合、首屏构图、转场节奏、BGM/SFX 节点或色彩版式；只有用户显式要求 PiP 或大字报时，才把 PiP 资产或大字报提炼计入变化轴；输出 asset_diversity_audit.json，说明 variation_axes、reuse_penalty 和替代候选。"
   },
   {
     "id": "workflow-consume-deep-manifest-tags",
@@ -97,7 +107,7 @@
   {
     "id": "workflow-layered-rhythm-assembly",
     "prompt": "针对 .agents/skills/workflow 的视频拼接逻辑重构：不要只按文案随机拼素材，要有背景视频拉通、画中画、字幕、大字报，并分成爆款开头、内容部分和引流私域。",
-    "expected": "路由到 workflow source-upgrade / repair_visual_composition；SKILL.md 必须定义 Layered Rhythm Assembly：N3 识别开头、纯漫剧背景、工具、收益、引流、资产图和大字报候选，N5 在 workflow_composition_plan.json 写 background_throughline 与 timeline_segments，覆盖 hook_opening、content_body、private_traffic_cta，每段声明 background_video、semantic_pip、dialogue_caption、editorial_overlay；content_body 覆盖或解释 comic_drama/tool_demo/revenue_proof；background_throughline 和 background_video 必须 mask=none、opacity=1；validate_visual_contract.py --strict-social-ad 必须机械检查缺段、缺层、背景非连续/加蒙版/降低 opacity、缺大字报核心词并输出 FAIL-LAYERED-ASSEMBLY 或 FAIL-QUANT-VISUAL-CONTRACT。"
+    "expected": "路由到 workflow source-upgrade / repair_visual_composition；该提示显式要求画中画和大字报，因此 SKILL.md 必须定义 Layered Rhythm Assembly：N3 识别开头、纯漫剧背景、工具、收益、引流、资产图和显式大字报/PiP候选，N5 在 workflow_composition_plan.json 写 background_throughline 与 timeline_segments，覆盖 hook_opening、content_body、private_traffic_cta，每段声明 background_video、dialogue_caption 核心层，并为显式要求补 semantic_pip、editorial_overlay；content_body 覆盖或解释 comic_drama/tool_demo/revenue_proof；background_throughline 和 background_video 必须 mask=none、opacity=1；validate_visual_contract.py --strict-social-ad --require-pip --require-editorial-overlay 必须机械检查缺段、核心层、显式可选层、背景非连续/加蒙版/降低 opacity、缺大字报核心词并输出 FAIL-LAYERED-ASSEMBLY 或 FAIL-QUANT-VISUAL-CONTRACT。"
   },
   {
     "id": "workflow-regression-latest-run-failures",
@@ -107,22 +117,22 @@
   {
     "id": "workflow-visual-contract-validator",
     "prompt": "使用 workflow 批量生成社媒广告视频，之前出现过括号内提示露出、字幕重复、省略号截断和画中画太少的问题，这次交付前必须自动拦住。",
-    "expected": "路由到 full_hyperframes_edit 或 repair_visual_composition；N7 必须运行 scripts/validate_visual_contract.py --strict-social-ad 并保存 visual_contract_validation.json；若出现 internal_prompt_visible、caption_truncated_or_wrapped、overlay_duplicates_caption、pip_underfilled、pip_missing_manifest_hint 或 pip_weak_manifest_match，必须回 N4/N5/N6/N7 返工，C6/C7/C8 不得 pass。"
+    "expected": "路由到 full_hyperframes_edit 或 repair_visual_composition；用户在本轮明确提到画中画质量，因此 N7 必须运行 scripts/validate_visual_contract.py --strict-social-ad --require-pip 并保存 visual_contract_validation.json；若出现 internal_prompt_visible、caption_truncated_or_wrapped、overlay_duplicates_caption、pip_underfilled、pip_missing_manifest_hint 或 pip_weak_manifest_match，必须回 N4/N5/N6/N7 返工，C6/C7/C8 不得 pass。"
   },
   {
     "id": "workflow-pip-zero-score-blocked",
     "prompt": "使用 workflow 做一批视频，workflow_assignment.json 里每个 PiP 都有 segment_id，但 match_score 都是 0。",
-    "expected": "不能把 segment_id 形式化回指当作已消费视频说明；validate_visual_contract.py 应输出 FAIL-QUANT-VISUAL-CONTRACT / pip_weak_manifest_match，返工到 N3/N5 重做 cue-level match 或补充素材证据。"
+    "expected": "这是显式 PiP/已有 PiP 工程检查；不能把 segment_id 形式化回指当作已消费视频说明；validate_visual_contract.py --require-pip 应输出 FAIL-QUANT-VISUAL-CONTRACT / pip_weak_manifest_match，返工到 N3/N5 重做 cue-level match 或补充素材证据。"
   },
   {
     "id": "workflow-opening-traffic-pip-regression",
     "prompt": "最新一轮 workflow 测试发现：开头没有强制使用 projects/素材/开头素材，开头素材没有完整展现；引流素材本来就模糊还被放大；PiP 仍然只出现一个很小的窗口。",
-    "expected": "路由到 source-upgrade / repair_visual_composition；N3 必须把 projects/素材/开头素材 作为 hook_opening 必选候选池，并标记引流素材的模糊/低清和 no-upscale 约束；N5 的 workflow_composition_plan.json 必须让 hook_opening 选择 开头素材 或 opening_hook，记录 5-10 秒 duration、full_frame/contain/no_crop/scale<=1，并让 private_traffic_cta 使用 no_upscale/native_scale/contain；PiP selection 必须至少有一组同屏 2 个以上、grid group/row/col、width/height、cue_id 和 match_reason；validate_visual_contract.py --strict-social-ad 应阻断 hook_opening_missing_opening_asset、hook_opening_missing_full_display、private_traffic_uses_upscale、pip_no_simultaneous_group、pip_missing_grid_position 或 pip_too_small。"
+    "expected": "路由到 source-upgrade / repair_visual_composition；N3 必须把 projects/素材/开头素材 作为 hook_opening 必选候选池，并标记引流素材的模糊/低清和 no-upscale 约束；N5 的 workflow_composition_plan.json 必须让 hook_opening 选择 开头素材 或 opening_hook，记录 5-10 秒 duration、full_frame/contain/no_crop/scale<=1，并让 private_traffic_cta 使用 no_upscale/native_scale/contain；用户明确提到 PiP 小窗问题时，PiP selection 必须至少有一组同屏 2 个以上、grid group/row/col、width/height、cue_id 和 match_reason；validate_visual_contract.py --strict-social-ad --require-pip 应阻断 hook_opening_missing_opening_asset、hook_opening_missing_full_display、private_traffic_uses_upscale、pip_no_simultaneous_group、pip_missing_grid_position 或 pip_too_small。"
   },
   {
     "id": "workflow-editorial-overlay-audience-regression",
     "prompt": "最新一轮 workflow 测试发现：大字报左上角标题显示成“工作流程/内部学习交流”，而不是匹配文案的精华总结；主入口也没有说明成片观众是短视频平台 C 端用户。",
-    "expected": "路由到 source-upgrade / repair_visual_composition；N1 必须写 audience_profile=short_video_c_end_user，明确 final 是给短视频平台 C 端用户/外部潜在客户观看，不是内部学习交流；N5 的 editorial_overlay.core_title/core_phrase 必须从匹配文案 source_cue_ids/source_text 中提炼精华总结，并记录 match_reason；N6/N7 不得把 工作流程、执行流程、内部学习交流、项目复盘、pipeline 或 workflow 展示为左上角标题、大字报、HUD 或 PiP 标签；validate_visual_contract.py --strict-social-ad 应阻断 editorial_overlay_internal_process_title、editorial_overlay_missing_segment_source、internal_process_title_visible 或 workflow_label_visible。"
+    "expected": "路由到 source-upgrade / repair_visual_composition；N1 必须写 audience_profile=short_video_c_end_user，明确 final 是给短视频平台 C 端用户/外部潜在客户观看，不是内部学习交流；该提示显式要求修复大字报，N5 的 editorial_overlay.core_title/core_phrase 必须从匹配文案 source_cue_ids/source_text 中提炼精华总结，并记录 match_reason；N6/N7 不得把 工作流程、执行流程、内部学习交流、项目复盘、pipeline 或 workflow 展示为左上角标题、大字报、HUD 或 PiP 标签；validate_visual_contract.py --strict-social-ad --require-editorial-overlay 应阻断 editorial_overlay_internal_process_title、editorial_overlay_missing_segment_source、internal_process_title_visible 或 workflow_label_visible。"
   },
   {
     "id": "workflow-skill-2-context-split-upgrade",

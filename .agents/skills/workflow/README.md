@@ -2,16 +2,16 @@
 
 Workflow is a HyperFrames-native workflow for legacy F1/F2-style reference-rhythm video creation.
 
-Use workflow when the user wants a script/voiceover/media/reference package turned into a previewable, validated, and finally rendered HyperFrames video, with captions, overlays, PiP, transitions, BGM and final validation handled through `.agents/skills/hyperframes/`.
+Use workflow when the user wants a script/voiceover/media/reference package turned into a previewable, validated, and finally rendered HyperFrames video, with captions, transitions, BGM, optional explicit overlays/PiP, and final validation handled through `.agents/skills/hyperframes/`.
 
-Default audience is short-video platform C-end viewers or external potential customers, not internal learning, project review, or team training. Audience-visible titles, captions, overlays, PiP labels and CTA copy must read like public-facing video language.
+Default audience is short-video platform C-end viewers or external potential customers, not internal learning, project review, or team training. Audience-visible captions, CTA copy, and explicitly requested overlays/PiP labels must read like public-facing video language.
 
 Default video aspect ratio is `16:9` (`1920x1080`). Use another ratio only when the user explicitly asks for it, a named platform/spec requires it, or the project source of truth has already locked that format.
 
 ## Runtime Boundary
 
 - workflow uses Codex/LLM for video understanding, storyboard decisions, subtitle cue review, visual matching and creative judgment.
-- workflow uses HyperFrames for composition authoring, media tracks, captions, overlays, animation, preview, validation and render.
+- workflow uses HyperFrames for composition authoring, media tracks, captions, optional explicit overlays/PiP, animation, preview, validation and render.
 - workflow does not depend on F1 scripts, MoviePy, or an ffmpeg filter graph as its primary renderer. It may ingest `workflow/video-to-manifest` output only as optional source evidence before building workflow-native `asset_evidence.json`.
 
 ## Directory Tree
@@ -116,7 +116,7 @@ Empty taxonomy folders are placeholders only. workflow must still use real files
 
 When both `projects/内容/文案/文案N.txt` and `projects/内容/音频/文案N.mp3` exist, workflow should treat the shared stem as the stable batch item key and must not randomly cross-pair scripts and audio.
 
-`projects/素材使用监控.csv` is the global usage monitor for shared material pools. It must keep exactly four columns: `素材名`, `文件路径`, `使用次数`, `使用程度`; `使用程度` is either `全片` or `部分切片`. Detailed per-output segment evidence stays in `asset_usage_ledger.json`; the CSV is updated only after a local final MP4 has passed verification.
+`projects/素材使用监控.csv` is the global usage monitor for shared material pools. It must keep exactly four columns: `素材名`, `文件路径`, `使用次数`, `使用程度`; `使用程度` is either `全片` or `部分切片`. Detailed per-output segment evidence stays in `asset_usage_ledger.json`; the CSV is updated only after a local final MP4 has passed verification. Normal task close is cumulative: read the existing CSV, add this verified task's actual usage, and write the new totals. Do not rebuild or refresh history during ordinary final close. A single material path has a hard global cap of 20 total uses, and the same material path may appear only once in a single final video.
 
 ## Layered Assembly Model
 
@@ -126,14 +126,14 @@ workflow videos should be planned as a rhythm structure before assets are placed
 - `content_body`: the main content, with comic-drama, tool/workflow and revenue/proof material all covered or explicitly marked unavailable.
 - `private_traffic_cta`: private-domain or next-action traffic segment; traffic material should use native-scale/contain framing and must not be enlarged.
 
-Each segment must declare four visual layers in `workflow_composition_plan.json`:
+Each segment must declare the core visual layers in `workflow_composition_plan.json`:
 
 - `background_video`: a continuous background throughline, usually from `projects/素材/漫剧素材/纯漫剧素材/`, with `mask: none` and `opacity: 1`.
-- `semantic_pip`: cue-bound picture-in-picture evidence matched to the script, including at least one simultaneous multi-window grid group for strict social-ad/batch routes.
 - `dialogue_caption`: subtitle cues following the script/audio clock.
-- `editorial_overlay`: one semantic paragraph title or short sentence extracted from the segment's own matched script cues, with source cue/text/reason evidence. It must not show internal labels such as 工作流程, 内部学习交流, 项目复盘, pipeline, or workflow as the left-corner/title text.
+- `semantic_pip`: optional. Only include cue-bound picture-in-picture evidence when the user explicitly asks for PiP / 画中画 / 证据窗. Strict explicit-PiP routes must include a simultaneous multi-window grid group.
+- `editorial_overlay`: optional. Only include 大字报 / title-card summaries when the user explicitly asks for them. They must be extracted from the segment's own matched script cues with source cue/text/reason evidence and must not show internal labels such as 工作流程, 内部学习交流, 项目复盘, pipeline, or workflow as the left-corner/title text.
 
-The plan should expose `background_throughline` and `timeline_segments` so `validate_visual_contract.py --strict-social-ad` can check that the video is not just random script-driven asset rotation.
+The plan should expose `background_throughline` and `timeline_segments` so `validate_visual_contract.py --strict-social-ad` can check that the video is not just random script-driven asset rotation. Add `--require-pip` or `--require-editorial-overlay` only when those layers were explicitly requested.
 
 ## Validation
 

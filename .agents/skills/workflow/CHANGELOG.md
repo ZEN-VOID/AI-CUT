@@ -1,5 +1,13 @@
 # Changelog: workflow
 
+## 2026-07-07
+
+- Changed the default social-ad visual contract: workflow no longer enables 大字报 / `editorial_overlay` or 画中画 / `semantic_pip` by default; those layers are opt-in only when the user explicitly asks for them.
+- Updated `validate_visual_contract.py` so `--strict-social-ad` checks core structure, background video, captions, opening material, traffic no-upscale and diversity by default; unrequested PiP/大字报 now fail, while `--require-pip` and `--require-editorial-overlay` enforce the optional layers only on explicit routes.
+- Synced `SKILL.md`, README, scripts docs, templates, `CONTEXT/` memories and regression prompts to focus default execution on best video-material matching, caption handling, audio-video sync and necessary transitions.
+- Hardened material usage governance: single material paths now have a 20-use global cap, a single final may use a material path only once, and `projects/素材使用监控.csv` updates are normal cumulative adds instead of ordinary rebuild/refresh writes.
+- Updated `update_asset_usage_monitor.py` to fail same-final duplicate material paths, cap overflow and unacknowledged `--rebuild`; its normal success report now exposes `mode=cumulative_add`.
+
 ## 2026-07-01
 
 - Clarified the workflow entry audience as short-video platform C-end viewers, not internal learning exchange or project review, and hardened editorial overlay rules so title text must summarize matched copy source cue/text/reason instead of exposing workflow/process labels.
