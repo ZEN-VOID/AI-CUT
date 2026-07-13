@@ -1,5 +1,12 @@
 # Repository Guidelines
 
+## 三体治理入口
+
+- 仓库根 `AGENTS.md` 是项目级治理的唯一权威真源。
+- 根 `CLAUDE.md` 与 `CODEBUDDY.md` 都必须精确为 `@AGENTS.md` 加一个结尾换行；不得复制治理正文或独立维护规则。
+- 项目级规则变更只编辑 `AGENTS.md`；单一工具规则仍写入真源并显式标注适用范围。
+- 完成前必须校验两个入口的精确内容，并确认相对路径可解析到根 `AGENTS.md`。
+
 ## Project Structure & Module Organization
 
 This repository is a Codex workflow and skill workspace, not a single application. Repo-local skills live in `.agents/skills/`; each durable skill should keep its contract in `SKILL.md`, notes in `CONTEXT.md`, helpers in `scripts/`, tests in `tests/`, and examples in `test-prompts.json`. Codex governance and routing live in `.codex/`, especially `registry/`, `rules/`, `templates/`, and `runbooks/`. Local media and generated work belong in `projects/`, while planning and audit artifacts belong in `PRPs/` and `reports/`; these working directories are ignored by Git.
