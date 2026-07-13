@@ -1,7 +1,7 @@
 {
   "session_id": "test-session",
   "transcript_path": "/tmp/transcript.txt",
-  "cwd": "/Volumes/AIGC/AI-CUT",
+  "cwd": "/Volumes/AIGC/AI-VCR",
   "permission_mode": "ask",
   "hook_event_name": "UserPromptSubmit",
   "user_prompt": "[$github-push] version-bump: small"

@@ -1,18 +1,38 @@
 # Workflow
 
-Workflow is a HyperFrames-native workflow for legacy F1/F2-style reference-rhythm video creation.
+`workflow` is a Skill 2.0 package for turning livestream teaching material into concise, source-backed instructional video packages.
 
-Use workflow when the user wants a script/voiceover/media/reference package turned into a previewable, validated, and finally rendered HyperFrames video, with captions, transitions, BGM, optional explicit overlays/PiP, and final validation handled through `.agents/skills/hyperframes/`.
+Default inputs:
 
-Default audience is short-video platform C-end viewers or external potential customers, not internal learning, project review, or team training. Audience-visible captions, CTA copy, and explicitly requested overlays/PiP labels must read like public-facing video language.
+- Video material: `projects/素材/`
+- Optional learning-step guide, course notes, or brief: `projects/内容/`
+- Output: `projects/输出/[任务名]/`
 
-Default video aspect ratio is `16:9` (`1920x1080`). Use another ratio only when the user explicitly asks for it, a named platform/spec requires it, or the project source of truth has already locked that format.
+When no guide is provided, the workflow derives learning steps from the source video/audio transcript and visual teaching evidence before selecting clips.
 
-## Runtime Boundary
+Source material is preprocessed by default:
 
-- workflow uses Codex/LLM for video understanding, storyboard decisions, subtitle cue review, visual matching and creative judgment.
-- workflow uses HyperFrames for composition authoring, media tracks, captions, optional explicit overlays/PiP, animation, preview, validation and render.
-- workflow does not depend on F1 scripts, MoviePy, or an ffmpeg filter graph as its primary renderer. It may ingest `workflow/video-to-manifest` output only as optional source evidence before building workflow-native `asset_evidence.json`.
+- live footage uses `speed=1.1` unless explicitly overridden or QA rejects acceleration
+- original and derived timestamps remain mapped for evidence, subtitles, and QA
+- repeated livestream loops are recognized as full-film source units such as `-1`, `-2`, and `-3`
+
+Core rendered output includes long-form and slice deliverables by default:
+
+- one optimized coherent long-form teaching film with unnecessary pauses, blanks, livestream chatter, repetition, and off-topic material removed
+- one maximized coherent teaching slice series under `final/slices/`, where every viable source-backed slice opportunity is output or justified as excluded, and each slice is cut on content boundaries and preserves the core explanation, necessary context, source evidence, and a natural ending
+- one combination slice extension under `final/slices/combinations/` when not explicitly exempted: A is the stable first 20%, C is the stable final 10%, B1-B5 are middle intervals with controlled random candidate selection for non-repetitive reuse; random selection is no-replacement-first and only reuses candidates with balanced counts after a pool is exhausted or continuity requires it; when the candidate pool supports it, output at least 10 combinations per source unit and split each long combination into about 10 coherent combination-derived part slices
+
+Final subtitle output is also required by default:
+
+- one semantically corrected long-film SRT matched to the final long-film audio timeline
+- matching semantically corrected SRT sidecars for every rendered slice
+- display-proofed final cue inputs before visible rendering, so each on-screen subtitle is a complete sentence, clause, or natural short phrase and repair runs record whether rerendering is unnecessary, affected-only, all subtitled videos, or blocked
+- visible captions rendered into the final long-film MP4 and every rendered slice MP4, unless the user explicitly asks for sidecar-only output
+- subtitle correction artifacts under `04-assets/subtitles/`, including raw subtitle source, timing projection, terminology/correction plan, and subtitle QA evidence
+
+HyperFrames is the primary composition and render route. `video-editing-skill`, `wis`, and `wangjianshuo-perspective` are sibling capabilities loaded only through the peer routing rules in `SKILL.md`.
+
+When the teaching plan needs extra voiceover, subtitle dubbing, or bridge narration, the workflow can load `cli/mmx-cli` to synthesize approved source-backed text into versioned audio files under `projects/素材/`, then use those files as traceable edit assets.
 
 ## Directory Tree
 
@@ -20,138 +40,47 @@ Default video aspect ratio is `16:9` (`1920x1080`). Use another ratio only when 
 workflow/
 ├── agents/
 │   └── openai.yaml
-├── CHANGELOG.md
 ├── CONTEXT/
-│   ├── 重要记忆.md
-│   ├── 负向经验.md
-│   ├── 正向经验.md
 │   ├── 好的示例.md
-│   └── 坏的示例.md
-├── README.md
+│   ├── 坏的示例.md
+│   ├── 正向经验.md
+│   ├── 负向经验.md
+│   └── 重要记忆.md
 ├── references/
-│   └── legacy-migration-matrix.md
+│   └── skill-2.0-package-contract.md
+├── scripts/
+│   └── README.md
+├── templates/
+│   └── output-template.md
 ├── review/
 │   └── review-contract.md
-├── scripts/
-│   ├── README.md
-│   ├── update_asset_usage_monitor.py
-│   ├── validate_dialogue_sync.py
-│   └── validate_visual_contract.py
-├── SKILL.md
-├── templates/
-│   ├── execution-report.md
-│   ├── output-template.md
-│   └── prp.md
-├── test-prompts.json
 ├── types/
-    ├── default/
-    │   └── default.md
-    └── type-map.md
-└── video-to-manifest/
-    ├── agents/
-    │   └── openai.yaml
-    ├── CHANGELOG.md
-    ├── CONTEXT.md
-    ├── README.md
-    ├── SKILL.md
-    ├── scripts/
-    │   ├── README.md
-    │   ├── inspect_video_material.py
-    │   └── validate_video_manifest.py
-    ├── templates/
-    │   ├── manifest-template.yaml
-    │   └── output-template.md
-    └── test-prompts.json
+│   ├── type-map.md
+│   └── default/
+│       └── default.md
+├── CHANGELOG.md
+├── SKILL.md
+├── test-prompts.json
+└── README.md
 ```
 
-Runtime experience and reusable lessons live in the five-file `CONTEXT/` structure required by Skill 2.0:
+## Usage
 
-- `重要记忆.md`: durable boundaries, Context Health and writeback policy.
-- `负向经验.md`: failure modes, root causes and repair playbook.
-- `正向经验.md`: reusable heuristics and successful patterns.
-- `好的示例.md`: short examples that can be copied as execution patterns.
-- `坏的示例.md`: counterexamples tied to fail codes.
+Invoke `$workflow` when the task is to understand long teaching footage, preprocess it with traceable 1.1x timing, split repeated livestream rounds into source units when present, align it to a supplied course or learning-step guide when available, derive a source-backed teaching outline when it is not available, extract the useful visual/audio moments, and deliver a clean caption-visible teaching long film plus maximized coherent content-boundary teaching slices and A/B1-B5/C combination slices with final-audio-matched corrected subtitles, or a source-backed edit plan when rendering is not in scope.
 
-## Typical Outputs
+For process tutorials, the default target shape is result or learner promise, roadmap, step demos, rationale or parameter notes, collapsed repetition, and final proof when source evidence supports those parts.
 
-- `workflow_intake.json`
-- `asset_evidence.json`
-- `projects/素材使用监控.csv` as the global four-column material usage monitor
-- `dialogue_alignment.json`
-- `dialogue_sync_validation.json`
-- `reference_rhythm.json`
-- `STORYBOARD.md`
-- `workflow_composition_plan.json`
-- HyperFrames project files such as `index.html` and adopted assets
-- snapshots / render logs
-- `<work-root>/renders/<project-slug>_workflow_final.mp4` for single workflow tasks
-- `projects/output/<日期>/<project-slug>_workflow_final.mp4` as the canonical final path for single workflow tasks
-- `projects/output/<日期>/成片/<project-slug>_workflow_final.mp4` as the canonical final collection path for batch tasks
-- default final dimensions: `1920x1080` unless an explicit non-16:9 exception is recorded
-- `reports/workflow-execution-report-YYYYMMDD-HHMM.md`
+Generated supplemental audio follows the `Supplemental Audio Material Contract` in `SKILL.md`: the script is LLM-authored from source evidence first, `mmx-cli` only synthesizes the approved text, and the generated audio must be manifested, aligned, mixed, and QA-sampled.
 
-## Default Paths
+Subtitles and text overlays follow the `Subtitle Style Contract` and `Visible Subtitle Rendering Contract` in `SKILL.md`: narration captions, chapter titles, step labels, parameter callouts, emphasis keywords, resource notes, and final-proof captions are separate categories with fixed font, size, contrast, safe-area, and QA requirements; final MP4s must show visible bottom-aligned narration captions by default at visual 100 px for 1080p output, scaled proportionally as `round(100 * output_height / 1080)` for non-1080p output heights,米黄色 `#FFF1C7`, high-contrast black outline/shadow, with one visual line per cue and long text split into short consecutive semantically complete phrase cues instead of auto-wrapped or mechanically cut mid-phrase.
 
-- No target path: `projects/output/<日期>/过程/<project-slug>/`
-- Single final path: `projects/output/<日期>/<project-slug>_workflow_final.mp4`
-- Batch work root: `projects/output/<日期>/过程/<batch-id>/`
-- Batch final collection: `projects/output/<日期>/成片/`
-- User `result_dir`: process files under `<result_dir>/<日期>/过程/<project-slug>/` or `<result_dir>/<日期>/过程/<batch-id>/`; final files under `<result_dir>/<日期>/` or `<result_dir>/<日期>/成片/`
-- Shared cumulative assets: `projects/素材/` and `projects/示例/` are read-only source pools, not daily output roots.
+Subtitle text follows the `Semantic Subtitle Processing Contract` and `Subtitle Display Proofing Contract` in `SKILL.md`: raw ASR is only intermediate evidence; final `.srt` files must be projected to the rendered audio timeline, semantically corrected with source-backed terminology, display-proofed for complete visible cue phrases before rendering, rendered visibly into final MP4s by default, and QA-checked for cue order, overlap, duration, display completeness, visibility, and high-risk term drift.
 
-## Shared Asset Taxonomy
+The runtime truth is `SKILL.md`. README is only a quick entry and directory summary.
 
-`projects/素材/` may contain preprocessing folders that guide later material filling and workflow selection:
+## Runtime Spine
 
-- Visual material branches: `开头素材/`, `收益素材/`, `漫剧素材/`, `大字报/`, `工作流素材/`, `引流素材/`, `资产图/`, `转场素材/`
-- Keyword branch: `核心关键词/`
-- Legacy raw inputs: historical raw pools should live under `旧/` or another explicitly marked archive.
-
-Empty taxonomy folders are placeholders only. workflow must still use real files, manifests and visual evidence before selecting assets.
-
-`projects/内容/` contains the current content truth and audio-clock pools:
-
-- `文案/` for batch `.txt` scripts.
-- `音频/` for same-stem voiceover audio; `BGM.*` under `音频/` is only a background music candidate.
-
-When both `projects/内容/文案/文案N.txt` and `projects/内容/音频/文案N.mp3` exist, workflow should treat the shared stem as the stable batch item key and must not randomly cross-pair scripts and audio.
-
-`projects/素材使用监控.csv` is the global usage monitor for shared material pools. It must keep exactly four columns: `素材名`, `文件路径`, `使用次数`, `使用程度`; `使用程度` is either `全片` or `部分切片`. Detailed per-output segment evidence stays in `asset_usage_ledger.json`; the CSV is updated only after a local final MP4 has passed verification. Normal task close is cumulative: read the existing CSV, add this verified task's actual usage, and write the new totals. Do not rebuild or refresh history during ordinary final close. A single material path has a hard global cap of 20 total uses, and the same material path may appear only once in a single final video.
-
-## Layered Assembly Model
-
-workflow videos should be planned as a rhythm structure before assets are placed. For social ads, viral openings and batch videos, the default structure is:
-
-- `hook_opening`: opening material from `projects/素材/开头素材/` or equivalent `opening_hook`, shown full-frame for a 5-10 second span while the first 3-5 seconds establish the hook.
-- `content_body`: the main content, with comic-drama, tool/workflow and revenue/proof material all covered or explicitly marked unavailable.
-- `private_traffic_cta`: private-domain or next-action traffic segment; traffic material should use native-scale/contain framing and must not be enlarged.
-
-Each segment must declare the core visual layers in `workflow_composition_plan.json`:
-
-- `background_video`: a continuous background throughline, usually from `projects/素材/漫剧素材/纯漫剧素材/`, with `mask: none` and `opacity: 1`.
-- `dialogue_caption`: subtitle cues following the script/audio clock.
-- `semantic_pip`: optional. Only include cue-bound picture-in-picture evidence when the user explicitly asks for PiP / 画中画 / 证据窗. Strict explicit-PiP routes must include a simultaneous multi-window grid group.
-- `editorial_overlay`: optional. Only include 大字报 / title-card summaries when the user explicitly asks for them. They must be extracted from the segment's own matched script cues with source cue/text/reason evidence and must not show internal labels such as 工作流程, 内部学习交流, 项目复盘, pipeline, or workflow as the left-corner/title text.
-
-The plan should expose `background_throughline` and `timeline_segments` so `validate_visual_contract.py --strict-social-ad` can check that the video is not just random script-driven asset rotation. Add `--require-pip` or `--require-editorial-overlay` only when those layers were explicitly requested.
-
-## Validation
-
-For actual projects, run the HyperFrames checks that apply to the generated project:
-
-```bash
-python3 .agents/skills/workflow/scripts/validate_dialogue_sync.py --strict-final <project-root> --write-report <project-root>/dialogue_sync_validation.json
-python3 .agents/skills/workflow/scripts/validate_visual_contract.py <project-root> --write-report <project-root>/visual_contract_validation.json
-python3 .agents/skills/workflow/scripts/update_asset_usage_monitor.py <batch-or-output-root>
-npx hyperframes lint
-npx hyperframes validate
-npx hyperframes inspect
-npx hyperframes snapshot
-npx hyperframes render
-```
-
-Render is required by default for ordinary workflow tasks. Only explicit plan-only, audit-only, asset-evidence-only, no-render requests, or dependency blockers may stop before final MP4, and the report must state the exception.
-Browser/page preview is not a final output; ordinary workflow tasks must produce a local canonical MP4 under the configured output root.
-
-For dialogue-caption projects, final render cannot pass only on `manual_script_audio_duration`, equal-split timing, preview cue notes, or visually plausible but shuffled subtitle text. `dialogue_sync_validation.json` must be pass, including cue timing, sortable script order, per-cue audio anchors, and HTML `data-cue-id` / timing / text alignment, or the route returns to `repair_dialogue_timing`.
-For current `projects/内容/文案/` + `projects/内容/音频/` routes, run the dialogue validator with `--require-script-audio-pair` and record `source_script`, `source_audio`, and the shared stem.
+- `SKILL.md` owns input routing, business profile, type routing, node map, peer skill routing, review gates, and output contract.
+- `CONTEXT/` stores reusable examples and learning only; it does not redefine rules.
+- `types/`, `references/`, `review/`, `templates/`, and `scripts/` are authorized detail modules and cannot replace `SKILL.md`.
+- Final task artifacts belong under `projects/输出/[任务名]/` by default. User-provided legacy task paths are treated as explicit overrides, not as the current default.

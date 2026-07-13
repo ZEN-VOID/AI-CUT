@@ -9,7 +9,7 @@ import sync_version  # noqa: E402
 
 
 def test_update_text_adds_detailed_entry() -> None:
-    source = """# AI-CUT 版本记录
+    source = """# AI-VCR 版本记录
 
 当前版本：`V1.0.2`
 最后更新：2026-07-03 03:51 UTC

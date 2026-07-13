@@ -1,142 +1,87 @@
 [
   {
-    "id": "workflow-full-hyperframes-edit",
-    "prompt": "使用 $workflow：用我的文案、旁白音频、素材视频目录和参考样片，基于 HyperFrames 输出一个 final MP4。",
-    "expected": "路由到 full_hyperframes_edit；加载 hyperframes、core、cli、media、animation、creative；生成素材证据、旁白主时钟、storyboard、composition plan、HyperFrames project；默认聚焦最佳视频素材匹配、文案字幕处理、音画同步和必要转场，不主动生成大字报或画中画；preview validate 后 render；报告 final path、验证证据和残余风险。"
+    "id": "full-live-teaching-cut",
+    "prompt": "Use $workflow to turn the AIGC teaching livestream material in projects/素材 and the learning-step guide in projects/内容 into a concise pure teaching video named ai-course-basics.",
+    "expected": "Routes to teaching-cut, scans default paths, builds source manifest, source-preprocess plan with speed=1.1 or explicit exception, transcript or equivalent evidence, guide-step map, teaching cut plan, slice plan, combination-slice plan when not exempted, subtitle correction plan, HyperFrames composition or documented fallback, optimized long video, coherent slice series under final/slices/, combination slices under final/slices/combinations/ when in scope, semantically corrected final SRT files matched to final audio, long-film QA, slice QA, combination-slice QA, subtitle QA, and projects/输出/ai-course-basics/final/manifest.json."
   },
   {
-    "id": "workflow-plan-only",
-    "prompt": "使用 $workflow 先只做 PRP 和 storyboard，不要渲染。",
-    "expected": "路由到 plan_only；不执行 render；输出 workflow PRP、reference rhythm、asset evidence 摘要、dialogue clock 策略和 HyperFrames composition plan 草案。"
+    "id": "source-derived-guide-from-material",
+    "prompt": "Use $workflow to make a concise pure teaching video from the AIGC livestream material in projects/素材. No teaching-step guide or course notes were provided.",
+    "expected": "Routes to source-derived-guide, scans projects/素材, creates source preprocessing and round/source-unit evidence, creates transcript or equivalent evidence, derives source-backed learning steps from audio/video semantics, writes 02-guide-alignment/derived-learning-steps.md, maps selected long-film segments plus sequential and combination slices to those derived steps, prepares subtitle timing projection and semantic correction evidence, and continues through HyperFrames or a documented fallback to produce optimized long video, final/slices/, final/slices/combinations/ when in scope, and corrected final subtitles."
   },
   {
-    "id": "workflow-hyperframes-project-no-render",
-    "prompt": "用 workflow 把这个讲解脚本和素材做成可预览的 HyperFrames 工程，先别出最终视频。",
-    "expected": "因为用户明确说先别出最终视频，路由到 hyperframes_project_build；完成 N1-N7；输出可预览工程、snapshot/inspect 证据和报告；completion gate 停在 C6，并在报告中写明 no-render 豁免。"
+    "id": "process-tutorial-teaching-shape",
+    "prompt": "Use $workflow on a process tutorial source where the teacher shows a final result, lists five steps, demonstrates one or two examples of a repeated operation, gives model parameters, and shows the final output.",
+    "expected": "Keeps a source-backed outcome hook, roadmap, step demos, rationale or parameter notes, repetition-collapse rationale, and final proof; selected segments include segment roles and the review can fail with FAIL-TEACHING-SHAPE if those source-supported parts are missing."
   },
   {
-    "id": "workflow-default-final-render",
-    "prompt": "使用 .agents/skills/workflow，针对这个项目执行一轮任务，每个文案一条。",
-    "expected": "在有文案、旁白音频和素材池时默认路由到 full_hyperframes_edit；每条文案必须按默认 16:9、1920x1080 完成 preview validation 后 render 本地 final MP4；工程、日志、快照和验证报告默认进入 projects/output/<日期>/过程/；单条 final 验证后归集到 projects/output/<日期>/；不能因为用户没有额外说“成片”就停在 project build 或网页预览。"
+    "id": "dual-output-long-plus-slices",
+    "prompt": "Use $workflow on a 70-minute screen-recorded teaching session. Produce the complete optimized long teaching film and a series of coherent teaching slices.",
+    "expected": "Applies the Dual Output Contract, writes 03-edit-plan/teaching-cut-plan.md, 03-edit-plan/slice-plan.md with content-boundary start/end rationale, and 03-edit-plan/combination-slice-plan.md unless explicitly exempted, renders final/[任务名].mp4 and final/slices/[NN]-[slice-slug].mp4 files plus final/slices/combinations/ when in scope, writes slice indexes, QA-checks the long film and every sequential/combination slice, and fails with FAIL-DUAL-OUTPUT if any required deliverable set is missing, any slice lacks core explanation/context/source evidence, or slice boundaries were chosen by average duration/fixed chunks rather than teaching content."
   },
   {
-    "id": "workflow-projects-output-and-shared-assets",
-    "prompt": "使用 workflow 批量生成今天的 6 条成片，素材从 projects/素材 和 projects/示例 里选，最后我想方便查看。",
-    "expected": "N1 将 projects/素材/ 和 projects/示例/ 记录为只读通用素材池，不把它们当作当日内置素材副本或输出目录；默认 batch_root 为 projects/output/<日期>/过程/<batch-id>/；N9 在 final 验证后把 6 条最终视频移动/归集到 projects/output/<日期>/成片/，并同步 execution report 与 asset_usage_ledger.json.final_path。"
+    "id": "source-preprocess-rounds-and-combination-slices",
+    "prompt": "Use $workflow on one long livestream source that repeats the same teaching loop three times. Apply the default 1.1x preprocessing, split repeated rounds, and maximize non-repetitive slice reuse.",
+    "expected": "Applies the Source Material Preprocessing Contract and Combination Slice Utilization Contract, writes 01-understanding/source-preprocess-plan.md with speed=1.1 or an explicit exception, writes 01-understanding/round-map.json with source units such as -1/-2/-3, plans long-film outputs per usable source unit, writes 03-edit-plan/combination-slice-plan.md with semantic A, B1-B5, and C bands, creates 3-5 viable B candidates per interval or documents why not, records controlled random seed/selection or order-preserving recombination choices and non-repetition in the combination manifest, renders final/slices/combinations/ unless explicitly exempted or blocked with evidence, and fails with FAIL-SOURCE-PREPROCESS or FAIL-COMBINATION-SLICES if speed/timestamp mapping, round recognition, candidate pools, random/order-preserving selection, or combination QA is missing."
   },
   {
-    "id": "workflow-current-script-audio-pairing",
-    "prompt": "使用 workflow 根据 projects/内容/文案 和 projects/内容/音频 批量生成成片；每个文案都有同名 mp3，音频目录里还有 BGM.mp4。",
-    "expected": "N1 扫描 projects/内容/文案/*.txt 和 projects/内容/音频/*.mp3，按 stem 建立 script_audio_pair_map 和 selected_script_audio_pair，例如 文案17.txt -> 文案17.mp3；BGM.mp4 只作为 BGM 候选，不作为 audio_clock；N4 的 dialogue_alignment.json 记录 source_script/source_audio/script_audio_stem，缺同名音频时请求 TTS 或人工授权，不得跨编号随机配对，也不得自行生成替代文案或旁白；final 校验使用 validate_dialogue_sync.py --strict-final --require-script-audio-pair。"
+    "id": "maximize-coherent-slice-quantity",
+    "prompt": "Use $workflow on a long teaching livestream with many coherent subtopics and examples. For every source-unit round, keep the content continuous and coherent, but maximize the number of output slices.",
+    "expected": "Applies the Slice Quantity Maximization Contract, writes a slice opportunity inventory per source unit, records candidate_count, sequential_output_count, combination_candidate_count, combination_output_count, and excluded_count, outputs every coherent source-backed slice opportunity or places it into a combination pool unless there is a documented exclusion reason, avoids arbitrary quantity caps, preserves content-boundary starts and natural endings for each slice, and fails with FAIL-SLICE-QUANTITY if the run only outputs a representative subset, omits excluded-slice rationale, or drops viable coherent slices for convenience."
   },
   {
-    "id": "workflow-default-aspect-16x9",
-    "prompt": "使用 workflow 做一条视频，素材里有竖屏后台截图和横屏工具录屏，但我没有指定比例。",
-    "expected": "默认 aspect_ratio=16:9、width=1920、height=1080；竖屏素材只作为画面证据或置于安全画框，不得自动把 final 改成 9:16；报告中用 ffprobe/validation 证明最终尺寸。"
+    "id": "visible-subtitles-and-content-boundaries",
+    "prompt": "Repair an existing $workflow output: the final videos have matching SRT files but no subtitles appear on screen, and the slice series feels like average-duration chunks instead of complete teaching segments.",
+    "expected": "Routes to repair-review, traces missing visible subtitles to N5/N6 and average-duration slice boundaries to N3, updates the source-layer rules if needed, rerenders the long film and every slice with visible captions unless an explicit sidecar-only exception exists, replans slices around content-driven starts and natural endings, records subtitle_render_mode and sampled-frame caption QA, and fails with FAIL-SUBTITLE-STYLE or FAIL-DUAL-OUTPUT if visible captions or content-boundary slice evidence is missing."
   },
   {
-    "id": "workflow-default-no-pip-overlay",
-    "prompt": "使用 workflow 做一条社媒广告成片，帮我从素材里选最合适的视频，字幕要跟旁白同步。",
-    "expected": "路由到 full_hyperframes_edit；默认 composition plan 只要求 background_video 与 dialogue_caption 核心层，重点检查视频素材语义匹配、字幕清洗、cue 时间和音画同步；不得自动规划或生成 semantic_pip / editorial_overlay；visual validator 使用 --strict-social-ad，但不追加 --require-pip 或 --require-editorial-overlay。"
+    "id": "subtitle-style-categories",
+    "prompt": "Use $workflow to render a teaching video that needs narration captions, chapter titles, step labels, parameter callouts, resource notes, emphasis keywords, and a final proof caption.",
+    "expected": "Applies the Subtitle Style Contract, records 05-hyperframes/subtitle-style-spec.md, keeps source UI readable, renders narration captions at the default 100 px for 1080p output and scales proportionally by output height unless an exact user override is recorded, keeps captions bottom-aligned and single-line per cue, splits long caption text into short consecutive cues instead of renderer wrapping, samples frames for readability and overlap QA, and fails with FAIL-SUBTITLE-STYLE for wrong-size, low-contrast, non-bottom, wrapped, obstructive, mistimed, inconsistent, or uncategorized text overlays."
   },
   {
-    "id": "workflow-no-workflow-watermark",
-    "prompt": "使用 workflow 输出最终成片，不要画面里出现 workflow HyperFrames / 文案3 这种水印。",
-    "expected": "路由到 visual repair 或 full_hyperframes_edit；删除画面内 workflow、HyperFrames、文案编号、参考说明等工具/流程水印；重新 snapshot/render，并在报告中保留流程信息而不是烧进画面。"
+    "id": "repair-visible-caption-style",
+    "prompt": "Repair an existing $workflow output: subtitles now appear, but the font is clearly too small, captions sit too high, and a single caption wraps into two lines. Keep captions at the bottom and split long subtitles instead of wrapping.",
+    "expected": "Routes to repair-review, traces the issue to FAIL-SUBTITLE-STYLE at N5/N6, tightens source-layer subtitle style rules if needed, regenerates visible-render subtitle inputs as single-line cue fragments, rerenders the long film and every slice with the default narration-caption size computed from 100 px at 1080p and scaled by output height unless an exact user override is recorded, keeps captions bottom-aligned with no renderer-wrapped narration cue, records output resolution, font size, safe margin, line policy, and sampled-frame QA, and fails if any sampled caption uses the wrong size, is not bottom-aligned, or wraps within one cue."
   },
   {
-    "id": "workflow-strict-dialogue-sync",
-    "prompt": "使用 workflow 输出最终成片，字幕必须和台词音频严格同步，不能只按总时长平均切分。",
-    "expected": "路由到 full_hyperframes_edit 或 repair_dialogue_timing；N4 必须建立 audio-clocked dialogue_alignment.json，优先使用 SRT/ASR，ASR 不可用时逐 cue 人工校时并记录音频锚点；必须运行 scripts/validate_dialogue_sync.py --strict-final 并保存 dialogue_sync_validation.json；全片比例分配、缺 caption_type/audio_anchor 或仅 manual_script_audio_duration 不能作为 C3/C7 pass。"
+    "id": "default-subtitle-font-size-100",
+    "prompt": "Use $workflow to render a Chinese screen-recorded teaching video with visible narration subtitles, without specifying any custom subtitle font size.",
+    "expected": "Applies the source-layer default narration-caption font size of exactly 100 px at 1080p, scales proportionally for other output heights, splits long subtitles into short single-line cue fragments, records the default font size in 05-hyperframes/subtitle-style-spec.md, final manifest, and sampled-frame QA, and fails with FAIL-SUBTITLE-STYLE if the rendered output silently uses a smaller default, wraps a cue, or omits readability/obstruction evidence."
   },
   {
-    "id": "workflow-dialogue-caption-order-hard-gate",
-    "prompt": "使用 workflow 修复成片：声音和字幕不同步，而且字幕顺序错乱，第二句显示成了后面的台词。",
-    "expected": "路由到 repair_dialogue_timing；回 N4 重新建立 dialogue_alignment.json，不只改 HTML 文本；每条 dialogue_caption cue 必须有 caption_type、start/end、spoken_text/display_text、script_anchor、script_order 或 script_span.start_char、sync_method、audio_anchor；N6 的字幕 DOM 必须用 data-cue-id 回指同一 cue；validate_dialogue_sync.py --strict-final 应阻断 script_order_regression、audio_anchor_order_regression、html_cue_id_mismatch、html_caption_order_regression 或 html_text_mismatch，失败时 C3/C7 不得 pass。"
+    "id": "explicit-subtitle-font-size-override",
+    "prompt": "Repair the current $workflow delivery and set the visible subtitle font size exactly to 20 while keeping captions bottom-aligned and single-line.",
+    "expected": "Treats the user-specified font size as an exact override for the current delivery, records the override in subtitle-style spec, manifest, and QA, regenerates visible-render inputs if needed, rerenders the long film and every slice with font size 20, bottom alignment, and one visual line per cue, and fails with FAIL-SUBTITLE-STYLE if the rendered outputs use a different font size, wrap a cue, or omit sampled-frame evidence."
   },
   {
-    "id": "workflow-dialogue-sync-validator-blocks-preview-cues",
-    "prompt": "使用 workflow 审查一个已有最终视频，报告里说字幕只是按总时长人工切分、final 前建议补跑转写。",
-    "expected": "路由到 audit_existing 或 repair_dialogue_timing；加载 review/ 与 scripts/；validate_dialogue_sync.py --strict-final 应输出 fail，失败码 FAIL-DIALOGUE-CLOCK，返工到 N4，不能把 preview cue 或 manual_script_audio_duration 当最终同步证据。"
+    "id": "explicit-subtitle-color-override",
+    "prompt": "Repair the current $workflow delivery and change the visible subtitle color to beige while preserving the existing font size, bottom alignment, and single-line cue policy.",
+    "expected": "Treats the user-specified caption color as an exact style override for the current delivery, records the color value in subtitle-style spec, manifest, and sampled-frame QA, regenerates visible-render inputs if needed, rerenders the long film and every slice with beige visible captions, and fails with FAIL-SUBTITLE-STYLE if the rendered outputs use the wrong caption color, omit visible captions, or lose the existing bottom-aligned single-line style."
   },
   {
-    "id": "workflow-dialogue-repair",
-    "prompt": "使用 $workflow 修复现有 HyperFrames 工程，字幕和旁白对不上。",
-    "expected": "路由到 repair_dialogue_timing；加载 hyperframes-media 与 cli；重新建立 dialogue_alignment.json，修 captions/timing，再预览验证。"
+    "id": "semantic-subtitle-processing",
+    "prompt": "Use $workflow on a Chinese screen-recorded teaching session. The final long film and every slice need subtitles that match the final edited audio and fix ASR homophones, tool names, and domain terms.",
+    "expected": "Applies the Semantic Subtitle Processing Contract, Subtitle Display Proofing Contract, and Visible Subtitle Rendering Contract, keeps raw ASR as intermediate evidence only, writes 04-assets/subtitles/subtitle-correction-plan.md, display-proofing evidence, and a timing map or equivalent, produces final/[任务名].srt and matching final/slices/*.srt files, renders visible captions into final MP4s by default, QA-checks cue order/overlap/duration, cue display completeness, sampled-frame visibility, and high-risk terminology, and fails with FAIL-SUBTITLE-PROCESSING, FAIL-SUBTITLE-DISPLAY-PROOFING, or FAIL-SUBTITLE-STYLE if final subtitles are raw ASR, use the wrong timeline, lack display proofing, lack semantic correction evidence, or do not appear in the final videos."
   },
   {
-    "id": "workflow-visual-repair",
-    "prompt": "用 workflow 修一下已有工程，大字报和画中画挡住了底部字幕和工具按钮。",
-    "expected": "路由到 repair_visual_composition；回到 N5/N6/N7，调整 overlay safe zone 和 motion；用 snapshot 证明关键帧不遮挡。"
+    "id": "subtitle-display-proofing-before-rerender",
+    "prompt": "Repair an existing $workflow output where the SRT timestamps exist, but visible subtitle cues cut sentences mid-phrase. First decide whether the short slices need rerendering.",
+    "expected": "Routes to repair-review, applies the Subtitle Display Proofing Contract after semantic correction and final-timeline projection, writes 04-assets/subtitles/display-proofing-plan.md or equivalent with split/merge/time-shift decisions, creates display-proofed subtitle inputs, records rerender_scope as none, affected-only, all-subtitled-videos, or blocked, and fails with FAIL-SUBTITLE-DISPLAY-PROOFING if cues remain semantically incomplete, source-timeline cues are reused after recombination without final-timeline proofing, or the run blindly rerenders every short slice without affected-scope evidence."
   },
   {
-    "id": "workflow-reference-boundary",
-    "prompt": "用 workflow 完全照着这个参考视频做，最好把里面几个很好看的镜头也剪进去。",
-    "expected": "触发参考边界 gate；拒绝直接使用未授权参考内容，允许提取节奏、版式、转场和字幕风格，并要求用户提供授权素材池或生成授权。"
+    "id": "generated-voiceover-audio",
+    "prompt": "Use $workflow on a teaching source where the screen operation is valuable but the original audio is noisy and the cleaned subtitle text should be used as a short voiceover.",
+    "expected": "N3 writes a source-backed voiceover need/rationale and approved script, N4 loads ../cli/mmx-cli/SKILL.md to synthesize versioned audio under projects/素材/, records 04-assets/generated-audio-manifest.json and audio-text alignment, N5 uses the generated audio only on planned ranges, and review can fail with FAIL-GENERATED-AUDIO if the script, file path, manifest, source backing, sync, or mix QA is missing."
   },
   {
-    "id": "workflow-audit-existing",
-    "prompt": "审查这个 workflow/HyperFrames 工程为什么渲染出来是黑屏。",
-    "expected": "路由到 audit_existing 或 repair_hyperframes_render；检查 HyperFrames DOM/media/timing、lint/validate/snapshot/render log，输出根因链和返工目标。"
+    "id": "ambiguous-default-materials",
+    "prompt": "Use $workflow. There are several unrelated live videos and several learning guides under the default folders.",
+    "expected": "Routes to ambiguous-batch, stops after N1/N7 with a clarification packet listing candidate task pairings and does not create a final teaching package."
   },
   {
-    "id": "workflow-batch-asset-usage-ledger",
-    "prompt": "使用 workflow 批量生成 10 条短视频，文案语义接近，但发布平台不能被判重复；每条开头和背景素材要尽量不撞。",
-    "expected": "路由到 full_hyperframes_edit 批量路线；N3 读取或创建 asset_usage_ledger.json 与 projects/素材使用监控.csv，统计 source_video_id、segment_id、analysis_slice_id、image_id、continuity_group 和规范化素材路径使用次数，并剔除已达 20 次或本轮会超 20 次的素材；N5 为每条生成 planned_usage 和 asset_diversity_audit.json，单条 final 内同一素材路径只能出现一次，不得切多段重复播放或跨层复用；相邻输出不复用同一 hook 背景，重复使用必须写替代候选和强语义理由，但不得豁免 20 次硬上限或单片一次规则；只有显式 PiP 路线才检查首屏 PiP 不重复；N9 回写 actual usage，并在 final 验证后以 cumulative_add 更新 projects/素材使用监控.csv。"
-  },
-  {
-    "id": "workflow-material-usage-monitor-csv",
-    "prompt": "使用 workflow 生成一批成片时，需要把相关素材的使用情况落到 projects/素材使用监控.csv，字段为 素材名 文件路径 使用次数 使用程度，使用程度只能是 全片 或 部分切片。",
-    "expected": "路由到 workflow source-upgrade / full_hyperframes_edit 约束更新；N3 在选材前读取或初始化 projects/素材使用监控.csv；N9 只能在本地 final MP4 验证通过、asset_usage_ledger.json 写入 actual usage 后运行 update_asset_usage_monitor.py 更新 CSV；更新必须在历史记录之上 cumulative_add，不得普通收口 --rebuild/刷新覆盖；CSV 表头固定为 素材名,文件路径,使用次数,使用程度，使用次数为整数，使用程度只能是 全片 或 部分切片；单素材跨使用程度合计最多 20 次，单条 final 内同素材只计一次且不得重复播放；preview、失败 render 或网页端输出不得计入使用次数。"
-  },
-  {
-    "id": "workflow-material-cap-and-single-final-once",
-    "prompt": "使用 workflow 做成片时，单个素材最多只能用 20 次，而且同一个素材在一条视频里只能出现一次，projects/素材使用监控.csv 不能被覆盖刷新。",
-    "expected": "路由到 source-upgrade / full_hyperframes_edit 约束；N3 必须读取 projects/素材使用监控.csv，按规范化文件路径跨 全片/部分切片 合计使用次数，排除当前已达 20 次或本轮新增会超过 20 次的素材；N5 的 planned_usage 和 asset_diversity_audit.json 必须证明每条 final 内同一素材路径只出现一次，不切多段重复播放、不跨背景/PiP/证据窗复用；N9 在 final 验证通过后运行 update_asset_usage_monitor.py 默认累计追加，输出 mode=cumulative_add；普通任务不得使用 --rebuild，脚本发现 same-final duplicate 或超过 20 次必须 fail 并回 N3/N5/N6。"
-  },
-  {
-    "id": "workflow-semantic-equivalent-visual-variation",
-    "prompt": "同一段卖点文案换 5 种说法，用 workflow 各做一条成片，但不要只是换字幕文字和素材顺序。",
-    "expected": "识别为 semantic-equivalent batch；每条成片至少变化 2 个视觉轴，例如背景组合、首屏构图、转场节奏、BGM/SFX 节点或色彩版式；只有用户显式要求 PiP 或大字报时，才把 PiP 资产或大字报提炼计入变化轴；输出 asset_diversity_audit.json，说明 variation_axes、reuse_penalty 和替代候选。"
-  },
-  {
-    "id": "workflow-consume-deep-manifest-tags",
-    "prompt": "用 workflow 根据 projects/素材/视频/视频说明.yaml 做一批成片；这个 YAML 已经有 semantic_vector、trigger_profile、visual_signature 和 analysis_slice_id。",
-    "expected": "N3 不能只读取 semantic_tags；必须消费 semantic_vector、trigger_profile、visual_signature、variation_profile、analysis_slice_id、reuse_profile 并转入 asset_evidence.json；若缺字段，标记 FAIL-DEEP-TAG-CONSUMPTION 或 conditional，并回到 N3 复核。"
-  },
-  {
-    "id": "workflow-layered-rhythm-assembly",
-    "prompt": "针对 .agents/skills/workflow 的视频拼接逻辑重构：不要只按文案随机拼素材，要有背景视频拉通、画中画、字幕、大字报，并分成爆款开头、内容部分和引流私域。",
-    "expected": "路由到 workflow source-upgrade / repair_visual_composition；该提示显式要求画中画和大字报，因此 SKILL.md 必须定义 Layered Rhythm Assembly：N3 识别开头、纯漫剧背景、工具、收益、引流、资产图和显式大字报/PiP候选，N5 在 workflow_composition_plan.json 写 background_throughline 与 timeline_segments，覆盖 hook_opening、content_body、private_traffic_cta，每段声明 background_video、dialogue_caption 核心层，并为显式要求补 semantic_pip、editorial_overlay；content_body 覆盖或解释 comic_drama/tool_demo/revenue_proof；background_throughline 和 background_video 必须 mask=none、opacity=1；validate_visual_contract.py --strict-social-ad --require-pip --require-editorial-overlay 必须机械检查缺段、核心层、显式可选层、背景非连续/加蒙版/降低 opacity、缺大字报核心词并输出 FAIL-LAYERED-ASSEMBLY 或 FAIL-QUANT-VISUAL-CONTRACT。"
-  },
-  {
-    "id": "workflow-regression-latest-run-failures",
-    "prompt": "最新 workflow 成片出现三个问题：没有使用 projects/内容/文案 + projects/内容/音频 的同名路径而自行生成文案/音频；背景层有蒙版和不透明度；只停在网页端没有下载本地。",
-    "expected": "路由到 source-upgrade / repair workflow；N1/N4 必须把当前文案音频池的 selected_script_audio_pair、source_script、source_audio、script_audio_stem 作为硬门禁，缺失则 FAIL-DIALOGUE-CLOCK；N5/N6/N7 必须拒绝 background mask、clip-path、opacity<1 或 transparency；N8/N9 必须要求本地 canonical MP4，网页预览不能算 final。"
-  },
-  {
-    "id": "workflow-visual-contract-validator",
-    "prompt": "使用 workflow 批量生成社媒广告视频，之前出现过括号内提示露出、字幕重复、省略号截断和画中画太少的问题，这次交付前必须自动拦住。",
-    "expected": "路由到 full_hyperframes_edit 或 repair_visual_composition；用户在本轮明确提到画中画质量，因此 N7 必须运行 scripts/validate_visual_contract.py --strict-social-ad --require-pip 并保存 visual_contract_validation.json；若出现 internal_prompt_visible、caption_truncated_or_wrapped、overlay_duplicates_caption、pip_underfilled、pip_missing_manifest_hint 或 pip_weak_manifest_match，必须回 N4/N5/N6/N7 返工，C6/C7/C8 不得 pass。"
-  },
-  {
-    "id": "workflow-pip-zero-score-blocked",
-    "prompt": "使用 workflow 做一批视频，workflow_assignment.json 里每个 PiP 都有 segment_id，但 match_score 都是 0。",
-    "expected": "这是显式 PiP/已有 PiP 工程检查；不能把 segment_id 形式化回指当作已消费视频说明；validate_visual_contract.py --require-pip 应输出 FAIL-QUANT-VISUAL-CONTRACT / pip_weak_manifest_match，返工到 N3/N5 重做 cue-level match 或补充素材证据。"
-  },
-  {
-    "id": "workflow-opening-traffic-pip-regression",
-    "prompt": "最新一轮 workflow 测试发现：开头没有强制使用 projects/素材/开头素材，开头素材没有完整展现；引流素材本来就模糊还被放大；PiP 仍然只出现一个很小的窗口。",
-    "expected": "路由到 source-upgrade / repair_visual_composition；N3 必须把 projects/素材/开头素材 作为 hook_opening 必选候选池，并标记引流素材的模糊/低清和 no-upscale 约束；N5 的 workflow_composition_plan.json 必须让 hook_opening 选择 开头素材 或 opening_hook，记录 5-10 秒 duration、full_frame/contain/no_crop/scale<=1，并让 private_traffic_cta 使用 no_upscale/native_scale/contain；用户明确提到 PiP 小窗问题时，PiP selection 必须至少有一组同屏 2 个以上、grid group/row/col、width/height、cue_id 和 match_reason；validate_visual_contract.py --strict-social-ad --require-pip 应阻断 hook_opening_missing_opening_asset、hook_opening_missing_full_display、private_traffic_uses_upscale、pip_no_simultaneous_group、pip_missing_grid_position 或 pip_too_small。"
-  },
-  {
-    "id": "workflow-editorial-overlay-audience-regression",
-    "prompt": "最新一轮 workflow 测试发现：大字报左上角标题显示成“工作流程/内部学习交流”，而不是匹配文案的精华总结；主入口也没有说明成片观众是短视频平台 C 端用户。",
-    "expected": "路由到 source-upgrade / repair_visual_composition；N1 必须写 audience_profile=short_video_c_end_user，明确 final 是给短视频平台 C 端用户/外部潜在客户观看，不是内部学习交流；该提示显式要求修复大字报，N5 的 editorial_overlay.core_title/core_phrase 必须从匹配文案 source_cue_ids/source_text 中提炼精华总结，并记录 match_reason；N6/N7 不得把 工作流程、执行流程、内部学习交流、项目复盘、pipeline 或 workflow 展示为左上角标题、大字报、HUD 或 PiP 标签；validate_visual_contract.py --strict-social-ad --require-editorial-overlay 应阻断 editorial_overlay_internal_process_title、editorial_overlay_missing_segment_source、internal_process_title_visible 或 workflow_label_visible。"
-  },
-  {
-    "id": "workflow-skill-2-context-split-upgrade",
-    "prompt": "遵循 skill-2.0 审计并升级 .agents/skills/workflow：保留现有 CONTEXT.md 的高质量内容，但拆分为新的 CONTEXT/ 五文件，并同步主合同。",
-    "expected": "路由到 source-upgrade/audit；删除旧 CONTEXT.md 入口并保留其内容迁移结果；把 Type Map 和 Repair Playbook 迁入 CONTEXT/负向经验.md，把 Reusable Heuristics 迁入 CONTEXT/正向经验.md，把长期边界和 Context Health 迁入 CONTEXT/重要记忆.md，并补齐好的示例/坏的示例；SKILL.md 必须包含 Directory Structure & Detail Routing Contract、CONTEXT/ File Semantics Contract、Module Loading Matrix/Trigger Matrix、Review Gate、Field Mapping、Learning Writeback 的同步更新；README、registry、CHANGELOG 也必须同步。"
+    "id": "repair-bloated-output",
+    "prompt": "Review the existing output in projects/输出/aigc-workshop because it is too long and still contains livestream chatter.",
+    "expected": "Routes to repair-review, runs R1, checks QA against guide coverage and concision, returns to N3 for teaching-plan repair or N6 for QA evidence, and reports the fail code and rework target."
   }
 ]

@@ -1,6 +1,6 @@
 ---
 name: version-sync
-description: Maintain AI-CUT repository version display and detailed update history. Use when updating VERSION.md, preparing github-push version bumps, changing version hooks, migrating version automation, or recording release/update details for repository, workflow, Codex hook, documentation, project asset, or skill changes.
+description: Maintain AI-VCR repository version display and detailed update history. Use when updating VERSION.md, preparing github-push version bumps, changing version hooks, migrating version automation, or recording release/update details for repository, workflow, Codex hook, documentation, project asset, or skill changes.
 ---
 
 # Version Sync

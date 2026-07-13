@@ -1,60 +1,52 @@
-# Workflow Review Contract
+# Review Contract
 
-本文件展开 workflow 的审查问题，不替代 `SKILL.md` 的 `Review Gate Binding`。执行时必须回接 `SKILL.md` 中的 fail code 和返工节点。
+## Default Provider
 
-## Review Checklist
+- Default auxiliary provider: local checklist review.
+- If a higher-priority policy blocks real render or helper dispatch, report the degradation source and use source-backed manual review.
 
-| area | question | blocking_when | return_to |
-| --- | --- | --- | --- |
-| HyperFrames-only | 是否存在 F1 script、F1 validator、MoviePy/ffmpeg 主链依赖，或把 `video-to-manifest` 当作必需真源/runtime？ | 任一出现即阻断；共享 manifest 仅作可选证据输入不阻断 | `N2-HYPERFRAMES-LOAD` |
-| Input | full build 是否有内容真源、主时钟方案、素材池或生成授权？ | 缺最小输入且未降级 route | `N1-INTAKE` |
-| Reference | 参考视频是否只用于 rhythm/style？ | 参考画面或素材进入成片候选 | `N3-MEDIA-EVIDENCE` |
-| Evidence | 每个进入成片的素材是否有视觉证据和用途？ | 无 source anchor 或用途不清 | `N3-MEDIA-EVIDENCE` |
-| Dialogue | 台词字幕 cue 是否能追踪到音频/脚本，按脚本顺序和音频 anchor 顺序单调推进，HTML 字幕是否用 `data-cue-id` 回指同一 cue，并满足同步容差或有逐 cue 人工校时证据，且 `validate_dialogue_sync.py --strict-final` 通过？当前 `projects/内容/文案/` 与 `projects/内容/音频/` 批量输入是否按同名 stem 配对并显式记录路径？ | 全片比例分配、语义错配、字幕顺序错乱、HTML cue-id/time/text 错配、跨 stem 错配音频、把 `BGM.*` 当旁白主时钟、缺 `selected_script_audio_pair` / `source_script` / `source_audio` / `script_audio_stem`、缺 `caption_type`/`audio_anchor`/脚本锚点/script order、仅按总时长手工分配却声称严格同步、validator fail | `N1/N4-DIALOGUE-CLOCK` |
-| Plan | storyboard 是否覆盖 hook/content/CTA 三段、背景 throughline、字幕、主视觉、PiP、大字报、转场和 BGM？ | 计划缺段落、缺四层、hook_opening 缺 `projects/素材/开头素材/` 或 opening_hook、缺 5-10 秒完整展示证据、private_traffic_cta 缺引流素材 no-upscale 证据、背景拉通证据不足、背景使用蒙版/opacity/半透明遮罩，缺素材/字幕 cue 证据，或大字报缺匹配文案 source cue/text/reason | `N5-STORYBOARD-PLAN` |
-| Composition | DOM timing、media 引用、assets、captions 是否可定位？ | HyperFrames core 合同断裂 | `N6-HYPERFRAMES-AUTHOR` |
-| Visual Contract | `validate_visual_contract.py` 是否通过，且报告覆盖观众可见文本、主字幕、大字报、PiP、三段四层 assembly 和批量 ledger/audit？ | 内部提示可见、画面出现“工作流程/内部学习交流/项目复盘”等内部标题、缺 hook/content/CTA、缺开头素材来源/完整展示、引流素材被放大、缺背景/PiP/字幕/大字报层、背景 throughline 非连续/加蒙版/降低 opacity/半透明遮罩、字幕缺失/叠显/省略号/换行、大字报整句重复字幕或缺匹配文案来源、PiP 太少/无 cue 依据/无同屏网格/尺寸太小/0 分 manifest 回指、批量 audit 不一致 | `N4/N5/N6/N7` |
-| Preview | snapshot 是否非空、叠层不挡字幕和核心 UI？ | 空画面、遮挡、validate 失败或 visual contract fail | `N7-PREVIEW-VALIDATE` |
-| Render | final 是否非空、可播放、有音轨、时长合理，且已下载/归集为本地 MP4？ | final 缺失、只停在网页预览/浏览器端、不可验收 | `N8-RENDER-VERIFY` |
-| Material Monitor | final 验证通过后，是否已按累计追加模式更新 `projects/素材使用监控.csv`，字段为 `素材名/文件路径/使用次数/使用程度`，且单素材全局不超过 20 次、单条 final 内同素材只出现一次？ | CSV 缺失、表头不一致、使用次数不是整数、使用程度不是 `全片` 或 `部分切片`，实际素材使用没有落到全局监控，普通收口使用 rebuild/刷新历史，任一素材超过 20 次，或同一 final 内同素材重复 | `N3/N5/N9` |
-| Output Topology | 是否把 `projects/素材/` 和 `projects/示例/` 保持为只读通用素材池，过程文件写入 `projects/output/<日期>/过程/`，单条 final 写入 `projects/output/<日期>/`，批量 final 归集到 `projects/output/<日期>/成片/`？ | 输出写入通用素材池，过程文件散落在日期根，单条 final 留在 `过程/` 或网页端作为唯一交付，或批量 final 未归集到 `成片/` 且无显式豁免 | `N1/N9` |
-| Directory Routing | `Directory Structure & Detail Routing Contract`、README 目录树、Module Loading Matrix 和真实文件结构是否一致？ | 真实目录存在但未授权、README 漂移、卫星技能边界不清、`CONTEXT/` 未出现在目录路由中 | `Directory Structure & Detail Routing Contract` / `C10` |
-| Context Semantics | `CONTEXT/` 是否包含五个固定文件，且旧 `CONTEXT.md` 已移除？ | 缺五文件、旧 `CONTEXT.md` 仍存在、好/坏示例和正/负经验混写、没有写回分流 | `CONTEXT/ File Semantics Contract` / `Learning / Context Writeback` |
-| Report | 是否包含路径、验证、残余风险和 Source Sync Check？ | 缺证据矩阵或多 final 口径 | `N9-CLOSE` |
+## Review Dimensions
 
-## Report Evidence Requirements
+| dimension | checks |
+| --- | --- |
+| structure | `SKILL.md` contains runtime spine, node map, peer routing, gates, output contract, and no unresolved scaffold markers |
+| directory_routing | `Directory Structure & Detail Routing Contract` covers package tree, detail owners, forbidden use, and real-file sync |
+| context_semantics | `CONTEXT/ File Semantics Contract` defines five context files with represents, write_when, must_not_contain, and promotion_signal |
+| business_analysis | Business profile defines goal, object, constraints, success criteria, complexity source, and topology fit |
+| runtime_spine | Node map can run from source intake to one output or to a plan-only close |
+| quantifiable_execution | Scope, evidence count, thresholds, retries, and fallback evidence are explicit |
+| attention_governance | Anchors, transfer rules, drift signals, and re-center entries are actionable |
+| source_preprocessing | Source material defaults to 1.1x or records an explicit exception; original and derived timestamps are mapped; livestream loop rounds are checked and repeated rounds become `-1/-2/-3` source units rather than an untracked pooled timeline |
+| source_derived_guide | When no guide is supplied, derived learning steps are backed by transcript/audio/video evidence before clip selection |
+| teaching_shape | Process tutorials preserve a source-supported outcome hook, roadmap, step demos, rationale or parameter notes, repetition-collapse rationale, and final proof |
+| dual_output | Full render mode produces optimized long film/full-film unit output(s), a teaching slice series, and required combination-slice evidence; slices are not contextless highlights, are not average-duration/fixed-length chunks, and each contains core explanation, source evidence, necessary context, content-boundary start/end rationale, and a natural ending |
+| slice_quantity | Each source unit has a slice opportunity inventory; coherent source-backed slice opportunities are output or entered into combination pools unless excluded with a defensible reason; slice count is not capped by convenience |
+| combination_slices | Combination slices use semantic A, B1-B5, and C bands; each B interval has 3-5 viable candidates or a documented reason; random selections or order-preserving recombination choices, seed/selection method, non-repetition, incompatible combinations, and QA are recorded; a linear prerequisite order is not an automatic exemption, and must first be handled as order-preserving recombination unless the user explicitly exempts it or evidence shows recombination is blocked; random selection is no-replacement-first, repeats only after a B pool is exhausted or continuity requires it, repeat counts are balanced and documented, whole B1-B5 paths do not repeat; when viable pools support it, each source unit outputs at least 10 combinations rather than a tiny sample, and long combination outputs are further split into about 10 coherent sequential part slices |
+| subtitle_processing | Final long-film and slice subtitles match the final audio timelines, are not raw ASR, have LLM-approved semantic correction/terminology evidence, pass cue order/overlap/duration checks, and are rendered visibly into final MP4s unless an explicit sidecar-only exception is recorded |
+| subtitle_display_proofing | Final visible subtitle cues are proofed after semantic correction and final-timeline projection but before rendering; each cue preserves a complete sentence, clause, or natural short phrase; split/merge/time-shift decisions and risky cues are recorded; combination and short-slice subtitles are proofed on the recomposed final timeline; rerender scope is justified as none, affected-only, all-subtitled-videos, or blocked |
+| generated_audio | Supplemental audio is used only after source-backed script approval; mmx output is versioned under `projects/素材/`, manifested, aligned, mixed, and QA-sampled |
+| subtitle_style | Text overlays are categorized, font/size/contrast/position/safe-area choices follow `Subtitle Style Contract`; default narration captions use visual 100 px at 1080p and scale by `round(100 * output_height / 1080)` for other output heights,米黄色 `#FFF1C7`, high-contrast black outline/shadow, and bottom safe-area placement unless an exact user override or stronger brand rule is recorded; renderer-specific nominal font sizes must be calibrated and recorded with output resolution and computed font size; required narration captions are visible in final MP4s, bottom-aligned, single-line per cue, semantically complete at phrase level, and sampled frames record readability plus any operation/result obstruction risk |
+| checkpoints | Scope, semantic, validation, and evaluation checkpoints are defined |
+| evaluation_prompts | `test-prompts.json` has 3+ prompt objects with id, prompt, and expected behavior |
+| module_triggering | `Module Trigger Matrix` maps task signals and fail codes to authorized module combinations |
+| module_authorization | Existing optional modules are declared in `Module Loading Matrix` with load_when, authority, forbidden_use, and rework_target |
+| peer_skill_routing | HyperFrames is primary for composition; helper skills are loaded only through the peer routing table |
+| types | Type packages support teaching-cut, source-derived-guide, material-audit, render-only, repair-review, and ambiguous-batch modes |
+| scripts | Scripts are mechanical only and do not write teaching truth |
+| security | Existing source files are read-only; versioned generated supplemental audio under `projects/素材/` is manifested; secrets, mmx credentials, and personal config are not copied; output overwrite is explicit or versioned |
+| runtime_behavior | Guardrails, forbidden actions, and escalation protocol are present |
+| integration | HyperFrames evidence or documented fallback exists for full render mode; caption-visible optimized long film, content-boundary slice series, corrected subtitle set, and output contract are complete |
+| convergence | Final package has one canonical output root and residual risks are named |
 
-- `loaded_modules`: 实际加载的 HyperFrames 子技能和本地模块。
-- `artifact_paths`: work root、process root、composition root、snapshot、render、report。
-- `output_topology`: shared asset roots、output date root、process root、single final root、batch final collection root、canonical final path。
-- `dialogue_sync_validation`: final route must include validator command, JSON report path, verdict, fail/warn count, script-order evidence, audio-anchor order evidence and HTML cue-id mapping; current `projects/内容/文案/` + `projects/内容/音频/` routes must include `--require-script-audio-pair`.
-- `visual_contract_validation`: social-ad, batch, visual repair and final routes must include validator command, JSON report path, verdict and fail/warn count, including no internal process title findings, no background mask/opacity findings, opening material full-display findings, traffic no-upscale findings and PiP simultaneous-grid/size findings.
-- `material_usage_monitor`: final routes that use shared assets must include `projects/素材使用监控.csv`, `update_asset_usage_monitor.py` command/output, `mode=cumulative_add`, confirmation that `使用程度` values are `全片` or `部分切片`, no material total above 20, and no repeated material path inside any single final.
-- `layered_assembly`: `workflow_composition_plan.json` must include `background_throughline` and `timeline_segments` evidence for hook/content/CTA and the four visual layers.
-- `directory_routing_audit`: true file listing, README tree, Module Loading Matrix and registry context carriers must agree.
-- `context_semantics_audit`: `CONTEXT/` five-file list, migrated content landing and absence of legacy `CONTEXT.md`.
-- `reference_execution_matrix`: 每个被加载 reference 的触发、适用、证据和 N/A。
-- `rule_evidence_map`: 将 review gate 映射到具体 artifact 或截图/CLI 证据。
-- `repair_log`: 返工原因、失败码、修复目标、重新验证结果。
+## Reference Gate Coverage
+
+Each mandatory `references/` file must expose a `Review Gate Mapping` table and every mapped gate/fail code must resolve here or in `SKILL.md`.
+
+| reference_file | review_gate | fail_code | rework_target | report_evidence |
+| --- | --- | --- | --- | --- |
+| `references/skill-2.0-package-contract.md` | Reference must remain subordinate to `SKILL.md` | `FAIL-MODULE-DRIFT` | `SKILL.md Module Loading Matrix` | Reference diff and section owner |
+| `references/skill-2.0-package-contract.md` | Sibling skills must route through peer matrix | `FAIL-PEER-ROUTING` | `SKILL.md Peer Skill Routing Matrix` | Peer skill load trace |
 
 ## Verdict
 
-| verdict | meaning | allowed_next_step |
-| --- | --- | --- |
-| `pass` | workflow route、证据、composition、preview/render 和报告门禁均满足对应完成层级。 | close |
-| `conditional_pass` | project 或 plan 可交付，但 render、CLI、素材或授权存在明确阻断。 | report residual risk |
-| `fail` | 存在阻断性 gate 失败，必须回到对应 workflow node 返工。 | rework |
-
-## Review Gate Mapping
-
-| review_question | review_gate | fail_code | rework_target | report_evidence |
-| --- | --- | --- | --- | --- |
-| Is the workflow review tied back to SKILL.md gates? | Review finding without fail code and node target fails | `FAIL-REVIEW-BINDING` | `Review Gate Binding` | finding table |
-| Are all blocking findings routed to a node? | Any blocking issue without `return_to` fails | `FAIL-REVIEW-RETURN` | `Thinking-Action Node Map` | checklist row |
-| Does the report include direct evidence? | Only generic statements without artifact paths or CLI/snapshot evidence fail | `FAIL-REVIEW-EVIDENCE` | `N9-CLOSE` | report evidence section |
-| Did visual contract validation run when required? | Missing or failing `visual_contract_validation.json` fails social-ad/batch/visual final routes | `FAIL-QUANT-VISUAL-CONTRACT` | `N5/N6/N7` | validator JSON |
-| Did material usage update the global monitor? | Verified final usage without a valid cumulative `projects/素材使用监控.csv` update fails; rebuild/refresh during ordinary close, same-final duplicate material paths, or material totals above 20 also fail | `FAIL-ASSET-USAGE-MONITOR` | `N3/N5/N9` | monitor CSV, actual usage ledger and update script output |
-| Does the composition plan implement layered rhythm assembly? | Missing hook/content/CTA, missing opening material source/full-display evidence, missing traffic no-upscale evidence, missing background/PiP/caption/editorial overlay layers, missing editorial overlay source cue/text/reason, non-continuous/masked/transparent background throughline, or missing content subtypes fails social-ad/batch visual routes | `FAIL-LAYERED-ASSEMBLY` | `N3/N5/N6/N7` | `workflow_composition_plan.json`, validator JSON |
-| Does output topology match the workflow contract? | Outputs under shared asset roots, process files outside `projects/output/<日期>/过程/`, single final trapped in process root or browser page only, or missing batch final collection fail | `FAIL-BATCH-FINAL-COLLECTION` / `FAIL-OUTPUT-CONTRACT` | `N1/N9` | path map, process root listing, final collection listing, ledger final_path |
-| Does directory routing match the real package? | Directory tree, README, Module Matrix, registry or satellite boundary drift fails | `FAIL-DIRECTORY-ROUTING` | `Directory Structure & Detail Routing Contract` | file listing, README tree, registry row |
-| Does `CONTEXT/` satisfy Skill 2.0 semantics? | Missing five files, legacy `CONTEXT.md`, or unclear writeback routing fails | `FAIL-CONTEXT-SEMANTICS` | `CONTEXT/ File Semantics Contract` | context file list and writeback map |
+`pass | pass_with_followups | needs_rework | blocked`

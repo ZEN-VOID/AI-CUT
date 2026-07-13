@@ -1,33 +1,32 @@
-# Workflow Default Type Package
+# Live Teaching Default Type Package
 
-本文件是 `types/type-map.md` 的默认判型展开，不是独立路由真源。
+## Purpose
 
-## Route Tie-Break
+Provide fixed context for the default `workflow` task: convert long livestream or screen-recorded teaching material into a concise instructional video package aligned with a supplied learning-step guide, or with source-derived learning steps when no guide is provided.
 
-| condition | preferred_route | reason |
-| --- | --- | --- |
-| 命中 workflow 且有内容、主时钟和素材池，用户未明确禁止渲染 | `full_hyperframes_edit` | workflow 普通完成态是最终成片 |
-| 命中 workflow 且用户未指定输出目录 | 对应 route + `work_root=projects/output/<日期>/过程/<project-slug>/` + `single_final_root=projects/output/<日期>/` | 过程文件进入 `过程/`，单条 final 进入日期输出根 |
-| 命中 workflow 批量成片任务 | 对应 route + `batch_root=projects/output/<日期>/过程/<batch-id>/` + `final_collection_root=projects/output/<日期>/成片/` | 批量过程文件和 final 分层，方便查看和交付 |
-| 输入素材来自 `projects/素材/` 或 `projects/示例/` | source pool read-only | 两个目录是可累积通用素材池，不是当日内置素材或输出目录 |
-| 命中 workflow 且用户未指定比例 | `full_hyperframes_edit` + `aspect_ratio=16:9` | workflow 普通视频默认 16:9、1920x1080 |
-| 命中 workflow 且包含台词字幕 | `full_hyperframes_edit` + `dialogue_sync_validator=required` | 台词字幕 final 前必须通过机械同步校验 |
-| 素材或参考样片为竖屏，但用户未明确要求竖屏输出 | `full_hyperframes_edit` + `aspect_ratio=16:9` | 竖屏素材只作构图证据，不改变默认输出比例 |
-| 用户明确要求竖屏、短视频平台竖版、或项目真源已锁定其他尺寸 | 对应 route + 显式 `aspect_ratio` | 用户/项目规格覆盖默认 16:9，必须在 intake/report 记录依据 |
-| 用户明确要求先看工程、预览或不要渲染 | `hyperframes_project_build` | 用户显式 no-render 覆盖默认 final 目标 |
-| 用户要求 PRP、方案、storyboard | `plan_only` | 输出计划，不进入 author/render |
-| 用户指出字幕/旁白错位 | `repair_dialogue_timing` | 主时钟优先于视觉修复 |
-| 用户指出遮挡、黑屏、素材不贴、动效问题 | `repair_visual_composition` 或 `audit_existing` | 先根据是否允许写回裁决 |
-| 用户只要求理解素材 | `asset_evidence_only` | 不创建 final 工程 |
+## Match Signals
 
-## Downgrade Rules
+- Source material is a livestream, lecture, workshop, screen demo, or AIGC creation teaching recording.
+- The guide is a step-by-step learning outline, course notes, article draft, or project instruction under `projects/内容/`, or no guide is present and the source material itself must provide the teaching structure.
+- The requested output is a clean teaching package: a caption-visible optimized long film plus content-boundary coherent teaching slices with final-audio-matched corrected subtitles, not a viral clip, product promo, plain subtitle job, or average-duration chunking job.
+- The source material may be a long livestream that repeats the same teaching loop; repeated loops should be recognized as full-film source units instead of pooled together.
 
-- 缺音频主时钟且无 TTS 授权：默认请求补充音频或 TTS 授权；不得无声降级后宣称 workflow 完成。
-- 缺源素材且无生成/抓取授权：project build 降级为 plan-only。
-- 只有 final MP4 且无工程/素材：repair 降级为 audit-existing。
-- CLI 不可用：full render 降级为 project/report，并报告阻断。
-- 非 16:9 输出缺用户/项目显式依据：回到 N1/N6 改为 1920x1080，或补充合法豁免证据后再继续。
-- 台词字幕缺 `caption_type`、逐 cue `audio_anchor`、脚本锚点或 validator fail：回到 `repair_dialogue_timing`，不能用总时长手工切分继续 C7。
-- 输出误落到 `projects/素材/` 或 `projects/示例/`：回到 `N1/N9`，过程文件改用 `projects/output/<日期>/过程/`，final 改用 `projects/output/<日期>/` 或用户显式指定目录。
-- 过程文件散落在 `projects/output/<日期>/` 日期根：回到 `N1/N9`，统一移动到 `projects/output/<日期>/过程/` 并同步报告、ledger 或 path map。
-- 批量 final 未归集到 `projects/output/<日期>/成片/`：回到 `N9` 移动/归集 final，并同步 execution report 与 `asset_usage_ledger.json.final_path`。
+## Fixed Context
+
+- Teaching completeness outranks short-video excitement.
+- Source material defaults to `speed=1.1` with original and derived timestamp mapping unless the user explicitly requests original speed or QA rejects the acceleration.
+- Repeated livestream rounds become source units named `-1/-2/-3`; each unit can produce its own optimized long film or be documented as partial/combination-only.
+- The long film and slice series are both default core deliverables in full render mode.
+- For every source unit, slice output quantity should be maximized after coherence, continuity, source evidence, and QA gates pass; viable slice opportunities need output, combination-pool inclusion, or an exclusion rationale.
+- Combination slices are a default extension in full render mode: A is the first semantic 20%, C is the final semantic 10%, and the middle 70% is split into B1-B5 with 3-5 candidate clips each for controlled random recombination. Random recombination is no-replacement-first: avoid repeating B candidates until a pool is exhausted, then reuse with balanced counts and no repeated whole B1-B5 path. When viable pools support it, output at least 10 combinations per source unit rather than a tiny sample; long combination outputs are further split into about 10 coherent sequential part slices.
+- Semantically corrected and display-proofed subtitles matched to the final long-film and slice audio timelines are default core deliverables in full render mode, and final MP4s show visible bottom-aligned captions by default; narration captions default to visual 100 px at 1080p and scale by `round(100 * output_height / 1080)` for other output heights,米黄色 `#FFF1C7`, high-contrast black outline/shadow, one visual line per cue, and long text split into consecutive semantically complete phrase cues instead of wrapping or mechanically cutting mid-phrase.
+- Slices must preserve core explanation, standalone coherence, content-driven starts/ends, and natural closure; they are not contextless highlights or fixed-length chunks.
+- Source-backed audio/text and visible demo evidence outrank decorative visuals.
+- Raw ASR is evidence, not final subtitle copy; final subtitles need terminology correction, timing validation, display proofing, visible-caption rendering, and residual-risk notes. Subtitle repair starts by proofing cue display and rerender scope; it does not blindly rerender every short slice before affected files are identified.
+- Source-derived learning steps must come from transcript, audio semantics, and visible demo evidence; they are not invented curriculum.
+- HyperFrames is the preferred final composition route.
+- Scripts and sibling skills may process media, but cannot decide teaching truth.
+
+## Replacement Gate
+
+Create a more specific type package only when a recurring subtype has materially different routing or gates, such as multicam class editing, formal certification-course packaging, or multi-output short-clip segmentation.

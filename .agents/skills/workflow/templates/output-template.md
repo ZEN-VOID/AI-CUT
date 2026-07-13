@@ -1,87 +1,174 @@
-# Workflow Output Summary: <project-or-topic>
+# Output Template
 
 ## Output Contract Alignment
 
-| output_contract_field | template_section |
-| --- | --- |
-| Required output | Delivery Status |
-| Output format | Artifact Index |
-| Output path | Path Map |
-| Naming convention | Path Map |
-| Completion gate | Validation Summary |
-| Exception report | Residual Risk |
+- Required output: one canonical task package containing source preprocessing evidence, caption-visible optimized long teaching video(s) for usable full-film source units, a maximized coherent sequential teaching slice series cut on content boundaries, required A/B1-B5/C combination slices, combination-derived sequential part slices when combination outputs are long, and semantically corrected plus display-proofed subtitles matched to final audio, or a plan-only audit package when rendering is not in scope.
+- Output format: `projects/输出/[任务名]/` with phase folders, manifests, QA report, and final report.
+- Output path: default `projects/输出/[任务名]/`; user-provided paths, including legacy English-root task paths, are explicit overrides recorded in manifest and report.
+- Naming convention: kebab-case or pinyin-safe task slug; optimized long video `final/[任务名].mp4` with visible captions by default; semantically corrected long-video subtitles `final/[任务名].srt`; slice videos `final/slices/[NN]-[slice-slug].mp4` with visible captions by default; semantically corrected slice subtitles use matching `.srt`; slice index `final/slices/index.json` or `final/slices/index.md`; subtitle correction artifacts under `04-assets/subtitles/`; report `final/report.md`; manifest `final/manifest.json`.
+- Completion gate: final report names mode, guide mode, paths, preprocessing status, 1.1x policy or exception, round/source-unit map, peer skills, supplied or derived guide coverage, teaching-shape status, generated-audio status when used, subtitle-processing status, subtitle-display-proofing status, rerender scope, subtitle-render mode, subtitle-style status when text overlays exist, visible-caption QA status, source-backed segment map, slice opportunity inventory summary, sequential slice map/index with content-boundary rationale, candidate/output/excluded counts, excluded-slice rationale, combination slice map/index with A/B1-B5/C coverage, random selection evidence, combination output count rationale, combination-derived part-slice index, render or plan-only status, long-film QA result, slice QA result, slice quantity QA result, combination-slice QA result, subtitle QA result, subtitle display QA result, validation status, residual blockers, and exact artifact paths.
+- Module trigger evidence: cite the `Module Trigger Matrix` row when internal modules were loaded; write `none` when no optional modules were loaded.
+- Business analysis evidence: summarize business_profile and topology_fit status.
+- Quant criteria evidence: summarize action_scope, evidence_count, pass_threshold, retry_limit, and fallback_evidence status.
+- Attention evidence: summarize attention anchor, drift signals, and any recenter handling.
+- Checkpoint evidence: summarize CHK-SCOPE, CHK-SEMANTIC, CHK-VALIDATION, and CHK-DARWIN status.
+- Prompt eval evidence: summarize test-prompts ids and eval_mode when evaluation was run.
 
-## Delivery Status
+## Final Output
 
-- Route:
-- Audience profile:
-- Work root:
-- Process root:
-- Output date root:
-- Single final root:
-- Final collection root:
-- Render requested:
-- Completion level: `plan_only` / `project_validated` / `final_rendered` / `blocked`
-- Canonical output:
+Use this structure in `final/report.md`:
 
-## Artifact Index
+```markdown
+# [任务名]
 
-| artifact | path | status | notes |
-| --- | --- | --- | --- |
-| intake | `workflow_intake.json` |  |  |
-| script/audio pair map | `workflow_intake.json.script_audio_pair_map` | required when using `projects/内容/文案/` + `projects/内容/音频/` batch inputs; same stem only, `BGM.*` excluded from audio_clock |  |
-| selected script/audio pair | `workflow_intake.json.selected_script_audio_pair` / `dialogue_alignment.json.source_script/source_audio/script_audio_stem` | required for current `projects/内容/文案/` + `projects/内容/音频/` routes; no generated replacement unless explicitly authorized |  |
-| asset evidence | `asset_evidence.json` |  |  |
-| asset usage ledger | `asset_usage_ledger.json` | batch / semantic-equivalent scripts require before/after usage records |  |
-| material usage monitor | `projects/素材使用监控.csv` | global four-column monitor: 素材名 / 文件路径 / 使用次数 / 使用程度; cumulative add after final verification; per-material hard cap 20 |  |
-| asset diversity audit | `asset_diversity_audit.json` | batch / semantic-equivalent scripts require variation axes and reuse exceptions |  |
-| dialogue alignment | `dialogue_alignment.json` | include per-cue audio anchors, script spans, script order, caption type, sync method, and tolerance/conditional notes |  |
-| dialogue sync validation | `dialogue_sync_validation.json` | final route requires `validate_dialogue_sync.py --strict-final` pass for timing, script/audio order, and HTML cue-id mapping; fail returns to `N4` |  |
-| visual contract validation | `visual_contract_validation.json` | final/social-ad/batch routes require audience-visible text, no internal process/learning title leakage, caption, opening full-display, traffic no-upscale, layered assembly and ledger checks; overlay source cue/text/reason and PiP grid/size only when explicitly requested |  |
-| reference rhythm | `reference_rhythm.json` |  |  |
-| storyboard | `STORYBOARD.md` |  |  |
-| composition plan | `workflow_composition_plan.json` | include `background_throughline` and `timeline_segments` for hook/content/CTA plus opening material full-display, traffic no-upscale, background/caption core layers, and optional explicit PiP/editorial overlay layers |  |
-| HyperFrames project | `index.html` / project root |  |  |
-| snapshots | `snapshots/` |  |  |
-| final render | `<work-root>/renders/<project-slug>_workflow_final.mp4` | local file required; browser/page preview is not final output |  |
-| single final output | `projects/output/<日期>/<project-slug>_workflow_final.mp4` | required local canonical MP4 for single final outputs unless user supplied another final root |  |
-| batch final collection | `projects/output/<日期>/成片/<project-slug>_workflow_final.mp4` | required local canonical MP4 for batch final outputs |  |
-| execution report | `reports/workflow-execution-report-<timestamp>.md` |  |  |
-| workflow context layer | `.agents/skills/workflow/CONTEXT/` | source-upgrade/audit routes require five-file context structure |  |
+Mode: teaching-cut | source-derived-guide | material-audit | render-only | repair-review
+Guide mode: supplied-guide | source-derived-guide
+Output root: projects/输出/[任务名]/
+Optimized long video: final/[任务名].mp4 or not rendered in plan-only mode
+Slice series: final/slices/ or not rendered in plan-only mode
+Combination slices: final/slices/combinations/ or explicit exception
 
-## Path Map
+## Source And Guide
+- Material:
+- Preprocessing: speed=1.1 | original-speed-override | blocked
+- Timestamp mapping:
+- Round/source units:
+- Supplied guide:
+- Derived learning steps:
+- Generated supplemental audio:
+- Peer skills loaded:
 
-- Input media:
-- Audience profile: `short_video_c_end_user`
-- Script/audio pair map:
-- Selected script/audio pair:
-- Shared asset roots: `projects/素材/`, `projects/示例/`
-- Material usage monitor: `projects/素材使用监控.csv`
-- Process root: `projects/output/<日期>/过程/`
-- Adopted assets:
-- HyperFrames project:
-- Preview/snapshot:
-- Render:
-- Single final:
-- Batch final collection:
-- Canonical local MP4:
-- Report:
+## Teaching Coverage
+- Covered steps:
+- Long-film coverage:
+- Slice coverage:
+- Slice quantity summary:
+- Excluded slice rationale:
+- Combination coverage:
+- Source gaps:
+- Dropped material rationale:
 
-## Validation Summary
+## Combination Slices
+- A band:
+- B1 candidates:
+- B2 candidates:
+- B3 candidates:
+- B4 candidates:
+- B5 candidates:
+- C band:
+- Random seed:
+- Selection manifest:
+- Non-repetition status:
+- Minimum-repeat policy: no-replacement-first per B pool; repeat only after a pool is exhausted or continuity requires it; include candidate usage counts and confirm no full B1-B5 path repeats.
+- Incompatible combinations:
+- Combination QA:
+- Combination-derived part slices:
+- Part-slice index:
 
-| gate | status | evidence | rework_target |
-| --- | --- | --- | --- |
-| `C1-INPUT-LOCKED` |  | route, path map, render intent and audience_profile=short_video_c_end_user; not internal learning exchange | `N1-INTAKE` |
-| `C2-EVIDENCE-READY` |  |  |  |
-| `C3-DIALOGUE-CLOCKED` |  | `dialogue_alignment.json` + `dialogue_sync_validation.json` pass, including script order/audio anchor order/HTML cue-id mapping; current素材池 route includes `--require-script-audio-pair` evidence | `N4-DIALOGUE-CLOCK` |
-| `C4-PLAN-LOCKED` |  | `workflow_composition_plan.json` with layered assembly, opening material full-display, traffic no-upscale, background/caption core layers, optional explicit PiP grid/size, optional explicit editorial overlay source cue/text/reason, `background_throughline mask=none opacity=1`, and `asset_diversity_audit.json` with material cap / single-final uniqueness checks for batch or shared-material scripts | `N5-STORYBOARD-PLAN` |
-| `C6-PREVIEW-VALIDATED` |  |  |  |
-| `C7-RENDER-VERIFIED` |  | local MP4 render evidence plus current dialogue sync and visual contract validation | `N8-RENDER-VERIFY` |
-| `C8-FINAL-OUTPUT` |  | canonical local output path; single final listed under `projects/output/<日期>/`, batch final files listed under `projects/output/<日期>/成片/` when applicable; `projects/素材使用监控.csv` updated after final verification with `mode=cumulative_add`, no same-final duplicate material path, and no material total above 20 | `N9-CLOSE` |
-| `C10-SKILL-2-RUNTIME-READY` |  | Directory Structure, README tree, Module Matrix, registry context carriers and `CONTEXT/` five files agree | `Directory Structure & Detail Routing Contract` |
+## Teaching Shape
+- Outcome hook / learner promise:
+- Roadmap:
+- Step demos:
+- Rationale or parameter notes:
+- Repetition collapse:
+- Final proof:
 
-## Residual Risk
+## Supplemental Audio
+- Need / rationale:
+- Source-backed voiceover script:
+- MMX route:
+- Output audio file:
+- Generated audio manifest:
+- Audio-text alignment:
+- Mix decision:
+- QA result:
 
-- Blocking:
-- Non-blocking:
-- Next action:
+## Subtitle Processing
+- Raw subtitle source:
+- Timing projection:
+- Semantic correction plan:
+- Domain glossary / correction table:
+- Long-film subtitle:
+- Slice subtitles:
+- Subtitle QA:
+- Residual subtitle risks:
+
+## Subtitle Display Proofing
+- Display-proofing status: passed | passed_with_risks | blocked | not_applicable_explicit
+- Display-proofing plan:
+- Display-proofed subtitle inputs:
+- Cue split/merge/time-shift summary:
+- Semantic completeness risks:
+- Combination/short-slice final-timeline proofing:
+- Rerender scope: none | affected-only | all-subtitled-videos | blocked
+- Rerender scope rationale:
+- Subtitle display QA:
+
+## Subtitle Rendering
+- Render mode: burned-in | visible-overlay | sidecar-only-explicit | blocked
+- Long-film visible captions:
+- Slice visible captions:
+- Sampled-frame QA:
+- Obstruction/readability notes:
+- Sidecar-only exception:
+
+## Subtitle Style
+- Output resolution:
+- Font stack:
+- User style overrides:
+- Narration captions: default visual 100 px at 1080p; computed font size is `round(100 * output_height / 1080)` for non-1080p output heights; 米黄色 `#FFF1C7`, high-contrast black outline/shadow unless an exact user override or stronger brand rule is recorded
+- Renderer calibration: record output resolution, computed narration-caption size, and nominal renderer settings used to achieve that visual size
+- Narration line policy: single-line per cue; long text split into consecutive cues, not renderer-wrapped
+- Cue semantic completeness policy: each visible cue preserves a complete sentence, clause, or natural short phrase; no mechanical mid-term or mid-phrase splits
+- Bottom position / safe margin:
+- Chapter titles:
+- Step labels:
+- Parameter callouts:
+- Emphasis keywords:
+- Resource notes:
+- Final-proof captions:
+- Readability / overlap QA:
+- Spec artifact:
+
+## Artifacts
+- Source manifest:
+- Source preprocess plan:
+- Round/source-unit map:
+- Teaching cut plan:
+- Slice opportunity inventory:
+- Slice plan:
+- Excluded slice rationale:
+- Combination slice plan:
+- Combination slice manifest:
+- Subtitle correction plan:
+- Subtitle timing map:
+- Subtitle display-proofing plan:
+- Subtitle display QA:
+- Visible-caption QA:
+- Voiceover script:
+- Generated audio manifest:
+- Subtitle style spec:
+- Asset manifest:
+- HyperFrames composition:
+- QA report:
+- Final manifest:
+
+## Validation
+- Render status:
+- Long-film QA status:
+- Slice QA status:
+- Slice quantity QA status:
+- Combination-slice QA status:
+- Subtitle QA status:
+- Visible-caption QA status:
+- Prompt eval mode:
+- Residual blockers:
+```
+
+## Evidence
+
+Every selected long-film segment should include source file, source unit id, original start/end, 1.1x derived start/end or exception, supplied or derived guide step id, segment role, transcript excerpt or approved voiceover text, final subtitle cue evidence, and visual rationale. Every sequential slice should include title, learning goal, source ranges, covered guide steps, core explanation, necessary context, independent-coherence rationale, content-boundary start/end rationale, natural ending, and matching subtitle path. Every source unit should include candidate_count, sequential_output_count, combination_candidate_count, combination_output_count, excluded_count, and excluded-slice rationale so the report can show quantity was maximized under coherence constraints. Every combination slice should include A range, selected B1-B5 candidate ids, C range, random seed, non-repetition status, compatibility rationale, source evidence, and matching subtitle path. Segment role should use one of: `outcome-hook`, `roadmap`, `step-demo`, `rationale`, `parameter-note`, `repetition-collapse`, `resource-note`, `final-proof`, or `bridge`. Any generated supplemental audio on the segment or slice should cite source backing, generated audio path, alignment timing, and mix decision. Any final subtitle set should cite raw source, timing projection, semantic correction method, display-proofing status, rerender scope, domain glossary, sample fixes, subtitle render mode, visible-caption QA, subtitle display QA, and subtitle QA status. Any caption or text overlay on the segment or slice should cite one subtitle category from `Subtitle Style Contract` and note whether it passed sampled-frame visibility, readability, and overlap QA.
+
+## Review Result
+
+`pass | pass_with_followups | needs_rework | blocked`

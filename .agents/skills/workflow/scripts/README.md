@@ -1,156 +1,23 @@
-# Workflow Scripts Boundary
+# Scripts
 
-workflow scripts are mechanical validators and audit helpers only. They do not create
-creative truth, render video, transcribe audio, or decide subtitle semantics.
+This directory is reserved for `workflow` mechanical helpers. No helper script is currently required for the runtime spine to execute.
 
-workflow intentionally relies on HyperFrames CLI and HyperFrames media tooling instead of copying F1 validators or creating a separate renderer. Future scripts in this directory may only perform mechanical support:
+Allowed future script roles:
 
-- schema validation for workflow JSON artifacts;
-- final-ready dialogue sync evidence validation;
-- visual contract validation for audience-visible text, captions, optional explicit overlays/PiP evidence, internal process title leakage, and batch ledgers;
-- project-wide material usage monitor CSV maintenance;
-- file existence and path audits;
-- diff/report assembly;
-- non-creative manifest checks;
-- smoke tests around HyperFrames project structure.
+- scan default input paths and write a source manifest
+- validate source preprocessing manifests, original/1.1x timestamp maps, and source-unit round maps
+- validate slice quantity evidence such as candidate/output/excluded counts and manifest references
+- validate combination-slice manifests for A/B1-B5/C coverage, random seed recording, and file references
+- validate output directory shape
+- check manifest references and file existence
+- summarize render or QA logs
+- perform dry-run route checks
 
-Scripts in this directory must not generate creative text, storyboard decisions, subtitle semantics, visual composition choices, title card copy, transition judgment, or BGM creative plans.
+Forbidden script roles:
 
-## Current Scripts
-
-### `validate_dialogue_sync.py`
-
-Validates that `dialogue_alignment.json` is final-ready for dialogue captions:
-
-- rejects total-duration, proportional, equal-split, preview-only or draft timing;
-- rejects missing or mismatched `source_script` / `source_audio` / shared stem when `--require-script-audio-pair` is used for current `projects/内容/文案` + `projects/内容/音频` routes;
-- rejects `BGM.*` as the dialogue audio clock;
-- requires each `dialogue_caption` cue to declare timing, script anchor, caption type, sync method, audio anchor and tolerance evidence;
-- requires strict final dialogue cues to expose sortable script order evidence such as `script_order` or `script_span.start_char`;
-- rejects cue/script/audio-anchor order regressions so shuffled subtitles cannot pass as final-ready captions;
-- compares cue timing against per-cue audio anchors;
-- compares HyperFrames `index.html` caption `data-cue-id` / `data-start` / `data-duration` / text values against `dialogue_alignment.json`;
-- rejects missing `data-cue-id`, duplicate cue IDs, cue-id mismatches and non-monotonic HTML caption order in strict final mode;
-- emits JSON and exits non-zero on blocking failures.
-
-Typical final gate:
-
-```bash
-python3 .agents/skills/workflow/scripts/validate_dialogue_sync.py --strict-final <project_root> --write-report <project_root>/dialogue_sync_validation.json
-```
-
-Current material-pool route:
-
-```bash
-python3 .agents/skills/workflow/scripts/validate_dialogue_sync.py --strict-final --require-script-audio-pair <project_root> --write-report <project_root>/dialogue_sync_validation.json
-```
-
-This validator cannot prove spoken phonemes by itself. It proves that the final
-project has the required per-cue evidence, that cue order follows the source
-script/audio anchors, and that the composition did not drift from that evidence.
-ASR/SRT or manual listening still happens in `N4`.
-
-Smoke fixture:
-
-```bash
-python3 .agents/skills/workflow/scripts/validate_dialogue_sync.py --strict-final .agents/skills/workflow/scripts/fixtures/dialogue-sync-pass
-```
-
-### `validate_visual_contract.py`
-
-Validates that an authored workflow/HyperFrames project or batch satisfies the visual
-composition gates exposed by recent failures:
-
-- rejects audience-visible internal prompt metadata, workflow labels, workflow/HyperFrames watermark text, and internal process/learning labels such as 工作流程 or 内部学习交流;
-- requires a real `dialogue_caption` layer;
-- rejects caption ellipsis, newline wrapping, overwide caption text and overlapping dialogue cues;
-- rejects `editorial_overlay` / 大字报 unless `--require-editorial-overlay` is used for an explicit user request;
-- rejects editorial overlays, when present, that duplicate the current dialogue caption or use internal process titles instead of matched-copy summary titles;
-- rejects `semantic_pip` / 画中画 unless `--require-pip` is used for an explicit user request;
-- requires `semantic_pip` slots, when present, to carry timing, `cue_id` and `match_reason`;
-- requires strict social-ad PiP to include at least one simultaneous multi-window group, grid/group position evidence and readable rendered dimensions only when `--require-pip` is used;
-- checks `workflow_composition_plan.json` for `hook_opening`, `content_body` and `private_traffic_cta` segments;
-- checks that strict social-ad plans declare a continuous no-mask, fully opaque `background_throughline` and per-segment background/caption core layers; `--require-pip` and `--require-editorial-overlay` additionally require those opt-in layers and their evidence;
-- checks that `hook_opening` selects real `projects/素材/开头素材/` or `opening_hook` evidence, uses a 5-10 second opening material span, and records full-frame/no-crop/no-upscale display evidence;
-- checks that `private_traffic_cta` / `projects/素材/引流素材/` material declares no-upscale/native-scale/contain evidence and does not use cover, zoom or scale above 1;
-- rejects background `mask`, `clip-path`, opacity below 1, transparency or inline background opacity styles on authored HTML elements;
-- checks content body coverage for comic-drama, tool/workflow and revenue/proof material, unless the plan records an explicit exception;
-- with `--require-pip`, requires enough cue-bound PiP slots and checks `workflow_assignment.json`;
-- checks PiP `video_manifest_hint.segment_id` and `match_score` so a formal 0-score reference cannot pass as manifest consumption;
-- checks batch `asset_diversity_audit.json` and `asset_usage_ledger.json` when they exist.
-
-Typical final gate for a single project:
-
-```bash
-python3 .agents/skills/workflow/scripts/validate_visual_contract.py <project_root> --strict-social-ad --write-report <project_root>/visual_contract_validation.json
-```
-
-When the user explicitly requests PiP / 画中画 / 证据窗, append `--require-pip`. When the user explicitly requests 大字报 / title-card summaries, append `--require-editorial-overlay`.
-
-Typical final gate for a batch root:
-
-```bash
-python3 .agents/skills/workflow/scripts/validate_visual_contract.py <batch_root> --strict-social-ad --write-report <batch_root>/visual_contract_validation.json
-```
-
-Smoke fixtures:
-
-```bash
-python3 .agents/skills/workflow/scripts/validate_visual_contract.py .agents/skills/workflow/scripts/fixtures/visual-contract-default-pass --strict-social-ad
-python3 .agents/skills/workflow/scripts/validate_visual_contract.py .agents/skills/workflow/scripts/fixtures/visual-contract-social-pass --strict-social-ad --require-pip --require-editorial-overlay
-```
-
-This validator cannot judge aesthetics or invent better visual matches. It only
-blocks missing evidence, unsafe text, caption drift, explicit PiP/overlay contract drift and batch audit
-inconsistency. Creative repair still returns to `N3/N5/N6/N7`.
-
-### `update_asset_usage_monitor.py`
-
-Maintains `projects/素材使用监控.csv` from final usage evidence. The CSV is intentionally
-simple and must keep exactly four columns:
-
-```csv
-素材名,文件路径,使用次数,使用程度
-```
-
-`使用程度` must be `全片` or `部分切片`. Detailed segment IDs, time ranges,
-layers and final paths stay in `asset_usage_ledger.json`. Normal final close
-is cumulative: the script reads the existing CSV and adds only the verified
-task's actual usage on top of history. It fails when a material path would
-exceed the hard 20-use cap, or when the same material path appears more than
-once in a single final video's actual usage.
-
-Initialize or validate the monitor:
-
-```bash
-python3 .agents/skills/workflow/scripts/update_asset_usage_monitor.py
-python3 .agents/skills/workflow/scripts/update_asset_usage_monitor.py --validate-only
-```
-
-Update after final verification from a batch/output root or ledger:
-
-```bash
-python3 .agents/skills/workflow/scripts/update_asset_usage_monitor.py <batch_root>
-python3 .agents/skills/workflow/scripts/update_asset_usage_monitor.py <project_root>/asset_usage_ledger.json
-```
-
-Rebuild from all discovered output ledgers only during explicit maintenance.
-Do not use this for ordinary task close, because it refreshes history:
-
-```bash
-python3 .agents/skills/workflow/scripts/update_asset_usage_monitor.py --rebuild --allow-rebuild projects/output
-```
-
-This helper must not be run to count planned usage, failed renders, browser-only
-previews or unverified drafts. Final close should count actual usage only after
-the local canonical MP4 exists. The normal successful JSON report uses
-`"mode": "cumulative_add"`.
-
-## Review Gate Mapping
-
-| review_question | review_gate | fail_code | rework_target | report_evidence |
-| --- | --- | --- | --- | --- |
-| Did a new script become a renderer or creative author? | Any script generating creative/video decisions fails | `FAIL-WORKFLOW-SCRIPT-OVERREACH` | `LLM-First Creative Authorship Contract` | script purpose and callsite |
-| Did a script reintroduce F1 runtime dependency? | Imports/calls into F1 scripts or validators fail | `FAIL-WORKFLOW-HYPERFRAMES-ONLY` | `Core Task Contract` | script audit |
-| Did final dialogue sync bypass mechanical validation? | Missing or failing `dialogue_sync_validation.json` on final route fails | `FAIL-DIALOGUE-CLOCK` | `N4-DIALOGUE-CLOCK` | validator JSON |
-| Did final visual composition bypass mechanical validation? | Missing or failing `visual_contract_validation.json` on social-ad/batch/final visual routes fails | `FAIL-QUANT-VISUAL-CONTRACT` | `N5/N6/N7` | validator JSON |
+- selecting the teaching arc
+- deciding whether a slice opportunity is pedagogically worth outputting
+- deciding which guide steps matter
+- generating captions, titles, or explanations as creative truth
+- rewriting source content without LLM review
+- overriding `SKILL.md`, peer skill routing, or the output contract

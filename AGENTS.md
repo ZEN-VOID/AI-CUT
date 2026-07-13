@@ -9,34 +9,35 @@
 
 ## Project Structure & Module Organization
 
-This repository is a Codex workflow and skill workspace, not a single application. Repo-local skills live in `.agents/skills/`; each durable skill should keep its contract in `SKILL.md`, notes in `CONTEXT.md`, helpers in `scripts/`, tests in `tests/`, and examples in `test-prompts.json`. Codex governance and routing live in `.codex/`, especially `registry/`, `rules/`, `templates/`, and `runbooks/`. Local media and generated work belong in `projects/`, while planning and audit artifacts belong in `PRPs/` and `reports/`; these working directories are ignored by Git.
+This repository is a local AI video workflow and skill workspace, not a single application package. Repo-local skills live under `.agents/skills/`; each durable skill should keep its contract in `SKILL.md`, notes in `CONTEXT.md` or `CONTEXT/`, helpers in `scripts/`, examples in `test-prompts.json`, and tests in `tests/` when available. Codex configuration and hooks live in `.codex/`. Source media and generated outputs belong under `projects/`, especially `projects/素材/`, `projects/示例/`, and `projects/output/`. Planning and audit artifacts belong in `PRPs/` and `reports/`; these working directories are ignored.
 
 ## Build, Test, and Development Commands
 
-There is no root build command. Run checks from the skill or tool you change.
+There is no root build command. Run checks from the skill or tool you changed.
 
-- `cd .agents/skills/video-editing-skill && python3 scripts/utils.py`: check local video-editing dependencies.
-- `cd .agents/skills/video-editing-skill && pytest tests/`: run the Python regression suite.
-- `cd .agents/skills/video-use && uv sync`: install `video-use` dependencies; use `pip install -e .` if `uv` is unavailable.
-- `python3 .agents/skills/workflow/scripts/validate_dialogue_sync.py --help`: inspect workflow validation options before changing dialogue timing behavior.
-- `npx hyperframes lint && npx hyperframes validate`: run HyperFrames checks inside generated HyperFrames project roots.
+- `python3 -m pytest .agents/skills/version-sync/tests`: run version-sync regression tests.
+- `python3 -m pytest .agents/skills/video-editing-skill/tests`: run video-editing helper tests.
+- `cd .agents/skills/cli/mmx-cli && npm install`: install the local `mmx-cli` dependency wrapper.
+- `python3 .codex/hooks/update_version_for_github_push.py --help`: inspect release-sync hook options.
+
+For HyperFrames or Remotion outputs, run the relevant tool commands inside the generated project root rather than at repository root.
 
 ## Coding Style & Naming Conventions
 
-Use Markdown for workflow contracts and Python for executable helpers. Python code uses 4-space indentation, `snake_case` functions/files, and focused scripts with `--help` output when practical. Skill directories use kebab-case, for example `.agents/skills/hyperframes/motion-graphics/`. Keep `SKILL.md` concise and directive-driven; move long references into `references/` or skill-local docs. Do not commit generated video, audio, or large local assets unless they are intentional fixtures.
+Use Markdown for skill contracts and Python for executable helpers unless a skill already uses Node tooling. Python uses 4-space indentation, `snake_case` names, and focused command-line scripts. Skill directories use kebab-case, for example `.agents/skills/hyperframes/motion-graphics/`. Keep `SKILL.md` concise; move long references into `references/`, `review/`, `types/`, or `templates/`.
 
 ## Testing Guidelines
 
-Use `pytest` for Python helpers, with tests named `tests/test_*.py` beside the skill they cover. Add narrow tests for script behavior and update `test-prompts.json` for prompt-only workflow changes. For video workflow changes, include the relevant validator output, render check, or sample artifact path in your notes.
+Prefer narrow, skill-local tests. Python tests use `pytest` and `tests/test_*.py` naming. Prompt-only workflow changes should update `test-prompts.json` or a nearby example file. Video workflow changes should include validator output, render QA notes, or an artifact path under `projects/output/[task-name]/`.
 
 ## Commit & Pull Request Guidelines
 
-Recent history uses concise Chinese sync messages such as `项目同步更新 - YYYY-MM-DD HH:MM`. For feature work, prefer an imperative summary with a scope, such as `feat(workflow): add visual contract validator`. Pull requests should describe the workflow impact, list validation performed, link related tasks, and include screenshots or output paths for visual/video changes.
+Recent history uses timestamped project-sync commits and occasional conventional commits such as `docs:` and `chore:`. For feature work, prefer an imperative scoped summary, for example `feat(workflow): add subtitle QA gate`. Pull requests should describe workflow impact, validation, related tasks, and screenshots or output paths for visual/video changes.
 
 ## Security & Configuration Tips
 
-Never commit `.env` files or API keys; `.gitignore` excludes `.env*` except `.env.example`. Treat `projects/素材/` and `projects/示例/` as source pools, not canonical code. Before editing a skill, read its `SKILL.md` completely and preserve unrelated user changes in the working tree.
+Never commit `.env`, API keys, access tokens, or private media. `.gitignore` excludes `.env*` except `.env.example`, plus local media/output folders. Preserve unrelated working-tree changes.
 
 ## Agent-Specific Instructions
 
-默认以中文进行交流，除非用户明确要求使用其他语言，或任务本身需要英文输出。
+Before editing a skill, read its `SKILL.md` completely and treat it as the runtime source of truth. This repository inherits the user-level governance baseline; repo-specific rules here should narrow or operationalize that baseline, not replace it.
